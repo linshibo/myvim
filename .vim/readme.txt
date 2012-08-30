@@ -1,10 +1,10 @@
 add to   .vimrc
-	source ~/.vim/comm.vim
+source ~/.vim/comm.vim
 
 
 "===========================
-let g:Author="jim"
-let g:Email="jim@taomee.com"
+let g:Author="francisco"
+let g:Email="francisco@taomee.com"
 let g:Company="TAOMEE"
 "===========================
 
