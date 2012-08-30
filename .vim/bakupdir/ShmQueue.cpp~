@@ -1,0 +1,374 @@
+#include <time.h>
+#include <fcntl.h>
+#include <string.h>
+#include <errno.h>
+#include <stdint.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <sys/mman.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+
+
+#include <BufPool.hpp>
+#include <ShmQueue.hpp>
+#include <Util.hpp>
+
+ShmQueue g_shm_queue;
+
+ShmQueue::ShmQueue()
+{
+}
+
+ShmQueue::~ShmQueue()
+{
+}
+
+bool ShmQueue::init(uint32_t shm_size)
+{
+    m_shm_size = shm_size;
+    if (m_shm_size < 4096) {
+        ERROR_LOG("shm size is too short");
+        return false;
+    }
+
+    m_base = (uint8_t*)mmap(0, m_shm_size, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANON, -1, 0);
+    if (MAP_FAILED == m_base)
+        return false;
+    if (-1 == pipe(m_pipe_r) || -1 == pipe(m_pipe_s)) {
+        close(m_pipe_r[0]);
+        close(m_pipe_r[1]);
+        close(m_pipe_s[0]);
+        close(m_pipe_s[1]);
+        munmap(m_base,m_shm_size);
+        return false;
+    }
+
+    int f;
+/*
+    f = fcntl(m_pipe_r[0], F_GETFL, 0);
+    f |= O_NONBLOCK;
+    fcntl(m_pipe_r[0], F_SETFL, f);
+*/
+    f = fcntl(m_pipe_s[0], F_GETFL, 0);
+    f |= O_NONBLOCK;
+    fcntl(m_pipe_s[0], F_SETFL, f);    
+    
+    f = fcntl(m_pipe_r[1], F_GETFL, 0);
+    f |= O_NONBLOCK;
+    fcntl(m_pipe_r[1], F_SETFL, f);
+
+    f = fcntl(m_pipe_s[1], F_GETFL, 0);
+    f |= O_NONBLOCK;
+    fcntl(m_pipe_s[1], F_SETFL, f);    
+    
+    m_r_queue_head = (ShmHead_t*)m_base;
+    m_s_queue_head = (ShmHead_t*)(m_base + m_shm_size / 2);
+    
+    m_r_queue_base = (uint8_t*)m_r_queue_head + sizeof(ShmHead_t);
+    m_s_queue_base = (uint8_t*)m_s_queue_head + sizeof(ShmHead_t);
+    m_queue_size = m_shm_size / 2 - sizeof (ShmHead_t);
+    
+    m_r_queue_head->w_pos = 0;
+    m_r_queue_head->r_pos = 0;
+    m_s_queue_head->w_pos = 0;
+    m_s_queue_head->r_pos = 0;
+
+    return true;
+}
+
+bool ShmQueue::fini ()
+{
+    close(m_pipe_r[0]);
+    close(m_pipe_r[1]);
+    close(m_pipe_s[0]);
+    close(m_pipe_s[1]);
+    munmap(m_base,m_shm_size);
+
+    return true;
+}
+
+bool ShmQueue::push_r_queue(BufHead_t *head, uint8_t *buf)
+{
+    uint32_t msg_len = head->len;
+    uint32_t len = msg_len + sizeof(BufHead_t);
+    if (len > m_queue_size) {
+        ERROR_LOG("len > recv queue size");
+        return false;
+    }
+
+    uint32_t w = m_r_queue_head->w_pos;
+    uint32_t r = m_r_queue_head->r_pos;
+    uint32_t s = w >= r ? m_queue_size - w + r : r - w;
+   
+    if (s < len + sizeof(uint32_t) + 1) {
+        ERROR_LOG("recv queue is full");
+        char buf[100];
+        snprintf(buf, sizeof(buf), "serverbench recv queue is full");
+        send_warning(buf);
+        return false;
+    }
+ 
+    uint32_t pos = w;
+
+    /*
+     * write tag len.
+     */
+    if (pos + sizeof(uint32_t) <= m_queue_size) {
+        memcpy(m_r_queue_base + pos, (uint8_t*)&len, sizeof(uint32_t));
+        pos += sizeof(uint32_t);
+    } else {
+        uint32_t n = m_queue_size - pos;
+        memcpy(m_r_queue_base + pos, (uint8_t*)&len, n);
+        memcpy(m_r_queue_base, (uint8_t*)&len + n, sizeof(uint32_t) - n);
+        pos = sizeof(uint32_t) - n;
+    }
+    
+    /*
+     * write buf head.
+     */
+    if (pos + sizeof(BufHead_t) <= m_queue_size) {
+        memcpy(m_r_queue_base + pos, (uint8_t*)head, sizeof(BufHead_t));
+        pos += sizeof(BufHead_t);
+    } else {
+        uint32_t n = m_queue_size - pos;
+        memcpy(m_r_queue_base + pos, (uint8_t*)head, n);
+        memcpy(m_r_queue_base, (uint8_t*)head + n, sizeof(BufHead_t) - n);
+        pos = sizeof(BufHead_t) - n;
+    }
+    
+    /*
+     * write buf.
+     */  
+    if (pos + msg_len <= m_queue_size) {
+        memcpy(m_r_queue_base + pos, buf, msg_len);
+        pos += msg_len;
+    } else {
+        uint32_t n = m_queue_size - pos;
+        memcpy(m_r_queue_base + pos, buf, n);
+        memcpy(m_r_queue_base, buf + n, msg_len - n);
+        pos = msg_len - n;
+    }
+    
+    m_r_queue_head->w_pos = pos;
+
+#ifndef WORK_POLL_MODE
+    write(m_pipe_r[1], "r", 1);
+#endif
+
+    return true;
+}
+
+bool ShmQueue::pop_r_queue(BufHead_t *head, uint8_t *buf, uint32_t bufLen)
+{
+    uint32_t w = m_r_queue_head->w_pos;
+    uint32_t r = m_r_queue_head->r_pos;
+    uint32_t s = w >= r ? w - r : m_queue_size - r + w;
+
+    if (s == 0)
+        return false;
+    
+    uint32_t pos = r;
+    uint32_t len = 0;
+
+    /*
+     * read tag len.
+     */
+    if (pos + sizeof(uint32_t) <= m_queue_size) {
+        memcpy((uint8_t*)&len, m_r_queue_base + pos, sizeof(uint32_t));
+        pos += sizeof(uint32_t);
+    } else {
+        uint32_t n = m_queue_size - pos;
+        memcpy((uint8_t*)&len, m_r_queue_base + pos, n);
+        memcpy((uint8_t*)&len + n, m_r_queue_base, sizeof(uint32_t) - n);
+        pos = sizeof(uint32_t) - n;
+    }
+    
+    uint32_t msg_len = len - sizeof(BufHead_t);
+    
+    if (msg_len > bufLen) {
+        ERROR_LOG("recv queue pop msg len > bufLen");
+        if (pos + len <= m_queue_size) {
+            pos += len;
+        } else {
+            uint32_t n = m_queue_size - pos;
+            pos = len - n;
+        }    
+        m_r_queue_head->r_pos = pos;
+        return false;
+    }
+    
+    /*
+     * read head.
+     */ 
+    if (pos + sizeof(BufHead_t) <= m_queue_size) {
+        memcpy((uint8_t*)head, m_r_queue_base + pos, sizeof(BufHead_t));
+        pos += sizeof(BufHead_t);
+    } else {
+        uint32_t n = m_queue_size - pos;
+        memcpy((uint8_t*)head, m_r_queue_base + pos, n);
+        memcpy((uint8_t*)head + n, m_r_queue_base, sizeof(BufHead_t) - n);
+        pos = sizeof(BufHead_t) - n;
+    }    
+    
+    /*
+     * read buf.
+     */ 
+    if (pos + msg_len <= m_queue_size) {
+        memcpy(buf, m_r_queue_base + pos, msg_len);
+        pos += msg_len;
+    } else {
+        uint32_t n = m_queue_size - pos;
+        memcpy(buf, m_r_queue_base + pos, n);
+        memcpy(buf + n, m_r_queue_base, msg_len - n);
+        pos = msg_len - n;
+    }
+    
+    m_r_queue_head->r_pos = pos;
+
+    return true;
+}
+
+bool ShmQueue::push_s_queue(BufHead_t *head, uint8_t *buf)
+{
+    uint32_t msg_len = head->len;
+    uint32_t len = msg_len + sizeof(BufHead_t);
+    if (len > m_queue_size) {
+        ERROR_LOG("len > send queue size");
+        return false;
+    }
+
+    uint32_t w = m_s_queue_head->w_pos;
+    uint32_t r = m_s_queue_head->r_pos;
+    uint32_t s = w >= r ? m_queue_size - w + r : r - w;
+   
+    if (s < len + sizeof(uint32_t) + 1) {
+        ERROR_LOG("send queue is full");
+        char buf[100];
+        snprintf(buf, sizeof(buf), "serverbench recv queue is full");
+        send_warning(buf);
+        return false;
+    }
+ 
+    uint32_t pos = w;
+
+    /*
+     * write tag len.
+     */
+    if (pos + sizeof(uint32_t) <= m_queue_size) {
+        memcpy(m_s_queue_base + pos, (uint8_t*)&len, sizeof(uint32_t));
+        pos += sizeof(uint32_t);
+    } else {
+        uint32_t n = m_queue_size - pos;
+        memcpy(m_s_queue_base + pos, (uint8_t*)&len, n);
+        memcpy(m_s_queue_base, (uint8_t*)&len + n, sizeof(uint32_t) - n);
+        pos = sizeof(uint32_t) - n;
+    }
+    
+    /*
+     * write buf head.
+     */
+    if (pos + sizeof(BufHead_t) <= m_queue_size) {
+        memcpy(m_s_queue_base + pos, (uint8_t*)head, sizeof(BufHead_t));
+        pos += sizeof(BufHead_t);
+    } else {
+        uint32_t n = m_queue_size - pos;
+        memcpy(m_s_queue_base + pos, (uint8_t*)head, n);
+        memcpy(m_s_queue_base, (uint8_t*)head + n, sizeof(BufHead_t) - n);
+        pos = sizeof(BufHead_t) - n;
+    }
+    
+    /*
+     * write buf.
+     */  
+    if (pos + msg_len <= m_queue_size) {
+        memcpy(m_s_queue_base + pos, buf, msg_len);
+        pos += msg_len;
+    } else {
+        uint32_t n = m_queue_size - pos;
+        memcpy(m_s_queue_base + pos, buf, n);
+        memcpy(m_s_queue_base, buf + n, msg_len - n);
+        pos = msg_len - n;
+    }
+    
+    m_s_queue_head->w_pos = pos;
+
+    write(m_pipe_s[1], "s", 1);
+    
+    return true;
+}
+
+bool ShmQueue::pop_s_queue(BufBlock_t *&buf)
+{
+    uint32_t w = m_s_queue_head->w_pos;
+    uint32_t r = m_s_queue_head->r_pos;
+    uint32_t s = w >= r ? w - r : m_queue_size - r + w;
+
+    if (s == 0)
+        return false;
+    
+    uint32_t pos = r;
+    uint32_t len = 0;
+
+    /*
+     * read tag len.
+     */
+    if (pos + sizeof(uint32_t) <= m_queue_size) {
+        memcpy((uint8_t*)&len, m_s_queue_base + pos, sizeof(uint32_t));
+        pos += sizeof(uint32_t);
+    } else {
+        uint32_t n = m_queue_size - pos;
+        memcpy((uint8_t*)&len, m_s_queue_base + pos, n);
+        memcpy((uint8_t*)&len + n, m_s_queue_base, sizeof(uint32_t) - n);
+        pos = sizeof(uint32_t) - n;
+    }
+    
+    uint32_t msg_len = len - sizeof(BufHead_t);
+    
+    /*
+     * alloc buf
+     */
+    buf = BufPool::alloc(msg_len);
+    if (NULL == buf) {
+        ERROR_LOG("ShmQueue::pop_s_queue mem empty");
+        if (pos + len <= m_queue_size) {
+            pos += len;
+        } else {
+            uint32_t n = m_queue_size - pos;
+            pos = len - n;
+        }    
+        m_s_queue_head->r_pos = pos;
+        return false;
+    }
+    
+    /*
+     * read head.
+     */ 
+    if (pos + sizeof(BufHead_t) <= m_queue_size) {
+        memcpy((uint8_t*)&buf->buf_head, m_s_queue_base + pos, sizeof(BufHead_t));
+        pos += sizeof(BufHead_t);
+    } else {
+        uint32_t n = m_queue_size - pos;
+        memcpy((uint8_t*)&buf->buf_head, m_s_queue_base + pos, n);
+        memcpy((uint8_t*)&buf->buf_head + n, m_s_queue_base, sizeof(BufHead_t) - n);
+        pos = sizeof(BufHead_t) - n;
+    }    
+    
+    /*
+     * read buf.
+     */ 
+    if (pos + msg_len <= m_queue_size) {
+        memcpy(buf->page_base, m_s_queue_base + pos, msg_len);
+        pos += msg_len;
+    } else {
+        uint32_t n = m_queue_size - pos;
+        memcpy(buf->page_base, m_s_queue_base + pos, n);
+        memcpy(buf->page_base + n, m_s_queue_base, msg_len - n);
+        pos = msg_len - n;
+    }
+    
+    m_s_queue_head->r_pos = pos;
+
+    return true;
+}
+

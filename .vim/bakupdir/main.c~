@@ -1,0 +1,133 @@
+#include <unistd.h>
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <time.h>
+#include <signal.h>
+#include <libtaomee/log.h>
+#include <libtaomee/conf_parser/config.h>
+
+#include "bindconf.h"
+#include "daemon.h"
+#include "dll.h"
+#include "net.h"
+#include "service.h"
+#include "util.h"
+#include "mcast.h"
+
+static const char version[] = "1.5.4";
+
+char* prog_name;
+char* current_dir;
+
+void show_banner()
+{
+	char feature[256];
+	int pos = 0;
+	
+#ifdef DEBUG	
+	pos = sprintf (feature + pos, "-DDEBUG -g ");
+#endif
+	pos = sprintf (feature + pos, "-DEPOLL_MODE ");
+
+	INFO_LOG("Async Server v%s (C) 2007-2010 TAOMEE.COM, report bugs to <andy@taomee.com>", version);
+	INFO_LOG("Compiled at %s %s, flag: %s\n", __DATE__, __TIME__, pos ? feature : "");
+}
+
+static inline void
+show_usage()
+{
+	INFO_LOG("Usage: %s conf\n", prog_name);
+	exit(-1);
+}
+
+static inline void
+parse_args(int argc, char** argv)
+{
+	prog_name    = strdup(argv[0]);
+	current_dir  = get_current_dir_name();
+	show_banner();
+	if ( (argc < 2) || !strcmp(argv[1], "--help") || !strcmp(argv[1], "-h") ) {
+		show_usage();
+	}
+}
+
+int main(int argc, char* argv[])
+{
+	parse_args(argc, argv);
+
+	if (config_init(argv[1]) == -1) {
+		BOOT_LOG(-1, "Failed to Parse File '%s'", argv[1]);
+	}
+
+	daemon_start(argc, argv);
+	// load bind config file
+	load_bind_file(config_get_strval("bind_conf"));
+	// init log files
+	log_init_ex( config_get_strval("log_dir"), 
+				config_get_intval("log_level", log_lvl_trace),
+				config_get_intval("log_size", 1<<30), 
+				config_get_intval("max_log_files", 100), 
+				config_get_strval("log_prefix") ,
+				config_get_intval("log_save_next_file_interval_min", 0) );
+
+	socket_timeout = config_get_intval("cli_socket_timeout", 0);
+	page_size      = config_get_intval("incoming_packet_max_size", -1);
+	g_send_buf_limit_size = config_get_intval("send_buf_limit_size", 0);
+	if (page_size <= 0) {
+		page_size = def_page_size;
+	}
+
+	register_data_plugin(config_get_strval("data_dll_file"));
+	register_plugin(config_get_strval("dll_file"), 0);
+
+	asynsvr_init_warning_system();
+	net_init(max_fd_num, max_fd_num);
+	if (dll.init_service && (dll.init_service(1) != 0)) {
+		BOOT_LOG(-1, "FAILED TO INIT PARENT PROCESS");
+	}
+
+    clean_child_pids();
+
+	bind_config_t* bc = get_bind_conf();
+	int   i;
+	pid_t pid;
+	for ( i = 0; i != bc->bind_num; ++i ) {
+		bind_config_elem_t* bc_elem = &(bc->configs[i]);
+		shmq_create(bc_elem);
+
+		if ( (pid = fork ()) < 0 ) {
+			BOOT_LOG(-1, "fork child process");
+		} else if (pid > 0) { //parent process
+			close_shmq_pipe(bc, i, 0);
+			do_add_conn(bc_elem->sendq.pipe_handles[0], fd_type_pipe, 0, bc_elem);
+			net_start(bc_elem->bind_ip, bc_elem->bind_port, bc_elem);
+            atomic_set(&child_pids[i], pid);
+		} else { //child process
+			g_listen_port = bc_elem->bind_port;
+			strncpy(g_listen_ip, bc_elem->bind_ip, sizeof(g_listen_ip) - 1);
+			run_worker_process(bc, i, i + 1);
+		}
+	}
+
+	if (config_get_strval("addr_mcast_ip")) {
+		if (create_addr_mcast_socket() != 0) {
+			// return -1 if fail to create mcast socket
+			BOOT_LOG(-1, "PARENT: FAILED TO CREATE MCAST FOR RELOADING SO");
+		}
+	} 
+
+	while ((stop == 0) || (dll.fini_service && (dll.fini_service(1) != 0))) {
+		net_loop(-1, page_size, 1);
+	}
+
+    killall_children();
+
+	net_exit();
+	unregister_data_plugin();
+	unregister_plugin();
+	shmq_destroy(0, bc->bind_num);
+	daemon_stop();
+
+	return 0;
+}

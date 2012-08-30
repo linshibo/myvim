@@ -1,0 +1,3 @@
+(setq load-path (cons "~/.emacs.d" load-path))
+(load-library "clang-completion-mode")
+

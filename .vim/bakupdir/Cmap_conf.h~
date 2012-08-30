@@ -1,0 +1,37 @@
+/*
+ * =========================================================================
+ *
+ *        Filename: Cmap_conf.h
+ *
+ *        Version:  1.0
+ *        Created:  2011-07-22 14:31:44
+ *        Description:  
+ *
+ *        Author:  jim (jim@taomee.com)
+ *        Company:  TAOMEE
+ *
+ * =========================================================================
+ */
+
+#ifndef  CMAP_CONF_H
+#define  CMAP_CONF_H
+#include <stdint.h>
+struct map_conf_t {
+	uint32_t mapid;	
+	uint32_t multi;	//多人模式
+};
+#include  <map>
+#include  <vector>
+class Cmap_conf_map {
+	private:
+	public:
+		//kindid , mapid, map_conf_t 
+		std::map<uint32_t, std::map<uint32_t,  map_conf_t> > conf_map;
+		void add(uint32_t kindid , map_conf_t & map_conf );
+		bool check_multi(uint32_t islandid,uint32_t mapid )   ;
+
+};
+
+
+
+#endif  /*CMAP_CONF_H*/

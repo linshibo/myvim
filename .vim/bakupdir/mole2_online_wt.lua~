@@ -1,0 +1,130 @@
+--程序名称
+local program_name= string.match( get_program_name() ,"([^/]+)$" )
+--内网ip
+local ip=get_ip(1) ;
+--公网ip
+local public_ip=get_ip(2) ;
+
+-- dir to store logs
+log_dir = "./log" 
+-- log level
+log_level = "7" 
+-- max size of each log file
+log_size = "104857600" 
+-- max number of log files per log level
+max_log_files = "100" 
+log_save_next_file_interval_min = "15" 
+incoming_packet_max_size = "32768" 
+
+-- size of the buffer to hold incoming/outcoming packets
+shmq_length = "8388608" 
+-- running mode of the program
+run_mode = "background" 
+
+-- mcast address
+mcast_ip = "239.0.0.240" 
+-- mcast port
+mcast_port = "5538" 
+-- interface on which arriving multicast datagrams will be received
+mcast_incoming_if = "eth1" 
+-- interface for outgoing multicast datagrams
+mcast_outgoing_if = ip 
+
+project_name = "wtmole2" 
+phone_numbers = "g_mole2_online" 
+
+post_svr_ip = "192.168.0.32" 
+post_svr_port = "30004" 
+
+
+
+
+-- dll file
+data_dll_file = "./bin/libm2data.so" 
+dll_file = "./bin/libm2online.so" 
+
+-- bind file
+--bind_conf = "./bind.conf" 
+
+-- statistic file
+statistic_file = "/opt/taomee/stat/spool/inbox/bin.log" 
+
+--dbproxy_port   30004
+--dbproxy_ip             10.1.1.23
+service_dbproxy = "wtmole2.dbproxy" 
+service_switch = "wtmole2.switch" 
+service_batrserv = "wtmole2.btlsvr" 
+service_homeserv = "wtmole2.home" 
+
+--登录登出记录
+report_svr_ip = "192.168.240.43" 
+report_svr_port = "11001" 
+
+
+idc_type = "2" 
+channel_id = "60" 
+security_code = "89123489" 
+
+--# mcast config for synchronize the name and ip address of a given service
+addr_mcast_ip = "239.0.0.240" 
+addr_mcast_port = "5601" 
+--## interface on which arriving multicast datagrams will be received
+addr_mcast_incoming_if = "eth1" 
+--## interface for outgoing multicast datagrams
+addr_mcast_outgoing_if =  ip
+
+codesvr_ip = "192.168.0.156" 
+codesvr_port = "58111" 
+
+
+channel_id_2 = "90" 
+security_code_2 = "73926476" 
+in_vipserv_ip = "10.1.1.65" 
+vipserv_ip = "192.168.1.59" 
+vipserv_port = "14409"
+
+dx_chat_svr_ip = "192.168.8.91" 
+wt_chat_svr_ip = "192.168.31.68" 
+in_chat_svr_ip = "10.1.1.58" 
+chat_svr_port = "30004" 
+in_spacetime_svr_ip = "10.1.1.44" 
+spacetime_svr_ip = "192.168.0.156" 
+spacetime_svr_port = "26122" 
+in_mall_svr_ip = "10.1.1.47" 
+mall_svr_ip = "192.168.1.45" 
+mall_svr_port = "12403" 
+
+warning_ip = "192.168.4.68" 
+warning_port = "33001" 
+
+--脏词
+tm_dirty_use_dirty_logical = 1
+tm_dirty_local_dirty_file_path = "./data/dirty.dat"
+tm_dirty_server_addr = "192.168.4.68:28000;192.168.4.68:28001"
+tm_dirty_update_cycle = 600
+
+--bind
+-- item 格式 { id, "server.name", "ip", port  } 
+async_server_bind_map={ }
+
+
+online_server_name="mole2.online"
+start_port=1200;
+--200 个分配
+
+--1,100 奇数
+if (program_name=="Mole2OnlineA" ) then
+	for i = 1,  100,2  do  
+		local item={ i,online_server_name ,public_ip,  i+1200 };
+		async_server_bind_map[ #async_server_bind_map +1]=item;
+	end
+end
+
+--1,100 偶数 
+if (program_name=="Mole2OnlineB" ) then
+	for i = 2,  100,2  do  
+		local item={ i,online_server_name ,public_ip,  i+1200 };
+		async_server_bind_map[ #async_server_bind_map +1]=item;
+	end
+end
+

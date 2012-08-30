@@ -1,0 +1,170 @@
+/*
+ * =========================================================================
+ *
+ *        Filename: load_data.cpp
+ *
+ *        Version:  1.0
+ *        Created:  2011-05-18 13:33:54
+ *        Description:  
+ *
+ *        Author:  jim (jim@taomee.com)
+ *        Company:  TAOMEE
+ *
+ * =========================================================================
+ */
+
+#include    "load_data.h"
+#include    "Csprite.h"
+#include    "global.h"
+#include    "Cmap_conf.h"
+
+int load_xmlconf(const char* file, int (*parser)(xmlNodePtr cur_node))
+{
+	int err = -1;
+
+	xmlDocPtr doc = xmlReadFile(file,NULL, XML_PARSE_NOBLANKS);
+	if (!doc) {
+		ERROR_RETURN(("Failed to Load %s", file), -1);
+	}
+
+	xmlNodePtr cur = xmlDocGetRootElement(doc); 
+	if (!cur) {
+		KERROR_LOG(0, "xmlDocGetRootElement error");
+		goto fail;
+	}
+
+	err = parser(cur);
+fail:
+	xmlFreeDoc(doc);
+	BOOT_LOG(err, "==Load File %s", file);
+}
+int load_item_conf_map(xmlNodePtr cur){
+  	cur = cur->xmlChildrenNode;
+	while (cur) {
+		if (!xmlStrcmp(cur->name, (const xmlChar*)"kind")) {
+			uint32_t kindid=0;
+			DECODE_XML_PROP_INT(kindid, cur, "id");
+			xmlNodePtr chl = cur->xmlChildrenNode;
+		  	while (chl) {
+				if (!xmlStrcmp(chl->name, (const xmlChar *)"item")) {
+					const xmlChar * buf;
+					item_conf_t item_conf ;
+					DECODE_XML_PROP_INT_DEFAULT(item_conf.itemid, chl , "id",0);
+					DECODE_XML_PROP_INT_DEFAULT(item_conf.change, chl , "change",0);
+					DECODE_XML_PROP_INT_DEFAULT(item_conf.relevanceid,chl,"relevance",0);
+					DECODE_XML_PROP_INT_DEFAULT(item_conf.islandid,chl,"island",0);
+					DECODE_XML_PROP_INT_DEFAULT(item_conf.clothtype,chl,"clothtype",0);
+					DECODE_XML_PROP_INT_DEFAULT(item_conf.source,chl,"source",0);
+					DECODE_XML_PROP_INT_DEFAULT(item_conf.pay,chl,"pay",0);
+					DECODE_XML_PROP_DEFAULT(chl , "contain", buf);
+ 					init_int_list((const char*)buf,item_conf.contain_itemid_list);
+
+					if (item_conf.itemid>0 ){
+						DEBUG_LOG("g_item_conf_map.add:%u,%u,%u,%u,%u,%u",kindid,
+								item_conf.itemid,item_conf.change , item_conf.clothtype,
+							item_conf.source,item_conf.pay	);
+						g_item_conf_map.add(kindid,item_conf);
+					}
+				}
+				chl= chl->next;	
+			}
+		}
+		cur = cur->next;	
+
+	}
+	return 0;
+}
+
+int load_island_map(xmlNodePtr cur){
+	DEBUG_LOG("xxxxxx load_island_map ");
+  	cur = cur->xmlChildrenNode;
+	while (cur) {
+		if (!xmlStrcmp(cur->name, (const xmlChar*)"island")) {
+			uint32_t islandid=0;
+			DECODE_XML_PROP_INT_DEFAULT(islandid, cur, "id",0);
+			xmlNodePtr chl = cur->xmlChildrenNode;
+		  	while (chl) {
+				if (!xmlStrcmp(chl->name, (const xmlChar *)"Map")) {
+					//const xmlChar * buf;
+					map_conf_t map_conf;
+					DECODE_XML_PROP_INT_DEFAULT(map_conf.mapid , chl , "id",0);
+					DECODE_XML_PROP_INT_DEFAULT(map_conf.multi , chl , "multi",0);
+					DEBUG_LOG("map islanid=%u,mapid=%u,multi=%u",
+							islandid,map_conf.mapid,map_conf.multi);
+					g_map_conf_map.add ( islandid,map_conf );
+
+				}
+				chl= chl->next;	
+			}
+		}
+		cur = cur->next;	
+
+	}
+
+	return 0;
+}
+
+int load_task_map(xmlNodePtr cur){
+	DEBUG_LOG("xxxxxx load_task_map ");
+  	cur = cur->xmlChildrenNode;
+	while (cur) {
+		if (!xmlStrcmp(cur->name, (const xmlChar*)"island")) {
+			uint32_t taskid=0;
+			//DECODE_XML_PROP_INT(taskid, cur, "id");
+			DECODE_XML_PROP_INT_DEFAULT(taskid , cur, "id",0);
+			/*
+			if ( taskid==0 ){
+				continue;
+			}
+			*/
+
+			xmlNodePtr chl = cur->xmlChildrenNode;
+		  	while (chl) {
+				if (!xmlStrcmp(chl->name, (const xmlChar *)"tastdata")) {
+					const xmlChar * buf;
+					Ctask_node task_node;
+					DECODE_XML_PROP_INT(task_node.task_nodeid , chl , "id");
+					DEBUG_LOG("==task:%d,%d",taskid,task_node.task_nodeid );
+
+					DECODE_XML_PROP(chl , "req_id", buf);
+ 					init_int_list((const char*)buf,task_node.req_taskid_list);
+				
+					DEBUG_LOG("==task:req_item");
+					DECODE_XML_PROP(chl , "req_item", buf);
+ 					init_item_list((const char*)buf,task_node.req_item_list);
+					DEBUG_LOG("==task:recycle_item");
+					DECODE_XML_PROP(chl , "recycle_item", buf);
+ 					init_item_list((const char*)buf,task_node.recycle_item_list);
+						
+					DEBUG_LOG("==task:reward_item");
+					DECODE_XML_PROP(chl , "reward_item", buf);
+ 					init_item_list((const char*)buf,task_node.reward_item_list);
+
+					
+					g_task_map.add_task_node(taskid,task_node);
+				}
+				chl= chl->next;	
+			}
+		}
+		cur = cur->next;	
+
+	}
+
+	DEBUG_LOG("xxxxxx load_task_map  end");
+	return 0;
+}
+
+void check_xml_data()
+{
+	std::vector<uint32_t> itemid_list;
+	itemid_list=g_item_conf_map.get_relevanceid_list();
+	std::vector<uint32_t> ::iterator it;
+	for(uint32_t i=0;i< itemid_list.size();i++ ){
+		uint32_t itemid=itemid_list[i];
+		if(g_item_conf_map.check_can_change( itemid)){
+			DEBUG_LOG(" ERR: can change check itemid:%u",itemid); 
+		}
+		DEBUG_LOG(" check itemid:%u",itemid); 
+	}
+ 
+}

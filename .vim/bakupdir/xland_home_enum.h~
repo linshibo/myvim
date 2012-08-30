@@ -1,0 +1,18 @@
+#ifndef  XLAND_HOME_ENUM_H
+#define  XLAND_HOME_ENUM_H
+
+/*命令定义*/	
+enum  enum_xland_home_cmd{
+	 home_test_cmd		=	1, /*测试*/
+
+};
+
+/*错误码定义*/	
+enum  enum_xland_home_error{
+	 		=	0, /**/
+
+};
+
+
+
+#endif // XLAND_HOME_ENUM_H

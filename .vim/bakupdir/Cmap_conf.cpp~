@@ -1,0 +1,40 @@
+/*
+ * =========================================================================
+ *
+ *        Filename: Cmap_conf.cpp
+ *
+ *        Version:  1.0
+ *        Created:  2011-07-22 14:36:46
+ *        Description:  
+ *
+ *        Author:  jim (jim@taomee.com)
+ *        Company:  TAOMEE
+ *
+ * =========================================================================
+ */
+#include    "Cmap_conf.h"
+
+void Cmap_conf_map::add(uint32_t islandid, map_conf_t & map_conf )
+{
+	DEBUG_LOG("islandid=%u mapid=%u, multi=%u", islandid,
+			map_conf.mapid, map_conf.multi );
+	this->conf_map[islandid][map_conf.mapid ]=map_conf;
+}
+
+bool Cmap_conf_map::check_multi(uint32_t islandid,uint32_t mapid ) 
+{
+	return (this->conf_map[islandid][mapid].multi==1);
+
+	/*
+	std::map<uint32_t,  map_conf_t> ::iterator it;
+	//1:装扮
+	std::map<uint32_t,  map_conf_t> & attire_map=this->conf_map[1];
+	it=attire_map.find(mapid );
+	if (it!=attire_map.end()){
+		return  bool(it->second.change);
+	}else{
+		return false;
+	}
+	*/
+}
+

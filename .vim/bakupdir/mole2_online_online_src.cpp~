@@ -1,0 +1,3885 @@
+/* ----------------CODE FOR cli_login  ---------*/
+//
+
+/*登陆*/
+int cli_login(sprite_t *p, Cmessage* c_in)
+{
+	cli_login_in * p_in = P_IN;
+	cli_login_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_map_users  ---------*/
+//
+
+/*获得地图内所有用户信息*/
+int cli_map_users(sprite_t *p, Cmessage* c_in)
+{
+	cli_map_users_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_leave_map  ---------*/
+//
+
+/*用户离开地图广播包*/
+int cli_leave_map(sprite_t *p, Cmessage* c_in)
+{
+	cli_leave_map_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_enter_map  ---------*/
+//
+
+/*跳场景*/
+int cli_enter_map(sprite_t *p, Cmessage* c_in)
+{
+	cli_enter_map_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_user_info  ---------*/
+//
+
+/*查看用户基础信息*/
+int cli_get_user_info(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_user_info_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_user_detail  ---------*/
+//
+
+/*查看用户详细信息*/
+int cli_get_user_detail(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_user_detail_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_user_simple  ---------*/
+//
+
+/*获取用户简单信息，通常用于排名显示*/
+int cli_get_user_simple(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_user_simple_in * p_in = P_IN;
+	cli_get_user_simple_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_user_walk  ---------*/
+//
+
+/*用户走路*/
+int cli_user_walk(sprite_t *p, Cmessage* c_in)
+{
+	cli_user_walk_in * p_in = P_IN;
+	cli_user_walk_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_talk  ---------*/
+//
+
+/**/
+int cli_talk(sprite_t *p, Cmessage* c_in)
+{
+	cli_talk_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_user_show  ---------*/
+//
+
+/*做动作*/
+int cli_user_show(sprite_t *p, Cmessage* c_in)
+{
+	cli_user_show_in * p_in = P_IN;
+	cli_user_show_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_set_flag  ---------*/
+//
+
+/*设置标志位*/
+int cli_set_flag(sprite_t *p, Cmessage* c_in)
+{
+	cli_set_flag_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_vip_update  ---------*/
+//
+
+/*用户VIP信息更新*/
+int cli_vip_update(sprite_t *p, Cmessage* c_in)
+{
+	cli_vip_update_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_chk_users_online  ---------*/
+//
+
+/*查看是否在线*/
+int cli_chk_users_online(sprite_t *p, Cmessage* c_in)
+{
+
+
+
+}
+
+/* ----------------CODE FOR user_init_info  ---------*/
+//
+
+/*初始化人物信息*/
+int user_init_info(sprite_t *p, Cmessage* c_in)
+{
+	user_init_info_in * p_in = P_IN;
+	user_init_info_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_map_usercnt  ---------*/
+//
+
+/*获取地图上的人数*/
+int cli_get_map_usercnt(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_map_usercnt_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_chk_str_valid  ---------*/
+//
+
+/*验证是否有脏词*/
+int cli_chk_str_valid(sprite_t *p, Cmessage* c_in)
+{
+	cli_chk_str_valid_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR prof_compensation  ---------*/
+//
+
+/*职业补选*/
+int prof_compensation(sprite_t *p, Cmessage* c_in)
+{
+	prof_compensation_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_post_msg  ---------*/
+//
+
+/*投稿*/
+int cli_post_msg(sprite_t *p, Cmessage* c_in)
+{
+	cli_post_msg_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_set_user_nick  ---------*/
+//
+
+/*修改用户昵称*/
+int cli_set_user_nick(sprite_t *p, Cmessage* c_in)
+{
+	cli_set_user_nick_in * p_in = P_IN;
+	cli_set_user_nick_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR recommend_add_attr  ---------*/
+//
+
+/*推荐配点*/
+int recommend_add_attr(sprite_t *p, Cmessage* c_in)
+{
+
+
+
+}
+
+/* ----------------CODE FOR cli_user_cure  ---------*/
+//
+
+/*人物治疗*/
+int cli_user_cure(sprite_t *p, Cmessage* c_in)
+{
+	cli_user_cure_in * p_in = P_IN;
+	cli_user_cure_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_user_set_position  ---------*/
+//
+
+/*设置人物站位*/
+int cli_user_set_position(sprite_t *p, Cmessage* c_in)
+{
+	cli_user_set_position_in * p_in = P_IN;
+	cli_user_set_position_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_add_base_attr  ---------*/
+//
+
+/*任务配点*/
+int cli_add_base_attr(sprite_t *p, Cmessage* c_in)
+{
+	cli_add_base_attr_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_notify_user_levelup  ---------*/
+//
+
+/*用户升级*/
+int cli_notify_user_levelup(sprite_t *p, Cmessage* c_in)
+{
+	cli_notify_user_levelup_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_set_user_color  ---------*/
+//
+
+/*修改用户颜色*/
+int cli_set_user_color(sprite_t *p, Cmessage* c_in)
+{
+	cli_set_user_color_in * p_in = P_IN;
+	cli_set_user_color_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_set_busy_state  ---------*/
+//
+
+/*设置用户忙状态*/
+int cli_set_busy_state(sprite_t *p, Cmessage* c_in)
+{
+	cli_set_busy_state_in * p_in = P_IN;
+	cli_set_busy_state_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_signin_day  ---------*/
+//
+
+/*每日签到*/
+int cli_signin_day(sprite_t *p, Cmessage* c_in)
+{
+	cli_signin_day_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_kick_user_offline  ---------*/
+//
+
+/*踢用户下线*/
+int cli_kick_user_offline(sprite_t *p, Cmessage* c_in)
+{
+	cli_kick_user_offline_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_reset_user_walk  ---------*/
+//
+
+/*通知客户端重置用户走路信息*/
+int cli_reset_user_walk(sprite_t *p, Cmessage* c_in)
+{
+	cli_reset_user_walk_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_chk_teamate_enter_map  ---------*/
+//
+
+/*检查队伍能否进入地图*/
+int cli_chk_teamate_enter_map(sprite_t *p, Cmessage* c_in)
+{
+	cli_chk_teamate_enter_map_in * p_in = P_IN;
+	cli_chk_teamate_enter_map_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_allocate_exp  ---------*/
+//
+
+/*经验树分配*/
+int cli_allocate_exp(sprite_t *p, Cmessage* c_in)
+{
+	cli_allocate_exp_in * p_in = P_IN;
+	cli_allocate_exp_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_keep_sprite_alive  ---------*/
+//
+
+/*客户端心跳包*/
+int cli_keep_sprite_alive(sprite_t *p, Cmessage* c_in)
+{
+	cli_keep_sprite_alive_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_start_double_exp  ---------*/
+//
+
+/*领取双倍经验*/
+int cli_start_double_exp(sprite_t *p, Cmessage* c_in)
+{
+	cli_start_double_exp_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_add_session  ---------*/
+//
+
+/*增加session*/
+int cli_add_session(sprite_t *p, Cmessage* c_in)
+{
+	cli_add_session_in * p_in = P_IN;
+	cli_add_session_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_set_injury  ---------*/
+//
+
+/**/
+int cli_set_injury(sprite_t *p, Cmessage* c_in)
+{
+	cli_set_injury_in * p_in = P_IN;
+	cli_set_injury_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_add_friend  ---------*/
+//
+
+/*添加好友*/
+int cli_add_friend(sprite_t *p, Cmessage* c_in)
+{
+	cli_add_friend_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_rsp_friend_add  ---------*/
+//
+
+/*反馈别人的邀请*/
+int cli_rsp_friend_add(sprite_t *p, Cmessage* c_in)
+{
+	cli_rsp_friend_add_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_del_friend  ---------*/
+//
+
+/*删除好友*/
+int cli_del_friend(sprite_t *p, Cmessage* c_in)
+{
+	cli_del_friend_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_bklist_add  ---------*/
+//
+
+/*添加到黑名单*/
+int cli_bklist_add(sprite_t *p, Cmessage* c_in)
+{
+	cli_bklist_add_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_bklist_del  ---------*/
+//
+
+/*从黑名单中删除*/
+int cli_bklist_del(sprite_t *p, Cmessage* c_in)
+{
+	cli_bklist_del_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_bklist  ---------*/
+//
+
+/*拉取黑名单列表*/
+int cli_get_bklist(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_bklist_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_noti_friend_del  ---------*/
+//
+
+/*通知对方删除好友*/
+int cli_noti_friend_del(sprite_t *p, Cmessage* c_in)
+{
+	cli_noti_friend_del_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_invited  ---------*/
+//
+
+/*拉取邀请人数和剩余抽奖次数*/
+int cli_get_invited(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_invited_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_add_relation  ---------*/
+//
+
+/*建立师徒关系*/
+int cli_add_relation(sprite_t *p, Cmessage* c_in)
+{
+	cli_add_relation_in * p_in = P_IN;
+	cli_add_relation_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_reply_add_relation  ---------*/
+//
+
+/*用户响应加师徒关系*/
+int cli_reply_add_relation(sprite_t *p, Cmessage* c_in)
+{
+	cli_reply_add_relation_in * p_in = P_IN;
+	cli_reply_add_relation_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_del_relation  ---------*/
+//
+
+/*解除师徒关系*/
+int cli_del_relation(sprite_t *p, Cmessage* c_in)
+{
+	cli_del_relation_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_relationship  ---------*/
+//
+
+/*获取用户的师徒关系*/
+int cli_get_relationship(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_relationship_in * p_in = P_IN;
+	cli_get_relationship_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_relation_reward  ---------*/
+//
+
+/*领取师徒奖励*/
+int cli_get_relation_reward(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_relation_reward_in * p_in = P_IN;
+	cli_get_relation_reward_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_buy_cloth  ---------*/
+//
+
+/*购买衣服*/
+int cli_buy_cloth(sprite_t *p, Cmessage* c_in)
+{
+	cli_buy_cloth_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_pakt_cloth  ---------*/
+//
+
+/*拉取背包的衣服*/
+int cli_get_pakt_cloth(sprite_t *p, Cmessage* c_in)
+{
+
+
+
+}
+
+/* ----------------CODE FOR cli_cloth_disappear  ---------*/
+//
+
+/*装扮消失*/
+int cli_cloth_disappear(sprite_t *p, Cmessage* c_in)
+{
+	cli_cloth_disappear_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_del_cloth  ---------*/
+//
+
+/*删除衣服*/
+int cli_del_cloth(sprite_t *p, Cmessage* c_in)
+{
+	cli_del_cloth_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_set_body_clothes  ---------*/
+//
+
+/*换装*/
+int cli_set_body_clothes(sprite_t *p, Cmessage* c_in)
+{
+	cli_set_body_clothes_in * p_in = P_IN;
+	cli_set_body_clothes_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_body_clothes  ---------*/
+//
+
+/*拉取身上的衣服信息*/
+int cli_get_body_clothes(sprite_t *p, Cmessage* c_in)
+{
+
+
+
+}
+
+/* ----------------CODE FOR cli_buy_normal_item  ---------*/
+//
+
+/*购买普通物品*/
+int cli_buy_normal_item(sprite_t *p, Cmessage* c_in)
+{
+	cli_buy_normal_item_in * p_in = P_IN;
+	cli_buy_normal_item_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_normal_item_list  ---------*/
+//
+
+/*获取普通物品列表*/
+int cli_get_normal_item_list(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_normal_item_list_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR noti_cli_get_item  ---------*/
+//
+
+/*通知得到物品*/
+int noti_cli_get_item(sprite_t *p, Cmessage* c_in)
+{
+	noti_cli_get_item_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_sell_clothes  ---------*/
+//
+
+/*卖装扮*/
+int cli_sell_clothes(sprite_t *p, Cmessage* c_in)
+{
+	cli_sell_clothes_in * p_in = P_IN;
+	cli_sell_clothes_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_sell_items  ---------*/
+//
+
+/*出售物品列表*/
+int cli_sell_items(sprite_t *p, Cmessage* c_in)
+{
+	cli_sell_items_in * p_in = P_IN;
+	cli_sell_items_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_del_normal_item  ---------*/
+//
+
+/*删除普通物品*/
+int cli_del_normal_item(sprite_t *p, Cmessage* c_in)
+{
+	cli_del_normal_item_in * p_in = P_IN;
+	cli_del_normal_item_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_use_medical_item  ---------*/
+//
+
+/*使用普通物品*/
+int cli_use_medical_item(sprite_t *p, Cmessage* c_in)
+{
+	cli_use_medical_item_in * p_in = P_IN;
+	cli_use_medical_item_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_re_birth  ---------*/
+//
+
+/*洗点（人物或宠物）*/
+int cli_re_birth(sprite_t *p, Cmessage* c_in)
+{
+	cli_re_birth_in * p_in = P_IN;
+	cli_re_birth_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_use_handbook_item  ---------*/
+//
+
+/*使用图鉴物品*/
+int cli_use_handbook_item(sprite_t *p, Cmessage* c_in)
+{
+	cli_use_handbook_item_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR use_broadcast_item  ---------*/
+//
+
+/*使用全场景物品（烟花等）*/
+int use_broadcast_item(sprite_t *p, Cmessage* c_in)
+{
+	use_broadcast_item_in * p_in = P_IN;
+	use_broadcast_item_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_chk_team_item  ---------*/
+//
+
+/*检查队伍钥匙*/
+int cli_chk_team_item(sprite_t *p, Cmessage* c_in)
+{
+	cli_chk_team_item_in * p_in = P_IN;
+	cli_chk_team_item_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_repair_cloth  ---------*/
+//
+
+/*修理装扮*/
+int cli_repair_cloth(sprite_t *p, Cmessage* c_in)
+{
+	cli_repair_cloth_in * p_in = P_IN;
+	cli_repair_cloth_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_check_team_item  ---------*/
+//
+
+/*检查队伍物品是否存在*/
+int cli_check_team_item(sprite_t *p, Cmessage* c_in)
+{
+	cli_check_team_item_in * p_in = P_IN;
+	cli_check_team_item_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_house_item_list  ---------*/
+//
+
+/*获取仓库中普通物品列表*/
+int cli_get_house_item_list(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_house_item_list_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_house_cloth  ---------*/
+//
+
+/*拉取仓库装扮*/
+int cli_get_house_cloth(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_house_cloth_in * p_in = P_IN;
+	cli_get_house_cloth_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_item_in_out  ---------*/
+//
+
+/*仓库取出放入物品*/
+int cli_item_in_out(sprite_t *p, Cmessage* c_in)
+{
+	cli_item_in_out_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_cloth_in_out  ---------*/
+//
+
+/*仓库取出放入装扮*/
+int cli_cloth_in_out(sprite_t *p, Cmessage* c_in)
+{
+	cli_cloth_in_out_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_del_house_item  ---------*/
+//
+
+/**/
+int cli_del_house_item(sprite_t *p, Cmessage* c_in)
+{
+	cli_del_house_item_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_composite_item  ---------*/
+//
+
+/*物品合成*/
+int cli_composite_item(sprite_t *p, Cmessage* c_in)
+{
+	cli_composite_item_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_exchange_gift_normal  ---------*/
+//
+
+/*礼包兑换*/
+int cli_exchange_gift_normal(sprite_t *p, Cmessage* c_in)
+{
+	cli_exchange_gift_normal_in * p_in = P_IN;
+	cli_exchange_gift_normal_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_exchange  ---------*/
+//
+
+/*兑换*/
+int cli_exchange(sprite_t *p, Cmessage* c_in)
+{
+	cli_exchange_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_exchange_gift_spec  ---------*/
+//
+
+/*特殊兑换（兑换星豆袋等）*/
+int cli_exchange_gift_spec(sprite_t *p, Cmessage* c_in)
+{
+	cli_exchange_gift_spec_in * p_in = P_IN;
+	cli_exchange_gift_spec_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_exchange_gift_pet  ---------*/
+//
+
+/*宠物兑换*/
+int cli_exchange_gift_pet(sprite_t *p, Cmessage* c_in)
+{
+	cli_exchange_gift_pet_in * p_in = P_IN;
+	cli_exchange_gift_pet_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_composite_cloth  ---------*/
+//
+
+/*装备合成*/
+int cli_composite_cloth(sprite_t *p, Cmessage* c_in)
+{
+	cli_composite_cloth_in * p_in = P_IN;
+	cli_composite_cloth_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_add_item_feed_count  ---------*/
+//
+
+/*增加宠物蛋孵化次数*/
+int cli_add_item_feed_count(sprite_t *p, Cmessage* c_in)
+{
+	cli_add_item_feed_count_in * p_in = P_IN;
+	cli_add_item_feed_count_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_sth_done  ---------*/
+//
+
+/*拉取事件完成次数*/
+int cli_get_sth_done(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_sth_done_in * p_in = P_IN;
+	cli_get_sth_done_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_set_sth_done  ---------*/
+//
+
+/*增加事件完成次数*/
+int cli_set_sth_done(sprite_t *p, Cmessage* c_in)
+{
+	cli_set_sth_done_in * p_in = P_IN;
+	cli_set_sth_done_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_use_buff_item  ---------*/
+//
+
+/*使用双倍道具*/
+int cli_use_buff_item(sprite_t *p, Cmessage* c_in)
+{
+	cli_use_buff_item_in * p_in = P_IN;
+	cli_use_buff_item_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_use_energy_item  ---------*/
+//
+
+/*使用精力果*/
+int cli_use_energy_item(sprite_t *p, Cmessage* c_in)
+{
+	cli_use_energy_item_in * p_in = P_IN;
+	cli_use_energy_item_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_task_detail  ---------*/
+//
+
+/*拉取单个任务详细信息*/
+int cli_get_task_detail(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_task_detail_in * p_in = P_IN;
+	cli_get_task_detail_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_write_task_diary  ---------*/
+//
+
+/*记录任务日记*/
+int cli_write_task_diary(sprite_t *p, Cmessage* c_in)
+{
+	cli_write_task_diary_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR get_task_all  ---------*/
+//
+
+/*获取全部任务信息*/
+int get_task_all(sprite_t *p, Cmessage* c_in)
+{
+	get_task_all_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_recv_task  ---------*/
+//
+
+/*接受任务（新）*/
+int cli_recv_task(sprite_t *p, Cmessage* c_in)
+{
+	cli_recv_task_in * p_in = P_IN;
+	cli_recv_task_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR finish_task_node  ---------*/
+//
+
+/*提交任务节点*/
+int finish_task_node(sprite_t *p, Cmessage* c_in)
+{
+	finish_task_node_in * p_in = P_IN;
+	finish_task_node_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_cancel_task  ---------*/
+//
+
+/*取消任务（新）*/
+int cli_cancel_task(sprite_t *p, Cmessage* c_in)
+{
+	cli_cancel_task_in * p_in = P_IN;
+	cli_cancel_task_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_set_task_clibuf  ---------*/
+//
+
+/*设置as buf内容（新）*/
+int cli_set_task_clibuf(sprite_t *p, Cmessage* c_in)
+{
+	cli_set_task_clibuf_in * p_in = P_IN;
+	cli_set_task_clibuf_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_task_svrbuf  ---------*/
+//
+
+/*获取服务端Buffer信息（新）*/
+int cli_get_task_svrbuf(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_task_svrbuf_in * p_in = P_IN;
+	cli_get_task_svrbuf_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_buff_range  ---------*/
+//
+
+/*获取客户端buff*/
+int cli_get_buff_range(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_buff_range_in * p_in = P_IN;
+	cli_get_buff_range_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_set_buff  ---------*/
+//
+
+/*设置客户端数据*/
+int cli_set_buff(sprite_t *p, Cmessage* c_in)
+{
+	cli_set_buff_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_loop_task  ---------*/
+//
+
+/*获取环任务信息*/
+int cli_get_loop_task(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_loop_task_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR noti_cli_task_loop_update  ---------*/
+//
+
+/*通知客户端环任务变化*/
+int noti_cli_task_loop_update(sprite_t *p, Cmessage* c_in)
+{
+	noti_cli_task_loop_update_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_honor_list  ---------*/
+//
+
+/*获取称号列表*/
+int cli_get_honor_list(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_honor_list_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_use_honor  ---------*/
+//
+
+/*戴上称号*/
+int cli_use_honor(sprite_t *p, Cmessage* c_in)
+{
+	cli_use_honor_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_challenge  ---------*/
+//
+
+/*挑战*/
+int cli_challenge(sprite_t *p, Cmessage* c_in)
+{
+	cli_challenge_in * p_in = P_IN;
+	cli_challenge_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_accept_challenge  ---------*/
+//
+
+/*接受挑战*/
+int cli_accept_challenge(sprite_t *p, Cmessage* c_in)
+{
+	cli_accept_challenge_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_noti_team_challeg  ---------*/
+//
+
+/*通知团队成员正在挑战*/
+int cli_noti_team_challeg(sprite_t *p, Cmessage* c_in)
+{
+	cli_noti_team_challeg_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_noti_team_challeged  ---------*/
+//
+
+/*通知队长有人挑战*/
+int cli_noti_team_challeged(sprite_t *p, Cmessage* c_in)
+{
+	cli_noti_team_challeged_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_challenge_npc  ---------*/
+//
+
+/*挑战明雷*/
+int cli_challenge_npc(sprite_t *p, Cmessage* c_in)
+{
+	cli_challenge_npc_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_noti_battle_created  ---------*/
+//
+
+/*战斗建立好，可以开始加载*/
+int cli_noti_battle_created(sprite_t *p, Cmessage* c_in)
+{
+
+
+
+}
+
+/* ----------------CODE FOR cli_load_battle  ---------*/
+//
+
+/*客户端上报加载完成比例*/
+int cli_load_battle(sprite_t *p, Cmessage* c_in)
+{
+	cli_load_battle_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_noti_battle_started  ---------*/
+//
+
+/*对战准备好*/
+int cli_noti_battle_started(sprite_t *p, Cmessage* c_in)
+{
+	cli_noti_battle_started_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_battle_attack  ---------*/
+//
+
+/*发招*/
+int cli_battle_attack(sprite_t *p, Cmessage* c_in)
+{
+	cli_battle_attack_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_use_medical  ---------*/
+//
+
+/*使用药品*/
+int cli_use_medical(sprite_t *p, Cmessage* c_in)
+{
+	cli_use_medical_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_battle_attacks_info  ---------*/
+//
+
+/*一回合战斗结果*/
+int cli_battle_attacks_info(sprite_t *p, Cmessage* c_in)
+{
+
+
+
+}
+
+/* ----------------CODE FOR cli_battle_round_result  ---------*/
+//
+
+/*一回合后用户信息同步*/
+int cli_battle_round_result(sprite_t *p, Cmessage* c_in)
+{
+
+
+
+}
+
+/* ----------------CODE FOR cli_round_info  ---------*/
+//
+
+/*用户上报回合信息*/
+int cli_round_info(sprite_t *p, Cmessage* c_in)
+{
+	cli_round_info_in * p_in = P_IN;
+	cli_round_info_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_noti_user_fighted  ---------*/
+//
+
+/*广播已发招用户*/
+int cli_noti_user_fighted(sprite_t *p, Cmessage* c_in)
+{
+	cli_noti_user_fighted_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_next_fight_step  ---------*/
+//
+
+/*通知用户下次遇怪步数*/
+int cli_next_fight_step(sprite_t *p, Cmessage* c_in)
+{
+	cli_next_fight_step_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_noti_load_rate  ---------*/
+//
+
+/*广播已用户加载比例*/
+int cli_noti_load_rate(sprite_t *p, Cmessage* c_in)
+{
+	cli_noti_load_rate_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_load_ready  ---------*/
+//
+
+/*客户端上报对战初始化结果*/
+int cli_load_ready(sprite_t *p, Cmessage* c_in)
+{
+	cli_load_ready_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_sync_battle_end  ---------*/
+//
+
+/*对战结束结算包*/
+int cli_sync_battle_end(sprite_t *p, Cmessage* c_in)
+{
+
+
+
+}
+
+/* ----------------CODE FOR cli_battle_end  ---------*/
+//
+
+/*对战结束*/
+int cli_battle_end(sprite_t *p, Cmessage* c_in)
+{
+
+
+
+}
+
+/* ----------------CODE FOR cli_reject_challenge  ---------*/
+//
+
+/*拒绝挑战*/
+int cli_reject_challenge(sprite_t *p, Cmessage* c_in)
+{
+	cli_reject_challenge_in * p_in = P_IN;
+	cli_reject_challenge_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_grp_day_challenge  ---------*/
+//
+
+/*获取怪物组挑战次数*/
+int cli_get_grp_day_challenge(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_grp_day_challenge_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_delete_batr_team  ---------*/
+//
+
+/*解除战队*/
+int cli_delete_batr_team(sprite_t *p, Cmessage* c_in)
+{
+	cli_delete_batr_team_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_btrtem_add_mbr  ---------*/
+//
+
+/*邀请用户加入战队*/
+int cli_btrtem_add_mbr(sprite_t *p, Cmessage* c_in)
+{
+	cli_btrtem_add_mbr_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_sync_pkinfo  ---------*/
+//
+
+/*PK结算*/
+int cli_sync_pkinfo(sprite_t *p, Cmessage* c_in)
+{
+	cli_sync_pkinfo_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_apply_pk  ---------*/
+//
+
+/*竞技场PK匹配申请*/
+int cli_apply_pk(sprite_t *p, Cmessage* c_in)
+{
+	cli_apply_pk_in * p_in = P_IN;
+	cli_apply_pk_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_cancel_pk_apply  ---------*/
+//
+
+/*取消竞技场PK匹配*/
+int cli_cancel_pk_apply(sprite_t *p, Cmessage* c_in)
+{
+
+
+
+}
+
+/* ----------------CODE FOR cli_btrtem_apply  ---------*/
+//
+
+/*申请加入战队*/
+int cli_btrtem_apply(sprite_t *p, Cmessage* c_in)
+{
+	cli_btrtem_apply_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_register_for_team  ---------*/
+//
+
+/*注册队伍列表（更改队伍名称）*/
+int cli_register_for_team(sprite_t *p, Cmessage* c_in)
+{
+	cli_register_for_team_in * p_in = P_IN;
+	cli_register_for_team_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_btrtem_kick_mbr  ---------*/
+//
+
+/*踢用户离开战队*/
+int cli_btrtem_kick_mbr(sprite_t *p, Cmessage* c_in)
+{
+	cli_btrtem_kick_mbr_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_btrtem_mbr_leave  ---------*/
+//
+
+/*用户离开战队*/
+int cli_btrtem_mbr_leave(sprite_t *p, Cmessage* c_in)
+{
+
+
+
+}
+
+/* ----------------CODE FOR cli_rsp_team_info  ---------*/
+//
+
+/*战队信息*/
+int cli_rsp_team_info(sprite_t *p, Cmessage* c_in)
+{
+	cli_rsp_team_info_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_btrtem_enter_map  ---------*/
+//
+
+/*通知队员切地图*/
+int cli_btrtem_enter_map(sprite_t *p, Cmessage* c_in)
+{
+	cli_btrtem_enter_map_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_cancel_challenge  ---------*/
+//
+
+/*取消挑战*/
+int cli_cancel_challenge(sprite_t *p, Cmessage* c_in)
+{
+	cli_cancel_challenge_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_use_beast_card  ---------*/
+//
+
+/*捕捉怪物*/
+int cli_use_beast_card(sprite_t *p, Cmessage* c_in)
+{
+	cli_use_beast_card_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_battle_swap_pet  ---------*/
+//
+
+/*换宠*/
+int cli_battle_swap_pet(sprite_t *p, Cmessage* c_in)
+{
+	cli_battle_swap_pet_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_noti_battle_accepted  ---------*/
+//
+
+/*通知对方挑战被接受*/
+int cli_noti_battle_accepted(sprite_t *p, Cmessage* c_in)
+{
+	cli_noti_battle_accepted_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_noti_tleader_action  ---------*/
+//
+
+/*通知队友队长行动*/
+int cli_noti_tleader_action(sprite_t *p, Cmessage* c_in)
+{
+	cli_noti_tleader_action_in * p_in = P_IN;
+	cli_noti_tleader_action_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_noti_team_state  ---------*/
+//
+
+/*队伍状态信息*/
+int cli_noti_team_state(sprite_t *p, Cmessage* c_in)
+{
+	cli_noti_team_state_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_animation_finish  ---------*/
+//
+
+/*报告对战动画结束*/
+int cli_animation_finish(sprite_t *p, Cmessage* c_in)
+{
+
+
+
+}
+
+/* ----------------CODE FOR cli_btrsvr_conn_closed  ---------*/
+//
+
+/*对战服务器断开*/
+int cli_btrsvr_conn_closed(sprite_t *p, Cmessage* c_in)
+{
+
+
+
+}
+
+/* ----------------CODE FOR cli_change_team_leader  ---------*/
+//
+
+/*队长移交*/
+int cli_change_team_leader(sprite_t *p, Cmessage* c_in)
+{
+	cli_change_team_leader_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_last_kill_beastgrp  ---------*/
+//
+
+/*获取最新打死的怪物组*/
+int cli_get_last_kill_beastgrp(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_last_kill_beastgrp_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_map_grp  ---------*/
+//
+
+/*获取当前场景中的怪物组*/
+int cli_get_map_grp(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_map_grp_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_grp_challenged  ---------*/
+//
+
+/*统治场景中的怪物组被挑战了*/
+int cli_grp_challenged(sprite_t *p, Cmessage* c_in)
+{
+	cli_grp_challenged_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_apply_megalith_war  ---------*/
+//
+
+/*申请进入巨石战*/
+int cli_apply_megalith_war(sprite_t *p, Cmessage* c_in)
+{
+
+
+
+}
+
+/* ----------------CODE FOR cli_quit_megalith_war  ---------*/
+//
+
+/*退出巨石战申请*/
+int cli_quit_megalith_war(sprite_t *p, Cmessage* c_in)
+{
+
+
+
+}
+
+/* ----------------CODE FOR cli_war_challenge_pos  ---------*/
+//
+
+/*巨石战挑战某个位置*/
+int cli_war_challenge_pos(sprite_t *p, Cmessage* c_in)
+{
+	cli_war_challenge_pos_in * p_in = P_IN;
+	cli_war_challenge_pos_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_war_play_card  ---------*/
+//
+
+/*出卡牌*/
+int cli_war_play_card(sprite_t *p, Cmessage* c_in)
+{
+	cli_war_play_card_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_war_attack_boss  ---------*/
+//
+
+/*攻击boss*/
+int cli_war_attack_boss(sprite_t *p, Cmessage* c_in)
+{
+
+
+
+}
+
+/* ----------------CODE FOR noti_cli_war_update_score  ---------*/
+//
+
+/*通知客户端分数更新*/
+int noti_cli_war_update_score(sprite_t *p, Cmessage* c_in)
+{
+	noti_cli_war_update_score_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR noti_cli_war_be_attacked  ---------*/
+//
+
+/*通知客户端被打*/
+int noti_cli_war_be_attacked(sprite_t *p, Cmessage* c_in)
+{
+	noti_cli_war_be_attacked_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR noti_cli_war_challenge_result  ---------*/
+//
+
+/*通知客户端挑战结果*/
+int noti_cli_war_challenge_result(sprite_t *p, Cmessage* c_in)
+{
+	noti_cli_war_challenge_result_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR noti_cli_war_over  ---------*/
+//
+
+/*通知巨石战结束*/
+int noti_cli_war_over(sprite_t *p, Cmessage* c_in)
+{
+	noti_cli_war_over_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_positions_info  ---------*/
+//
+
+/*拉取12个武器位置人物*/
+int cli_get_positions_info(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_positions_info_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_leave_position  ---------*/
+//
+
+/*主动离开某个位置*/
+int cli_leave_position(sprite_t *p, Cmessage* c_in)
+{
+	cli_leave_position_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR noti_cli_leave_war  ---------*/
+//
+
+/*巨石战场服务器出错，必须退出*/
+int noti_cli_leave_war(sprite_t *p, Cmessage* c_in)
+{
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_loop_grp  ---------*/
+//
+
+/*获取精灵挑战信息*/
+int cli_get_loop_grp(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_loop_grp_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_refresh_loopgrp  ---------*/
+//
+
+/*刷新精灵挑战*/
+int cli_refresh_loopgrp(sprite_t *p, Cmessage* c_in)
+{
+	cli_refresh_loopgrp_in * p_in = P_IN;
+	cli_refresh_loopgrp_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_elite_beast  ---------*/
+//
+
+/*获取地图精英怪*/
+int cli_get_elite_beast(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_elite_beast_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_sync_beast_kill  ---------*/
+//
+
+/*客户端同步全局杀怪数量*/
+int cli_sync_beast_kill(sprite_t *p, Cmessage* c_in)
+{
+	cli_sync_beast_kill_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_check_engaged_beast_kill  ---------*/
+//
+
+/*是否参与打怪*/
+int cli_check_engaged_beast_kill(sprite_t *p, Cmessage* c_in)
+{
+	cli_check_engaged_beast_kill_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_grp_challenge_cnt  ---------*/
+//
+
+/*获取怪物组挑战次数*/
+int cli_get_grp_challenge_cnt(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_grp_challenge_cnt_in * p_in = P_IN;
+	cli_get_grp_challenge_cnt_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_game_pvp_get_map_id  ---------*/
+//
+
+/*pvp 得到要进入地图的id*/
+int cli_game_pvp_get_map_id(sprite_t *p, Cmessage* c_in)
+{
+	cli_game_pvp_get_map_id_in * p_in = P_IN;
+	cli_game_pvp_get_map_id_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_pvp_game_noti_time_out  ---------*/
+//
+
+/*pvp通知超时时间*/
+int cli_pvp_game_noti_time_out(sprite_t *p, Cmessage* c_in)
+{
+	cli_pvp_game_noti_time_out_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR noti_cli_home_pvp_game_start  ---------*/
+//
+
+/*通知pvp 开战*/
+int noti_cli_home_pvp_game_start(sprite_t *p, Cmessage* c_in)
+{
+	noti_cli_home_pvp_game_start_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_noti_home_pvp_info  ---------*/
+//
+
+/*通知pvp 消息*/
+int cli_noti_home_pvp_info(sprite_t *p, Cmessage* c_in)
+{
+	cli_noti_home_pvp_info_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_noti_home_pvp_pk_info  ---------*/
+//
+
+/*pvp 通知对战信息*/
+int cli_noti_home_pvp_pk_info(sprite_t *p, Cmessage* c_in)
+{
+	cli_noti_home_pvp_pk_info_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_game_get_pvp_info  ---------*/
+//
+
+/*得到pvp信息－分数*/
+int cli_game_get_pvp_info(sprite_t *p, Cmessage* c_in)
+{
+	cli_game_get_pvp_info_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_pvp_get_honor  ---------*/
+//
+
+/*pvp  兑换称号*/
+int cli_pvp_get_honor(sprite_t *p, Cmessage* c_in)
+{
+	cli_pvp_get_honor_in * p_in = P_IN;
+	cli_pvp_get_honor_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_add_npc_to_team  ---------*/
+//
+
+/*将NPC加入队伍*/
+int cli_add_npc_to_team(sprite_t *p, Cmessage* c_in)
+{
+	cli_add_npc_to_team_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_text_notify  ---------*/
+//
+
+/*文本通知*/
+int cli_text_notify(sprite_t *p, Cmessage* c_in)
+{
+	cli_text_notify_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_set_pet_state  ---------*/
+//
+
+/*修改宠物状态标志*/
+int cli_set_pet_state(sprite_t *p, Cmessage* c_in)
+{
+	cli_set_pet_state_in * p_in = P_IN;
+	cli_set_pet_state_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_set_pet_nick  ---------*/
+//
+
+/*修改宠物昵称*/
+int cli_set_pet_nick(sprite_t *p, Cmessage* c_in)
+{
+	cli_set_pet_nick_in * p_in = P_IN;
+	cli_set_pet_nick_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_pet_info  ---------*/
+//
+
+/*拉取宠物信息*/
+int cli_get_pet_info(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_pet_info_in * p_in = P_IN;
+	cli_get_pet_info_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_pet_list  ---------*/
+//
+
+/**/
+int cli_get_pet_list(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_pet_list_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_cure_pet  ---------*/
+//
+
+/*宠物治疗*/
+int cli_cure_pet(sprite_t *p, Cmessage* c_in)
+{
+	cli_cure_pet_in * p_in = P_IN;
+	cli_cure_pet_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_cure_pet_injury  ---------*/
+//
+
+/*宠物受伤治疗*/
+int cli_cure_pet_injury(sprite_t *p, Cmessage* c_in)
+{
+	cli_cure_pet_injury_in * p_in = P_IN;
+	cli_cure_pet_injury_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_user_pet_list  ---------*/
+//
+
+/**/
+int cli_get_user_pet_list(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_user_pet_list_in * p_in = P_IN;
+	cli_get_user_pet_list_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_pet_follow  ---------*/
+//
+
+/*宠物跟随*/
+int cli_pet_follow(sprite_t *p, Cmessage* c_in)
+{
+	cli_pet_follow_in * p_in = P_IN;
+	cli_pet_follow_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_pet_inhouse  ---------*/
+//
+
+/*拉取仓库中的宠物列表*/
+int cli_get_pet_inhouse(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_pet_inhouse_in * p_in = P_IN;
+	cli_get_pet_inhouse_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_update_pet_location  ---------*/
+//
+
+/*修改仓库中的宠物位置*/
+int cli_update_pet_location(sprite_t *p, Cmessage* c_in)
+{
+	cli_update_pet_location_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_del_pet  ---------*/
+//
+
+/*删除宠物*/
+int cli_del_pet(sprite_t *p, Cmessage* c_in)
+{
+	cli_del_pet_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_other_pet_info  ---------*/
+//
+
+/*拉取他人宠物信息*/
+int cli_get_other_pet_info(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_other_pet_info_in * p_in = P_IN;
+	cli_get_other_pet_info_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_exchange_pet  ---------*/
+//
+
+/*交换宠物*/
+int cli_exchange_pet(sprite_t *p, Cmessage* c_in)
+{
+	cli_exchange_pet_in * p_in = P_IN;
+	cli_exchange_pet_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_all_petcnt  ---------*/
+//
+
+/*获取仓库中宠物的数量*/
+int cli_get_all_petcnt(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_all_petcnt_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR reset_pet_add_attr  ---------*/
+//
+
+/*重置宠物属性点*/
+int reset_pet_add_attr(sprite_t *p, Cmessage* c_in)
+{
+	reset_pet_add_attr_in * p_in = P_IN;
+	reset_pet_add_attr_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR noti_get_pets  ---------*/
+//
+
+/*通知客户端获得宠物*/
+int noti_get_pets(sprite_t *p, Cmessage* c_in)
+{
+	noti_get_pets_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_petlist_type  ---------*/
+//
+
+/*根据宠物类型拉取宠物列表*/
+int cli_get_petlist_type(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_petlist_type_in * p_in = P_IN;
+	cli_get_petlist_type_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR noti_pet_levelup  ---------*/
+//
+
+/*通知客户端宠物升级*/
+int noti_pet_levelup(sprite_t *p, Cmessage* c_in)
+{
+	noti_pet_levelup_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_exchange_pet_for_item  ---------*/
+//
+
+/*宠物换道具*/
+int cli_exchange_pet_for_item(sprite_t *p, Cmessage* c_in)
+{
+	cli_exchange_pet_for_item_in * p_in = P_IN;
+	cli_exchange_pet_for_item_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_reset_pet  ---------*/
+//
+
+/*宠物洗成长和初始值*/
+int cli_reset_pet(sprite_t *p, Cmessage* c_in)
+{
+	cli_reset_pet_in * p_in = P_IN;
+	cli_reset_pet_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_train_race_skill  ---------*/
+//
+
+/*种族技能炼化*/
+int cli_train_race_skill(sprite_t *p, Cmessage* c_in)
+{
+	cli_train_race_skill_in * p_in = P_IN;
+	cli_train_race_skill_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_change_race_skill  ---------*/
+//
+
+/*确认更改技能*/
+int cli_change_race_skill(sprite_t *p, Cmessage* c_in)
+{
+	cli_change_race_skill_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_map_copy  ---------*/
+//
+
+/*获得地图副本*/
+int cli_get_map_copy(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_map_copy_in * p_in = P_IN;
+	cli_get_map_copy_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_recover_duration  ---------*/
+//
+
+/*将装备【当前耐久】与【最大耐久】还原为初始状态。*/
+int cli_recover_duration(sprite_t *p, Cmessage* c_in)
+{
+	cli_recover_duration_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_not_entry  ---------*/
+//
+
+/*用户不进入地图*/
+int cli_not_entry(sprite_t *p, Cmessage* c_in)
+{
+	cli_not_entry_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_copy_info  ---------*/
+//
+
+/*获取当前所在副本信息*/
+int cli_get_copy_info(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_copy_info_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_open_precious_box  ---------*/
+//
+
+/*修炼之域中打开宝箱*/
+int cli_open_precious_box(sprite_t *p, Cmessage* c_in)
+{
+	cli_open_precious_box_in * p_in = P_IN;
+	cli_open_precious_box_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_hangup_time  ---------*/
+//
+
+/*获取暴力挂机在线时间*/
+int cli_get_hangup_time(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_hangup_time_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_hangup_rewards  ---------*/
+//
+
+/*领取暴力挂机奖励*/
+int cli_get_hangup_rewards(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_hangup_rewards_in * p_in = P_IN;
+	cli_get_hangup_rewards_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_rewards_info  ---------*/
+//
+
+/*拉取暴力挂机奖励信息*/
+int cli_get_rewards_info(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_rewards_info_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_item_valid_cnt  ---------*/
+//
+
+/*拉取每日限制数量物品的可利用数量*/
+int cli_get_item_valid_cnt(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_item_valid_cnt_in * p_in = P_IN;
+	cli_get_item_valid_cnt_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR check_vip_rand_info  ---------*/
+//
+
+/*检查vip的随机物品*/
+int check_vip_rand_info(sprite_t *p, Cmessage* c_in)
+{
+	check_vip_rand_info_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_btrteam_info  ---------*/
+//
+
+/*获取队友的战斗力*/
+int cli_get_btrteam_info(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_btrteam_info_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_open_pumpkin_lantern  ---------*/
+//
+
+/*南瓜灯活动*/
+int cli_open_pumpkin_lantern(sprite_t *p, Cmessage* c_in)
+{
+	cli_open_pumpkin_lantern_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_check_team_challenge_npc  ---------*/
+//
+
+/*检查队友挑战怪物组次数是否到上限*/
+int cli_check_team_challenge_npc(sprite_t *p, Cmessage* c_in)
+{
+	cli_check_team_challenge_npc_in * p_in = P_IN;
+	cli_check_team_challenge_npc_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_set_pet_flag  ---------*/
+//
+
+/*设置宠物flag*/
+int cli_set_pet_flag(sprite_t *p, Cmessage* c_in)
+{
+	cli_set_pet_flag_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_task_rank  ---------*/
+//
+
+/*拉取top10*/
+int cli_get_task_rank(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_task_rank_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_task_time  ---------*/
+//
+
+/*拉取任务已用时间*/
+int cli_get_task_time(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_task_time_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR apply_for_join_btr_team_new  ---------*/
+//
+
+/*跨地图申请加入战队*/
+int apply_for_join_btr_team_new(sprite_t *p, Cmessage* c_in)
+{
+	apply_for_join_btr_team_new_in * p_in = P_IN;
+	apply_for_join_btr_team_new_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_valid_team  ---------*/
+//
+
+/*拉取可加入的队伍信息*/
+int cli_get_valid_team(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_valid_team_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_team_details  ---------*/
+//
+
+/*获得队伍详细信息*/
+int cli_get_team_details(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_team_details_in * p_in = P_IN;
+	cli_get_team_details_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_sync_user_time  ---------*/
+//
+
+/*检测用户的系统时间*/
+int cli_sync_user_time(sprite_t *p, Cmessage* c_in)
+{
+	cli_sync_user_time_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_accept_add_team  ---------*/
+//
+
+/*接受加入组队*/
+int cli_accept_add_team(sprite_t *p, Cmessage* c_in)
+{
+	cli_accept_add_team_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_join_watchers  ---------*/
+//
+
+/*加入观战*/
+int cli_join_watchers(sprite_t *p, Cmessage* c_in)
+{
+	cli_join_watchers_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_cancel_watchers  ---------*/
+//
+
+/*取消观战*/
+int cli_cancel_watchers(sprite_t *p, Cmessage* c_in)
+{
+	cli_cancel_watchers_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_noti_add_skill  ---------*/
+//
+
+/*服务器主动通知添加技能*/
+int cli_noti_add_skill(sprite_t *p, Cmessage* c_in)
+{
+	cli_noti_add_skill_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_change_prof  ---------*/
+//
+
+/*转职*/
+int cli_change_prof(sprite_t *p, Cmessage* c_in)
+{
+	cli_change_prof_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_give_vip_activity  ---------*/
+//
+
+/*登录送vip活动*/
+int cli_give_vip_activity(sprite_t *p, Cmessage* c_in)
+{
+	cli_give_vip_activity_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_buy_skill  ---------*/
+//
+
+/*购买人物技能*/
+int cli_buy_skill(sprite_t *p, Cmessage* c_in)
+{
+	cli_buy_skill_in * p_in = P_IN;
+	cli_buy_skill_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_pet_buy_skill  ---------*/
+//
+
+/*购买宠物技能*/
+int cli_pet_buy_skill(sprite_t *p, Cmessage* c_in)
+{
+	cli_pet_buy_skill_in * p_in = P_IN;
+	cli_pet_buy_skill_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_skill_list  ---------*/
+//
+
+/*拉取技能列表*/
+int cli_get_skill_list(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_skill_list_in * p_in = P_IN;
+	cli_get_skill_list_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR recommend_pet_add_attr  ---------*/
+//
+
+/*推荐宠物配点*/
+int recommend_pet_add_attr(sprite_t *p, Cmessage* c_in)
+{
+	recommend_pet_add_attr_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_del_skill  ---------*/
+//
+
+/*删除人物技能*/
+int cli_del_skill(sprite_t *p, Cmessage* c_in)
+{
+	cli_del_skill_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_pet_del_skill  ---------*/
+//
+
+/**/
+int cli_pet_del_skill(sprite_t *p, Cmessage* c_in)
+{
+	cli_pet_del_skill_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_pet_add_base_attr  ---------*/
+//
+
+/*宠物配点*/
+int cli_pet_add_base_attr(sprite_t *p, Cmessage* c_in)
+{
+	cli_pet_add_base_attr_in * p_in = P_IN;
+	cli_pet_add_base_attr_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_unlock_pet_talent_skill  ---------*/
+//
+
+/*解锁宠物天赋技能*/
+int cli_unlock_pet_talent_skill(sprite_t *p, Cmessage* c_in)
+{
+	cli_unlock_pet_talent_skill_in * p_in = P_IN;
+	cli_unlock_pet_talent_skill_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR set_default_skill_level  ---------*/
+//
+
+/*设置技能默认等级*/
+int set_default_skill_level(sprite_t *p, Cmessage* c_in)
+{
+	set_default_skill_level_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR allocate_skill_exp  ---------*/
+//
+
+/*分配技能经验*/
+int allocate_skill_exp(sprite_t *p, Cmessage* c_in)
+{
+	allocate_skill_exp_in * p_in = P_IN;
+	allocate_skill_exp_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_lucky_star_info  ---------*/
+//
+
+/*幸运星活动拉取剩余时间和幸运星数量*/
+int cli_get_lucky_star_info(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_lucky_star_info_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_set_all_pet_state  ---------*/
+//
+
+/*设置所有宠物状态*/
+int cli_set_all_pet_state(sprite_t *p, Cmessage* c_in)
+{
+	cli_set_all_pet_state_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_user_shapeshifting  ---------*/
+//
+
+/*使用变身卡*/
+int cli_user_shapeshifting(sprite_t *p, Cmessage* c_in)
+{
+	cli_user_shapeshifting_in * p_in = P_IN;
+	cli_user_shapeshifting_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_exchange_lucky_star  ---------*/
+//
+
+/*兑换幸运星*/
+int cli_exchange_lucky_star(sprite_t *p, Cmessage* c_in)
+{
+	cli_exchange_lucky_star_in * p_in = P_IN;
+	cli_exchange_lucky_star_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_vip_reward  ---------*/
+//
+
+/*赠送精灵蛋活动 领取精灵蛋*/
+int cli_get_vip_reward(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_vip_reward_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_trade_get_mapid  ---------*/
+//
+
+/*获取交易房间id*/
+int cli_trade_get_mapid(sprite_t *p, Cmessage* c_in)
+{
+	cli_trade_get_mapid_in * p_in = P_IN;
+	cli_trade_get_mapid_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_trade_get_shop_info  ---------*/
+//
+
+/*拉取店铺信息*/
+int cli_trade_get_shop_info(sprite_t *p, Cmessage* c_in)
+{
+	cli_trade_get_shop_info_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_trade_change_shop  ---------*/
+//
+
+/*修改商店    抢占店铺时返回参数将是6个 参考mole2_home  1395*/
+int cli_trade_change_shop(sprite_t *p, Cmessage* c_in)
+{
+	cli_trade_change_shop_in * p_in = P_IN;
+	cli_trade_change_shop_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_trade_get_records  ---------*/
+//
+
+/*拉取交易记录*/
+int cli_trade_get_records(sprite_t *p, Cmessage* c_in)
+{
+	cli_trade_get_records_in * p_in = P_IN;
+	cli_trade_get_records_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_trade_add_item  ---------*/
+//
+
+/*添加交易物品*/
+int cli_trade_add_item(sprite_t *p, Cmessage* c_in)
+{
+	cli_trade_add_item_in * p_in = P_IN;
+	cli_trade_add_item_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_trade_buy_item  ---------*/
+//
+
+/*买物品*/
+int cli_trade_buy_item(sprite_t *p, Cmessage* c_in)
+{
+	cli_trade_buy_item_in * p_in = P_IN;
+	cli_trade_buy_item_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_trade_get_items  ---------*/
+//
+
+/*拉取商店物品列表*/
+int cli_trade_get_items(sprite_t *p, Cmessage* c_in)
+{
+	cli_trade_get_items_in * p_in = P_IN;
+	cli_trade_get_items_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_rand_item  ---------*/
+//
+
+/*获取随机物品*/
+int cli_get_rand_item(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_rand_item_in * p_in = P_IN;
+	cli_get_rand_item_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_rand_item_spec  ---------*/
+//
+
+/*指定获得物品*/
+int cli_get_rand_item_spec(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_rand_item_spec_in * p_in = P_IN;
+	cli_get_rand_item_spec_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_check_rand_info  ---------*/
+//
+
+/*检查随机领取物品次数*/
+int cli_check_rand_info(sprite_t *p, Cmessage* c_in)
+{
+	cli_check_rand_info_in * p_in = P_IN;
+	cli_check_rand_info_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_vip_item  ---------*/
+//
+
+/*VIP领取物品*/
+int cli_get_vip_item(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_vip_item_in * p_in = P_IN;
+	cli_get_vip_item_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_vip_item_cnt  ---------*/
+//
+
+/*得到vip 装扮信息*/
+int cli_get_vip_item_cnt(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_vip_item_cnt_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR get_exchange_cnt_info  ---------*/
+//
+
+/*获取兑换的限制信息*/
+int get_exchange_cnt_info(sprite_t *p, Cmessage* c_in)
+{
+	get_exchange_cnt_info_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_rand_range  ---------*/
+//
+
+/*获取randid次数*/
+int cli_get_rand_range(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_rand_range_in * p_in = P_IN;
+	cli_get_rand_range_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_draw_cnt  ---------*/
+//
+
+/*获取可用翻牌子次数（有主动通知包）*/
+int cli_get_draw_cnt(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_draw_cnt_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_draw_once  ---------*/
+//
+
+/*翻一次牌子*/
+int cli_draw_once(sprite_t *p, Cmessage* c_in)
+{
+	cli_draw_once_in * p_in = P_IN;
+	cli_draw_once_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_survey_info  ---------*/
+//
+
+/*获取是否参与过调查*/
+int cli_get_survey_info(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_survey_info_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_engage_survey  ---------*/
+//
+
+/*参与调查*/
+int cli_engage_survey(sprite_t *p, Cmessage* c_in)
+{
+	cli_engage_survey_in * p_in = P_IN;
+	cli_engage_survey_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_engage_skill_survey  ---------*/
+//
+
+/*参与宠物技能投票*/
+int cli_engage_skill_survey(sprite_t *p, Cmessage* c_in)
+{
+	cli_engage_skill_survey_in * p_in = P_IN;
+	cli_engage_skill_survey_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_skill_survey_info  ---------*/
+//
+
+/*获取技能调查结果*/
+int cli_get_skill_survey_info(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_skill_survey_info_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_pet_skill_reward  ---------*/
+//
+
+/*获取宠物技能相关奖励*/
+int cli_get_pet_skill_reward(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_pet_skill_reward_in * p_in = P_IN;
+	cli_get_pet_skill_reward_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_pet_reward_info  ---------*/
+//
+
+/*获取宠物技能相关奖励领取信息*/
+int cli_get_pet_reward_info(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_pet_reward_info_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_start_game  ---------*/
+//
+
+/*游戏开始*/
+int cli_start_game(sprite_t *p, Cmessage* c_in)
+{
+	cli_start_game_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_start_hangup  ---------*/
+//
+
+/*开始挂机*/
+int cli_start_hangup(sprite_t *p, Cmessage* c_in)
+{
+	cli_start_hangup_in * p_in = P_IN;
+	cli_start_hangup_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_stop_hangup  ---------*/
+//
+
+/*停止挂机*/
+int cli_stop_hangup(sprite_t *p, Cmessage* c_in)
+{
+	cli_stop_hangup_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR noti_cli_hang_get_exp  ---------*/
+//
+
+/*通知客户端挂机获得经验*/
+int noti_cli_hang_get_exp(sprite_t *p, Cmessage* c_in)
+{
+	noti_cli_hang_get_exp_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_seat_info  ---------*/
+//
+
+/*获取座位情况*/
+int cli_get_seat_info(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_seat_info_in * p_in = P_IN;
+	cli_get_seat_info_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_register_bird_map  ---------*/
+//
+
+/*注册陆行鸟跳转点*/
+int cli_register_bird_map(sprite_t *p, Cmessage* c_in)
+{
+	cli_register_bird_map_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_bird_maps  ---------*/
+//
+
+/*获取陆行鸟注册信息*/
+int cli_get_bird_maps(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_bird_maps_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_check_team_bird_map  ---------*/
+//
+
+/*检查队伍陆行鸟是否注册*/
+int cli_check_team_bird_map(sprite_t *p, Cmessage* c_in)
+{
+	cli_check_team_bird_map_in * p_in = P_IN;
+	cli_check_team_bird_map_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_register_boss_map  ---------*/
+//
+
+/*注册BOSS跳转点*/
+int cli_register_boss_map(sprite_t *p, Cmessage* c_in)
+{
+	cli_register_boss_map_in * p_in = P_IN;
+	cli_register_boss_map_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_boss_maps  ---------*/
+//
+
+/*获取BOSS跳转点信息*/
+int cli_get_boss_maps(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_boss_maps_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_check_team_boss_map  ---------*/
+//
+
+/*检查队伍跳转点是否注册*/
+int cli_check_team_boss_map(sprite_t *p, Cmessage* c_in)
+{
+	cli_check_team_boss_map_in * p_in = P_IN;
+	cli_check_team_boss_map_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_map_state  ---------*/
+//
+
+/*拉取场景状态信息*/
+int cli_get_map_state(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_map_state_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_set_map_state  ---------*/
+//
+
+/**/
+int cli_set_map_state(sprite_t *p, Cmessage* c_in)
+{
+	cli_set_map_state_in * p_in = P_IN;
+	cli_set_map_state_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_handbook_info  ---------*/
+//
+
+/*拉取图鉴信息*/
+int cli_get_handbook_info(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_handbook_info_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_g_book  ---------*/
+//
+
+/*获取G档案信息*/
+int cli_get_g_book(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_g_book_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_g_book_xiaomee  ---------*/
+//
+
+/*获取第一次点亮怪物的星豆*/
+int cli_get_g_book_xiaomee(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_g_book_xiaomee_in * p_in = P_IN;
+	cli_get_g_book_xiaomee_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_open_box  ---------*/
+//
+
+/**/
+int cli_open_box(sprite_t *p, Cmessage* c_in)
+{
+	cli_open_box_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_box_opened  ---------*/
+//
+
+/*宝箱已经被打开*/
+int cli_box_opened(sprite_t *p, Cmessage* c_in)
+{
+	cli_box_opened_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_box_activated  ---------*/
+//
+
+/*宝箱被激活*/
+int cli_box_activated(sprite_t *p, Cmessage* c_in)
+{
+	cli_box_activated_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR noti_cli_get_box_item  ---------*/
+//
+
+/*通知客户端得到物品*/
+int noti_cli_get_box_item(sprite_t *p, Cmessage* c_in)
+{
+	noti_cli_get_box_item_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR get_box_active_list  ---------*/
+//
+
+/**/
+int get_box_active_list(sprite_t *p, Cmessage* c_in)
+{
+	get_box_active_list_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_maze_state_change  ---------*/
+//
+
+/*迷宫状态变化通知*/
+int cli_maze_state_change(sprite_t *p, Cmessage* c_in)
+{
+	cli_maze_state_change_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_maze_open_portal  ---------*/
+//
+
+/*获得人物附近传送门的转移地图*/
+int cli_maze_open_portal(sprite_t *p, Cmessage* c_in)
+{
+	cli_maze_open_portal_in * p_in = P_IN;
+	cli_maze_open_portal_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_maze_goto_map  ---------*/
+//
+
+/*迷宫关闭，人物需要转移地图通知*/
+int cli_maze_goto_map(sprite_t *p, Cmessage* c_in)
+{
+	cli_maze_goto_map_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_shop_in_map  ---------*/
+//
+
+/*获取迷宫商店*/
+int cli_get_shop_in_map(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_shop_in_map_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_send_mail  ---------*/
+//
+
+/*发送邮件*/
+int cli_send_mail(sprite_t *p, Cmessage* c_in)
+{
+	cli_send_mail_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_mail_simple  ---------*/
+//
+
+/*获得用户邮件简单信息列表*/
+int cli_get_mail_simple(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_mail_simple_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_mail_content  ---------*/
+//
+
+/*获得邮件内容和物品*/
+int cli_get_mail_content(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_mail_content_in * p_in = P_IN;
+	cli_get_mail_content_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_del_mail  ---------*/
+//
+
+/*删除邮件*/
+int cli_del_mail(sprite_t *p, Cmessage* c_in)
+{
+	cli_del_mail_in * p_in = P_IN;
+	cli_del_mail_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_mail_set_flag  ---------*/
+//
+
+/*设置邮件标志位*/
+int cli_mail_set_flag(sprite_t *p, Cmessage* c_in)
+{
+	cli_mail_set_flag_in * p_in = P_IN;
+	cli_mail_set_flag_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_mail_notify  ---------*/
+//
+
+/*通知用户收到新邮件*/
+int cli_mail_notify(sprite_t *p, Cmessage* c_in)
+{
+	cli_mail_notify_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_mail_items_get  ---------*/
+//
+
+/*获取系统邮件赠送的物品*/
+int cli_mail_items_get(sprite_t *p, Cmessage* c_in)
+{
+	cli_mail_items_get_in * p_in = P_IN;
+	cli_mail_items_get_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR noti_global_msg  ---------*/
+//
+
+/**/
+int noti_global_msg(sprite_t *p, Cmessage* c_in)
+{
+	noti_global_msg_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_home_info  ---------*/
+//
+
+/*拉取小屋信息*/
+int cli_get_home_info(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_home_info_in * p_in = P_IN;
+	cli_get_home_info_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_expbox_change  ---------*/
+//
+
+/*小屋经验树变化*/
+int cli_expbox_change(sprite_t *p, Cmessage* c_in)
+{
+	cli_expbox_change_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_update_home_flag  ---------*/
+//
+
+/*设置小屋flag*/
+int cli_update_home_flag(sprite_t *p, Cmessage* c_in)
+{
+	cli_update_home_flag_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_water_cnt  ---------*/
+//
+
+/*拉取浇灌次数*/
+int cli_get_water_cnt(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_water_cnt_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_use_water  ---------*/
+//
+
+/*浇灌*/
+int cli_use_water(sprite_t *p, Cmessage* c_in)
+{
+	cli_use_water_in * p_in = P_IN;
+	cli_use_water_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_start_fishing  ---------*/
+//
+
+/*开始钓鱼*/
+int cli_start_fishing(sprite_t *p, Cmessage* c_in)
+{
+
+
+
+}
+
+/* ----------------CODE FOR cli_fishing_get_item  ---------*/
+//
+
+/*钓鱼获得物品*/
+int cli_fishing_get_item(sprite_t *p, Cmessage* c_in)
+{
+	cli_fishing_get_item_in * p_in = P_IN;
+	cli_fishing_get_item_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_finish_fishing  ---------*/
+//
+
+/*结束钓鱼*/
+int cli_finish_fishing(sprite_t *p, Cmessage* c_in)
+{
+
+
+
+}
+
+/* ----------------CODE FOR get_vacancy_cnt  ---------*/
+//
+
+/*获取空无一物次数*/
+int get_vacancy_cnt(sprite_t *p, Cmessage* c_in)
+{
+	get_vacancy_cnt_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_hero_team_rank  ---------*/
+//
+
+/*获取所在勇士杯队伍排名*/
+int cli_get_hero_team_rank(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_hero_team_rank_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_hero_team_reward  ---------*/
+//
+
+/*领取勇士杯*/
+int cli_get_hero_team_reward(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_hero_team_reward_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_hero_user_rank  ---------*/
+//
+
+/*获取用户排名*/
+int cli_get_hero_user_rank(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_hero_user_rank_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_vip_active_item  ---------*/
+//
+
+/*获取VIP充值活动奖品*/
+int cli_get_vip_active_item(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_vip_active_item_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR noti_cli_can_get_dragon  ---------*/
+//
+
+/*通知客户端可以获得龙蛋*/
+int noti_cli_can_get_dragon(sprite_t *p, Cmessage* c_in)
+{
+	noti_cli_can_get_dragon_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_hero_cup_reward  ---------*/
+//
+
+/*获取勇士杯奖励*/
+int cli_get_hero_cup_reward(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_hero_cup_reward_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_devote_medals  ---------*/
+//
+
+/*贡献奖牌*/
+int cli_devote_medals(sprite_t *p, Cmessage* c_in)
+{
+	cli_devote_medals_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_get_vip_active_2  ---------*/
+//
+
+/*获取vip召回活动奖励*/
+int cli_get_vip_active_2(sprite_t *p, Cmessage* c_in)
+{
+	cli_get_vip_active_2_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_pic_srv_ip_port  ---------*/
+//
+
+/*拉取截图服务器信息*/
+int cli_pic_srv_ip_port(sprite_t *p, Cmessage* c_in)
+{
+	cli_pic_srv_ip_port_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR cli_read_news  ---------*/
+//
+
+/*阅读统计*/
+int cli_read_news(sprite_t *p, Cmessage* c_in)
+{
+	cli_read_news_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_check_magic_code  ---------*/
+//
+
+/*获取神奇密码兑换信息*/
+int cli_check_magic_code(sprite_t *p, Cmessage* c_in)
+{
+	cli_check_magic_code_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR cli_use_magic_code  ---------*/
+//
+
+/*使用神奇密码兑换*/
+int cli_use_magic_code(sprite_t *p, Cmessage* c_in)
+{
+	cli_use_magic_code_in * p_in = P_IN;
+
+
+
+}
+
+/* ----------------CODE FOR get_bus_friend_uplist  ---------*/
+//
+
+/*获取好友校巴更新列表*/
+int get_bus_friend_uplist(sprite_t *p, Cmessage* c_in)
+{
+	get_bus_friend_uplist_in * p_in = P_IN;
+	get_bus_friend_uplist_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR get_bus_friend_base_info  ---------*/
+//
+
+/*获取校巴好友基本信息*/
+int get_bus_friend_base_info(sprite_t *p, Cmessage* c_in)
+{
+	get_bus_friend_base_info_in * p_in = P_IN;
+	get_bus_friend_base_info_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR mall_get_money_balance  ---------*/
+//
+
+/*查询商城货币余额*/
+int mall_get_money_balance(sprite_t *p, Cmessage* c_in)
+{
+	mall_get_money_balance_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR mall_get_items_price  ---------*/
+//
+
+/*拉取多个商城物品的价格*/
+int mall_get_items_price(sprite_t *p, Cmessage* c_in)
+{
+	mall_get_items_price_in * p_in = P_IN;
+	mall_get_items_price_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR mall_get_item_detail  ---------*/
+//
+
+/*获取商城物品详细信息*/
+int mall_get_item_detail(sprite_t *p, Cmessage* c_in)
+{
+	mall_get_item_detail_in * p_in = P_IN;
+	mall_get_item_detail_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR mall_buy_item  ---------*/
+//
+
+/**/
+int mall_buy_item(sprite_t *p, Cmessage* c_in)
+{
+	mall_buy_item_in * p_in = P_IN;
+	mall_buy_item_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR check_spacetime_code  ---------*/
+//
+
+/*检查时空密码*/
+int check_spacetime_code(sprite_t *p, Cmessage* c_in)
+{
+	check_spacetime_code_in * p_in = P_IN;
+	check_spacetime_code_out cli_out ;
+
+
+
+}
+
+/* ----------------CODE FOR use_spacetime_code  ---------*/
+//
+
+/*使用时空密码*/
+int use_spacetime_code(sprite_t *p, Cmessage* c_in)
+{
+	use_spacetime_code_in * p_in = P_IN;
+	use_spacetime_code_out cli_out ;
+
+
+
+}
+

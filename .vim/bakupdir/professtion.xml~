@@ -1,0 +1,15 @@
+<!--
+	Physique：体力初始值
+	Strength：力量初始值
+	Endurance：耐力初始值
+	Quick：敏捷初始值
+	Intelligence：智力初始值
+	Clothes：初始化装备
+	ClothesPatch：补选职业额外初始化武器
+-->
+<Professtions>
+	<Prof ID="1" Name="剑士" TitleID="1" Physique="5" Strength="15" Endurance="0" Quick="10" Intelligence="0" ClothesPatch="" Clothes="" />
+	<Prof ID="2" Name="弓术士" TitleID="7" Physique="0" Strength="15" Endurance="0" Quick="15" Intelligence="0"  ClothesPatch="" Clothes="" />
+	<Prof ID="3" Name="魔法师" TitleID="13" Physique="0" Strength="0" Endurance="0" Quick="15" Intelligence="15"  ClothesPatch="" Clothes="" />
+	<Prof ID="4" Name="传教士" TitleID="19" Physique="10" Strength="0" Endurance="0" Quick="5" Intelligence="15"  ClothesPatch="" Clothes="" />
+</Professtions>

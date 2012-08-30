@@ -1,0 +1,13 @@
+#!/usr/bin/python 
+#				ADD COLUMN color integer unsigned not null   
+
+dbname_fix="MOLE2_USER"
+tablename_fix="t_user"
+db_count=100
+table_count=10
+for i in range (db_count):
+	db_name= "%s_%02d"%(dbname_fix,i )
+	for j in range(table_count):
+		print """
+		select userid,xiaomee from %s.%s_%d  where xiaomee>100000000;
+		""" %(db_name,tablename_fix,j)

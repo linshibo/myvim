@@ -1,0 +1,132 @@
+/*
+ * =========================================================================
+ *
+ *        Filename: Citem_conf.cpp
+ *
+ *        Version:  1.0
+ *        Created:  2011-07-22 14:36:46
+ *        Description:  
+ *
+ *        Author:  jim (jim@taomee.com)
+ *        Company:  TAOMEE
+ *
+ * =========================================================================
+ */
+#include    "Citem_conf.h"
+
+void Citem_conf_map::add(uint32_t kindid , item_conf_t & item_conf )
+{
+	uint32_t itemid=item_conf.itemid;
+	if (item_conf.contain_itemid_list.size()>0){
+		this->cardid_contain_map[itemid]=item_conf.contain_itemid_list;
+	}
+	if (item_conf.source>0){
+		source_conf_t source_conf;
+ 		source_conf.source=item_conf.source;
+ 		source_conf.pay=item_conf.pay;
+
+		this->source_map[itemid]= source_conf;  
+		DEBUG_LOG("source_map:%u,%u,%u",itemid,source_conf.source,source_conf.pay);
+	}
+	
+	this->conf_map[kindid][itemid ]=item_conf;
+}
+
+bool Citem_conf_map::check_can_change(uint32_t itemid )   
+{
+	std::map<uint32_t,  item_conf_t> ::iterator it;
+	//1:装扮
+	std::map<uint32_t,  item_conf_t> & attire_map=this->conf_map[1];
+	it=attire_map.find(itemid );
+	if (it!=attire_map.end()){
+		return  bool(it->second.change);
+	}else{
+		return false;
+	}
+}
+
+uint32_t Citem_conf_map::get_relevanceid(uint32_t itemid )   
+{
+	std::map<uint32_t,  item_conf_t> ::iterator it;
+	//2:卡片
+	std::map<uint32_t,  item_conf_t> & attire_map=this->conf_map[2];
+	it=attire_map.find(itemid );
+	if (it!=attire_map.end()){
+		return  it->second.relevanceid;
+	}else{
+		return 0;
+	}
+}
+
+uint32_t Citem_conf_map::get_clothtype(uint32_t itemid )   {
+	std::map<uint32_t,  item_conf_t> ::iterator it;
+
+	std::map<uint32_t,  item_conf_t> & attire_map=this->conf_map[1];
+	it=attire_map.find(itemid );
+	if (it!=attire_map.end()){
+		return  it->second.clothtype;
+	}else{
+		return 0;
+	}
+
+}
+
+std::vector<uint32_t>  Citem_conf_map::get_relevanceid_list()  
+{
+	std::vector<uint32_t> ret_list;
+	//2:卡片
+	std::map<uint32_t,  item_conf_t> & attire_map=this->conf_map[2];
+	std::map<uint32_t,  item_conf_t> ::iterator it;
+	for(it=attire_map.begin();it!=attire_map.end();++it ) {
+		if (it->second.relevanceid>0){
+			ret_list.push_back( it->second.relevanceid);
+		}
+
+	}
+
+	return ret_list;
+}	
+
+
+uint32_t Citem_conf_map::get_islandid(uint32_t itemid )   
+{
+	std::map<uint32_t,  item_conf_t> ::iterator it;
+	//2:卡片
+	std::map<uint32_t,  item_conf_t> & attire_map=this->conf_map[2];
+	it=attire_map.find(itemid );
+	if (it!=attire_map.end()){
+		return  it->second.islandid;
+	}else{
+		return 0;
+	}
+}
+
+bool Citem_conf_map::add_contain_itemid_list_to_set (
+		uint32_t cardid, std::set<uint32_t> *p_itemid_set )
+{
+	std::map<uint32_t,  std::vector<uint32_t> > ::iterator it;
+	it=this->cardid_contain_map.find(cardid);
+	if(it!=this->cardid_contain_map.end()){
+		p_itemid_set->insert(it->second.begin(), it->second.end());
+		return true;
+	}else{
+		return false;
+	}
+}
+
+
+source_conf_t * Citem_conf_map::get_buy_info( uint32_t itemid )
+{
+	std::map<uint32_t,  source_conf_t> ::iterator it;
+	it=this->source_map.find(itemid);
+	if(it!=this->source_map.end()){
+		if(it->second.source==1){
+			return &(it->second);
+		}else{
+			return NULL;
+		}
+
+	}else{
+		return NULL;
+	}
+}

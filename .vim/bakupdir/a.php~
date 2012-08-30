@@ -1,0 +1,11 @@
+<?
+class Ca{
+	public function ss(){
+		echo "--------------xx";
+	}
+};
+	$a= new Ca();
+	$a->ss(); 
+	$f=$a->ss;
+	$f();
+?>

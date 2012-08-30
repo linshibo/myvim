@@ -1,0 +1,4 @@
+[12:32:30] 0 [30203][../bt_online.cpp][363]challenge_battle_op_ex: len invalid	[batid=5685466179305522067  rencnt=2,need len=399,  send len=796 olid=6]
+[12:33:21] 0 [30580][../bt_online.cpp][363]challenge_battle_op_ex: len invalid	[batid=5685466398348854163  rencnt=2,need len=399,  send len=796 olid=6]
+[12:34:40] 0 [30580][../bt_online.cpp][5755]battle_info_op: not create battle	[batid=5685466398348854163 1347 50067]
+[12:34:59] 0 [30580][../bt_online.cpp][363]challenge_battle_op_ex: len invalid	[batid=5685466819255649171  rencnt=2,need len=399,  send len=796 olid=6]

@@ -1,0 +1,37 @@
+#!/bin/bash
+my='mysql -uroot -proot'
+for db in `seq 0 99`
+do
+        db=`printf %02d $db`
+        echo "start db : $db"
+        #$my -e  "create database db_user_info_$db"
+        for tb in `seq 0 99`
+        do
+                echo "start tb $tb"
+                tb=`printf %02d $tb`
+                echo "alter table XLAND_$db.t_pet_$tb 
+				modify column hp_init smallint(5) unsigned NOT NULL,
+				modify column mp_init smallint(5) unsigned NOT NULL,
+				modify column attack_init smallint(5) unsigned NOT NULL,
+				modify column avoid_init smallint(5) unsigned NOT NULL,
+				modify column speed_init smallint(5) unsigned NOT NULL,
+				modify column attr_param smallint(5) unsigned NOT NULL default 0,
+				modify column nature tinyint(3) unsigned NOT NULL default 0,
+				add column defense  smallint(5) unsigned NOT NULL default 0,
+				add column mdefense  smallint(5) unsigned NOT NULL default 0,
+				add column critical_attack  smallint(5) unsigned NOT NULL default 0,
+				add column deadly_attack  smallint(5) unsigned NOT NULL default 0,
+				add column rpoison  smallint(5) unsigned NOT NULL default 0,
+				add column rconfusion  smallint(5) unsigned NOT NULL default 0,
+				add column rstone  smallint(5) unsigned NOT NULL default 0,
+				add column rfreeze  smallint(5) unsigned NOT NULL default 0,
+				add column rsleep  smallint(5) unsigned NOT NULL default 0,
+				add column rcurse  smallint(5) unsigned NOT NULL default 0, 
+				add column fight_back  smallint(5) unsigned NOT NULL default 0,
+				add column strike_back  smallint(5) unsigned NOT NULL default 0,
+				add column strike_back_hurt  smallint(5) unsigned NOT NULL default 0,
+				add column rcritical_attack  smallint(5) unsigned NOT NULL default 0,
+				add column rdeadly_attack  smallint(5) unsigned NOT NULL default 0;
+				" | $my
+        done
+done

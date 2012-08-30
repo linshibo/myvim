@@ -1,0 +1,55 @@
+/*
+ * =========================================================================
+ *
+ *        Filename: levedb.h
+ *
+ *        Version:  1.0
+ *        Created:  2012-04-20 01:32:50
+ *        Description: leveldb实现 
+ *
+ *        Author:  francisco (francisco@taomee.com)
+ *        Company:  TAOMEE
+ *
+ * =========================================================================
+ */
+
+#ifndef  LEVEDB_H
+#define  LEVEDB_H
+
+#include "KVdb/KVdbAccess.hpp"
+#include "KVdb/Column.hpp"
+#include "KVdb/Protocal.hpp"
+
+#define  POLLEN_TYPE    uint16_t
+    
+#pragma pack(1)
+typedef struct {
+    uint32_t value;
+}PollenType;
+
+#pragma pack()
+class leveldb {
+	private:
+		KVdb::ColumnManager* manager;
+		KVdb::KVdbRawAccess* KVaccessor;
+	public:
+		leveldb() {
+			manager = new KVdb::ColumnManager(".");
+		    KVaccessor = new KVdb::KVdbRawAccess(manager);
+		}
+		~leveldb(){
+			delete manager;
+			delete KVaccessor; 
+		}
+		uint32_t get_value_uint32(char* key, uint32_t uid) {
+			PollenType v;
+    		KVaccessor->get(uid,key, v);
+			return v.value;
+		}
+		void set_value_uint32(char* key, uint32_t uid,uint32_t value, uint32_t time){
+			PollenType v;
+			v.value=value;	
+    		KVaccessor->set(uid, key, v, 0);
+		}
+};
+#endif  /*LEVEDB_H*/

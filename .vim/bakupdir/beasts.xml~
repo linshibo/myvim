@@ -1,0 +1,93 @@
+<Types>
+<Type ID="1" Name="滴滴蛋" MiniLV="1" Race="1" HPInit="533" MPInit="143" AttackInit="143"  Def="53" Mdef="53" SpeedInit="53" Style="1" Nature="6"  MinAttrParam="55" MaxAttrParam="65" HitInit="113" AvoidInit="3" Critical_attack="3" Deadly_attack="3" Rpoison="3" Rconfusion="3" Rstone="3" Rfreeze="3" Rsleep="3" Rcurse="3" Fight_back="3" Strike_back="3" Strike_back_hurt="3" Rcritical_attack="3" Rdeadly_attack="3" >
+	<TalentSkill ID="5101 5102 5103"/>
+	<Beast Lv="26" Catch="2000" />
+	<Beast Lv="27" Catch="2000" />
+	<Beast Lv="28" Catch="2000" />
+</Type>
+		
+<Type ID="2" Name="千年龟" MiniLV="5" Race="2" HPInit="525" MPInit="145" AttackInit="145"  Def="52" Mdef="52" SpeedInit="52" Style="1" Nature="6"  MinAttrParam="55" MaxAttrParam="65" HitInit="113" AvoidInit="3" Critical_attack="3" Deadly_attack="3" Rpoison="3" Rconfusion="3" Rstone="3" Rfreeze="3" Rsleep="3" Rcurse="3" Fight_back="3" Strike_back="3" Strike_back_hurt="3" Rcritical_attack="3" Rdeadly_attack="3" >
+	<TalentSkill ID="5104 5105 5106"/>
+	<Beast Lv="26" Catch="2000" />
+	<Beast Lv="27" Catch="2000" />
+	<Beast Lv="28" Catch="2000" />
+</Type>
+		
+<Type ID="3" Name="白玉鸟" MiniLV="5" Race="3" HPInit="525" MPInit="145" AttackInit="145"  Def="52" Mdef="52" SpeedInit="52" Style="2" Nature="6"  MinAttrParam="55" MaxAttrParam="65" HitInit="93" AvoidInit="13" Critical_attack="3" Deadly_attack="3" Rpoison="3" Rconfusion="3" Rstone="3" Rfreeze="3" Rsleep="3" Rcurse="3" Fight_back="3" Strike_back="3" Strike_back_hurt="3" Rcritical_attack="3" Rdeadly_attack="3" >
+	<TalentSkill ID="5201 5202 5203"/>
+	<Beast Lv="26" Catch="2000" />
+	<Beast Lv="27" Catch="2000" />
+	<Beast Lv="28" Catch="2000" />
+</Type>
+		
+<Type ID="4" Name="虾兵" MiniLV="13" Race="4" HPInit="553" MPInit="153" AttackInit="153"  Def="55" Mdef="55" SpeedInit="55" Style="1" Nature="6"  MinAttrParam="55" MaxAttrParam="65" HitInit="113" AvoidInit="3" Critical_attack="3" Deadly_attack="3" Rpoison="3" Rconfusion="3" Rstone="3" Rfreeze="3" Rsleep="3" Rcurse="3" Fight_back="3" Strike_back="3" Strike_back_hurt="3" Rcritical_attack="3" Rdeadly_attack="3" >
+	<TalentSkill ID="5204 5205 5206"/>
+	<Beast Lv="26" Catch="2000" />
+	<Beast Lv="27" Catch="2000" />
+	<Beast Lv="28" Catch="2000" />
+</Type>
+		
+<Type ID="5" Name="蟹将" MiniLV="15" Race="5" HPInit="575" MPInit="155" AttackInit="155"  Def="57" Mdef="57" SpeedInit="57" Style="2" Nature="6"  MinAttrParam="55" MaxAttrParam="65" HitInit="93" AvoidInit="13" Critical_attack="3" Deadly_attack="3" Rpoison="3" Rconfusion="3" Rstone="3" Rfreeze="3" Rsleep="3" Rcurse="3" Fight_back="3" Strike_back="3" Strike_back_hurt="3" Rcritical_attack="3" Rdeadly_attack="3" >
+	<TalentSkill ID="5201 5202 5207"/>
+	<Beast Lv="26" Catch="2000" />
+	<Beast Lv="27" Catch="2000" />
+	<Beast Lv="28" Catch="2000" />
+</Type>
+		
+<Type ID="6" Name="千里马" MiniLV="23" Race="6" HPInit="633" MPInit="163" AttackInit="163"  Def="63" Mdef="63" SpeedInit="63" Style="2" Nature="6"  MinAttrParam="55" MaxAttrParam="65" HitInit="93" AvoidInit="13" Critical_attack="3" Deadly_attack="3" Rpoison="3" Rconfusion="3" Rstone="3" Rfreeze="3" Rsleep="3" Rcurse="3" Fight_back="3" Strike_back="3" Strike_back_hurt="3" Rcritical_attack="3" Rdeadly_attack="3" >
+	<TalentSkill ID="5301 5302 5303"/>
+	<Beast Lv="26" Catch="2000" />
+	<Beast Lv="27" Catch="2000" />
+	<Beast Lv="28" Catch="2000" />
+</Type>
+		
+<Type ID="7" Name="飞天犬" MiniLV="23" Race="7" HPInit="633" MPInit="163" AttackInit="163"  Def="63" Mdef="63" SpeedInit="63" Style="1" Nature="6"  MinAttrParam="55" MaxAttrParam="65" HitInit="113" AvoidInit="13" Critical_attack="3" Deadly_attack="3" Rpoison="3" Rconfusion="3" Rstone="3" Rfreeze="3" Rsleep="3" Rcurse="3" Fight_back="3" Strike_back="3" Strike_back_hurt="3" Rcritical_attack="3" Rdeadly_attack="3" >
+	<TalentSkill ID="5301 5302 5303"/>
+	<Beast Lv="26" Catch="2000" />
+	<Beast Lv="27" Catch="2000" />
+	<Beast Lv="28" Catch="2000" />
+</Type>
+		
+<Type ID="8" Name="九尾猫" MiniLV="25" Race="8" HPInit="625" MPInit="165" AttackInit="165"  Def="62" Mdef="62" SpeedInit="62" Style="2" Nature="6"  MinAttrParam="63" MaxAttrParam="73" HitInit="73" AvoidInit="33" Critical_attack="3" Deadly_attack="3" Rpoison="3" Rconfusion="3" Rstone="3" Rfreeze="3" Rsleep="3" Rcurse="3" Fight_back="3" Strike_back="3" Strike_back_hurt="3" Rcritical_attack="3" Rdeadly_attack="3" >
+	<TalentSkill ID="5301 5302 5303"/>
+	<Beast Lv="26" Catch="2000" />
+	<Beast Lv="27" Catch="2000" />
+	<Beast Lv="28" Catch="2000" />
+</Type>
+		
+<Type ID="9" Name="九尾狐" MiniLV="33" Race="9" HPInit="653" MPInit="173" AttackInit="173"  Def="65" Mdef="65" SpeedInit="65" Style="2" Nature="6"  MinAttrParam="63" MaxAttrParam="73" HitInit="73" AvoidInit="33" Critical_attack="3" Deadly_attack="3" Rpoison="3" Rconfusion="3" Rstone="3" Rfreeze="3" Rsleep="3" Rcurse="3" Fight_back="3" Strike_back="3" Strike_back_hurt="3" Rcritical_attack="3" Rdeadly_attack="3" >
+	<TalentSkill ID="5301 5302 5303"/>
+	<Beast Lv="26" Catch="2000" />
+	<Beast Lv="27" Catch="2000" />
+	<Beast Lv="28" Catch="2000" />
+</Type>
+		
+<Type ID="10" Name="鸣天鸡" MiniLV="35" Race="13" HPInit="675" MPInit="175" AttackInit="175"  Def="67" Mdef="67" SpeedInit="67" Style="2" Nature="6"  MinAttrParam="65" MaxAttrParam="75" HitInit="93" AvoidInit="13" Critical_attack="3" Deadly_attack="3" Rpoison="3" Rconfusion="3" Rstone="3" Rfreeze="3" Rsleep="3" Rcurse="3" Fight_back="3" Strike_back="3" Strike_back_hurt="3" Rcritical_attack="3" Rdeadly_attack="3" >
+	<TalentSkill ID="5301 5302 5303"/>
+	<Beast Lv="26" Catch="2000" />
+	<Beast Lv="27" Catch="2000" />
+	<Beast Lv="28" Catch="2000" />
+</Type>
+		
+<Type ID="11" Name="金角牛" MiniLV="43" Race="11" HPInit="733" MPInit="183" AttackInit="183"  Def="73" Mdef="73" SpeedInit="73" Style="1" Nature="6"  MinAttrParam="65" MaxAttrParam="75" HitInit="113" AvoidInit="3" Critical_attack="3" Deadly_attack="3" Rpoison="3" Rconfusion="3" Rstone="3" Rfreeze="3" Rsleep="3" Rcurse="3" Fight_back="3" Strike_back="3" Strike_back_hurt="3" Rcritical_attack="3" Rdeadly_attack="3" >
+	<TalentSkill ID="5301 5302 5303"/>
+	<Beast Lv="26" Catch="2000" />
+	<Beast Lv="27" Catch="2000" />
+	<Beast Lv="28" Catch="2000" />
+</Type>
+		
+<Type ID="12" Name="巡山猪" MiniLV="45" Race="12" HPInit="725" MPInit="185" AttackInit="185"  Def="72" Mdef="72" SpeedInit="72" Style="1" Nature="6"  MinAttrParam="73" MaxAttrParam="83" HitInit="113" AvoidInit="3" Critical_attack="3" Deadly_attack="3" Rpoison="3" Rconfusion="3" Rstone="3" Rfreeze="3" Rsleep="3" Rcurse="3" Fight_back="3" Strike_back="3" Strike_back_hurt="3" Rcritical_attack="3" Rdeadly_attack="3" >
+	<TalentSkill ID="5301 5302 5303"/>
+	<Beast Lv="26" Catch="2000" />
+	<Beast Lv="27" Catch="2000" />
+	<Beast Lv="28" Catch="2000" />
+</Type>
+		
+<Type ID="13" Name="金钱鼠" MiniLV="45" Race="13" HPInit="725" MPInit="185" AttackInit="185"  Def="72" Mdef="72" SpeedInit="72" Style="2" Nature="6"  MinAttrParam="73" MaxAttrParam="83" HitInit="93" AvoidInit="23" Critical_attack="3" Deadly_attack="3" Rpoison="3" Rconfusion="3" Rstone="3" Rfreeze="3" Rsleep="3" Rcurse="3" Fight_back="3" Strike_back="3" Strike_back_hurt="3" Rcritical_attack="3" Rdeadly_attack="3" >
+	<TalentSkill ID="5301 5302 5303"/>
+	<Beast Lv="26" Catch="2000" />
+	<Beast Lv="27" Catch="2000" />
+	<Beast Lv="28" Catch="2000" />
+</Type>
+		
+</Types>

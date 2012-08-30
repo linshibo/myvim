@@ -1,0 +1,27 @@
+log_dir         ../log
+log_level       8
+log_size        32000000
+
+# shm fifo size
+shm_fifo_size       10240000
+# bind unix socket
+ipc_bus_unx_file    /tmp/ipcd.sock
+
+# bind eth for ipc_bus
+bind_ip             10.1.1.46
+bind_port           10000
+
+# mcast ip
+sync_mcast_ip       239.0.1.0
+# mcast port
+sync_mcast_port     10000
+
+
+# sms warning system ip addr
+warning_ip          192.168.0.39
+# sms warning system port
+warning_port        33001
+# project name
+project_name        mole
+# a short message will be sent to the following phone numbers when system crash
+phone_numbers       13761071357,13808888888

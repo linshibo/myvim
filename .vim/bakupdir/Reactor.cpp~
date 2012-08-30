@@ -1,0 +1,149 @@
+#include <sys/epoll.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <stdio.h>
+
+#include <Reactor.hpp>
+#include <ShmQueue.hpp>
+
+Reactor::Reactor()
+{
+    m_inited   = false;
+    m_fd       = -1;
+    m_size     = 0;
+    m_handlers = NULL;
+    m_handler_count = 0;
+    m_curtime = 0;
+    m_oldtime = 0;
+}
+
+Reactor::~Reactor()
+{
+}
+
+bool Reactor::init(int size)
+{
+    if (m_inited)
+        return false;
+
+    m_size = size;
+    m_handlers = (HandlerBase**)calloc(sizeof(HandlerBase*), m_size);
+
+    if (NULL == m_handlers)
+        return false;
+
+    for (int i = 0; i < m_size; ++i)
+        m_handlers[i] = NULL;
+
+    m_fd = epoll_create(m_size);
+    if (-1 == m_fd) {
+        free(m_handlers);
+        return false;
+    }
+
+    m_inited = true;
+    return true;
+}
+
+bool Reactor::fini()
+{
+    if (!m_inited)
+        return false;
+
+    for (int i = 0; i < m_size; ++i)
+        if (NULL != m_handlers[i])
+            m_handlers[i]->handle_error();
+
+    close(m_fd);
+    free(m_handlers);
+
+    m_inited = false;
+    return true;
+}
+
+void Reactor::handle_events(int timeout)
+{
+    time(&m_curtime);
+    struct epoll_event events[128];
+    int const n = epoll_wait(m_fd, events, 128, timeout);
+
+    for (int i = 0; i < n; ++i) {
+        if (NULL == m_handlers[events[i].data.fd])
+            continue;
+
+        uint32_t e = events[i].events;
+
+        if (e & (EPOLLERR|EPOLLHUP|EPOLLPRI)) {
+            m_handlers[events[i].data.fd]->handle_error();
+            continue;
+        } else {
+            if (e & EPOLLIN)
+                if (false == m_handlers[events[i].data.fd]->handle_input()) {
+                    m_handlers[events[i].data.fd]->handle_error();
+                    continue;
+                }
+            if (e & EPOLLOUT)
+                if (false == m_handlers[events[i].data.fd]->handle_output()) {
+                    m_handlers[events[i].data.fd]->handle_error();
+                    continue;
+                }
+        }
+    }
+    if (m_curtime > m_oldtime) {
+        int num = 0;
+        int handler_count = m_handler_count;
+        for (int i = 0; i < m_size; ++i) {
+            if (NULL == m_handlers[i])
+                continue;
+                
+            m_handlers[i]->check_timeout();    
+            num++;
+            if (num == handler_count)
+                break;
+        }
+        m_oldtime = m_curtime;
+		if (m_curtime % 60 == 0) {
+			DEBUG_LOG("XXXXXX recv queue %u, send queue %u", 
+					  g_shm_queue.m_r_queue_head->cnt, g_shm_queue.m_s_queue_head->cnt);	
+		}
+    }
+}
+
+bool Reactor::set_handler(int fd, HandlerBase* handler)
+{
+    if (fd >= m_size || fd < 0)
+        return false;
+
+    m_handlers[fd] = handler;
+    
+    if (handler) {
+        m_handler_count++;
+    } else {
+        m_handler_count--;
+    }
+    
+    return true;
+}
+
+HandlerBase* Reactor::get_handler(int fd)
+{
+    if (fd >= m_size || fd < 0)
+        return NULL;
+
+    return m_handlers[fd];
+}
+
+bool Reactor::handle_ctl(int fd, int op, uint32_t events_mask)
+{
+    if (fd >= m_size || fd < 0)
+        return false;
+
+    epoll_event e;
+    e.data.fd = fd;
+    e.events = events_mask;
+    if (-1 == epoll_ctl(m_fd, op, fd, &e))
+        return false;
+    
+    return true;
+}

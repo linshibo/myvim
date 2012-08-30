@@ -1,0 +1,29 @@
+#include "KVdb/KVdbAccess.hpp"
+#include "KVdb/Column.hpp"
+#include "KVdb/Protocal.hpp"
+
+#define  POLLEN_TYPE    uint16_t
+    
+#pragma pack(1)
+typedef struct {
+    POLLEN_TYPE m_pollen;
+    uint32_t vip_info;
+}PollenType;
+#pragma pack()
+
+
+int main(void) {
+	KVdb::ColumnManager* manager = new KVdb::ColumnManager(".");
+    KVdb::KVdbRawAccess* KVaccessor = new KVdb::KVdbRawAccess(manager);
+
+	PollenType value1;
+	value1.m_pollen = 10;
+	value1.vip_info = 2;
+    KVaccessor->set(123, "user_pollen_info", value1, 0);
+	
+	PollenType value2;
+    KVaccessor->get(123, "user_pollen_info", value2);
+
+	std::cout << "pollen " <<value2.m_pollen <<"   " <<"vip_info" <<value2.vip_info<<std::endl;
+	return 0;
+}

@@ -1,0 +1,187 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+import pop_online_proto
+import login_proto 
+import proto_base 
+import time 
+import mypub 
+
+def print_err(msg):
+    print "\033[1m\033[41m%s\033[0m"%msg
+def print_succ(msg):
+    print "\033[1m\033[42m%s\033[0m"%msg
+
+
+class Dealmsg: 
+	def __init__(self):
+		pass
+
+	#def do_cli_user_walk(self,result,primsg):
+#		print "asdfasfa ",  result
+#		pass
+	def do_cli_noti_game_is_start(self,result,primsg):
+		print "=============deal  do_cli_noti_game_is_start"
+		primsg.echo(True, "    ");
+		p.cli_game_can_start();
+		pass
+
+	def do_cli_noti_game_start(self,result,primsg):
+		primsg.echo(True, "    ");
+		p.cli_game_opt("ttttttttttt2222");
+		pass
+
+
+
+
+
+
+	def dealmsg(self,cmdid,userid,result,primsg):
+		if pop_online_proto.cmd_map.has_key(cmdid):
+			#得到类名
+			classname=pop_online_proto.cmd_map[cmdid][3];
+
+			if classname <> None:	
+				pri_out=classname() ;
+			else:
+				pri_out=proto_base.Cmessage();
+			
+			ba=proto_base.Cbyte_array();
+			ba.init_read_mode(primsg);
+			if (result==0 ):
+				ret=pri_out.read_from_buf(ba);
+				if ( not  ret ):
+					print "解析出错:报文不够",classname;
+				if (ba.get_left_len() >0 ):
+					print "解析出错:有剩余报文";
+					mypub.print_hex_16(primsg[ba.get_postion():] );
+			
+
+			try:
+				#得到调用函数
+ 				cmd_name=pop_online_proto.cmd_map[cmdid][1];
+				func_name='do_%s'%( cmd_name ) 
+				print func_name
+				func = getattr(self , func_name  )
+				func(result,pri_out );
+			except AttributeError:
+				print "deal: userid=%d, %s[%d] : "%(userid,cmd_name , cmdid )
+				pri_out.echo(True, "    ");
+				pass
+		else:
+			print "未处理:", cmdid, result
+			mypub.print_hex_16(primsg)
+
+
+dm=Dealmsg()
+
+def get_msg_return(need_cmdid,asnyc_flag=False):
+	global p
+	global dm 
+	start_time=time.clock();
+	while True:
+		out_info=p.getrecvmsg();
+		if (out_info):
+			proto_len ,cmdid,   userid, seq, result,pri_msg=out_info;
+			if result==0:
+				print_succ( ">>>>OUT:cmdid: %d ret: %d  seq: %d len: %d"%(cmdid,result,seq,proto_len ) )  ;
+				dm.dealmsg(cmdid,userid,result,pri_msg );
+			else:
+				print_err( ">>>>ERROR:cmdid: %d ret: %d  seq: %d len: %d"%(cmdid,result,seq,proto_len ) )  ;
+			if (cmdid==need_cmdid):
+				print "cmdid:",cmdid
+				return pri_msg 
+
+		end_time=time.clock();
+		if asnyc_flag and end_time-start_time>1:#是异步的
+		  	return False;
+
+import sys
+userid=50000
+if len(sys.argv)>=2:
+	userid=int(sys.argv[1] )
+
+ip,port,key=login_proto.login("10.1.1.46", 1863, 1 ,userid,"142857")
+
+#userid=88693
+#ip,port,key=login_proto.login("114.80.173.58", 1863, 1 ,userid,"142857")
+#sys.exit();
+#logser 
+#ip="10.1.1.46"
+#port=6001
+print "login online:" ,ip,port
+
+p=pop_online_proto.Cpop_online_proto(ip,port );
+p.set_userid(userid);
+p.cli_login(userid,key);
+get_msg_return(1001, False);
+
+item_list=[] 
+item=pop_online_proto.item_t();
+item.count=1;
+item.itemid=100410;
+item_list.append(item);
+item=pop_online_proto.item_t();
+item.count=1;
+item.itemid=100153;
+item_list.append(item);
+item=pop_online_proto.item_t();
+item.count=1;
+item.itemid=100431;
+item_list.append(item);
+
+item=pop_online_proto.item_t();
+item.count=1;
+item.itemid=100444;
+item_list.append(item);
+
+
+
+p.cli_reg("小卜克",10,0xFFDED5 ,item_list);
+#item_list=[100081, 100097,100143,100185] 
+item_list=[] 
+item=pop_online_proto.item_t()
+item.count=1;
+item.itemid=100020;
+item_list.append(item);
+
+item=pop_online_proto.item_t()
+item.count=1;
+item.itemid=100025;
+item_list.append(item);
+
+item=pop_online_proto.item_t()
+item.count=1;
+item.itemid=100023;
+item_list.append(item);
+
+item=pop_online_proto.item_t()
+item.count=1;
+item.itemid=1000;
+item_list.append(item);
+
+
+
+
+#p.cli_set_item_used_list(item_list);
+p.cli_get_item_list(0,0xFFFFFFFF );
+p.cli_walk(2,11,3,4 );
+p.cli_game_request(10,50067);
+
+#p.cli_task_del_node(1,2);
+#p.cli_get_item_list(0,0xFFFFFFFF );
+#p.cli_set_nick("daafa");
+#p.cli_get_card_list_by_islandid(2);
+#p.cli_talk_npc(1334);
+#p.cli_task_complete_node(1,2);
+#p.cli_task_complete_node(1,7);
+#p.cli_task_complete_node(1,1);
+#p.cli_task_complete_node(1,2);
+#p.cli_find_map_add(1,1 );
+#p.cli_find_map_add(1,2 );
+#p.cli_find_map_add(1,4 );
+#p.cli_get_item_list(0,0xFFFFFFFF );
+#p.cli_get_user_island_info(1);
+
+#p.cli_task_complete_node(3,1);
+get_msg_return(0, False);
+

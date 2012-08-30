@@ -1,0 +1,78 @@
+[02:59:17] 50293 [20782][../skill.cpp][455]cache_update_skills: Invalid skill id or too much	[6002 1 0]
+[03:35:11] 50293 [20782][../skill.cpp][455]cache_update_skills: Invalid skill id or too much	[6002 1 0]
+[04:07:11] 50293 [20782][../skill.cpp][455]cache_update_skills: Invalid skill id or too much	[6002 1 0]
+[04:07:27] 50293 [20782][../sns.cpp][4172]cli_trade_get_shop_info: not in market
+[04:09:08] 50293 [20782][../skill.cpp][455]cache_update_skills: Invalid skill id or too much	[6002 1 0]
+[04:13:35] 50293 [20782][../skill.cpp][455]cache_update_skills: Invalid skill id or too much	[6002 1 0]
+[04:16:14] 50293 [20782][../skill.cpp][455]cache_update_skills: Invalid skill id or too much	[6002 1 0]
+[04:16:48] 50293 [20782][../cli_proto.cpp][457]dispatch: invalid cmd=1641 from fd=10
+[05:56:45] 50293 [27700][../skill.cpp][455]cache_update_skills: Invalid skill id or too much	[6002 1 0]
+[06:10:08] 0 [27700][../net.c][317]do_read_conn: connection [fd=19 ip=0x2E01010A] closed by peer
+[06:52:37] 5004699 [28751][../battle.cpp][3161]sync_user_skills: add skill exp err: (nil) 107
+[06:52:37] 5004699 [28751][../battle.cpp][3161]sync_user_skills: add skill exp err: (nil) 2010
+[06:53:12] 5004699 [28751][../battle.cpp][3161]sync_user_skills: add skill exp err: (nil) 107
+[06:53:12] 5004699 [28751][../battle.cpp][3161]sync_user_skills: add skill exp err: (nil) 2010
+[06:57:25] 0 [29735][../util.cpp][31]load_xmlconf: Failed to Load ./conf/skills_price.xml
+[06:57:25] 0 [29735][../service.c][197]run_worker_process: fail to init worker process. olid=7 olname=mole2.online
+[06:57:25] 0 [29736][../util.cpp][31]load_xmlconf: Failed to Load ./conf/skills_price.xml
+[06:57:25] 0 [29736][../service.c][197]run_worker_process: fail to init worker process. olid=7 olname=mole2.online
+[06:57:26] 0 [29737][../util.cpp][31]load_xmlconf: Failed to Load ./conf/skills_price.xml
+[06:57:26] 0 [29737][../service.c][197]run_worker_process: fail to init worker process. olid=7 olname=mole2.online
+[06:57:26] 0 [29738][../util.cpp][31]load_xmlconf: Failed to Load ./conf/skills_price.xml
+[06:57:26] 0 [29738][../service.c][197]run_worker_process: fail to init worker process. olid=7 olname=mole2.online
+[06:57:26] 0 [29739][../util.cpp][31]load_xmlconf: Failed to Load ./conf/skills_price.xml
+[06:57:26] 0 [29739][../service.c][197]run_worker_process: fail to init worker process. olid=7 olname=mole2.online
+[06:57:27] 0 [29740][../util.cpp][31]load_xmlconf: Failed to Load ./conf/skills_price.xml
+[06:57:27] 0 [29740][../service.c][197]run_worker_process: fail to init worker process. olid=7 olname=mole2.online
+[06:57:27] 0 [29741][../util.cpp][31]load_xmlconf: Failed to Load ./conf/skills_price.xml
+[06:57:27] 0 [29741][../service.c][197]run_worker_process: fail to init worker process. olid=7 olname=mole2.online
+[06:57:27] 0 [29742][../util.cpp][31]load_xmlconf: Failed to Load ./conf/skills_price.xml
+[06:57:27] 0 [29742][../service.c][197]run_worker_process: fail to init worker process. olid=7 olname=mole2.online
+[06:57:28] 0 [29743][../util.cpp][31]load_xmlconf: Failed to Load ./conf/skills_price.xml
+[06:57:28] 0 [29743][../service.c][197]run_worker_process: fail to init worker process. olid=7 olname=mole2.online
+[06:57:28] 0 [29744][../util.cpp][31]load_xmlconf: Failed to Load ./conf/skills_price.xml
+[06:57:28] 0 [29744][../service.c][197]run_worker_process: fail to init worker process. olid=7 olname=mole2.online
+[06:57:29] 0 [29754][../util.cpp][31]load_xmlconf: Failed to Load ./conf/skills_price.xml
+[06:57:29] 0 [29754][../service.c][197]run_worker_process: fail to init worker process. olid=7 olname=mole2.online
+[06:57:30] 0 [29765][../util.cpp][31]load_xmlconf: Failed to Load ./conf/skills_price.xml
+[06:57:30] 0 [29765][../service.c][197]run_worker_process: fail to init worker process. olid=7 olname=mole2.online
+[06:57:30] 0 [29766][../util.cpp][31]load_xmlconf: Failed to Load ./conf/skills_price.xml
+[06:57:30] 0 [29766][../service.c][197]run_worker_process: fail to init worker process. olid=7 olname=mole2.online
+[06:57:31] 0 [29767][../util.cpp][31]load_xmlconf: Failed to Load ./conf/skills_price.xml
+[06:57:31] 0 [29767][../service.c][197]run_worker_process: fail to init worker process. olid=7 olname=mole2.online
+[06:57:32] 0 [29768][../util.cpp][31]load_xmlconf: Failed to Load ./conf/skills_price.xml
+[06:57:32] 0 [29768][../service.c][197]run_worker_process: fail to init worker process. olid=7 olname=mole2.online
+[06:57:32] 0 [29769][../util.cpp][31]load_xmlconf: Failed to Load ./conf/skills_price.xml
+[06:57:32] 0 [29769][../service.c][197]run_worker_process: fail to init worker process. olid=7 olname=mole2.online
+[06:57:33] 0 [29770][../util.cpp][31]load_xmlconf: Failed to Load ./conf/skills_price.xml
+[06:57:33] 0 [29770][../service.c][197]run_worker_process: fail to init worker process. olid=7 olname=mole2.online
+[06:57:34] 0 [29771][../util.cpp][31]load_xmlconf: Failed to Load ./conf/skills_price.xml
+[06:57:34] 0 [29771][../service.c][197]run_worker_process: fail to init worker process. olid=7 olname=mole2.online
+[06:57:34] 0 [29773][../util.cpp][31]load_xmlconf: Failed to Load ./conf/skills_price.xml
+[06:57:34] 0 [29773][../service.c][197]run_worker_process: fail to init worker process. olid=7 olname=mole2.online
+[06:57:35] 0 [29778][../util.cpp][31]load_xmlconf: Failed to Load ./conf/skills_price.xml
+[06:57:35] 0 [29778][../service.c][197]run_worker_process: fail to init worker process. olid=7 olname=mole2.online
+[06:57:36] 0 [29779][../util.cpp][31]load_xmlconf: Failed to Load ./conf/skills_price.xml
+[06:57:36] 0 [29779][../service.c][197]run_worker_process: fail to init worker process. olid=7 olname=mole2.online
+[07:03:57] 50293 [29993][../skill.cpp][455]cache_update_skills: Invalid skill id or too much	[6002 1 0]
+[07:13:52] 0 [30536][../skill.cpp][109]load_all_skills: Invalid skill id <prof>: 4001 0 6
+[07:13:57] 0 [30537][../skill.cpp][109]load_all_skills: Invalid skill id <prof>: 4001 0 6
+[07:13:58] 0 [30538][../skill.cpp][109]load_all_skills: Invalid skill id <prof>: 4001 0 6
+[07:13:59] 0 [30539][../skill.cpp][109]load_all_skills: Invalid skill id <prof>: 4001 0 6
+[07:14:00] 0 [30540][../skill.cpp][109]load_all_skills: Invalid skill id <prof>: 4001 0 6
+[07:14:00] 0 [30541][../skill.cpp][109]load_all_skills: Invalid skill id <prof>: 4001 0 6
+[07:14:01] 0 [30542][../skill.cpp][109]load_all_skills: Invalid skill id <prof>: 4001 0 6
+[07:14:01] 0 [30543][../skill.cpp][109]load_all_skills: Invalid skill id <prof>: 4001 0 6
+[07:14:01] 0 [30550][../skill.cpp][109]load_all_skills: Invalid skill id <prof>: 4001 0 6
+[07:14:02] 0 [30551][../skill.cpp][109]load_all_skills: Invalid skill id <prof>: 4001 0 6
+[07:14:02] 0 [30552][../skill.cpp][109]load_all_skills: Invalid skill id <prof>: 4001 0 6
+[07:14:02] 0 [30553][../skill.cpp][109]load_all_skills: Invalid skill id <prof>: 4001 0 6
+[07:14:03] 0 [30554][../skill.cpp][109]load_all_skills: Invalid skill id <prof>: 4001 0 6
+[07:14:03] 0 [30555][../skill.cpp][109]load_all_skills: Invalid skill id <prof>: 4001 0 6
+[07:14:04] 0 [30556][../skill.cpp][109]load_all_skills: Invalid skill id <prof>: 4001 0 6
+[07:14:04] 0 [30557][../skill.cpp][109]load_all_skills: Invalid skill id <prof>: 4001 0 6
+[07:14:04] 0 [30558][../skill.cpp][109]load_all_skills: Invalid skill id <prof>: 4001 0 6
+[07:14:05] 0 [30559][../skill.cpp][109]load_all_skills: Invalid skill id <prof>: 4001 0 6
+[07:14:05] 0 [30560][../skill.cpp][109]load_all_skills: Invalid skill id <prof>: 4001 0 6
+[07:14:05] 0 [30561][../skill.cpp][109]load_all_skills: Invalid skill id <prof>: 4001 0 6
+[07:14:06] 0 [30562][../skill.cpp][109]load_all_skills: Invalid skill id <prof>: 4001 0 6

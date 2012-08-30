@@ -1,0 +1,75 @@
+/*
+ * =========================================================================
+ *
+ *        Filename: Citem_conf.h
+ *
+ *        Version:  1.0
+ *        Created:  2011-07-22 14:31:44
+ *        Description:  
+ *
+ *        Author:  jim (jim@taomee.com)
+ *        Company:  TAOMEE
+ *
+ * =========================================================================
+ */
+
+#ifndef  CITEM_CONF_H
+#define  CITEM_CONF_H
+#include <stdint.h>
+#include  <vector>
+struct item_conf_t {
+	uint32_t itemid;	
+	//是否可以换装
+	uint32_t change;	
+
+	//关联id
+	uint32_t relevanceid;	
+
+	uint32_t islandid;	
+	uint32_t clothtype;	
+
+	//来源 1:购买方式得到
+	uint32_t source;	
+
+	//多少钱
+	uint32_t pay;	
+	//所包含的物品列表
+	std::vector<uint32_t> contain_itemid_list;
+
+};
+struct source_conf_t {
+	//来源 1:购买方式得到
+	uint32_t source;	
+	//多少钱
+	uint32_t pay;	
+};
+#include  <map>
+#include  <set>
+class Citem_conf_map {
+	private:
+
+		//卡片中对应可换的列表
+		std::map<uint32_t ,std::vector<uint32_t> > cardid_contain_map;
+		//source
+		std::map<uint32_t ,source_conf_t > source_map;
+	public:
+		//kindid , itemid, item_conf_t 
+		std::map<uint32_t, std::map<uint32_t,  item_conf_t> > conf_map;
+		void add(uint32_t kindid , item_conf_t & item_conf );
+		
+		//返回是否加入了数据
+		bool add_contain_itemid_list_to_set (
+				uint32_t cardid, std::set<uint32_t> *p_itemid_set);
+		//检查物品是否可能随便换
+		bool check_can_change(uint32_t itemid )   ;
+		uint32_t get_relevanceid(uint32_t itemid )   ;
+		uint32_t get_islandid(uint32_t itemid )   ;
+		uint32_t get_clothtype(uint32_t itemid )   ;
+		std::vector<uint32_t> get_relevanceid_list()   ;
+
+
+};
+
+
+
+#endif  /*CITEM_CONF_H*/

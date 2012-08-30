@@ -1,0 +1,9 @@
+-include-pch ~/.vim/sys.pch 
+-fgnu-runtime
+-I /usr/include/c++/4.5 
+-I /usr/include/c++/4.5/i686-linux-gnu/  
+-I /usr/include/i386-linux-gnu/ 
+-I /usr/include/dbser/ 
+-I /usr/include/mysql 
+-I ./
+-DDB_GET_LIST_NEW -D LIBTAOMEE_LOG_H_  

@@ -1,0 +1,1 @@
+php get_user_sql.php $1 $2 | mysql -uroot -ptaomee

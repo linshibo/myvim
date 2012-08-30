@@ -1,0 +1,310 @@
+[08:01:31] 0 [06898]==task:1,1
+[08:01:31] 0 [06898]==task:req_item
+[08:01:31] 0 [06898]==task:recycle_item
+[08:01:31] 0 [06898]==task:reward_item
+[08:01:31] 0 [06898]== push item:id=200002 ,count=1
+[08:01:31] 0 [06898]==task:1,2
+[08:01:31] 0 [06898]== push int:1 
+[08:01:31] 0 [06898]==task:req_item
+[08:01:31] 0 [06898]== push item:id=200002 ,count=1
+[08:01:31] 0 [06898]==task:recycle_item
+[08:01:31] 0 [06898]== push item:id=200002 ,count=1
+[08:01:31] 0 [06898]==task:reward_item
+[08:01:31] 0 [06898]== push item:id=200003 ,count=1
+[08:01:31] 0 [06898]==task:1,3
+[08:01:31] 0 [06898]== push int:2 
+[08:01:31] 0 [06898]==task:req_item
+[08:01:31] 0 [06898]== push item:id=200003 ,count=1
+[08:01:31] 0 [06898]==task:recycle_item
+[08:01:31] 0 [06898]== push item:id=200003 ,count=1
+[08:01:31] 0 [06898]==task:reward_item
+[08:01:31] 0 [06898]==task:1,4
+[08:01:31] 0 [06898]== push int:3 
+[08:01:31] 0 [06898]==task:req_item
+[08:01:31] 0 [06898]==task:recycle_item
+[08:01:31] 0 [06898]==task:reward_item
+[08:01:31] 0 [06898]==task:1,5
+[08:01:31] 0 [06898]== push int:19 
+[08:01:31] 0 [06898]==task:req_item
+[08:01:31] 0 [06898]== push item:id=200004 ,count=1
+[08:01:31] 0 [06898]==task:recycle_item
+[08:01:31] 0 [06898]== push item:id=200004 ,count=1
+[08:01:31] 0 [06898]==task:reward_item
+[08:01:31] 0 [06898]== push item:id=200001 ,count=1
+[08:01:31] 0 [06898]==task:1,6
+[08:01:31] 0 [06898]== push int:5 
+[08:01:31] 0 [06898]==task:req_item
+[08:01:31] 0 [06898]== push item:id=200001 ,count=1
+[08:01:31] 0 [06898]==task:recycle_item
+[08:01:31] 0 [06898]==task:reward_item
+[08:01:31] 0 [06898]==task:1,7
+[08:01:31] 0 [06898]==task:req_item
+[08:01:31] 0 [06898]==task:recycle_item
+[08:01:31] 0 [06898]==task:reward_item
+[08:01:31] 0 [06898]== push item:id=200007 ,count=1
+[08:01:31] 0 [06898]==task:1,8
+[08:01:31] 0 [06898]== push int:6 
+[08:01:31] 0 [06898]==task:req_item
+[08:01:31] 0 [06898]==task:recycle_item
+[08:01:31] 0 [06898]==task:reward_item
+[08:01:31] 0 [06898]== push item:id=200009 ,count=1
+[08:01:31] 0 [06898]==task:1,9
+[08:01:31] 0 [06898]== push int:18 
+[08:01:31] 0 [06898]==task:req_item
+[08:01:31] 0 [06898]==task:recycle_item
+[08:01:31] 0 [06898]==task:reward_item
+[08:01:31] 0 [06898]== push item:id=200005 ,count=1
+[08:01:31] 0 [06898]==task:1,10
+[08:01:31] 0 [06898]== push int:9 
+[08:01:31] 0 [06898]==task:req_item
+[08:01:31] 0 [06898]== push item:id=200005 ,count=1
+[08:01:31] 0 [06898]==task:recycle_item
+[08:01:31] 0 [06898]==task:reward_item
+[08:01:31] 0 [06898]==task:1,11
+[08:01:31] 0 [06898]== push int:8 
+[08:01:31] 0 [06898]==task:req_item
+[08:01:31] 0 [06898]==task:recycle_item
+[08:01:31] 0 [06898]==task:reward_item
+[08:01:31] 0 [06898]==task:1,12
+[08:01:31] 0 [06898]== push int:11 
+[08:01:31] 0 [06898]==task:req_item
+[08:01:31] 0 [06898]==task:recycle_item
+[08:01:31] 0 [06898]==task:reward_item
+[08:01:31] 0 [06898]== push item:id=200008 ,count=1
+[08:01:31] 0 [06898]==task:1,13
+[08:01:31] 0 [06898]== push int:10 
+[08:01:31] 0 [06898]==task:req_item
+[08:01:31] 0 [06898]==task:recycle_item
+[08:01:31] 0 [06898]==task:reward_item
+[08:01:31] 0 [06898]==task:1,14
+[08:01:31] 0 [06898]== push int:10 
+[08:01:31] 0 [06898]==task:req_item
+[08:01:31] 0 [06898]==task:recycle_item
+[08:01:31] 0 [06898]==task:reward_item
+[08:01:31] 0 [06898]==task:1,15
+[08:01:31] 0 [06898]== push int:10 
+[08:01:31] 0 [06898]==task:req_item
+[08:01:31] 0 [06898]==task:recycle_item
+[08:01:31] 0 [06898]==task:reward_item
+[08:01:31] 0 [06898]== push item:id=200006 ,count=1
+[08:01:31] 0 [06898]==task:1,16
+[08:01:31] 0 [06898]== push int:15 
+[08:01:31] 0 [06898]==task:req_item
+[08:01:31] 0 [06898]==task:recycle_item
+[08:01:31] 0 [06898]==task:reward_item
+[08:01:31] 0 [06898]==task:1,17
+[08:01:31] 0 [06898]== push int:16 
+[08:01:31] 0 [06898]==task:req_item
+[08:01:31] 0 [06898]==task:recycle_item
+[08:01:31] 0 [06898]==task:reward_item
+[08:01:31] 0 [06898]==task:1,18
+[08:01:31] 0 [06898]== push int:8 
+[08:01:31] 0 [06898]==task:req_item
+[08:01:31] 0 [06898]==task:recycle_item
+[08:01:31] 0 [06898]==task:reward_item
+[08:01:31] 0 [06898]==task:1,19
+[08:01:31] 0 [06898]== push int:4 
+[08:01:31] 0 [06898]==task:req_item
+[08:01:31] 0 [06898]==task:recycle_item
+[08:01:31] 0 [06898]==task:reward_item
+[08:01:31] 0 [06898]== push item:id=200004 ,count=1
+[08:01:31] 0 [06898]==task:1,20
+[08:01:31] 0 [06898]==task:req_item
+[08:01:31] 0 [06898]==task:recycle_item
+[08:01:31] 0 [06898]==task:reward_item
+[08:01:31] 0 [06898]==task:1,99999
+[08:01:31] 0 [06898]== push int:17 
+[08:01:31] 0 [06898]==task:req_item
+[08:01:31] 0 [06898]==task:recycle_item
+[08:01:31] 0 [06898]==task:reward_item
+[08:01:31] 0 [06898]== push item:id=200010 ,count=1
+[08:01:31] 0 [06898]==task:2,1
+[08:01:31] 0 [06898]==task:req_item
+[08:01:31] 0 [06898]==task:recycle_item
+[08:01:31] 0 [06898]==task:reward_item
+[08:01:31] 0 [06898]== push item:id=200011 ,count=1
+[08:01:31] 0 [06898]==task:2,2
+[08:01:31] 0 [06898]==task:req_item
+[08:01:31] 0 [06898]==task:recycle_item
+[08:01:31] 0 [06898]==task:reward_item
+[08:01:31] 0 [06898]== push item:id=200012 ,count=1
+[08:01:31] 0 [06898]==task:2,3
+[08:01:31] 0 [06898]==task:req_item
+[08:01:31] 0 [06898]==task:recycle_item
+[08:01:31] 0 [06898]==task:reward_item
+[08:01:31] 0 [06898]== push item:id=200013 ,count=1
+[08:01:31] 0 [06898]==task:2,4
+[08:01:31] 0 [06898]== push int:12 
+[08:01:31] 0 [06898]==task:req_item
+[08:01:31] 0 [06898]==task:recycle_item
+[08:01:31] 0 [06898]== push item:id=200019 ,count=1
+[08:01:31] 0 [06898]==task:reward_item
+[08:01:31] 0 [06898]==task:2,5
+[08:01:31] 0 [06898]== push int:4 
+[08:01:31] 0 [06898]==task:req_item
+[08:01:31] 0 [06898]==task:recycle_item
+[08:01:31] 0 [06898]==task:reward_item
+[08:01:31] 0 [06898]== push item:id=200014 ,count=1
+[08:01:31] 0 [06898]==task:2,6
+[08:01:31] 0 [06898]== push int:4 
+[08:01:31] 0 [06898]==task:req_item
+[08:01:31] 0 [06898]==task:recycle_item
+[08:01:31] 0 [06898]==task:reward_item
+[08:01:31] 0 [06898]== push item:id=200015 ,count=1
+[08:01:31] 0 [06898]==task:2,7
+[08:01:31] 0 [06898]== push int:2 
+[08:01:31] 0 [06898]==task:req_item
+[08:01:31] 0 [06898]==task:recycle_item
+[08:01:31] 0 [06898]== push item:id=200012 ,count=200014
+[08:01:31] 0 [06898]==task:reward_item
+[08:01:31] 0 [06898]== push item:id=200017 ,count=1
+[08:01:31] 0 [06898]==task:2,8
+[08:01:31] 0 [06898]== push int:7 
+[08:01:31] 0 [06898]==task:req_item
+[08:01:31] 0 [06898]==task:recycle_item
+[08:01:31] 0 [06898]== push item:id=200017 ,count=1
+[08:01:31] 0 [06898]==task:reward_item
+[08:01:31] 0 [06898]==task:2,9
+[08:01:31] 0 [06898]== push int:8 
+[08:01:31] 0 [06898]==task:req_item
+[08:01:31] 0 [06898]==task:recycle_item
+[08:01:31] 0 [06898]==task:reward_item
+[08:01:31] 0 [06898]==task:2,10
+[08:01:31] 0 [06898]== push int:8 
+[08:01:31] 0 [06898]==task:req_item
+[08:01:31] 0 [06898]==task:recycle_item
+[08:01:31] 0 [06898]==task:reward_item
+[08:01:31] 0 [06898]==task:2,11
+[08:01:31] 0 [06898]==task:req_item
+[08:01:31] 0 [06898]==task:recycle_item
+[08:01:31] 0 [06898]==task:reward_item
+[08:01:31] 0 [06898]== push item:id=200016 ,count=1
+[08:01:31] 0 [06898]==task:2,12
+[08:01:31] 0 [06898]==task:req_item
+[08:01:31] 0 [06898]==task:recycle_item
+[08:01:31] 0 [06898]==task:reward_item
+[08:01:31] 0 [06898]== push item:id=200019 ,count=1
+[08:01:31] 0 [06898]==task:2,13
+[08:01:31] 0 [06898]== push int:11 
+[08:01:31] 0 [06898]==task:req_item
+[08:01:31] 0 [06898]==task:recycle_item
+[08:01:31] 0 [06898]==task:reward_item
+[08:01:31] 0 [06898]==task:2,99999
+[08:01:31] 0 [06898]== push int:9 
+[08:01:31] 0 [06898]==task:req_item
+[08:01:31] 0 [06898]==task:recycle_item
+[08:01:31] 0 [06898]==task:reward_item
+[08:01:31] 0 [06898]== push item:id=200018 ,count=1
+[08:01:31] 0 [06898]TASK taskid=1 task_nodeid=1
+[08:01:31] 0 [06898]TASK taskid=1 task_nodeid=2
+[08:01:31] 0 [06898]	 req_task_nodeid:1
+[08:01:31] 0 [06898]TASK taskid=1 task_nodeid=3
+[08:01:31] 0 [06898]	 req_task_nodeid:2
+[08:01:31] 0 [06898]TASK taskid=1 task_nodeid=4
+[08:01:31] 0 [06898]	 req_task_nodeid:3
+[08:01:31] 0 [06898]TASK taskid=1 task_nodeid=5
+[08:01:31] 0 [06898]	 req_task_nodeid:19
+[08:01:31] 0 [06898]TASK taskid=1 task_nodeid=6
+[08:01:31] 0 [06898]	 req_task_nodeid:5
+[08:01:31] 0 [06898]TASK taskid=1 task_nodeid=7
+[08:01:31] 0 [06898]TASK taskid=1 task_nodeid=8
+[08:01:31] 0 [06898]	 req_task_nodeid:6
+[08:01:31] 0 [06898]TASK taskid=1 task_nodeid=9
+[08:01:31] 0 [06898]	 req_task_nodeid:18
+[08:01:31] 0 [06898]TASK taskid=1 task_nodeid=10
+[08:01:31] 0 [06898]	 req_task_nodeid:9
+[08:01:31] 0 [06898]TASK taskid=1 task_nodeid=11
+[08:01:31] 0 [06898]	 req_task_nodeid:8
+[08:01:31] 0 [06898]TASK taskid=1 task_nodeid=12
+[08:01:31] 0 [06898]	 req_task_nodeid:11
+[08:01:31] 0 [06898]TASK taskid=1 task_nodeid=13
+[08:01:31] 0 [06898]	 req_task_nodeid:10
+[08:01:31] 0 [06898]TASK taskid=1 task_nodeid=14
+[08:01:31] 0 [06898]	 req_task_nodeid:10
+[08:01:31] 0 [06898]TASK taskid=1 task_nodeid=15
+[08:01:31] 0 [06898]	 req_task_nodeid:10
+[08:01:31] 0 [06898]TASK taskid=1 task_nodeid=16
+[08:01:31] 0 [06898]	 req_task_nodeid:15
+[08:01:31] 0 [06898]TASK taskid=1 task_nodeid=17
+[08:01:31] 0 [06898]	 req_task_nodeid:16
+[08:01:31] 0 [06898]TASK taskid=1 task_nodeid=18
+[08:01:31] 0 [06898]	 req_task_nodeid:8
+[08:01:31] 0 [06898]TASK taskid=1 task_nodeid=19
+[08:01:31] 0 [06898]	 req_task_nodeid:4
+[08:01:31] 0 [06898]TASK taskid=1 task_nodeid=20
+[08:01:31] 0 [06898]TASK taskid=1 task_nodeid=99999
+[08:01:31] 0 [06898]	 req_task_nodeid:17
+[08:01:31] 0 [06898]TASK taskid=2 task_nodeid=1
+[08:01:31] 0 [06898]TASK taskid=2 task_nodeid=2
+[08:01:31] 0 [06898]TASK taskid=2 task_nodeid=3
+[08:01:31] 0 [06898]TASK taskid=2 task_nodeid=4
+[08:01:31] 0 [06898]	 req_task_nodeid:12
+[08:01:31] 0 [06898]TASK taskid=2 task_nodeid=5
+[08:01:31] 0 [06898]	 req_task_nodeid:4
+[08:01:31] 0 [06898]TASK taskid=2 task_nodeid=6
+[08:01:31] 0 [06898]	 req_task_nodeid:4
+[08:01:31] 0 [06898]TASK taskid=2 task_nodeid=7
+[08:01:31] 0 [06898]	 req_task_nodeid:2
+[08:01:31] 0 [06898]TASK taskid=2 task_nodeid=8
+[08:01:31] 0 [06898]	 req_task_nodeid:7
+[08:01:31] 0 [06898]TASK taskid=2 task_nodeid=9
+[08:01:31] 0 [06898]	 req_task_nodeid:8
+[08:01:31] 0 [06898]TASK taskid=2 task_nodeid=10
+[08:01:31] 0 [06898]	 req_task_nodeid:8
+[08:01:31] 0 [06898]TASK taskid=2 task_nodeid=11
+[08:01:31] 0 [06898]TASK taskid=2 task_nodeid=12
+[08:01:31] 0 [06898]TASK taskid=2 task_nodeid=13
+[08:01:31] 0 [06898]	 req_task_nodeid:11
+[08:01:31] 0 [06898]TASK taskid=2 task_nodeid=99999
+[08:01:31] 0 [06898]	 req_task_nodeid:9
+[08:01:31] 0 [06898]do  connect_to_switch
+[08:01:31] 0 [06898]ADD TIMER connect_switch 
+[08:01:31] 0 [06898]sw_report_online_info:connect_to_switch
+[08:01:31] 0 [06898]do  connect_to_switch
+[08:01:31] 0 [06898]CONNECTED TO	[10.1.1.46:4418 fd=12]
+[08:01:31] 0 [06898]SO[fd=12][ret=0][52 00 00 00 00 00 00 00 31 F2 00 00 00 00 00 00 00 00 00 00 01 00 00 00 70 6F 70 2E 6F 6E 6C 69 6E 65 00 00 00 00 00 00 31 30 2E 31 2E 31 2E 34 36 00 00 00 00 00 00 00 71 17 00 00 00 00 E6 A7 84 7F 00 00 00 00 80 00 71 17 00 00 00 00 00 00 00 00 ]
+[08:01:31] 0 [06898]BEGIN CONNECTING TO CENTRAL ONLINE AND SEND INIT PKG
+[08:02:00] 8 [06898]CI[38][1001][0][2][26 00 00 00 E9 03 6B B9 B1 4F 02 00 00 00 00 00 00 00 58 C3 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ]
+[08:02:00] 0 [06898]cli dispatch cmd 1001
+[08:02:00] 0 [06898]SET cmdid=1001,seq=2 
+[08:02:00] 0 [06898]cli_login
+[08:02:00] 0 [06898]CONNECTED TO	[10.1.1.46:17001 fd=13]
+[08:02:00] 0 [06898]SO[fd=13][ret=0][2A 00 00 00 E9 03 08 00 24 A0 00 00 00 00 58 C3 00 00 0C 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 ]
+[08:02:00] 0 [06898]server get_pkg_len  
+[08:02:00] 50008 [06898]DB	[u=50008 c=1001 0xA024 ret=4331]
+[08:02:00] 0 [06898]SO[fd=13][ret=0][12 00 00 00 E9 03 08 00 01 74 00 00 00 00 58 C3 00 00 ]
+[08:02:00] 0 [06898]server get_pkg_len  
+[08:02:00] 50008 [06898]DB	[u=50008 c=1001 0x7401 ret=0]
+[08:02:00] 50008 [06898]TO SW	[cmd=62002 waitcmd=1001]
+[08:02:00] 0 [06898]SO[fd=12][ret=0][16 00 00 00 E9 03 08 00 32 F2 00 00 00 00 58 C3 00 00 01 00 00 00 ]
+[08:02:00] 0 [06898]CO[ret=0][5A 00 00 00 E9 03 F8 BD 28 4E 02 00 00 00 00 00 00 00 01 00 00 00 9D C4 E5 00 00 00 00 00 6A 69 6D 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 04 00 00 00 AC 86 01 00 FA 86 01 00 3D 87 01 00 43 87 01 00 00 00 00 00 ]
+[08:02:00] 0 [06898]cmdid=1001,seq=2
+[08:02:00] 0 [06898]SET cmdid=0,seq=0 
+[08:02:42] 0 [06898]ON_CLIENT_CONN_CLOSED: fd=8
+[08:02:42] 50008 [06898]TO SW	[cmd=62002 waitcmd=0]
+[08:02:42] 0 [06898]SO[fd=12][ret=0][16 00 00 00 00 00 08 00 32 F2 00 00 00 00 58 C3 00 00 00 00 00 00 ]
+[08:02:42] 0 [06898]SO[fd=13][ret=0][2A 00 00 00 00 00 08 00 1B 74 00 00 00 00 58 C3 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 F8 BD 28 4E CA 07 00 00 ]
+[08:02:42] 0 [06898]server get_pkg_len  
+[08:03:39] 8 [06898]CI[38][1001][0][2][26 00 00 00 E9 03 89 3D B3 4F 02 00 00 00 00 00 00 00 58 C3 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ]
+[08:03:39] 0 [06898]cli dispatch cmd 1001
+[08:03:39] 0 [06898]SET cmdid=1001,seq=2 
+[08:03:39] 0 [06898]cli_login
+[08:03:39] 0 [06898]SO[fd=13][ret=0][2A 00 00 00 E9 03 08 00 24 A0 00 00 00 00 58 C3 00 00 0C 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 ]
+[08:03:39] 0 [06898]server get_pkg_len  
+[08:03:39] 50008 [06898]DB	[u=50008 c=1001 0xA024 ret=4331]
+[08:03:39] 0 [06898]SO[fd=13][ret=0][12 00 00 00 E9 03 08 00 01 74 00 00 00 00 58 C3 00 00 ]
+[08:03:39] 0 [06898]server get_pkg_len  
+[08:03:39] 50008 [06898]DB	[u=50008 c=1001 0x7401 ret=0]
+[08:03:39] 50008 [06898]TO SW	[cmd=62002 waitcmd=1001]
+[08:03:39] 0 [06898]SO[fd=12][ret=0][16 00 00 00 E9 03 08 00 32 F2 00 00 00 00 58 C3 00 00 01 00 00 00 ]
+[08:03:39] 0 [06898]CO[ret=0][5A 00 00 00 E9 03 5B BE 28 4E 02 00 00 00 00 00 00 00 01 00 00 00 9D C4 E5 00 00 00 00 00 6A 69 6D 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 04 00 00 00 AC 86 01 00 FA 86 01 00 3D 87 01 00 43 87 01 00 00 00 00 00 ]
+[08:03:39] 0 [06898]cmdid=1001,seq=2
+[08:03:39] 0 [06898]SET cmdid=0,seq=0 
+[08:04:26] 0 [06898]ON_CLIENT_CONN_CLOSED: fd=8
+[08:04:26] 50008 [06898]TO SW	[cmd=62002 waitcmd=0]
+[08:04:26] 0 [06898]SO[fd=12][ret=0][16 00 00 00 00 00 08 00 32 F2 00 00 00 00 58 C3 00 00 00 00 00 00 ]
+[08:04:26] 0 [06898]SO[fd=13][ret=0][2A 00 00 00 00 00 08 00 1B 74 00 00 00 00 58 C3 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 5B BE 28 4E F9 07 00 00 ]
+[08:04:26] 0 [06898]server get_pkg_len  
+[08:07:01] 0 [06898]ON_CLIENT_CONN_CLOSED: fd=8
+[08:09:29] 0 [06898]ON_CLIENT_CONN_CLOSED: fd=8
+[08:09:35] 0 [06898]ON_CLIENT_CONN_CLOSED: fd=8

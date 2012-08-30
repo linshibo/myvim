@@ -1,0 +1,1 @@
+../gen_proto_app/bin/cat_proto -c 4   -p   ~/batrserv/gen_proto/python/mole2_btl_proto.py   --header_fmt_list "userid,L,6,4|seqid,L,10,4|result,l,14,4"  $* 

@@ -1,0 +1,18 @@
+INCLUDE = -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include/ -I./include  -I/usr/include/ -I/usr/local/include/async_serv/
+FLAG= -Wall -DNDEBUG -g -fPIC -MMD
+SRC = dbproxy.o dispatcher.o online.o switch.o 
+libswitch.so:$(SRC) 
+	g++ -shared -o libswitch.so  $(SRC) 
+%.o:%.cpp 
+	g++ $(FLAG) $(INCLUDE) -c  -o $@ $< 
+#dbproxy.o:dbproxy.hpp online.hpp
+	#g++ $(FLAG) $(INCLUDE) -c  dbproxy.cpp 
+#dispatcher.o:dispatcher.hpp online.hpp
+	#g++ $(FLAG) $(INCLUDE) -c dispatcher.cpp 
+#online.o:online.hpp dbproxy.hpp 	
+	#g++  $(FLAG) $(INCLUDE) -c online.cpp 
+#switch.o: dispatcher.hpp online.hpp dbproxy.hpp
+	#g++  $(FLAG) $(INCLUDE) -c switch.cpp 
+.PHONY:clean
+clean: 
+	rm $(SRC) libswitch.o 

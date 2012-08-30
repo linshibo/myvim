@@ -1,0 +1,52 @@
+<!--
+	第一位区分战斗区域：1非战斗，2~3、5~9战斗，4全服通副本
+	第二位区分大陆：0不独属任何大陆，1格历尔大陆，2克拉斯环岛，3~9其他大陆
+	第三位区分大陆内部区域
+	最后两位为区域场景
+-->
+<!--
+	Type：0表示大陆万能跳。
+	Area：10001以下相同代场景相互直接跳转，不同代号场景不可直接跳转；10001起所有场景不可直接跳转。【100摩尔王国互通，200麦田村互通，300港口镇互通；101~199摩尔王国不通，201~299麦田村不通，301~399港口镇不通；10001~20000野外不通场景，20001~30000村镇不通场景】
+	TaskGo：特别任务（ID）允许跳转至地图
+	TeamLeaderLv：（队长）进入场景等级
+	Chocobo：陆行鸟传送点，1设置，0未设置，不配置默认为未设置
+	BattleField：战场背景，不配置默认为PK背景
+	MonsterType：遇敌类型【0明雷，1暗雷，未配置默认为0】
+    BasicValue：遇敌基数【0~BasicValue之间，1个单位4.5像素】
+    RandomValue：遇敌浮动数【1个单位4.5像素】
+	MinBeastCnt：遇敌时出现的怪物数量下限
+    MaxBeastCnt：遇敌时出现的怪物数量上限
+	CompTaskID：任务限制进入该场景的条件
+-->
+<!--
+    Type ID：怪物种类
+	Lv：怪物出现等级
+	Percent：单种怪物出现概率【千分比】
+	TaskBeasts：任务怪物组
+    TaskID：任务ID
+	SpecialBeasts：稀有怪物组
+	GrpID：怪物组ID
+	ClothesID：穿指定装备免疫遇到该怪物组
+    Probability：遇怪概率【千分比】
+-->
+<!--
+	ReturnMap ID：强制传送场景
+	X：传出点横坐标
+	Y：传出点纵坐标
+-->
+
+<Maps FirstMap="1" TopMax="1">
+	<Map ID="10001" Name="广场" Area="300" Type="0" Receive="1" />
+	<Map ID="10002" Name="剑池" Area="300" Type="0" Receive="1" />
+	<Map ID="10003" Name="未知命名" Area="300" Type="0" CompTaskID="1" CompTaskNode="1" />
+	<Map ID="10004" Name="木岛" Area="300" Type="0" />
+	<Map ID="10005" Name="未知命名" Area="100" Type="0" HomeRet="1" MonsterType="0"/>
+	<Map ID="10006" Name="火岛" Area="100" Type="0"  HomeRet="1" MonsterType="0"/>
+	<Map ID="10007" Name="未知命名" Area="100" Type="0" HomeRet="1" MonsterType="0"/>
+	<Map ID="10008" Name="未知命名" Area="100" Type="0" HomeRet="1" MonsterType="0"/>
+	
+	<Map ID="21301" Name="格历尔平原1区" Check="0" BasicValue="200"  BattleField="3" MonsterType="0" RandomValue="40" Area="100" Type="0"  MinBeastCnt="1" MaxBeastCnt="3" >
+		<Type ID="1" Lv="26 27 28" Percent="150 200 150"/>
+		<Type ID="13" Lv="26 27 28" Percent="150 200 150"/>
+	</Map>
+</Maps>

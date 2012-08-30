@@ -1,0 +1,12 @@
+#!/bin/bash
+my='mysql -uroot -pta0mee'
+for db in `seq 0 99`
+do
+        db=`printf %02d $db`
+        echo "start process db : $db"
+        for tb in `seq 0 99`
+        do
+              tb=`printf %02d $tb`
+              echo "update MOLE2_USER_$db.t_day_$tb set total=0 where ssid=50017;" | $my
+        done
+done

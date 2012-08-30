@@ -1,0 +1,24 @@
+# -*- coding: utf-8 -*-
+import seer_proto_base 
+import struct
+import mypub
+class  Cseer_online_proto_base(seer_proto_base .Cseer_proto_base):
+	def set_seq(self, seq) :
+		self.seq=seq
+	def get_buf_value(self,buf):
+		v=0;
+		print "xxx",buf
+
+		for i in range( len(buf )):
+			v^= (ord(buf[i]) & 0xFF)
+		return v;
+
+	def calc_next_seq(self ,len, cmdid,buf):
+		#int32_t seq = p->seq - p->seq / 7 + 140 + pkg_head.len % 26 + pkg_head.cmd % 21;
+		self.seq=self.seq-self.seq/7 +147 + len   % 21 + cmdid % 13 +self.get_buf_value(buf);
+	#得到头部的报文
+	def pack_proto_header(self, pri_len, cmdid, body_buf ):
+		self.calc_next_seq(self.getheaderlen() +pri_len,cmdid,body_buf  )
+		headermsg=struct.pack(">LBLLL",self.getheaderlen() +pri_len ,
+			ord("1"),cmdid, self.userid ,  self.seq );
+		return headermsg

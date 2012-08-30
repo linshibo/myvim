@@ -1,0 +1,24 @@
+#ifndef  IDD_ONLINE_ENUM_H
+#define  IDD_ONLINE_ENUM_H
+
+/*命令定义*/	
+enum  enum_idd_online_cmd{
+	 cli_header_cmd		=	1, /**/
+	 cli_login_cmd		=	1001, /**/
+	 cli_reg_cmd		=	1002, /**/
+	 cli_get_friend_list_cmd		=	1003, /**/
+	 cli_get_user_info_cmd		=	1004, /**/
+	 cli_get_pk_user_info_cmd		=	1006, /**/
+	 cli_user_pk_cmd		=	1007, /**/
+
+};
+
+/*错误码定义*/	
+enum  enum_idd_online_error{
+	 __SUCC__		=	0, /*成功*/
+
+};
+
+
+
+#endif // IDD_ONLINE_ENUM_H

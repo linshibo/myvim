@@ -1,0 +1,56 @@
+/*
+ * =========================================================================
+ *
+ *        Filename: a.c
+ *
+ *        Version:  1.0
+ *        Created:  2011-05-19 18:33:12
+ *        Description:  
+ *
+ *        Author:  jim (jim@taomee.com)
+ *        Company:  TAOMEE
+ *
+ * =========================================================================
+ */
+#include  <stdint.h>
+class Citem {
+	private:
+
+	public:
+		uint32_t  itemid;
+		uint32_t  count;
+
+};
+struct item_t {
+		uint32_t  itemid;
+		uint32_t  count;
+};
+#include   <stdio.h>
+xxx_1
+xxx_1
+int main(int argc, char *argv[])
+{
+	Citem x;
+
+    int i;
+    for( i=0 ; i<100 ; i++ ){
+        printf("XXXX");
+    }
+}
+/*
+ * =========================================================================
+ *
+ *        Filename: a.c
+ *
+ *        Version:  1.0
+ *        Created:  2011-08-10 15:43:10
+ *        Description:  dw
+ *
+ *        Author:  jim (jim@taomee.com)
+ *        Company:  TAOMEE
+ *
+ * =========================================================================
+ */
+
+#define     
+#define     dkd

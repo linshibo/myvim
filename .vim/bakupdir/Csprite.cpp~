@@ -1,0 +1,142 @@
+/*
+ * =========================================================================
+ *
+ *        Filename: sprite.cpp
+ *
+ *        Version:  1.0
+ *        Created:  2011-05-13 17:37:07
+ *        Description:  
+ *
+ *        Author:  jim (jim@taomee.com)
+ *        Company:  TAOMEE
+ *
+ * =========================================================================
+ */
+
+
+#include    "Csprite.h"
+#include    "benchapi.h"
+#include    "svr_proto.h"
+#include    "global.h"
+#include    "Ctimer.h"
+#include    "timer_func.h"
+#include    "stat.h"
+
+#include    "./proto/idd_db.h"
+#include    "./proto/idd_db_enum.h"
+#include    "./proto/idd_online_enum.h"
+
+bool Csprite::send_msg_ex( uint16_t cmdid,int ret, Cmessage *c_in,  bool completed )
+{
+	static protocol_t proto_header;
+	proto_header.len=sizeof(proto_header);
+	proto_header.cmd=cmdid;
+	proto_header.timestamp=time(NULL) ;
+	proto_header.seq=	completed? this->waitseq:0;
+	proto_header.ret=ret;
+	KDEBUG_LOG (this->id,"CO [%u][%d] ",cmdid, ret  );
+
+    if (send_msg_to_client(this->fdsess, (char*)&proto_header ,c_in ) == -1) {
+		KDEBUG_LOG(this->id,"error,failed to send pkg to client:  cmd=%u",  cmdid);
+		return false;
+	}
+
+	if (completed && this->waitcmd != cmdid ) {
+		WARN_LOG("p_waitcmd not equal to proto_cmd\t[%u %u %u]", this->id, this->waitcmd,cmdid );
+	}
+	if (completed) {
+		DEBUG_LOG("cmdid=%u,seq=%u",this->waitcmd,this->waitseq );
+		this->set_waitcmd(0,0);
+	}
+	return true;	
+}
+
+//在收到报文，返回报文时都会设置
+void Csprite:: set_waitcmd(uint16_t cmdid, int seq )
+{
+//	DEBUG_LOG("SET cmdid=%u,seq=%u ",cmdid,seq );
+	this->waitcmd=cmdid;
+	this->waitseq=seq;
+	if(this->waitcmd==0 && this->cache_buffer_lst.size()>0){
+		//完成了,并有数据还没有分发
+		g_timer_map->add_timer(0 ,n_deal_cahce_cmd,this->id);
+	}	
+}
+
+
+bool Csprite_map::del_sprite_by_fd (  uint32_t fd ) 
+{
+
+	//清空fd <->userid 映射
+	uint32_t userid=this->fd_userid_map.unmap_fd_userid(fd);
+	if  (userid==0 ){
+		return false;
+	}
+	
+
+	std::map<uint32_t, Csprite > ::iterator it; 
+	it=this->spritemap.find(userid);
+
+	if(it!=this->spritemap.end()){//找到了
+		Csprite *p=&(it->second);
+
+
+	
+		//清空用户的定时器
+		g_timer_map->del_by_key(p->id );
+
+	}else{
+		return false;
+	}
+
+	//清空map <->
+	this->spritemap.erase(it );
+	return true;
+
+}
+	
+
+
+
+bool Csprite::check_change_xiaomee(int32_t change_value )
+{
+  int value=int(this->xiaomee)+ change_value;	
+  DEBUG_LOG("xiaomee==%d,",value);
+  if (value<0) return false;
+  if (value>999999) return false;
+  return  true;
+}
+
+
+
+bool Csprite::change_xiaomee(int32_t change_value )
+{
+	if (this->check_change_xiaomee(change_value )){
+	  	this->xiaomee+=change_value;
+	  	return  true;
+	}else{
+		DEBUG_LOG("ERROR Csprite::change_xiaomee  xiaomee=%u, change_value=%d", 
+	  		this->xiaomee,change_value );
+	  	return  false;
+	}
+}
+
+int32_t Csprite::change_game_point(int32_t change_value)
+{
+	int value = int(this->game_point) + change_value;
+	if (value < 0) {
+		change_value = 0 - this->game_point;
+		this->game_point = 0;
+	}
+
+	if (value > 999999) {
+		change_value = 999999 - this->game_point;
+		this->game_point = 999999;
+	}
+
+	return change_value;
+}
+
+
+
+

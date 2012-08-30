@@ -1,0 +1,72 @@
+javascript liberator.beep = function() { return false; }
+
+map A <Nop>
+map <C-o> <Nop>
+map <C-i> <Nop>
+map <C-S-t> <Esc>:tabopen www.google.com.hk<CR> 
+map J <C-d>
+noremap K <C-u>
+map <C-S-h> <Esc>:tabprevious<CR><Esc>
+map <C-S-l>  <Esc>:tabnext<CR><Esc>
+
+noremap j 3j
+noremap k 3k
+noremap I <C-o>
+noremap O <C-i>
+
+map ,b <Esc>:back<CR>
+map ,f <Esc>:forward<CR>
+map ,w <Esc>:tabnext<CR><Esc>
+"qmark 
+qmark 1  http://linux.chinaunix.net/ 
+qmark 2  http://www.lupaworld.com/ 
+qmark 3  http://www.csdn.net/ 
+qmark 4  http://www.sina.com.cn/ 
+qmark 5  http://www.linuxdiyf.com/
+qmark 6  http://www.bokee.com/
+qmark 7  http://www.linuxtoy.org/ 
+qmark 8  http://www.shell-fu.org/lister.php 
+qmark 9  http://www.commandlinefu.com 
+
+qmark s  http://192.168.0.39/su_show/
+qmark S  http://10.1.1.5/su/
+qmark m http://192.168.0.2:18080/Monitor.action 
+qmark c http://192.168.0.21/ 
+"taomee/ta0mee@monitor
+qmark f  http://10.1.1.5/p.html
+qmark F  http://10.1.1.5/dd.html
+qmark o http://oa.taomee.com/
+qmark l http://stat.taomee.com/index.php?action=tree&tree_id=3&leaf_id=3&graphset_id=10001 
+qmark L http://114.80.98.39/logser_admin
+qmark p  http://192.168.0.27/su/
+
+qmark g  http://www.google.com.hk/
+qmark b  http://bbs.51mole.com/
+qmark h  http://www.lupaworld.com/30388 
+qmark d  http://www.2ccc.com
+qmark e  http://www.lupaworld.com/batch.manage.php?itemid=126629
+map ;  <Esc>go
+
+
+set nextpattern=\s*下一页|下一张|下页\s*,\bnext\b,^>$,^(>>|»)$,^(>|»),(>|»)$,\bmore\b
+set previouspattern=\s*上一页|上一张|上页\s*,\bprev|previous\b,^<$,^(<<|«)$,^(<|«),(<|«)$ 
+
+map ,l gol<Esc>f4<Esc>gijim<Tab>xcwenxcwen<Tab><Tab><CR>gol
+set gui=none,tabs
+
+javascript <<EOF
+	 clear_gui=true;
+	function set_gui(){
+		if (clear_gui){
+			alert("xxx");
+			//liberator.execute('normal :set gui=all <CR>') ; 
+		}else{
+			alert("jjj");
+			//liberator.execute('normal :set gui=none,tabs <CR>') ; 
+		}
+		clear_gui=!clear_gui;
+	}
+
+EOF
+map ,s <Esc>:js set_gui(); <CR>
+

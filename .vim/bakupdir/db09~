@@ -1,0 +1,18 @@
+#!/bin/bash
+my='mysql -uroot -ptaomee -A'
+for db in `seq 0 99`
+do
+        db=`printf %02d $db`
+        echo "start process db : $db"
+        #$my -e  "create database db_user_info_$db"
+        for tb in `seq 0 9`
+        do
+                echo "process table $tb"
+                tb=`printf %01d $tb`
+                #echo "alter table db_user_info_$db.user_info_$tb add column title char(128);" | $my
+                #echo "alter table db_user_info_$db.user_info_$tb add column default_logo int not null default 0;" | $my
+                #echo "alter table db_user_info_$db.user_info_$tb add guide_step int unsigned not null default 0;" | $my
+#               echo "alter table db_user_info_$db.user_info_$tb add guide_step int unsigned not null default 0;" | $my
+                echo "update MOLE2_USER_$db.t_user_$tb set joblevel=2 where profession>=6 and joblevel=1;" | $my
+        done
+done

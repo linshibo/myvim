@@ -1,0 +1,10 @@
+let g:netrw_dirhistmax  =10
+let g:netrw_dirhist_cnt =8
+let g:netrw_dirhist_1='/usr/include/c++/4.5'
+let g:netrw_dirhist_2='/usr/include/i386-linux-gnu'
+let g:netrw_dirhist_3='/home/jim/.vim'
+let g:netrw_dirhist_4='/home/jim/pop/db/trunk/src/.pchdir'
+let g:netrw_dirhist_5='/home/jim/.vim/plugin'
+let g:netrw_dirhist_6='/home/jim/wesnoth-1.8-1.8.5/sounds'
+let g:netrw_dirhist_7='/home/jim/test'
+let g:netrw_dirhist_8='/home/jim/libevent-2.0.11-stable'

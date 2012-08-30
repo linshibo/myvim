@@ -1,0 +1,87 @@
+<!--
+	Grp ID：怪物组，值小于4000
+	MapID：怪物组出现地图【-1表示特殊形式，与地图无关；0表示不限制地图。未配置默认为0】
+	GrpType：怪物组生成形式【0普通，1时间裂痕形式，2野外明雷刷新组形式，3净化挑战形式。未配置默认为0】
+		0: 普通，位置固定，数量固定
+		1：只出现在迷宫，其他与GrpType=0相同
+		2：指定怪物数量范围，随机位置(Cnts="a b"生成数量为a~b之间随机，Cnts="n"生成数量为人数的n倍)
+		3：boss占0或5，按人数生成小怪数量，对称站位
+		4：烟花类型，只出现其中一只怪(Percents表示出现的概率)
+	TitleID：需要获得相应的称号才能与Boss对战
+	LimitExp：升级经验【-1或不配置示按正常输出，否则按配置的值输出】
+	LimitSkillExp：技能经验【-1或不配置按正常输出，否则按配置的值输出】
+	AllowTeam：组队许可【0可组队，1不可组队，未配置默认为0】
+-->
+<!--
+	Type ID：怪物类型，对应素材
+	BaseLv：怪物基准等级【区间（如5 10）表示在区间（5级~10级）范围内随机产生；不配置或配置单个（如5）表示根据LvType产生等级，产生的等级>=配置值（5级）；不配置默认BaseLv为2级】
+	LvType：怪物等级生成方法【0最大等级，1最小等级，2平均等级，3最大等级-3，4平均等级-3且单人时锁定为BaseLv】（锁定等级的除外）
+	Position：怪物位置【前排中间0，0右侧1，0左侧2，1右侧3，2左侧4，后排为前排位置加5】
+	HPCoefficient：血量修正倍率【千分比】
+	MPCoefficient：魔力修正倍率【千分比】
+	AtkCoefficient：物攻修正倍率【千分比】
+	MatkCoefficient：魔攻修正倍率【千分比】
+	DefCoefficient：防御修正倍率【千分比】
+	SpeedCoefficient：速度修正倍率【千分比】
+	SpiritCoefficient：精神修正倍率【千分比】
+	ResumeCoefficient：回复修正倍率【千分比】
+	Mdef抗魔，Cri必杀，FightBack反击，Hit命中，Avd回避，Rpoison抗毒，Rlithification抗石化，Rlethargy抗昏睡，Rcurse抗诅咒，Rconfusion抗混乱，Roblivion抗遗忘
+-->
+<!--
+	1、固定位置
+	2、部分位置固定，部分位置按一定规则随机
+		规则一：按人数两倍进行产生怪物数量，并随机位置
+		规则二：指定怪物数量范围，随机位置
+		规则三：按人数两倍产生怪物数量，位置对称随机
+-->
+
+<BeastGrps>
+	<Grp ID="2" MapID="21301">
+		<Type ID="100008" BaseLv="8 8" Position="1 2" Name="电波兔" HPCoefficient="300" MPCoefficient="300" />
+	</Grp>
+	<Grp ID="3" MapID="21302">
+		<Type ID="100004" BaseLv="10 10" Position="1 2" Name="曼陀萝卜" HPCoefficient="500" MPCoefficient="500" />
+	</Grp>
+	<Grp ID="4" MapID="21401">
+		<Type ID="100013" BaseLv="12 12" Position="5" Name="18K钢姆" HPCoefficient="1000" MPCoefficient="1000" />
+	</Grp>
+	<Grp ID="5" MapID="21306" GrpType="3" LimitExp="100" >
+		<Type ID="100012" BaseLv="18 18" Position="0" Name="怪盗戈戈拉" HPCoefficient="1000" MPCoefficient="1000" />
+		<Type ID="100007" BaseLv="15 17" Position="1 2 3 4" Name="怪盗迪迪拉" HPCoefficient="100" MPCoefficient="100" AtkCoefficient="500" />
+	</Grp>
+	<Grp ID="6" MapID="11205" LimitExp="100">
+		<Type ID="100007" BaseLv="6" Position="0" Name="怪盗迪迪拉" HPCoefficient="5000" MPCoefficient="5000" AtkCoefficient="500"/>
+	</Grp>
+	<Grp ID="7" MapID="21301" LimitExp="1">
+		<Type ID="100001" BaseLv="17 19" Position="0 1 2 3 4 5 " Name="怪盗迪迪拉" HPCoefficient="100" MPCoefficient="100" AtkCoefficient="500" />
+	</Grp>
+	<Grp ID="8" MapID="11205" LimitExp="100">
+		<Type ID="100012" BaseLv="8" Position="0" Name="怪盗戈戈拉" HPCoefficient="3000" MPCoefficient="3000" AtkCoefficient="500"/>
+		<Type ID="200007" BaseLv="6 7" Position="1 2" Name="怪盗迪迪拉" HPCoefficient="1000" MPCoefficient="1000" AtkCoefficient="500"/>
+	</Grp>
+	<Grp ID="9" MapID="-1" GrpType="2" Cnt="1 2" RepeatCnt="1">
+		<Type ID="300012" BaseLv="1 1" Position="-1" BeastCnt="1 2" Name="海德" HPCoefficient="1000" MPCoefficient="1000" />
+	</Grp>
+	<Grp ID="10" MapID="21303" GrpType="2" Cnt="1 2" RepeatCnt="1" Time="6:6-24 7:6-24">
+		<Type ID="300003" BaseLv="1 1" Position="-1" BeastCnt="1 2" Name="假面奇奇帕" HPCoefficient="1000" MPCoefficient="1000" />
+	</Grp>
+	<Grp ID="12" MapID="0" RepeatCnt="1">
+		<Type ID="300007" BaseLv="1 1" Position="5" Name="忽悠喵" HPCoefficient="1000" MPCoefficient="1000" />
+	</Grp>
+	<Grp ID="13" MapID="21401" GrpType="2" Cnt="1 2" RepeatCnt="1">
+		<Type ID="300008" BaseLv="1 1" Position="-1" BeastCnt="1 2" Name="海神马" HPCoefficient="1000" MPCoefficient="1000" />
+	</Grp>
+	<Grp ID="15" MapID="0">
+		<Type ID="300009" BaseLv="1 1" Position="5" Name="咕噜蝶" HPCoefficient="1000" MPCoefficient="1000" />
+	</Grp>
+		<Grp ID="21" MapID="21301">
+		<Type ID="7" BaseLv="8" Position="0 1 2" Name="怪盗迪迪拉" HPCoefficient="1000" MPCoefficient="1000" AtkCoefficient="500"/>
+	</Grp>
+	<Grp ID="22" MapID="21302" LimitExp="3000" MaxRoleLv="20" >
+		<Type ID="100012" BaseLv="12 12" Position="0" Name="怪盗戈戈拉" HPCoefficient="500" MPCoefficient="500" AtkCoefficient="500"/>
+		<Type ID="100007" BaseLv="12 12" Position="1 2 3" Name="怪盗迪迪拉" HPCoefficient="500" MPCoefficient="500" AtkCoefficient="500"/>
+	</Grp>
+</BeastGrps>
+
+
+

@@ -1,0 +1,6 @@
+declare @i int
+declare @sql nvarchar(1000),@tablename  nvarchar(100)
+set @i=1
+set @tablename='MOLE2_USER_00.t_item_0'+@i
+select @sql= 'select sum(count) from ' +@tbname + ' where itemid=360001' 
+exec sp_executesql @sql,N'output',output --输出满足条件表的记录数 

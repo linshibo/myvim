@@ -1,0 +1,13 @@
+# -*- coding: utf-8 -*-
+import seer_online_proto
+import struct
+import mypub
+class  Cseer_online (seer_online_proto.Cseer_online_proto ):
+	def login(self,userid,key):
+		self.set_userid(userid);
+		primsg=struct.pack(">16s",key);
+		sendbuf=self.pack_with_buf(1001,primsg);
+		mypub.print_hex_16(sendbuf);
+		self.getsock().send(sendbuf)
+		pass
+

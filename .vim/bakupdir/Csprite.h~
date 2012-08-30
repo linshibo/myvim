@@ -1,0 +1,193 @@
+#ifndef  SPRITE_H
+#define  SPRITE_H
+
+#include <libtaomee++/proto/proto_base.h>
+#include <libtaomee++/proto/proto_util.h>
+
+#include    "./proto/idd_online.h"
+#include    "util.h"
+
+
+#define     NICK_LEN 	16
+#include  	<map>
+#include  	<list>
+#include  	<set>
+#include  	<vector>
+#include <string.h>
+#include <async_serv/net_if.h>
+//缓存的报文
+class Cbuffer_list{
+	private:
+		std::list<std::vector<char> > buffer_list;
+	public:	
+		void add_buffer(char *data ){
+			this->buffer_list.push_back(
+					std::vector<char>(data,data+*((uint32_t*)(data)))
+			);
+		}
+	 	inline uint32_t size()	{
+			return this->buffer_list.size();
+		}
+		char * get_first_buffer(){
+			if(this->buffer_list.size()>0){
+				return &((*this->buffer_list.begin())[0]);
+			}else{
+				return NULL;
+			}
+		}
+		void pop_front(){
+			this->buffer_list.pop_front();
+		}
+
+};
+
+class Csprite {
+	private:
+		uint32_t 		waitcmd ;
+		int32_t				waitseq;
+
+	public:
+		void set_waitcmd(uint16_t cmdid, int seq );
+		bool change_xiaomee(int32_t change_value );
+		bool check_change_xiaomee(int32_t change_value );
+		inline uint16_t get_waitcmd(){return waitcmd;}
+		struct fdsession*	fdsess;
+		uint32_t 			id;
+		uint32_t 			flag;
+		uint32_t 			xiaomee;
+		uint32_t		last_login;
+		uint32_t		online_time;
+		uint32_t		login_time;
+	
+ 		Cbuffer_list 	cache_buffer_lst;
+		bool send_msg_ex( uint16_t cmdid,int ret, Cmessage *c_in,  bool completed );
+
+
+		//用于用户请求的响应
+		inline bool send_succ(Cmessage *c_in=NULL ){
+			return this->send_msg_ex( this->waitcmd,0, c_in,true ) ;
+		}
+		//用于用户请求的响应
+		inline bool send_err(  int ret  ){
+			return this->send_msg_ex( this->waitcmd,ret, NULL,true) ;
+		}
+
+		/*
+		//用于用户请求的响应
+		inline bool send_db_err( int ret ){
+			return this->send_err(ret+10000);
+		}
+		*/
+
+
+		//发送系统通知,不是用户请求的响应
+		inline bool send_succ_server_noti( uint16_t cmdid, Cmessage *c_in=NULL ){
+			return this->send_msg_ex(cmdid,0, c_in,false) ;
+		}
+
+		//发送系统通知,不是用户请求的响应
+		inline bool send_err_server_noti( uint16_t cmdid, int ret  ){
+			return this->send_msg_ex(cmdid, ret, NULL,false) ;
+		}
+	
+};
+
+
+class Cfd_userid_map {
+	private: 
+		static const int max_fd=65536;
+		uint32_t fd_userid_list[max_fd]; 
+	public: 
+		Cfd_userid_map(){
+			memset(fd_userid_list,0,max_fd );
+		};
+		uint32_t get_userid_by_fd(int fd){
+			if (fd>=0 && fd<this->max_fd ){
+				return this->fd_userid_list[fd];
+			}else{
+				return 0;
+			}
+		}
+		bool  map_fd_userid(int fd,  uint32_t userid){
+			if (userid<=0) return false;
+			if (fd>=0 && fd<this->max_fd ){
+				this->fd_userid_list[fd]=userid;
+				return true;
+			}else{
+				return false;
+			}	
+		}
+		uint32_t unmap_fd_userid(int fd ){
+			if (fd>=0 && fd<this->max_fd ){
+				uint32_t userid= this->fd_userid_list[fd];
+				this->fd_userid_list[fd]=0;
+				return userid;
+			}else{
+				return 0;
+			}	
+		}
+};
+class Csprite_map {
+	private:
+		std::map<uint32_t, Csprite > spritemap ; 
+		Cfd_userid_map  fd_userid_map;
+	public:
+		inline Csprite * get_sprite(uint32_t userid ) {
+			std::map<uint32_t, Csprite > ::iterator it;
+			it=this->spritemap.find(userid);			
+			if( it!=this->spritemap.end() ){
+				return &it->second;
+			}else{
+				return NULL;
+			}
+		}
+		inline Csprite * get_sprite_by_fd( int fd) {
+			uint32_t userid=this->fd_userid_map.get_userid_by_fd(fd );
+			if( userid==0 ){
+				return NULL;
+			}
+			return this->get_sprite(userid);
+		}
+
+		Csprite * add_sprite (   uint32_t userid , fdsession_t* fdsess ) {
+
+			if ( ! this->fd_userid_map.map_fd_userid(fdsess->fd,userid )){
+				return NULL;
+			}
+			Csprite sprite;
+			sprite.fdsess=fdsess;
+			sprite.id=userid;
+			sprite.set_waitcmd(0, 0);
+			std::pair< std::map<uint32_t ,Csprite >::iterator,bool > ret;
+			ret=this->spritemap.insert(std::pair< uint32_t ,Csprite  >(userid,sprite ));
+
+			if( ret.second ){//插入成功
+				return &(ret.first->second);
+			}else{
+				return NULL;
+			}
+		}
+
+		bool del_sprite_by_fd (  uint32_t fd ); 
+
+};
+
+#include  <libtaomee++/utils/strings.hpp>
+
+inline void init_int_list(const char * init_buf, std::vector<uint32_t>& item_list )
+{
+	//空的不处理
+	if (init_buf==NULL) return;
+
+	std::vector<std::string> row_list=split(init_buf,',');
+	for( uint32_t i=0 ; i<row_list.size() ; i++ ){
+		uint32_t value=atol(row_list[i].c_str());
+		 if (value>0){
+		 	DEBUG_LOG("== push int:%u ",value );
+		 	item_list.push_back(value) ;
+		 }
+	}
+}
+
+
+#endif  /*SPRITE_H*/

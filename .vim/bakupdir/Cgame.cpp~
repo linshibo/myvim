@@ -1,0 +1,281 @@
+/*
+ * =========================================================================
+ *
+ *        Filename: Cgame.cpp
+ *
+ *        Version:  1.0
+ *        Created:  2011-08-31 08:01:49
+ *        Description:  
+ *
+ *        Author:  jim (jim@taomee.com)
+ *        Company:  TAOMEE
+ *
+ * =========================================================================
+ */
+#include  "Cgame.h"
+#include  "global.h"
+#include  "sprite.h"
+#include    "./proto/pop_online_enum.h"
+
+
+void Cgame_item::init(uint32_t game_map_id,uint32_t gameid, uint32_t src_userid,uint32_t obj_userid  )
+{
+
+	this->game_stat=GAME_START;	
+
+	//需要配置
+	this->start_userid=src_userid;
+	this->cur_opt_userid=src_userid;
+	this->step_timeout=1000;
+
+	Cgame_user_info game_user_info;
+	game_user_info.opt_count=0;
+	game_user_info.can_start=false;
+
+	game_user_info.userid=src_userid;
+	this->user_map[src_userid]=game_user_info;
+
+	game_user_info.userid=obj_userid;
+	this->user_map[obj_userid]=game_user_info;
+
+
+	std::map<uint32_t , Cgame_user_info>::iterator it;
+	//设置游戏引用
+	for (it=this->user_map.begin();it!=this->user_map.end();++it ){
+		uint32_t obj_userid=(it->second.userid) ;
+		Csprite* obj_p=g_sprite_map->get_sprite(obj_userid );		
+		if (obj_p->game_map_id>0 ){
+			KDEBUG_LOG(obj_p->id ,"ERROR  obj_p->game_map_id>0 =%u",obj_p->game_map_id );
+		}
+		KDEBUG_LOG(obj_p->id ,"set obj_p->game_map_id=%u",obj_p->game_map_id );
+		obj_p->game_map_id= game_map_id;
+	}
+
+
+	
+}
+bool  Cgame_item::set_user_can_start(uint32_t userid)
+{
+	if(this->game_stat!=GAME_START ){
+		KDEBUG_LOG(userid, "ERROR, set_user_can_start:this->game_stat!=GAME_START:%d ",
+				this->game_stat );
+		return false;
+	}
+
+	std::map<uint32_t , Cgame_user_info>::iterator it;
+	it=this->user_map.find(userid );
+	if(it!=this->user_map.end() ){
+		DEBUG_LOG(" set_user_can_start  userid=%u",userid);
+		it->second.can_start=true;
+
+	}else{
+		DEBUG_LOG(" ERROR set_user_can_start  nofind userid=%u",userid);
+		return false;
+	}
+
+	for ( it=this->user_map.begin();it!=this->user_map.end();++it){
+		if (!it->second.can_start){
+			return false;
+		}
+	}
+
+	//都已经好了,开始
+	this->game_stat=GAME_OPT;
+	cli_noti_game_start_out noti_out;
+	noti_out.gameid=this->gameid;
+	noti_out.start_userid=this->start_userid;
+	noti_out.step_timeout=this->step_timeout;
+
+	for (it=this->user_map.begin();it!=this->user_map.end();++it ){
+		noti_out.userid_list.push_back((it->second.userid)) ;
+	}
+
+
+	this->noti_all(cli_noti_game_start_cmd, &noti_out);
+	
+	return true;
+}
+
+
+
+bool Cgame_item::user_opt( uint32_t userid, cli_game_opt_in *p_in)
+{
+	DEBUG_LOG("Cgame_item::user_opt 11111" );
+	if (this->game_stat!= GAME_OPT ){
+		return false;
+	}
+
+	std::map<uint32_t , Cgame_user_info>::iterator it;
+	it=this->user_map.find(userid );
+	if(it!=this->user_map.end() ){//找到用户
+		Cgame_user_info *p_item=&(it->second);
+		p_item->opt_count++;
+	}else{
+		return false;
+	}
+	//通知用户
+	cli_noti_game_opt_out noti_out; 
+	noti_out.src_userid=userid;
+
+	//复制消息
+	if (p_in->_gamemsg_len>sizeof( noti_out.gamemsg)){
+		return false;
+	}
+	memcpy(noti_out.gamemsg,p_in->gamemsg,p_in->_gamemsg_len);
+	noti_out._gamemsg_len=p_in->_gamemsg_len;
+	
+	DEBUG_LOG("Cgame_item::user_opt 2222" );
+	this->noti_others( userid,cli_noti_game_opt_cmd,&noti_out);
+	return true;
+
+}
+void Cgame_item::noti_all( uint32_t cmdid, Cmessage *c_in)
+{
+	std::map<uint32_t , Cgame_user_info>::iterator it;
+	for (it=this->user_map.begin();it!=this->user_map.end();++it ){
+		uint32_t obj_userid=it->second.userid;
+		Csprite *obj_p=g_sprite_map->get_sprite(obj_userid);
+		if(obj_p ){
+			obj_p->send_succ_server_noti(cmdid,c_in );
+		}
+	}
+
+}
+
+void Cgame_item::noti_others( uint32_t userid, uint32_t cmdid, Cmessage *c_in)
+{
+	std::map<uint32_t , Cgame_user_info>::iterator it;
+	for (it=this->user_map.begin();it!=this->user_map.end();++it ){
+		if (it->second.userid==userid ){
+			continue;
+		}else{
+			uint32_t obj_userid=it->second.userid;
+			Csprite *obj_p=g_sprite_map->get_sprite(obj_userid);
+			if(obj_p ){
+				obj_p->send_succ_server_noti(cmdid,c_in );
+			}
+		}
+	}
+
+}
+
+
+
+bool Cgame_item::game_end(uint32_t userid,uint32_t win_flag ,bool del_game_flag )
+{
+	/*
+	if (this->game_stat!= GAME_OPT ){
+		return false;
+	}
+	*/
+
+	std::map<uint32_t , Cgame_user_info>::iterator it;
+	it=this->user_map.find(userid );
+	if(it!=this->user_map.end() ){//找到用户
+		Cgame_user_info *p_item=&(it->second);
+		p_item->opt_count++;
+	}else{
+		return false;
+	}
+
+
+	//通知所有人
+	cli_noti_game_end_out noti_out;
+	//其他的输羸标志
+	uint32_t other_user_win_flag=0;
+	switch ( win_flag ){
+		case 0:
+			other_user_win_flag=1;
+			break;
+		case 1:
+			other_user_win_flag=0;
+			break;
+		default :
+			other_user_win_flag=2;
+			win_flag=2;
+			break;
+	}
+
+	
+	if (!del_game_flag){
+		for (it=this->user_map.begin();it!=this->user_map.end();++it ){
+			
+			user_game_win_t item;
+			item.obj_userid=(it->second.userid) ;
+			if(item.obj_userid ==userid){//是自己
+				item.win_flag=win_flag;
+			}else{
+				item.win_flag=other_user_win_flag;
+			}
+			noti_out.user_win_list.push_back(item);
+		}
+
+		this->noti_all(cli_noti_game_end_cmd,&noti_out);
+	}
+
+	//清空游戏
+	for (it=this->user_map.begin();it!=this->user_map.end();++it ){
+		uint32_t obj_userid=(it->second.userid) ;
+		
+		if (del_game_flag){//删除游戏时 要清空game_map_id
+			Csprite* obj_p=g_sprite_map->get_sprite(obj_userid );		
+			KDEBUG_LOG(obj_p->id,"del: obj_p->game_map_id:%u ",obj_p->game_map_id);
+			obj_p->game_map_id=0;
+		}
+
+		it->second.can_start=false;
+		it->second.opt_count=0;
+	}
+
+	this->game_stat=GAME_START;	
+	return true;
+
+}
+
+//游戏结束
+bool Cgame_map::game_end( uint32_t game_map_id, uint32_t userid,uint32_t win_flag, bool del_game_flag )
+{
+	std::map <uint32_t, Cgame_item >::iterator it;
+	it=this->game_item_map.find(game_map_id);
+	if(it!=this->game_item_map.end()){
+		bool ret=it->second.game_end( userid ,win_flag,del_game_flag  );
+		if (ret==true){//处理好了
+			if (del_game_flag){
+				this->game_item_map.erase(game_map_id);	
+			}
+		}
+		return ret;
+	}else{
+		return false;
+	}
+}
+
+bool Cgame_map::game_user_left( uint32_t game_map_id, uint32_t userid)
+{
+	std::map <uint32_t, Cgame_item >::iterator it;
+	it=this->game_item_map.find(game_map_id);
+	if(it!=this->game_item_map.end()){
+		cli_noti_game_user_left_game_out noti_out;
+		noti_out.obj_userid=userid;
+		it->second.noti_others(userid, cli_noti_game_user_left_game_cmd,&noti_out );
+		this->game_end(game_map_id,userid,0,true );
+	}else{
+		return false;
+	}
+
+	return true;
+
+}
+
+bool   Cgame_map::set_user_can_start(uint32_t game_map_id, uint32_t userid )
+{
+	DEBUG_LOG("Cgame_map::set_user_can_start");
+	std::map <uint32_t, Cgame_item >::iterator it;
+	it=this->game_item_map.find(game_map_id);
+	if(it!=this->game_item_map.end()){
+		DEBUG_LOG("set_user_can_start");
+		return it->second.set_user_can_start( userid );
+	}else{
+		return false;
+	}
+}

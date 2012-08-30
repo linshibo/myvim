@@ -1,0 +1,13 @@
+#!/usr/bin/python 
+#FileName:am.py
+dbname_fix="MOLE2_USER"
+tablename_fix="t_attire"
+db_count=100
+table_count=100
+for i in range (db_count):
+	db_name= "%s_%02d"%(dbname_fix,i )
+	for j in range(table_count):
+		print """
+		update %s.%s_%02d set hpmax=hpmax/5,atk=atk/5,def=def/5,speed=speed/5,matk=matk/5 where gettime<1332450000 and attire_id>=141001 and attire_id <=142540;
+		""" %(db_name,tablename_fix,j)
+		#print """database:%02d  table:%02d"""%(i,j)
