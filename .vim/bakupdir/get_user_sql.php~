@@ -1,7 +1,0 @@
-<?php
-  	require_once( "./mole2_db_proto.php" );
-	#$p=new Cmole2_db_proto("10.1.1.134",  13001);
- 	$p=new Cmole2_db_proto("10.1.1.105",  14001);
-	$arr=$p->mole2_get_user_sql( $argv[1], $argv[2] );
-	echo $arr["out" ]->sql_str;
-?>

@@ -1,3 +1,0 @@
-delete  from POP_09.t_find_map_0   where userid=50009;
-delete  from POP_09.t_item_0   where userid=50009;
-delete  from POP_09.t_task_0   where userid=50009;

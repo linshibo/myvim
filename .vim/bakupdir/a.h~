@@ -1,6 +1,0 @@
-/* asdfa  */
-#define PROTO_FUNC_DEF(cmd_name)\
-	int cmd_name(DEAL_FUNC_ARG);
-#include "./proto/pop_db_func_def.h"
-
-/* asdfa  */

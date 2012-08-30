@@ -1,1 +1,0 @@
-[13:15:04] 0 [09226][../dll.c][49]register_plugin: dlopen error, ./bin/libm2home.so: undefined symbol: _ZN7CmarketD1Ev

@@ -1,5 +1,0 @@
-gcc -o conf  conf.c   -llua
-./conf
-#as --gstabs -o hello.o  hello.s 
-#ld -s -o hello hello.o
-#./hello adf glakdfa  dkfkfkgf

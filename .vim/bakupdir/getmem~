@@ -1,9 +1,0 @@
-#!/bin/bash
-function GetMem 
-{ 
-    MEMUsage=`ps -o vsz -p $1 | grep -v VSZ`
-	(( MEMUsage /= 1000)) 
-    echo $MEMUsage 
-} 
-mem=`GetMem $1` 
-echo "pid:$1 mem:$mem M" 
