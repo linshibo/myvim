@@ -63,10 +63,6 @@ if !exists("g:re")
     let g:re = '>`'    "region stop
 endif
 
-"let g:Author="jim"
-"let g:Email="jim@taomee.com"
-"let g:Company="TAOMEE"
-"
 if !exists("g:Author")
     let g:Author= ''    "region start
 endif
@@ -283,7 +279,7 @@ let g:template['c']['ff'] = "#ifndef  \<c-r>=GetFileName()\<cr>\<CR>#define  \<c
             \repeat("\<cr>",5)."#endif  /*\<c-r>=GetFileName()\<cr>*/".repeat("\<up>",3)
 let g:template['c']['for'] = "for( ".g:rs."...".g:re." ; ".g:rs."...".g:re." ; ".g:rs."...".g:re." ){\<cr>".
             \g:rs."...".g:re."\<cr>}\<cr>"
-let g:template['c']['loop'] = "for( uint32_t loop=0 ;loop < ".g:rs."...".g:re." ;loop++ ){\<cr>".
+let g:template['c']['loop'] = "for( uint32_t loop=".g:rs."...".g:re." ; loop<".g:rs."...".g:re." ; loop++){\<cr>".
             \g:rs."...".g:re."\<cr>}\<cr>"
 let g:template['c']['main'] = "#include   <stdio.h>\<cr>int main(int argc, char \*argv\[\])\<cr>{\<cr>".g:rs."...".g:re."\<cr>}"
 let g:template['c']['switch'] = "switch ( ".g:rs."...".g:re." ){\<cr>case ".g:rs."...".g:re." :\<cr>break;\<cr>case ".

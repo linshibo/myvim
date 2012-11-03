@@ -187,4 +187,7 @@ bind -m vi-insert '\c-b':backward-char
 bind -m vi-insert '\c-f':forward-char
 #向前del一个字符
 bind -m vi-insert '\c-d':forward-delete-char
-bind -m vi-insert '\c-k':forward-kill-line
+bind -m vi-insert '\c-x':exchange-point-and-mark
+bind -m vi-insert '\c-u':unix-line-discard
+bind -m vi-insert '\c-w':unix-word-rubout
+bind -m vi-insert '\c-k':kill-line

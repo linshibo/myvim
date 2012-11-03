@@ -1,3 +1,4 @@
+"my vim tips
 "if    if switch for class struct main while 
 "hd    文件头部定义
 "ff    ifndef –def –endif  .h 文件中使用
@@ -6,6 +7,30 @@
 "ih    #include <自身文件名.h>
 "ihpp  #include <自身文件名.hpp>
 "xt    当前时间
+"-------------------------------------------------
+"surround.vim tips
+"Normal mode
+"ds  - delete a surrounding
+"cs  - change a surrounding
+"ys  - add a surrounding
+"yS  - add a surrounding and place the surrounded text on a new line + indent it
+"yss - add a surrounding to the whole line
+"ySs - add a surrounding to the whole line, place it on a new line + indent it
+"ySS - same as ySs
+"Visual mode
+"s   - in visual mode, add a surrounding
+"S   - in visual mode, add a surrounding but place text on new line + indent it
+"Insert mode
+"<CTRL-s> - in insert mode, add a surrounding
+"<CTRL-s><CTRL-s> - in insert mode, add a new line + surrounding + indent
+"<CTRL-g>s - same as <CTRL-s>
+"<CTRL-g>S - same as <CTRL-s><CTRL-s>
+"-------------------------------------------------
+	
+set mouse=v
+set clipboard=unnamed
+
+command! -nargs=0 RENEW  :source ~/.vim/comm.vim
 
 "===========================
 let g:Author="francisco"
@@ -13,11 +38,20 @@ let g:Email="francisco@taomee.com"
 let g:Company="TAOMEE"
 "===========================
 
+"vimtips 
+command! -nargs=0 VIMTIPS  :tabe | :r ! w3m -dump http://zzapper.co.uk/vimtips.html 
+
+" Open and close the NERD_tree.vim separately
+nmap <F3> <ESC>:NERDTreeToggle<RETURN>
+
 filetype plugin on
 syntax enable
 syntax on
+set smarttab
 colorscheme desert
+"退格键能删除
 set backspace=indent,eol,start
+set showcmd
 "---------------------------------------------------------------------------
 "进行Tlist的设置
 "TlistUpdate可以更新tags
@@ -30,8 +64,8 @@ let Tlist_Exit_OnlyWindow=1 "当taglist是最后一个分割窗口时，自动�
 let Tlist_Process_File_Always=0 "是否一直处理tags.1:处理;0:不处理。不是一直实时更新tags，因为没有必要
 let Tlist_Inc_Winwidth=0
 "---------------------------------------------------------------------------
-
-
+"autocmd QuickFixCmdPost [^l]* nested cwindow
+"autocmd QuickFixCmdPost    l* nested lwindow
 
 "---------------------------------------------------------------------------
 "Doxygen插件
@@ -41,15 +75,40 @@ let g:DoxygenToolkit_returnTag="@return  "
 let g:DoxygenToolkit_blockHeader="----------------------------------------------------------------------------"
 let g:DoxygenToolkit_blockFooter="----------------------------------------------------------------------------" 
 let g:DoxygenToolkit_authorName="francisco" 
-"let g:DoxygenToolkit_licenseTag="My own license" let g:doxygenToolkit_briefTag_funcName="yes" map <F3>f :Dox
-map <F3>f :Dox<CR>
-map <F3>a :DoxAuthor
-map <F3>b :DoxBlock
+map \f :Dox<CR>
+map \a :DoxAuthor<CR>
+map \b :DoxBlock<CR>
 "---------------------------------------------------------------------------
 
+"折叠
+set foldmethod=syntax
+""默认情况下不折叠
+set foldlevel=99
+nnoremap <Space> za
 
-map ,w <Esc>:w!<CR> 
+"-------------------------------------------------------------------------
+"quickfix 开关 
+function! ToggleQF()
+    if !exists("g:fx_toggle")
+        let g:fx_toggle = 0
+    endif
+    if g:fx_toggle == 0
+        let g:fx_toggle = 1
+        copen
+    else
+        let g:fx_toggle = 0
+        cclose
+    endif
+endfunc
+map <F4> <Esc>:call ToggleQF()<CR>
+nmap <C-N> <Esc>:cn<CR>
+nmap <C-P> <Esc>:cp<CR>
+"----------------------------------------------------------------------------
+
+"查找当前光标下的单词
+map ,f <Esc>:call P_grep_curword()<CR>
 map ,q <Esc>:q!<CR> 
+map ,w <Esc>:w!<CR>
 map ,e <Esc>:e 
 map ,x <Esc>:!
 
@@ -149,8 +208,7 @@ function! s:SET_PATH( find_dir )
 endfunction
 
 "autocmd BufEnter *.cpp,*.c,*.h call s:SET_TAGS() 
-
-autocmd BufEnter *.php call s:SET_TAGS() 
+"autocmd BufEnter *.php call s:SET_TAGS() 
 
 autocmd BufEnter  *.cpp,*.c,*.h call s:SET_PATH("include") 
 autocmd BufEnter  *.php call s:SET_PATH("pub") 
@@ -159,7 +217,7 @@ autocmd BufEnter *  set tabstop=4
 autocmd BufEnter /usr/include/c++/*  set tabstop=8  
 autocmd BufEnter ~/.vim/cpp_src/*  set filetype=cpp
 
-autocmd BufEnter *    if ( &filetype == "php" )| map ,i <Esc>:e ~/DB/su/pub/| else | map ,i <Esc>:e ~/DB/include/| endif
+"autocmd BufEnter *    if ( &filetype == "php" )| map ,i <Esc>:e ~/DB/su/pub/| else | map ,i <Esc>:e ~/DB/include/| endif
 
 "用于支持代码补全时，提示存在。
 "set completeopt=menuone,longest  
@@ -167,15 +225,17 @@ autocmd BufEnter *    if ( &filetype == "php" )| map ,i <Esc>:e ~/DB/su/pub/| el
 inoremap <expr> <cr> pumvisible() ? "\<c-y>" : "\<c-g>u\<cr>"
 inoremap <expr> <m-;> pumvisible() ? "\<c-n>" : "\<c-x>\<c-o>\<c-n>\<c-p>\<c-r>=pumvisible() ? \"\\<down>\" : \"\\<cr>\""
 
+"改变扫描标签的规则 防止假死
+"vim缺省的补全顺序是 ".,w,b,u,t,i"，
+"它意味着扫描: 1. 当前缓冲区 .  2. 其它窗口的缓冲区 window?  3. 其它载入的缓冲区 b  
+"set cpt=.,w,b
+
 " 用于支持 . -> 代码补全
 imap   <expr> <Backspace>  Ex_bspace() 
 imap   <expr> <Space>  Ex_space("\<Space>") 
-
 function! Ex_space ( char )
-
 	if (&filetype == "cpp" || &filetype == "c" )
 		let pre_str= strpart(getline('.'),0,col('.')-1)
-		
 		if pumvisible() != 0  
 			"in completing , complete it    
 			return "\<CR>"	
@@ -227,23 +287,6 @@ autocmd BufEnter *.h  set filetype=cpp
 set guifont=Bitstream\ Vera\ Sans\ Mono\ 11 
 
 
-"功能说明:加入或删除注释//
-"映射和绑定
-"nmap <C-C> <Esc>:Setcomment<CR>
-"imap <C-C> <Esc>:Setcomment<CR>
-"vmap <C-C> <Esc>:SetcommentV<CR>
-"command! -nargs=0 Setcomment call s:SET_COMMENT()
-"command! -nargs=0 SetcommentV call s:SET_COMMENTV()
-"
-"非视图模式下所调用的函数
-function! s:SET_COMMENT()
-	let lindex=line(".")
-	let str=getline(lindex)
-	"查看当前是否为注释行
-	let CommentMsg=s:IsComment(str)
-	call s:SET_COMMENTV_LINE(lindex,CommentMsg[1],CommentMsg[0])
-endfunction
-
 function! SET_UAW()
 	let save_cursor = getpos(".")
 
@@ -258,72 +301,6 @@ function! SET_UAW()
 	call setpos('.', save_cursor)
 endfunction
 
-
-function! MAKE_CUR_FILE()
-	let cur_file= expand("%f")
-	"split 
-
-	exec "normal! gUaw"
-endfunction
-
-
-
-"视图模式下所调用的函数
-function! s:SET_COMMENTV()
-	let lbeginindex=line("'<") "得到视图中的第一行的行数
-	let lendindex=line("'>") "得到视图中的最后一行的行数
-	let str=getline(lbeginindex)
-	"查看当前是否为注释行
-	let CommentMsg=s:IsComment(str)
-	"为各行设置
-	let i=lbeginindex	
-	while i<=lendindex
-		call s:SET_COMMENTV_LINE(i,CommentMsg[1],CommentMsg[0])
-		let i=i+1
-	endwhile
-endfunction
-
-"设置注释 
-"index:在第几行
-"pos:在第几列
-"comment_flag: 0:添加注释符 1:删除注释符
-function! s:SET_COMMENTV_LINE( index,pos, comment_flag )
-	let poscur = [0, 0,0, 0]
-	let poscur[1]=a:index
-	let poscur[2]=a:pos+1
-	call setpos(".",poscur) "设置光标的位置
-
-	if a:comment_flag==0 
-		"插入//
-		exec "normal! i//"
-	else 
-		"删除//
-		exec "normal! xx" 
-	endif 
-endfunction
-
-"查看当前是否为注释行并返回相关信息
-"str:一行代码
-function! s:IsComment(str)
-	let ret= [0, 0] "第一项为是否为注释行（0,1）,第二项为要处理的列，
-	let i=0
-	let strlen=len(a:str)
-	while i<strlen
-		"空格和tab允许为"//"的前缀
-		if !(a:str[i]==' ' ||	 a:str[i] == '	' )
-			let ret[1]=i
-			if a:str[i]=='/' && a:str[i+1]=='/'
-				let ret[0]=1
-			else 
-				let ret[0]=0
-			endif
-			return ret
-		endif
-		let i=i+1
-	endwhile
-	return [0,0]  "空串处理
-endfunction
-
 set fileencodings=ucs-bom,utf-8,gb2312,big5,euc-jp,euc-kr,latin1
 
 set tabstop=4
@@ -332,8 +309,6 @@ set nohlsearch
 set cindent shiftwidth=4
 command! Wq wq
 command! W w
-map <F7> <Esc>:call Proto_find() <CR>
-map <F6> <Esc>:call Proto_find() <CR>
 
 "for grep cn 
 function! Do_cn() 
@@ -343,10 +318,13 @@ function! Do_cn()
 		exec "cc 1"
 	endtry	
 endfunction
+
 function! P_grep_curword() 
 	"得到光标下的单词
 	let curword=expand("<cword>")
-	exec "grep " . curword . " *.cpp *.c *.h *.hpp " 
+	exec "grep -r -s " . curword . " *.cpp *.h *.c *.hpp"
+	copen
+	let g:fx_toggle=1
 endfunction
 
 
@@ -355,8 +333,8 @@ function! RESET_TAG()
 	if filereadable("cscope.out")
 		cs reset 
 	endif
-
 endfunction
+
 function! OPT_RANGE( opt_str ) 
   let cur_char=getline('.')[col('.') - 1] 
   if cur_char == "(" || cur_char == "<" || cur_char == "{" || cur_char == "[" || cur_char == "\"" || cur_char == "'" || cur_char == ")" || cur_char == ">" || cur_char == "}" || cur_char == "]" 
@@ -364,12 +342,45 @@ function! OPT_RANGE( opt_str )
   endif
 endfunction
 
+function! OPT_RANGE_NEW( opt_str ) 
+	echo "start"
+  let cur_col=col('.') - 1
+  let cur_line=line('.')
+  let cur_char=''
+  echo "start pos:" cur_line cur_col 
+  while cur_line>0
+	while cur_col>0
+  		let cur_char=getline(cur_line)[cur_col]
+		echo "pos:" cur_line cur_col  "cur:" cur_char 
+  		if  cur_char == ")"  || cur_char == "}" || cur_char == "]" 
+			let pair_char=nr2char(char2nr(cur_char)-1)
+			let line=0
+			let col=0
+			let [line,col]= searchpairpos( pair_char , '', cur_char , 'bn') 
+			echo "pair--" pair_char line col
+			if col != 0 && line != 0
+				let cur_col=col-1
+				let cur_line=line-1
+			else
+				let cur_col=cur_col-1
+			endif
+		elseif cur_char == "(" || cur_char == "{" || cur_char == "["
+  				exec "normal! ".a:opt_str.cur_char
+				let cur_col=0
+				let cur_line=0
+		else
+			let cur_col=cur_col-1
+		endif
+	endwhile 
+	let cur_line=cur_line-1
+	let cur_col=strlen(getline(cur_line))
+  endwhile 
+endfunction
 
-map ,n :n<CR>
-map ,N :N<CR>
+"map ,n :n<CR>
+"map ,N :N<CR>
 map ,a :A<CR>
 map ,g <Esc>:grep 
-
 map ,r <Esc>:call RESET_TAG() <CR> <CR>
 map ,m <Esc>:make<CR> 
 
@@ -377,22 +388,20 @@ map ,y    <Esc>:call OPT_RANGE("ya")<CR>
 map ,Y    <Esc>:call OPT_RANGE("yi")<CR>
 map ,d    <Esc>:call OPT_RANGE("da")<CR>
 map ,D    <Esc>:call OPT_RANGE("di")<CR>
-map ,c    <Esc>:call OPT_RANGE("ca")<CR>
-map ,C    <Esc>:call OPT_RANGE("ci")<CR>
+"map ,c    <Esc>:call OPT_RANGE("ca")<CR>
+"map ,C    <Esc>:call OPT_RANGE("ci")<CR>
 
 "转换单词大小写
 map ,u <Esc>:call SET_UAW()<CR>
 
 "支持粘贴
-map ,p <Esc>:set paste<CR>i
+map <F5> <Esc>:set paste<CR>i
 
 autocmd InsertLeave * if &paste == 1|set nopaste |endif
 
 "切换窗口
 "map ,w <Esc>:tabn<CR><C-W><C-W><CR>
-
 "map <F3> <Esc>yyp^6l<C-A>4l<C-A><Esc>
-"ap <C-F12> :!ctags -R  --languages=c++ --c++-kinds=+p --fields=+iaS --extra=+q .<CR>
 
 
 " 在视图模式下的整块移动
@@ -413,15 +422,13 @@ endfunction
 "大括号内向左移
 :nmap <C-H> <Esc><i{
 "大括号内向右移
-:nmap <C-L> <Esc>>i{ 
+:nmap <C-L> <Esc>>i{
 
 "选择区移动
 :vmap <C-L> <Esc>:call SET_BLOCK_MOVE_V(0) <CR>
 :vmap <C-H> <Esc>:call SET_BLOCK_MOVE_V(1) <CR>
 
-set smarttab
-"set paste 
-syn on
+
 "定位到原来的位置
 autocmd BufReadPost *
 	\ if line("'\"") > 0 && line ("'\"") <= line("$") |
@@ -495,7 +502,6 @@ function! QuoteDelim(char)
   if (&filetype == "vim")
     return a:char
   endif
-
 	
   if line[col - 2] == "\\"
     "Inserting a quoted quotation mark into the string
@@ -511,14 +517,10 @@ endf
 "autocmd CursorMovedI * if pumvisible() == 0|pclose|endif
 "autocmd InsertLeave * if pumvisible() == 0|pclose|endif
 
-set mouse=
 "set cinoptions={0,1s,t0,n-2,p2s,(03s,=.5s,>1s,=1s,:1s
 "------------------------------------------------
-"source ~/.vim/borland.vim
-"
 "用于支持DB 协议查找 ：cmd<->function<->in<->out
 function! Proto_find() 
-
 	"得到光标下的单词
 	let curword=expand("<cword>")
  	python get_proto_key(vim.eval("curword"),"find_word" )
@@ -530,22 +532,10 @@ function! Proto_find()
 endfunction
 
 
-
 "得到光标下的单词
 function! GetCurWord()
 	return expand("<cword>")
-    "let szLine = getline('.')
-    "let startPos = getpos('.')[2]-1
-    "let startPos = (startPos < 0)? 0 : startPos
-    "if szLine[startPos] =~ '\w'
-        "let startPos = searchpos('\<\w\+', 'cbn', line('.'))[1] - 1
-    "endif
-
-    "let startPos = (startPos < 0)? 0 : startPos
-    "let szResult = matchstr(szLine, '\w\+', startPos)
-    "return szResult
 endfunc
-
 
 function! s:UserDefPython()
 python << PYTHONEOF
@@ -597,9 +587,10 @@ if has("cscope")
   endif
   set csverb
 endif
-
-nmap ,s :cs find s <C-R>=expand("<cword>")<CR><CR>
-
+"cscope 使用quickfix
+set cscopequickfix=s+
+nmap ,s :cs find s <C-R>=expand("<cword>")<CR><CR><Esc>:copen<CR>:let g:fx_toggle=1<CR>
+nmap ,S :cs find s 
 "for cmake ':make' ,由于定位错误,中文会有问题，如下调整
 if finddir("build") == "build"
     set makeprg=export\ LANG=zh_CN:en;make\ -C\ ./build
