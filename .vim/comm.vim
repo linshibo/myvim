@@ -25,12 +25,57 @@
 "<CTRL-s><CTRL-s> - in insert mode, add a new line + surrounding + indent
 "<CTRL-g>s - same as <CTRL-s>
 "<CTRL-g>S - same as <CTRL-s><CTRL-s>
+
 "-------------------------------------------------
-	
+" Ignore compiled files
+set wildignore=*.o,*~,*.pyc
+
+"Always show current position
+set ruler
+
+" Height of the command bar
+set cmdheight=2
+
+" Cool tab completion stuff
+set wildmenu
+set wildmode=list:longest,full
+
+" Necesary  for lots of cool vim things
+set nocompatible	
+
 set mouse=v
 set clipboard=unnamed
 
 command! -nargs=0 RENEW  :source ~/.vim/comm.vim
+
+function! VisualSelection(direction) range
+    let l:saved_reg = @"
+    execute "normal! vgvy"
+
+    let l:pattern = escape(@", '\\/.*$^~[]')
+    let l:pattern = substitute(l:pattern, "\n$", "", "")
+
+    if a:direction == 'b'
+        execute "normal ?" . l:pattern . "^M"
+    elseif a:direction == 'gv'
+        call CmdLine("vimgrep " . '/'. l:pattern . '/' . ' **/*.')
+    elseif a:direction == 'replace'
+        call CmdLine("%s" . '/'. l:pattern . '/')
+    elseif a:direction == 'f'
+        execute "normal /" . l:pattern . "^M"
+    endif
+
+    let @/ = l:pattern
+    let @" = l:saved_reg
+endfunction
+
+""""""""""""""""""""""""""""""
+" => Visual mode related
+""""""""""""""""""""""""""""""
+" Visual mode pressing * or # searches for the current selection
+" Super useful! From an idea by Michael Naumann
+vnoremap <silent> * :call VisualSelection('f')<CR>
+vnoremap <silent> # :call VisualSelection('b')<CR>
 
 "===========================
 let g:Author="francisco"
@@ -119,10 +164,20 @@ cnoremap <C-B> <LEFT>
 cnoremap <C-F> <RIGHT>
 cnoremap <C-U> <UP>
 cnoremap <C-N> <DOWN>
-
+"tab
 map ,t <Esc>:tabedit 
 map <C-J> <C-PageUp>
 map <C-K> <C-PageDown>
+" change to tab #
+map 1 <Esc>:tabn 1<CR>
+map 2 <Esc>:tabn 2<CR>
+map 3 <Esc>:tabn 3<CR>
+map 4 <Esc>:tabn 4<CR>
+map 5 <Esc>:tabn 5<CR>
+
+" toggle pase, Want feedback in both modes
+"nnoremap <F12> :set num!<CR>:set num?<CR>
+"set pastetoggle=<F12>
 
 "---------------------------------------------------------------------------
 "" 状态栏各个状态
@@ -302,11 +357,20 @@ function! SET_UAW()
 endfunction
 
 set fileencodings=ucs-bom,utf-8,gb2312,big5,euc-jp,euc-kr,latin1
-
 set tabstop=4
-set incsearch
-set nohlsearch 
+
+set incsearch "Find the next match as we type the search
+set hlsearch "Hilight searches by default
+set viminfo='100,f1 "Save up to 100 marks, enable capital marks
 set cindent shiftwidth=4
+" enables automatic C program indenting
+set autoindent
+set smartindent 
+" autoread when a file is changed from the outside
+set autoread
+" write buffer when leaving
+set autowrite
+
 command! Wq wq
 command! W w
 
