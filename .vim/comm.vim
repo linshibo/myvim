@@ -1,53 +1,74 @@
-"my vim tips
-"if    if switch for class struct main while 
-"hd    文件头部定义
-"ff    ifndef –def –endif  .h 文件中使用
-"in    #include  “”
-"is    #include <>
-"ih    #include <自身文件名.h>
-"ihpp  #include <自身文件名.hpp>
-"xt    当前时间
-"-------------------------------------------------
-"surround.vim tips
-"Normal mode
-"ds  - delete a surrounding
-"cs  - change a surrounding
-"ys  - add a surrounding
-"yS  - add a surrounding and place the surrounded text on a new line + indent it
-"yss - add a surrounding to the whole line
-"ySs - add a surrounding to the whole line, place it on a new line + indent it
-"ySS - same as ySs
-"Visual mode
-"s   - in visual mode, add a surrounding
-"S   - in visual mode, add a surrounding but place text on new line + indent it
-"Insert mode
-"<CTRL-s> - in insert mode, add a surrounding
-"<CTRL-s><CTRL-s> - in insert mode, add a new line + surrounding + indent
-"<CTRL-g>s - same as <CTRL-s>
-"<CTRL-g>S - same as <CTRL-s><CTRL-s>
+"===========================
+let g:Author="francisco"
+let g:Email="francisco@taomee.com"
+let g:Company="TAOMEE"
+"===========================
 
-"-------------------------------------------------
-" Ignore compiled files
-set wildignore=*.o,*~,*.pyc
-
-"Always show current position
-set ruler
-
+"---------------------------------------------------------------------------
+"SET
+"---------------------------------------------------------------------------
+filetype plugin on
+syntax enable
+syntax on
+set smarttab
+colorscheme desert
+"退格键能删除
+set backspace=indent,eol,start
+set showcmd
+set nocp
+set tags=~/.vim/tags,~/.vim/tags_cpp,tags; 
+set laststatus=2
+set guifont=Bitstream\ Vera\ Sans\ Mono\ 11 
+set fileencodings=ucs-bom,utf-8,gb2312,big5,euc-jp,euc-kr,latin1
+set tabstop=4
+set incsearch
+set nohlsearch
+set cindent shiftwidth=4
+"powerline{ 状态栏
+set guifont=PowerlineSymbols\ for\ Powerline
+set t_Co=256
+"let g:Powerline_symbols = 'fancy'
+"}
+"鼠标和剪贴板
+set mouse=a
+set clipboard=unnamed
+set backupdir=~/.vim/bakupdir
+set backup
 " Height of the command bar
 set cmdheight=2
-
 " Cool tab completion stuff
 set wildmenu
 set wildmode=list:longest,full
+" Ignore compiled files
+set wildignore=*.o,*~,*.pyc
+"Always show current position
+set ruler
+" enables automatic C program indenting
+set autoindent
+set smartindent 
+" autoread when a file is changed from the outside
+set autoread
+" write buffer when leaving
+set autowrite
 
-" Necesary  for lots of cool vim things
-set nocompatible	
+"---------------------------------------------------------------------------
+"进行Tlist的设置
+"TlistUpdate可以更新tags
+"---------------------------------------------------------------------------
+map <F2> :silent! Tlist<CR>
+let Tlist_Ctags_Cmd='ctags' "因为我们放在环境变量里，所以可以直接执行
+let Tlist_Use_Right_Window=0 "让窗口显示在右边，0的话就是显示在左边
+let Tlist_Show_One_File=0 "让taglist可以同时展示多个文件的函数列表，如果想只有1个，设置为1
+let Tlist_File_Fold_Auto_Close=1 "非当前文件，函数列表折叠隐藏
+let Tlist_Exit_OnlyWindow=1 "当taglist是最后一个分割窗口时，自动推出vim
+let Tlist_Process_File_Always=0 "是否一直处理tags.1:处理;0:不处理。不是一直实时更新tags，因为没有必要
+let Tlist_Inc_Winwidth=0
+"---------------------------------------------------------------------------
 
-set mouse=v
-set clipboard=unnamed
 
-command! -nargs=0 RENEW  :source ~/.vim/comm.vim
-
+"---------------------------------------------------------------------------
+" Visual mode related
+"---------------------------------------------------------------------------
 function! VisualSelection(direction) range
     let l:saved_reg = @"
     execute "normal! vgvy"
@@ -68,52 +89,17 @@ function! VisualSelection(direction) range
     let @/ = l:pattern
     let @" = l:saved_reg
 endfunction
-
-""""""""""""""""""""""""""""""
-" => Visual mode related
-""""""""""""""""""""""""""""""
 " Visual mode pressing * or # searches for the current selection
 " Super useful! From an idea by Michael Naumann
 vnoremap <silent> * :call VisualSelection('f')<CR>
 vnoremap <silent> # :call VisualSelection('b')<CR>
 
-"===========================
-let g:Author="francisco"
-let g:Email="francisco@taomee.com"
-let g:Company="TAOMEE"
-"===========================
 
-"vimtips 
-command! -nargs=0 VIMTIPS  :tabe | :r ! w3m -dump http://zzapper.co.uk/vimtips.html 
 
-" Open and close the NERD_tree.vim separately
-nmap <F3> <ESC>:NERDTreeToggle<RETURN>
-
-filetype plugin on
-syntax enable
-syntax on
-set smarttab
-colorscheme desert
-"退格键能删除
-set backspace=indent,eol,start
-set showcmd
-"---------------------------------------------------------------------------
-"进行Tlist的设置
-"TlistUpdate可以更新tags
-map <F2> :silent! Tlist<CR>
-let Tlist_Ctags_Cmd='ctags' "因为我们放在环境变量里，所以可以直接执行
-let Tlist_Use_Right_Window=0 "让窗口显示在右边，0的话就是显示在左边
-let Tlist_Show_One_File=0 "让taglist可以同时展示多个文件的函数列表，如果想只有1个，设置为1
-let Tlist_File_Fold_Auto_Close=1 "非当前文件，函数列表折叠隐藏
-let Tlist_Exit_OnlyWindow=1 "当taglist是最后一个分割窗口时，自动推出vim
-let Tlist_Process_File_Always=0 "是否一直处理tags.1:处理;0:不处理。不是一直实时更新tags，因为没有必要
-let Tlist_Inc_Winwidth=0
-"---------------------------------------------------------------------------
-"autocmd QuickFixCmdPost [^l]* nested cwindow
-"autocmd QuickFixCmdPost    l* nested lwindow
 
 "---------------------------------------------------------------------------
 "Doxygen插件
+"---------------------------------------------------------------------------
 let g:DoxygenToolkit_briefTag_pre="@brief  " 
 let g:DoxygenToolkit_paramTag_pre="@param  " 
 let g:DoxygenToolkit_returnTag="@return  " 
@@ -123,9 +109,10 @@ let g:DoxygenToolkit_authorName="francisco"
 map \f :Dox<CR>
 map \a :DoxAuthor<CR>
 map \b :DoxBlock<CR>
-"---------------------------------------------------------------------------
 
+"---------------------------------------------------------------------------
 "折叠
+"---------------------------------------------------------------------------
 set foldmethod=syntax
 ""默认情况下不折叠
 set foldlevel=99
@@ -133,6 +120,7 @@ nnoremap <Space> za
 
 "-------------------------------------------------------------------------
 "quickfix 开关 
+"---------------------------------------------------------------------------
 function! ToggleQF()
     if !exists("g:fx_toggle")
         let g:fx_toggle = 0
@@ -148,12 +136,16 @@ endfunc
 map <F4> <Esc>:call ToggleQF()<CR>
 nmap <C-N> <Esc>:cn<CR>
 nmap <C-P> <Esc>:cp<CR>
-"----------------------------------------------------------------------------
 
+"----------------------------------------------------------------------------
+"map
+"----------------------------------------------------------------------------
 "查找当前光标下的单词
 map ,f <Esc>:call P_grep_curword()<CR>
 map ,q <Esc>:q!<CR> 
 map ,w <Esc>:w!<CR>
+" sudo write this
+map ,W <Esc>:w !sudo tee % >/dev/null<CR>
 map ,e <Esc>:e 
 map ,x <Esc>:!
 
@@ -164,7 +156,7 @@ cnoremap <C-B> <LEFT>
 cnoremap <C-F> <RIGHT>
 cnoremap <C-U> <UP>
 cnoremap <C-N> <DOWN>
-"tab
+"tabedit
 map ,t <Esc>:tabedit 
 map <C-J> <C-PageUp>
 map <C-K> <C-PageDown>
@@ -175,40 +167,69 @@ map 3 <Esc>:tabn 3<CR>
 map 4 <Esc>:tabn 4<CR>
 map 5 <Esc>:tabn 5<CR>
 
-" toggle pase, Want feedback in both modes
-"nnoremap <F12> :set num!<CR>:set num?<CR>
-"set pastetoggle=<F12>
+map ,a :A<CR>
+map ,g <Esc>:grep 
+map ,r <Esc>:call RESET_TAG() <CR> <CR>
+map ,m <Esc>:make<CR> 
+map ,y    <Esc>:call OPT_RANGE("ya")<CR>
+map ,Y    <Esc>:call OPT_RANGE("yi")<CR>
+map ,d    <Esc>:call OPT_RANGE("da")<CR>
+map ,D    <Esc>:call OPT_RANGE("di")<CR>
+"转换单词大小写
+map ,u <Esc>:call SET_UAW()<CR>
+"支持粘贴
+map <F5> <Esc>:set paste<CR>i
+
+command! Wq wq
+command! W w
+
+"vimtips 
+command! -nargs=0 VIMTIPS  :tabe | :r ! w3m -dump http://zzapper.co.uk/vimtips.html 
+" Open and close the NERD_tree.vim separately
+nmap <F3> <ESC>:NERDTreeToggle<RETURN>
+":RENEW
+command! -nargs=0 RENEW  :source ~/.vim/comm.vim
+"括号相关
+inoremap ( ()<ESC>i
+inoremap [ []<ESC>i
+inoremap " ""<ESC>i
+inoremap ' ''<ESC>i
+autocmd Syntax html,vim inoremap < <lt>><ESC>i| inoremap > <c-r>=ClosePair('>')<CR>
+imap ) <c-r>=ClosePair(')')<CR>
+imap ] <c-r>=ClosePair(']')<CR>
+imap } <c-r>=CloseBracket()<CR>
+"imap <CR> <c-r>=Fix_cr()<CR>
+imap " <c-r>=QuoteDelim('"')<CR>
+imap ' <c-r>=QuoteDelim("'")<CR>
+inoremap { <c-r>=SET_BIG_PAIR()<CR>
+
 
 "---------------------------------------------------------------------------
 "" 状态栏各个状态
-let statusHead         ="%-.50f\ %h%m%r"
-let statusBreakPoint   ="%<"
-let statusSeparator      ="|"
-let statusFileType      ="%{((&ft\ ==\ \"help\"\ \|\|\ &ft\ ==\ \"\")?\"\":\"[\".&ft.\"]\")}"
-let statusFileFormat    ="[%{(&ff\ ==\ \"unix\")?\"u\":\"d\"}]"
-let statusAscii         ="\{%b:0x%B\}"
-let statusCwd         ="%-.50{getcwd()}"
-let statusBody         =statusFileType.statusFileFormat.statusSeparator.statusAscii.statusSeparator."\ ".statusBreakPoint.statusCwd
-let statusEncoding      ="[%{(&fenc\ ==\ \"\"?&enc:&fenc).(&bomb?\",BOM\":\"\")}]"
-let statusBlank         ="%="
-let statusKeymap      ="%k"
-let statusRuler         ="%-12.(%lL,%c%VC%)\ %P"
-let statusTime         ="%{strftime(\"%y-%m-%d\",getftime(expand(\"%\")))}"
-let statusEnd=statusKeymap."\ ".statusEncoding.statusRuler."\ ".statusTime
-"" 最终状态栏的模式字符串
-let statusString=statusHead.statusBody.statusBlank.statusEnd
-set statusline=%!statusString
+"---------------------------------------------------------------------------
+"let statusHead         ="%-.50f\ %h%m%r"
+"let statusBreakPoint   ="%<"
+"let statusSeparator      ="|"
+"let statusFileType      ="%{((&ft\ ==\ \"help\"\ \|\|\ &ft\ ==\ \"\")?\"\":\"[\".&ft.\"]\")}"
+"let statusFileFormat    ="[%{(&ff\ ==\ \"unix\")?\"u\":\"d\"}]"
+"let statusAscii         ="\{%b:0x%B\}"
+"let statusCwd         ="%-.50{getcwd()}"
+"let statusBody         =statusFileType.statusFileFormat.statusSeparator.statusAscii.statusSeparator."\ ".statusBreakPoint.statusCwd
+"let statusEncoding      ="[%{(&fenc\ ==\ \"\"?&enc:&fenc).(&bomb?\",BOM\":\"\")}]"
+"let statusBlank         ="%="
+"let statusKeymap      ="%k"
+"let statusRuler         ="%-12.(%lL,%c%VC%)\ %P"
+"let statusTime         ="%{strftime(\"%y-%m-%d\",getftime(expand(\"%\")))}"
+"let statusEnd=statusKeymap."\ ".statusEncoding.statusRuler."\ ".statusTime
+""" 最终状态栏的模式字符串
+"let statusString=statusHead.statusBody.statusBlank.statusEnd
+"set statusline=%!statusString
 "---------------------------------------------------------------------------
 
-"autocmd Filetype cpp,c,java,cs set omnifunc=cppcomplete#Complete
-"ab P printf("%s,%s,%d:%s\n",__FILE__,__FUNCTION__,__LINE__,"" ); 
-"
-set nocp
-set tags=~/.vim/tags,~/.vim/tags_cpp,tags; 
-set laststatus=2
 
 "------------------------------------------------------------------------------
 "获取当前路径的上一级的路径
+"---------------------------------------------------------------------------
 function! GET_UP_PATH(dir)
 	let pos=len(a:dir)-1
 	while pos>0 
@@ -220,7 +241,9 @@ function! GET_UP_PATH(dir)
 	return  ""  
 endfunction
 
+"---------------------------------------------------------------------------
 "设置相关tags
+"---------------------------------------------------------------------------
 function! s:SET_TAGS()
     "let dir = expand("%:p:h") "获得源文件路径
     let dir =getcwd()  "获得源文件路径
@@ -243,7 +266,9 @@ function! s:SET_TAGS()
 endfunction
 
 
+"---------------------------------------------------------------------------
 "设置相关 include , for cmd : gf 
+"---------------------------------------------------------------------------
 function! s:SET_PATH( find_dir )
     let dir = expand("%:p:h") "获得源文件路径
 	let dir_relative=''
@@ -264,10 +289,8 @@ endfunction
 
 "autocmd BufEnter *.cpp,*.c,*.h call s:SET_TAGS() 
 "autocmd BufEnter *.php call s:SET_TAGS() 
-
 autocmd BufEnter  *.cpp,*.c,*.h call s:SET_PATH("include") 
 autocmd BufEnter  *.php call s:SET_PATH("pub") 
-
 autocmd BufEnter *  set tabstop=4 
 autocmd BufEnter /usr/include/c++/*  set tabstop=8  
 autocmd BufEnter ~/.vim/cpp_src/*  set filetype=cpp
@@ -276,7 +299,6 @@ autocmd BufEnter ~/.vim/cpp_src/*  set filetype=cpp
 
 "用于支持代码补全时，提示存在。
 "set completeopt=menuone,longest  
-"set completeopt=menuone
 inoremap <expr> <cr> pumvisible() ? "\<c-y>" : "\<c-g>u\<cr>"
 inoremap <expr> <m-;> pumvisible() ? "\<c-n>" : "\<c-x>\<c-o>\<c-n>\<c-p>\<c-r>=pumvisible() ? \"\\<down>\" : \"\\<cr>\""
 
@@ -332,15 +354,9 @@ function! Ex_bspace()
 	return "\<Backspace>"	
 endf
 
-
-
 ".c  .h 文件设为 .cpp
 autocmd BufEnter *.c  set filetype=cpp
 autocmd BufEnter *.h  set filetype=cpp
-
-"------------------------------------------------------------------------------
-set guifont=Bitstream\ Vera\ Sans\ Mono\ 11 
-
 
 function! SET_UAW()
 	let save_cursor = getpos(".")
@@ -355,24 +371,6 @@ function! SET_UAW()
 
 	call setpos('.', save_cursor)
 endfunction
-
-set fileencodings=ucs-bom,utf-8,gb2312,big5,euc-jp,euc-kr,latin1
-set tabstop=4
-
-set incsearch "Find the next match as we type the search
-set hlsearch "Hilight searches by default
-set viminfo='100,f1 "Save up to 100 marks, enable capital marks
-set cindent shiftwidth=4
-" enables automatic C program indenting
-set autoindent
-set smartindent 
-" autoread when a file is changed from the outside
-set autoread
-" write buffer when leaving
-set autowrite
-
-command! Wq wq
-command! W w
 
 "for grep cn 
 function! Do_cn() 
@@ -441,31 +439,7 @@ function! OPT_RANGE_NEW( opt_str )
   endwhile 
 endfunction
 
-"map ,n :n<CR>
-"map ,N :N<CR>
-map ,a :A<CR>
-map ,g <Esc>:grep 
-map ,r <Esc>:call RESET_TAG() <CR> <CR>
-map ,m <Esc>:make<CR> 
-
-map ,y    <Esc>:call OPT_RANGE("ya")<CR>
-map ,Y    <Esc>:call OPT_RANGE("yi")<CR>
-map ,d    <Esc>:call OPT_RANGE("da")<CR>
-map ,D    <Esc>:call OPT_RANGE("di")<CR>
-"map ,c    <Esc>:call OPT_RANGE("ca")<CR>
-"map ,C    <Esc>:call OPT_RANGE("ci")<CR>
-
-"转换单词大小写
-map ,u <Esc>:call SET_UAW()<CR>
-
-"支持粘贴
-map <F5> <Esc>:set paste<CR>i
-
 autocmd InsertLeave * if &paste == 1|set nopaste |endif
-
-"切换窗口
-"map ,w <Esc>:tabn<CR><C-W><C-W><CR>
-"map <F3> <Esc>yyp^6l<C-A>4l<C-A><Esc>
 
 
 " 在视图模式下的整块移动
@@ -487,13 +461,14 @@ endfunction
 :nmap <C-H> <Esc><i{
 "大括号内向右移
 :nmap <C-L> <Esc>>i{
-
 "选择区移动
 :vmap <C-L> <Esc>:call SET_BLOCK_MOVE_V(0) <CR>
 :vmap <C-H> <Esc>:call SET_BLOCK_MOVE_V(1) <CR>
 
 
+"----------------------------------------------------------------------------
 "定位到原来的位置
+"----------------------------------------------------------------------------
 autocmd BufReadPost *
 	\ if line("'\"") > 0 && line ("'\"") <= line("$") |
 	\   exe "normal! g'\"" |
@@ -502,20 +477,6 @@ autocmd BufReadPost *
 "支持STL模板
 let OmniCpp_DefaultNamespaces   = ["std", "_GLIBCXX_STD"]
 let OmniCpp_SelectFirstItem = 2
-
-"----------------------------------------------------------
-inoremap ( ()<ESC>i
-inoremap [ []<ESC>i
-inoremap " ""<ESC>i
-inoremap ' ''<ESC>i
-autocmd Syntax html,vim inoremap < <lt>><ESC>i| inoremap > <c-r>=ClosePair('>')<CR>
-imap ) <c-r>=ClosePair(')')<CR>
-imap ] <c-r>=ClosePair(']')<CR>
-imap } <c-r>=CloseBracket()<CR>
-"imap <CR> <c-r>=Fix_cr()<CR>
-imap " <c-r>=QuoteDelim('"')<CR>
-imap ' <c-r>=QuoteDelim("'")<CR>
-inoremap { <c-r>=SET_BIG_PAIR()<CR>
 
 function! SET_BIG_PAIR()
   if (&filetype=="php" ||  &filetype=="sh"  )
@@ -578,8 +539,6 @@ function! QuoteDelim(char)
     return a:char.a:char."\<ESC>i"
   endif
 endf 
-"autocmd CursorMovedI * if pumvisible() == 0|pclose|endif
-"autocmd InsertLeave * if pumvisible() == 0|pclose|endif
 
 "set cinoptions={0,1s,t0,n-2,p2s,(03s,=.5s,>1s,=1s,:1s
 "------------------------------------------------
@@ -659,10 +618,4 @@ nmap ,S :cs find s
 if finddir("build") == "build"
     set makeprg=export\ LANG=zh_CN:en;make\ -C\ ./build
 endif
-
-
-set backupdir=~/.vim/bakupdir
-set backup
-
-"set completeopt=menuone,preview,longest
 
