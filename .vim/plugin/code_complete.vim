@@ -286,12 +286,16 @@ let g:template['c']['switch'] = "switch ( ".g:rs."...".g:re." ){\<cr>case ".g:rs
             \g:rs."...".g:re." :\<cr>break;\<cr>default :\<cr>break;\<cr>}"
 let g:template['c']['if'] = "if( ".g:rs."...".g:re." ){\<cr>".g:rs."...".g:re."\<cr>}"
 let g:template['c']['while'] = "while( ".g:rs."...".g:re." ){\<cr>".g:rs."...".g:re."\<cr>}"
+let g:template['c']['dowhile'] = "do\<cr>{\<cr>".g:rs."...".g:re."\<cr>}while(".g:rs."...".g:re.");"
 let g:template['c']['ife'] = "if( ".g:rs."...".g:re." ){\<cr>".g:rs."...".g:re."\<cr>}else{\<cr>".g:rs."...".
             \g:re."\<cr>}"
+let g:template['c']['ifeif'] = "if( ".g:rs."...".g:re." ){\<cr>".g:rs."...".g:re."\<cr>}else if(".g:rs."...".g:re."){\<cr>".g:rs."...".g:re."\<cr>}
+            \else{\<cr>".g:rs."...".g:re."\<cr>}"
 
 let g:template['c']['class'] = "class ".g:rs."...".g:re." {\<cr>private:\<cr>\<cr>public:\<cr>\<cr>};"
 let g:template['c']['struct'] = "struct ".g:rs."...".g:re." {\<cr>\<cr>};"
 let g:template['c']['stru'] = "struct ".g:rs."...".g:re." {\<cr>\<cr>};"
+let g:template['c']['print'] = "printf(\"".g:rs."...".g:re."\");"
 let g:template['c']['log'] = "DEBUG_LOG(\"".g:rs."...".g:re."\");"
 let g:template['c']['klog'] = "KDEBUG_LOG(".g:rs."...".g:re.",\"".g:rs."...".g:re."\");"
 let g:template['c']['elog'] = "KERROR_LOG(".g:rs."...".g:re.",\"".g:rs."...".g:re."\");"
