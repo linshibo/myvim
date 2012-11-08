@@ -5,7 +5,7 @@ let g:Company="TAOMEE"
 "===========================
 
 "---------------------------------------------------------------------------
-"SET
+"GENERAL SET
 "---------------------------------------------------------------------------
 filetype plugin on
 syntax enable
@@ -19,11 +19,11 @@ set nocp
 set tags=~/.vim/tags,~/.vim/tags_cpp,tags; 
 set laststatus=2
 set guifont=Bitstream\ Vera\ Sans\ Mono\ 11 
-set fileencodings=ucs-bom,utf-8,gb2312,big5,euc-jp,euc-kr,latin1
 set tabstop=4
 set incsearch
 set nohlsearch
 set cindent shiftwidth=4
+set nu
 "powerline{ 状态栏
 set guifont=PowerlineSymbols\ for\ Powerline
 set t_Co=256
@@ -50,6 +50,40 @@ set smartindent
 set autoread
 " write buffer when leaving
 set autowrite
+" Don't redraw while executing macros (good performance config)
+set lazyredraw
+"Bbackspace and cursor keys wrap to
+set whichwrap+=<,>
+"折叠
+set foldmethod=syntax
+""默认情况下不折叠
+set foldlevel=99
+"nnoremap <Space> za
+
+"---------------------------------------------------------------------------
+" ENCODING SETTINGS
+"---------------------------------------------------------------------------
+set encoding=utf-8
+set termencoding=utf-8
+set fileencoding=utf-8
+set fileencodings=ucs-bom,utf-8,gb2312,big5,euc-jp,euc-kr,latin1
+
+fun! ViewUTF8()
+set encoding=utf-8
+set termencoding=big5
+endfun
+
+fun! UTF8()
+set encoding=utf-8
+set termencoding=big5
+set fileencoding=utf-8
+set fileencodings=ucs-bom,big5,utf-8,latin1
+endfun
+
+fun! Big5()
+set encoding=big5
+set fileencoding=big5
+endfun
 
 "---------------------------------------------------------------------------
 "进行Tlist的设置
@@ -64,7 +98,6 @@ let Tlist_Exit_OnlyWindow=1 "当taglist是最后一个分割窗口时，自动�
 let Tlist_Process_File_Always=0 "是否一直处理tags.1:处理;0:不处理。不是一直实时更新tags，因为没有必要
 let Tlist_Inc_Winwidth=0
 "---------------------------------------------------------------------------
-
 
 "---------------------------------------------------------------------------
 " Visual mode related
@@ -85,7 +118,6 @@ function! VisualSelection(direction) range
     elseif a:direction == 'f'
         execute "normal /" . l:pattern . "^M"
     endif
-
     let @/ = l:pattern
     let @" = l:saved_reg
 endfunction
@@ -93,9 +125,6 @@ endfunction
 " Super useful! From an idea by Michael Naumann
 vnoremap <silent> * :call VisualSelection('f')<CR>
 vnoremap <silent> # :call VisualSelection('b')<CR>
-
-
-
 
 "---------------------------------------------------------------------------
 "Doxygen插件
@@ -108,15 +137,7 @@ let g:DoxygenToolkit_blockFooter="----------------------------------------------
 let g:DoxygenToolkit_authorName="francisco" 
 map \f :Dox<CR>
 map \a :DoxAuthor<CR>
-map \b :DoxBlock<CR>
-
-"---------------------------------------------------------------------------
-"折叠
-"---------------------------------------------------------------------------
-set foldmethod=syntax
-""默认情况下不折叠
-set foldlevel=99
-nnoremap <Space> za
+"map \b :DoxBlock<CR>
 
 "-------------------------------------------------------------------------
 "quickfix 开关 
@@ -142,7 +163,7 @@ nmap <C-P> <Esc>:cp<CR>
 "----------------------------------------------------------------------------
 "查找当前光标下的单词
 map ,f <Esc>:call P_grep_curword()<CR>
-map ,q <Esc>:q!<CR> 
+map ,q <Esc>:q!<CR>
 map ,w <Esc>:w!<CR>
 " sudo write this
 map ,W <Esc>:w !sudo tee % >/dev/null<CR>
@@ -154,23 +175,17 @@ cmap <C-E> <END>
 cnoremap <C-D> <DELETE>
 cnoremap <C-B> <LEFT>
 cnoremap <C-F> <RIGHT>
-cnoremap <C-U> <UP>
+cnoremap <C-P> <UP>
 cnoremap <C-N> <DOWN>
 "tabedit
 map ,t <Esc>:tabedit 
 map <C-J> <C-PageUp>
 map <C-K> <C-PageDown>
-" change to tab #
-map 1 <Esc>:tabn 1<CR>
-map 2 <Esc>:tabn 2<CR>
-map 3 <Esc>:tabn 3<CR>
-map 4 <Esc>:tabn 4<CR>
-map 5 <Esc>:tabn 5<CR>
 
-map ,a :A<CR>
+map ,a <Esc>:A<CR>
 map ,g <Esc>:grep 
 map ,r <Esc>:call RESET_TAG() <CR> <CR>
-map ,m <Esc>:make<CR> 
+map ,m <Esc>:make<CR>
 map ,y    <Esc>:call OPT_RANGE("ya")<CR>
 map ,Y    <Esc>:call OPT_RANGE("yi")<CR>
 map ,d    <Esc>:call OPT_RANGE("da")<CR>
@@ -178,7 +193,7 @@ map ,D    <Esc>:call OPT_RANGE("di")<CR>
 "转换单词大小写
 map ,u <Esc>:call SET_UAW()<CR>
 "支持粘贴
-map <F5> <Esc>:set paste<CR>i
+map <F9> <Esc>:set paste<CR>i
 
 command! Wq wq
 command! W w
@@ -203,6 +218,9 @@ imap " <c-r>=QuoteDelim('"')<CR>
 imap ' <c-r>=QuoteDelim("'")<CR>
 inoremap { <c-r>=SET_BIG_PAIR()<CR>
 
+"Map space to / and c-space to ?
+map <space> /
+map <c-space> ?
 
 "---------------------------------------------------------------------------
 "" 状态栏各个状态
@@ -225,6 +243,104 @@ inoremap { <c-r>=SET_BIG_PAIR()<CR>
 "let statusString=statusHead.statusBody.statusBlank.statusEnd
 "set statusline=%!statusString
 "---------------------------------------------------------------------------
+
+""""""""""""""""""""""""""""""
+" markbrowser setting
+""""""""""""""""""""""""""""""
+nmap <silent> <F6> <Esc>:MarksBrowser<cr>
+
+""""""""""""""""""""""""""""""
+" showmarks setting
+""""""""""""""""""""""""""""""
+" Enable ShowMarks
+let showmarks_enable = 1
+" Show which marks
+let showmarks_include = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+" Ignore help, quickfix, non-modifiable buffers
+let showmarks_ignore_type = "hqm"
+" Hilight lower & upper marks
+let showmarks_hlline_lower = 1
+let showmarks_hlline_upper = 1
+let g:showmarks_ignore_type=""
+let g:showmarks_textlower="\t"
+let g:showmarks_textupper="\t"
+let g:showmarks_textother="\t"
+let g:showmarks_auto_toggle = 0
+nnoremap <silent> mo :ShowMarksOn<CR>
+nnoremap <silent> mt :ShowMarksToggle<CR>
+
+""""""""""""""""""""""""""""""
+" wokmark setting
+""""""""""""""""""""""""""""""
+let g:wokmarks_do_maps = 0
+let g:wokmarks_pool = "abcdefghijklmnopqrstuvwxyz"
+map mm <Plug>ToggleMarkWok
+map mj <Plug>NextMarkWok
+map mk <Plug>PrevMarkWok
+map <M-Left> <Plug>SetMarkWok
+map <M-Right> <Plug>ToggleMarkWok
+map <M-Up> <Plug>PrevMarkWok
+map <M-Down> <Plug>NextMarkWok
+autocmd User WokmarksChange :ShowMarksOn
+
+""""""""""""""""""""""""""""""
+" bufexplorer setting
+""""""""""""""""""""""""""""""
+let g:bufExplorerDefaultHelp=1 " Do not show default help.
+let g:bufExplorerShowRelativePath=1 " Show relative paths.
+let g:bufExplorerSortBy='mru' " Sort by most recently used.
+let g:bufExplorerSplitRight=0 " Split left.
+let g:bufExplorerSplitVertical=1 " Split vertically.
+let g:bufExplorerSplitVertSize = 35 " Split width
+let g:bufExplorerUseCurrentWindow=1 " Open in new window.
+let g:bufExplorerMaxHeight=25 " Max height
+
+"""""""""""""""""""""""""""""
+" Tagbar setting
+""""""""""""""""""""""""""""""
+let g:tagbar_width = 20
+let g:tagbar_expand = 1
+nmap <silent> <F7> <Esc>:TagbarToggle<cr>
+
+""""""""""""""""""""""""""""""
+" lookupfile setting
+""""""""""""""""""""""""""""""
+let g:LookupFile_MinPatLength = 2
+let g:LookupFile_PreserveLastPattern = 0
+let g:LookupFile_PreservePatternHistory = 0
+let g:LookupFile_AlwaysAcceptFirst = 1
+let g:LookupFile_AllowNewFiles = 0
+let g:LookupFile_UsingSpecializedTags = 1
+let g:LookupFile_Bufs_LikeBufCmd = 0
+let g:LookupFile_ignorecase = 1
+let g:LookupFile_smartcase = 1
+if filereadable("./tags")
+    let g:LookupFile_TagExpr = '"./tags"'
+endif
+nmap <silent> ,lk :LUTags<cr>
+nmap <silent> ,ll :LUBufs<cr>
+nmap <silent> ,lw :LUWalk<cr>
+
+" lookup file with ignore case
+function! LookupFile_IgnoreCaseFunc(pattern)
+    let _tags = &tags
+    try
+        let &tags = eval(g:LookupFile_TagExpr)
+        let newpattern = '\c' . a:pattern
+        let tags = taglist(newpattern)
+    catch
+        echohl ErrorMsg | echo "Exception: " . v:exception | echohl NONE
+        return ""
+    finally
+        let &tags = _tags
+    endtry
+
+    " Show the matches for what is typed so far.
+    let files = map(tags, 'v:val["filename"]')
+    return files
+endfunction
+let g:LookupFile_LookupFunc = 'LookupFile_IgnoreCaseFunc'
+
 
 
 "------------------------------------------------------------------------------
@@ -297,10 +413,34 @@ autocmd BufEnter ~/.vim/cpp_src/*  set filetype=cpp
 
 "autocmd BufEnter *    if ( &filetype == "php" )| map ,i <Esc>:e ~/DB/su/pub/| else | map ,i <Esc>:e ~/DB/include/| endif
 
+"---------------------------------------------------------------------------
 "用于支持代码补全时，提示存在。
-"set completeopt=menuone,longest  
-inoremap <expr> <cr> pumvisible() ? "\<c-y>" : "\<c-g>u\<cr>"
-inoremap <expr> <m-;> pumvisible() ? "\<c-n>" : "\<c-x>\<c-o>\<c-n>\<c-p>\<c-r>=pumvisible() ? \"\\<down>\" : \"\\<cr>\""
+"---------------------------------------------------------------------------
+set completeopt=longest,menuone
+inoremap <expr> <CR> pumvisible() ? "\<c-y>" : "\<c-g>u\<cr>"
+inoremap <expr> <M-;> pumvisible() ? "\<c-n>" : "\<c-x>\<c-o>\<c-n>\<c-p>\<c-r>=pumvisible() ? \"\\<down>\" : \"\\<cr>\""
+inoremap <expr> <C-U>      pumvisible()?"\<C-E>":"\<C-U>"
+inoremap <C-]> <C-X><C-]>
+inoremap <C-F> <C-X><C-F>
+inoremap <C-D> <C-X><C-D>
+inoremap <C-L> <C-X><C-L>
+
+" Enable omni completion. (Ctrl-X Ctrl-O)
+autocmd FileType html,markdown setlocal omnifunc=htmlcomplete#CompleteTags
+autocmd FileType javascript setlocal omnifunc=javascriptcomplete#CompleteJS
+autocmd FileType python setlocal omnifunc=pythoncomplete#Complete
+autocmd FileType xml setlocal omnifunc=xmlcomplete#CompleteTags
+autocmd FileType css set omnifunc=csscomplete#CompleteCSS
+autocmd FileType c set omnifunc=ccomplete#Complete
+autocmd FileType java set omnifunc=javacomplete#Complete
+
+" use syntax complete if nothing else available
+if has("autocmd") && exists("+omnifunc")
+  autocmd Filetype *
+              \ if &omnifunc == "" |
+              \ setlocal omnifunc=syntaxcomplete#Complete |
+              \ endif
+endif
 
 "改变扫描标签的规则 防止假死
 "vim缺省的补全顺序是 ".,w,b,u,t,i"，
@@ -357,6 +497,34 @@ endf
 ".c  .h 文件设为 .cpp
 autocmd BufEnter *.c  set filetype=cpp
 autocmd BufEnter *.h  set filetype=cpp
+autocmd BufRead,BufNewFile *.py set ai
+autocmd BufRead *.py set smartindent cinwords=if,elif,else,for,while,try,except,finally,def,class
+autocmd BufRead *.as set filetype=actionscript
+autocmd BufRead *.mxml set filetype=mxml
+
+"""""""""""""""""""""""""""""
+" HTML related
+""""""""""""""""""""""""""""""
+" HTML entities - used by xml edit plugin
+let xml_use_xhtml = 1
+"let xml_no_auto_nesting = 1
+"To HTML
+let html_use_css = 1
+let html_number_lines = 0
+let use_xhtml = 1
+
+"""""""""""""""""""""""""""""""
+" Vim section
+"""""""""""""""""""""""""""""""
+autocmd FileType vim set nofen
+autocmd FileType vim map <buffer> <leader><space> :w!<cr>:source %<cr>
+
+""""""""""""""""""""""""""""""
+" HTML
+"""""""""""""""""""""""""""""""
+au FileType html set ft=xml
+au FileType html set syntax=html
+
 
 function! SET_UAW()
 	let save_cursor = getpos(".")
@@ -588,12 +756,6 @@ endfunction
 if has('python')
     call s:UserDefPython()
 endif
-
-autocmd BufRead,BufNewFile *.py set ai
-autocmd BufRead *.py set smartindent cinwords=if,elif,else,for,while,try,except,finally,def,class
-
-autocmd BufRead *.as set filetype=actionscript
-autocmd BufRead *.mxml set filetype=mxml
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
