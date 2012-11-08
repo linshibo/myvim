@@ -2888,7 +2888,6 @@ HAVE_TYPE_TRAITS	/usr/include/pcre_stringpiece.h	49;"	d
 HAVE_UNISTD_H	/usr/include/expat_config.h	50;"	d
 HAVE_VALUES_H	/usr/include/etip.h	61;"	d
 HEADER	/usr/include/arpa/nameser_compat.h	/^} HEADER;$/;"	t	typeref:struct:__anon198
-HEADER	/usr/include/arpa/nameser_compat.h	/^} HEADER;$/;"	t	typeref:struct:__anon279
 HFIXEDSZ	/usr/include/arpa/nameser_compat.h	89;"	d
 HIBITL	/usr/include/values.h	49;"	d
 HIBITS	/usr/include/values.h	48;"	d
@@ -13734,27 +13733,6 @@ __anon274::__align	/usr/include/i386-linux-gnu/bits/semaphore.h	/^  long int __a
 __anon274::__size	/usr/include/i386-linux-gnu/bits/semaphore.h	/^  char __size[__SIZEOF_SEM_T];$/;"	m	union:__anon274	access:public
 __anon276::__bits	/usr/include/i386-linux-gnu/bits/sched.h	/^  __cpu_mask __bits[__CPU_SETSIZE \/ __NCPUBITS];$/;"	m	struct:__anon276	access:public
 __anon277::__val	/usr/include/i386-linux-gnu/bits/sigset.h	/^    unsigned long int __val[_SIGSET_NWORDS];$/;"	m	struct:__anon277	access:public
-__anon279::aa	/usr/include/arpa/nameser_compat.h	/^	unsigned	aa :1;		\/*%< authoritive answer *\/$/;"	m	struct:__anon279	access:public
-__anon279::aa	/usr/include/arpa/nameser_compat.h	/^	unsigned	aa: 1;		\/*%< authoritive answer *\/$/;"	m	struct:__anon279	access:public
-__anon279::ad	/usr/include/arpa/nameser_compat.h	/^	unsigned	ad: 1;		\/*%< authentic data from named *\/$/;"	m	struct:__anon279	access:public
-__anon279::ancount	/usr/include/arpa/nameser_compat.h	/^	unsigned	ancount :16;	\/*%< number of answer entries *\/$/;"	m	struct:__anon279	access:public
-__anon279::arcount	/usr/include/arpa/nameser_compat.h	/^	unsigned	arcount :16;	\/*%< number of resource entries *\/$/;"	m	struct:__anon279	access:public
-__anon279::cd	/usr/include/arpa/nameser_compat.h	/^	unsigned	cd: 1;		\/*%< checking disabled by resolver *\/$/;"	m	struct:__anon279	access:public
-__anon279::id	/usr/include/arpa/nameser_compat.h	/^	unsigned	id :16;		\/*%< query identification number *\/$/;"	m	struct:__anon279	access:public
-__anon279::nscount	/usr/include/arpa/nameser_compat.h	/^	unsigned	nscount :16;	\/*%< number of authority entries *\/$/;"	m	struct:__anon279	access:public
-__anon279::opcode	/usr/include/arpa/nameser_compat.h	/^	unsigned	opcode :4;	\/*%< purpose of message *\/$/;"	m	struct:__anon279	access:public
-__anon279::opcode	/usr/include/arpa/nameser_compat.h	/^	unsigned	opcode: 4;	\/*%< purpose of message *\/$/;"	m	struct:__anon279	access:public
-__anon279::qdcount	/usr/include/arpa/nameser_compat.h	/^	unsigned	qdcount :16;	\/*%< number of question entries *\/$/;"	m	struct:__anon279	access:public
-__anon279::qr	/usr/include/arpa/nameser_compat.h	/^	unsigned	qr :1;		\/*%< response flag *\/$/;"	m	struct:__anon279	access:public
-__anon279::qr	/usr/include/arpa/nameser_compat.h	/^	unsigned	qr: 1;		\/*%< response flag *\/$/;"	m	struct:__anon279	access:public
-__anon279::ra	/usr/include/arpa/nameser_compat.h	/^	unsigned	ra :1;		\/*%< recursion available *\/$/;"	m	struct:__anon279	access:public
-__anon279::ra	/usr/include/arpa/nameser_compat.h	/^	unsigned	ra: 1;		\/*%< recursion available *\/$/;"	m	struct:__anon279	access:public
-__anon279::rcode	/usr/include/arpa/nameser_compat.h	/^	unsigned	rcode :4;	\/*%< response code *\/$/;"	m	struct:__anon279	access:public
-__anon279::rd	/usr/include/arpa/nameser_compat.h	/^	unsigned	rd :1;		\/*%< recursion desired *\/$/;"	m	struct:__anon279	access:public
-__anon279::rd	/usr/include/arpa/nameser_compat.h	/^	unsigned	rd: 1;		\/*%< recursion desired *\/$/;"	m	struct:__anon279	access:public
-__anon279::tc	/usr/include/arpa/nameser_compat.h	/^	unsigned	tc :1;		\/*%< truncated message *\/$/;"	m	struct:__anon279	access:public
-__anon279::tc	/usr/include/arpa/nameser_compat.h	/^	unsigned	tc: 1;		\/*%< truncated message *\/$/;"	m	struct:__anon279	access:public
-__anon279::unused	/usr/include/arpa/nameser_compat.h	/^	unsigned	unused :1;	\/*%< unused bits (MBZ as of 4.9.3a3) *\/$/;"	m	struct:__anon279	access:public
 __anon27::sh_addr	/usr/include/elf.h	/^  Elf32_Addr	sh_addr;		\/* Section virtual addr at execution *\/$/;"	m	struct:__anon27	access:public
 __anon27::sh_addralign	/usr/include/elf.h	/^  Elf32_Word	sh_addralign;		\/* Section alignment *\/$/;"	m	struct:__anon27	access:public
 __anon27::sh_entsize	/usr/include/elf.h	/^  Elf32_Word	sh_entsize;		\/* Entry size if section holds table *\/$/;"	m	struct:__anon27	access:public
@@ -15740,9 +15718,7 @@ a_un	/usr/include/elf.h	/^    } a_un;$/;"	m	struct:__anon53	typeref:union:__anon
 a_val	/usr/include/elf.h	/^      uint32_t a_val;		\/* Integer value *\/$/;"	m	union:__anon51::__anon52	access:public
 a_val	/usr/include/elf.h	/^      uint64_t a_val;		\/* Integer value *\/$/;"	m	union:__anon53::__anon54	access:public
 aa	/usr/include/arpa/nameser_compat.h	/^	unsigned	aa :1;		\/*%< authoritive answer *\/$/;"	m	struct:__anon198	access:public
-aa	/usr/include/arpa/nameser_compat.h	/^	unsigned	aa :1;		\/*%< authoritive answer *\/$/;"	m	struct:__anon279	access:public
 aa	/usr/include/arpa/nameser_compat.h	/^	unsigned	aa: 1;		\/*%< authoritive answer *\/$/;"	m	struct:__anon198	access:public
-aa	/usr/include/arpa/nameser_compat.h	/^	unsigned	aa: 1;		\/*%< authoritive answer *\/$/;"	m	struct:__anon279	access:public
 abort_delimiters	/usr/include/netinet/if_tr.h	/^  unsigned long abort_delimiters;$/;"	m	struct:tr_statistics	access:public
 above	/usr/include/cursesp.h	/^  inline NCursesPanel& above() const$/;"	f	class:NCursesPanel	access:public	signature:() const
 above	/usr/include/panel.h	/^  struct panel *above;$/;"	m	struct:panel	typeref:struct:panel::panel	access:public
@@ -15849,7 +15825,6 @@ activate_label	/usr/include/cursslk.h	/^  void activate_label(int i, bool bf=TRU
 activate_labels	/usr/include/cursslk.h	/^  void activate_labels(bool bf);$/;"	p	class:Soft_Label_Key_Set	access:private	signature:(bool bf)
 active_reg_t	/usr/include/regex.h	/^typedef unsigned long int active_reg_t;$/;"	t
 ad	/usr/include/arpa/nameser_compat.h	/^	unsigned	ad: 1;		\/*%< authentic data from named *\/$/;"	m	struct:__anon198	access:public
-ad	/usr/include/arpa/nameser_compat.h	/^	unsigned	ad: 1;		\/*%< authentic data from named *\/$/;"	m	struct:__anon279	access:public
 addch	/usr/include/curses.h	1164;"	d
 addch	/usr/include/cursesw.h	/^  int            addch(const chtype ch) { return ::waddch(w, ch); }$/;"	f	class:NCursesWindow	access:public	signature:(const chtype ch)
 addch	/usr/include/cursesw.h	/^  int            addch(int y, int x, const chtype ch) {$/;"	f	class:NCursesWindow	access:public	signature:(int y, int x, const chtype ch)
@@ -16008,7 +15983,6 @@ alphasort	/usr/include/dirent.h	336;"	d
 alt	/usr/include/printf.h	/^  unsigned int alt:1;		\/* # flag.  *\/$/;"	m	struct:printf_info	access:public
 alt_scancode_esc	/usr/include/term.h	611;"	d
 ancount	/usr/include/arpa/nameser_compat.h	/^	unsigned	ancount :16;	\/*%< number of answer entries *\/$/;"	m	struct:__anon198	access:public
-ancount	/usr/include/arpa/nameser_compat.h	/^	unsigned	ancount :16;	\/*%< number of answer entries *\/$/;"	m	struct:__anon279	access:public
 ar_date	/usr/include/ar.h	/^    char ar_date[12];		\/* File date, decimal seconds since Epoch.  *\/$/;"	m	struct:ar_hdr	access:public
 ar_fmag	/usr/include/ar.h	/^    char ar_fmag[2];		\/* Always contains ARFMAG.  *\/$/;"	m	struct:ar_hdr	access:public
 ar_gid	/usr/include/ar.h	/^    char ar_uid[6], ar_gid[6];	\/* User and group IDs, in ASCII decimal.  *\/$/;"	m	struct:ar_hdr	access:public
@@ -16034,7 +16008,6 @@ ar_service	/usr/include/netdb.h	/^  const char *ar_service;	\/* Service name.  *
 ar_size	/usr/include/ar.h	/^    char ar_size[10];		\/* File size, in ASCII decimal.  *\/$/;"	m	struct:ar_hdr	access:public
 ar_uid	/usr/include/ar.h	/^    char ar_uid[6], ar_gid[6];	\/* User and group IDs, in ASCII decimal.  *\/$/;"	m	struct:ar_hdr	access:public
 arcount	/usr/include/arpa/nameser_compat.h	/^	unsigned	arcount :16;	\/*%< number of resource entries *\/$/;"	m	struct:__anon198	access:public
-arcount	/usr/include/arpa/nameser_compat.h	/^	unsigned	arcount :16;	\/*%< number of resource entries *\/$/;"	m	struct:__anon279	access:public
 arena	/usr/include/malloc.h	/^  int arena;    \/* non-mmapped space allocated from system *\/$/;"	m	struct:mallinfo	access:public
 arg	/usr/include/argp.h	/^  __const char *arg;$/;"	m	struct:argp_option	access:public
 arg	/usr/include/form.h	/^  void *		arg;		\/* argument for type		*\/$/;"	m	struct:fieldnode	access:public
@@ -16447,7 +16420,6 @@ cchar_t	/usr/include/curses.h	/^cchar_t;$/;"	t	typeref:struct:__anon8
 cchar_t	/usr/include/ncurses.h	/^cchar_t;$/;"	t	typeref:struct:__anon121
 ccheck	/usr/include/form.h	/^  bool	(*ccheck)(int,const void *);		\/* character validation *\/$/;"	m	struct:typenode	access:public
 cd	/usr/include/arpa/nameser_compat.h	/^	unsigned	cd: 1;		\/*%< checking disabled by resolver *\/$/;"	m	struct:__anon198	access:public
-cd	/usr/include/arpa/nameser_compat.h	/^	unsigned	cd: 1;		\/*%< checking disabled by resolver *\/$/;"	m	struct:__anon279	access:public
 ceil	/usr/include/tgmath.h	343;"	d
 cend	/usr/include/term_entry.h	/^	long		cstart, cend;$/;"	m	struct:entry	access:public
 centertext	/usr/include/cursesp.h	/^  virtual void centertext(int row,const char* label);$/;"	p	class:NCursesPanel	access:public	signature:(int row,const char* label)
@@ -18701,7 +18673,6 @@ iconv_close	/usr/include/iconv.h	/^extern int iconv_close (iconv_t __cd);$/;"	p	
 iconv_open	/usr/include/iconv.h	/^extern iconv_t iconv_open (__const char *__tocode, __const char *__fromcode);$/;"	p	signature:(__const char *__tocode, __const char *__fromcode)
 iconv_t	/usr/include/iconv.h	/^typedef void *iconv_t;$/;"	t
 id	/usr/include/arpa/nameser_compat.h	/^	unsigned	id :16;		\/*%< query identification number *\/$/;"	m	struct:__anon198	access:public
-id	/usr/include/arpa/nameser_compat.h	/^	unsigned	id :16;		\/*%< query identification number *\/$/;"	m	struct:__anon279	access:public
 id	/usr/include/curses.h	/^    short id;		\/* ID to distinguish multiple devices *\/$/;"	m	struct:__anon13	access:public
 id	/usr/include/ncurses.h	/^    short id;		\/* ID to distinguish multiple devices *\/$/;"	m	struct:__anon126	access:public
 id	/usr/include/netinet/ip.h	/^    u_int16_t id;$/;"	m	struct:iphdr	access:public
@@ -20925,7 +20896,6 @@ nsaddr	/usr/include/resolv.h	111;"	d
 nsaddr_list	/usr/include/resolv.h	/^		nsaddr_list[MAXNS];	\/* address of name server *\/$/;"	m	struct:__res_state	typeref:struct:__res_state::sockaddr_in	access:public
 nsaddrs	/usr/include/resolv.h	/^			struct sockaddr_in6	*nsaddrs[MAXNS];$/;"	m	struct:__res_state::__anon150::__anon151	typeref:struct:__res_state::__anon150::__anon151::sockaddr_in6	access:public
 nscount	/usr/include/arpa/nameser_compat.h	/^	unsigned	nscount :16;	\/*%< number of authority entries *\/$/;"	m	struct:__anon198	access:public
-nscount	/usr/include/arpa/nameser_compat.h	/^	unsigned	nscount :16;	\/*%< number of authority entries *\/$/;"	m	struct:__anon279	access:public
 nscount	/usr/include/resolv.h	/^			u_int16_t		nscount;$/;"	m	struct:__res_state::__anon150::__anon151	access:public
 nscount	/usr/include/resolv.h	/^	int	nscount;		\/* number of name servers *\/$/;"	m	struct:__res_state	access:public
 nscount6	/usr/include/resolv.h	/^			u_int16_t		nscount6;$/;"	m	struct:__res_state::__anon150::__anon151	access:public
@@ -21066,9 +21036,7 @@ opaque	/usr/include/gcrypt.h	/^      void *opaque;$/;"	m	union:gcry_ac_io::__ano
 opaque	/usr/include/gcrypt.h	/^      void *opaque;$/;"	m	union:gcry_ac_io::__anon92::__anon96	access:public
 opaque	/usr/include/zlib.h	/^    voidpf     opaque;  \/* private data object passed to zalloc and zfree *\/$/;"	m	struct:z_stream_s	access:public
 opcode	/usr/include/arpa/nameser_compat.h	/^	unsigned	opcode :4;	\/*%< purpose of message *\/$/;"	m	struct:__anon198	access:public
-opcode	/usr/include/arpa/nameser_compat.h	/^	unsigned	opcode :4;	\/*%< purpose of message *\/$/;"	m	struct:__anon279	access:public
 opcode	/usr/include/arpa/nameser_compat.h	/^	unsigned	opcode: 4;	\/*%< purpose of message *\/$/;"	m	struct:__anon198	access:public
-opcode	/usr/include/arpa/nameser_compat.h	/^	unsigned	opcode: 4;	\/*%< purpose of message *\/$/;"	m	struct:__anon279	access:public
 open	/usr/include/fcntl.h	125;"	d
 open	/usr/include/i386-linux-gnu/bits/fcntl2.h	/^open (__const char *__path, int __oflag, ...)$/;"	f	signature:(__const char *__path, int __oflag, ...)
 open	/usr/include/sudo_plugin.h	/^    int (*open)(unsigned int version, sudo_conv_t conversation,$/;"	m	struct:io_plugin	access:public
@@ -22494,16 +22462,13 @@ q_back	/usr/include/search.h	/^    struct qelem *q_back;$/;"	m	struct:qelem	type
 q_data	/usr/include/search.h	/^    char q_data[1];$/;"	m	struct:qelem	access:public
 q_forw	/usr/include/search.h	/^    struct qelem *q_forw;$/;"	m	struct:qelem	typeref:struct:qelem::qelem	access:public
 qdcount	/usr/include/arpa/nameser_compat.h	/^	unsigned	qdcount :16;	\/*%< number of question entries *\/$/;"	m	struct:__anon198	access:public
-qdcount	/usr/include/arpa/nameser_compat.h	/^	unsigned	qdcount :16;	\/*%< number of question entries *\/$/;"	m	struct:__anon279	access:public
 qelem	/usr/include/search.h	/^struct qelem$/;"	s
 qelem::q_back	/usr/include/search.h	/^    struct qelem *q_back;$/;"	m	struct:qelem	typeref:struct:qelem::qelem	access:public
 qelem::q_data	/usr/include/search.h	/^    char q_data[1];$/;"	m	struct:qelem	access:public
 qelem::q_forw	/usr/include/search.h	/^    struct qelem *q_forw;$/;"	m	struct:qelem	typeref:struct:qelem::qelem	access:public
 qhook	/usr/include/resolv.h	/^	res_send_qhook qhook;		\/* query hook *\/$/;"	m	struct:__res_state	access:public
 qr	/usr/include/arpa/nameser_compat.h	/^	unsigned	qr :1;		\/*%< response flag *\/$/;"	m	struct:__anon198	access:public
-qr	/usr/include/arpa/nameser_compat.h	/^	unsigned	qr :1;		\/*%< response flag *\/$/;"	m	struct:__anon279	access:public
 qr	/usr/include/arpa/nameser_compat.h	/^	unsigned	qr: 1;		\/*%< response flag *\/$/;"	m	struct:__anon198	access:public
-qr	/usr/include/arpa/nameser_compat.h	/^	unsigned	qr: 1;		\/*%< response flag *\/$/;"	m	struct:__anon279	access:public
 quad_t	/usr/include/i386-linux-gnu/sys/types.h	/^typedef __quad_t quad_t;$/;"	t
 quant	/usr/include/expat.h	/^  enum XML_Content_Quant        quant;$/;"	m	struct:XML_cp	typeref:enum:XML_cp::XML_Content_Quant	access:public
 query	/usr/include/sudo_plugin.h	/^    int (*query)(const char *user, const char *group, const struct passwd *pwd);$/;"	m	struct:sudoers_group_plugin	access:public
@@ -22548,9 +22513,7 @@ r_state	/usr/include/link.h	/^      } r_state;$/;"	m	struct:r_debug	typeref:enum
 r_symbolnum	/usr/include/a.out.h	/^  unsigned int r_symbolnum:24;$/;"	m	struct:relocation_info	access:public
 r_version	/usr/include/link.h	/^    int r_version;		\/* Version number for this protocol.  *\/$/;"	m	struct:r_debug	access:public
 ra	/usr/include/arpa/nameser_compat.h	/^	unsigned	ra :1;		\/*%< recursion available *\/$/;"	m	struct:__anon198	access:public
-ra	/usr/include/arpa/nameser_compat.h	/^	unsigned	ra :1;		\/*%< recursion available *\/$/;"	m	struct:__anon279	access:public
 ra	/usr/include/arpa/nameser_compat.h	/^	unsigned	ra: 1;		\/*%< recursion available *\/$/;"	m	struct:__anon198	access:public
-ra	/usr/include/arpa/nameser_compat.h	/^	unsigned	ra: 1;		\/*%< recursion available *\/$/;"	m	struct:__anon279	access:public
 rand_deg	/usr/include/stdlib.h	/^    int rand_deg;		\/* Degree of random number generator.  *\/$/;"	m	struct:random_data	access:public
 rand_sep	/usr/include/stdlib.h	/^    int rand_sep;		\/* Distance between front and rear.  *\/$/;"	m	struct:random_data	access:public
 rand_type	/usr/include/stdlib.h	/^    int rand_type;		\/* Type of random number generator.  *\/$/;"	m	struct:random_data	access:public
@@ -22580,11 +22543,8 @@ rcf	/usr/include/netinet/if_tr.h	/^  u_int16_t rcf;		\/* route control field *\/
 rcmd	/usr/include/netdb.h	/^extern int rcmd (char **__restrict __ahost, unsigned short int __rport,$/;"	p	signature:(char **__restrict __ahost, unsigned short int __rport, __const char *__restrict __locuser, __const char *__restrict __remuser, __const char *__restrict __cmd, int *__restrict __fd2p)
 rcmd_af	/usr/include/netdb.h	/^extern int rcmd_af (char **__restrict __ahost, unsigned short int __rport,$/;"	p	signature:(char **__restrict __ahost, unsigned short int __rport, __const char *__restrict __locuser, __const char *__restrict __remuser, __const char *__restrict __cmd, int *__restrict __fd2p, sa_family_t __af)
 rcode	/usr/include/arpa/nameser_compat.h	/^	unsigned	rcode :4;	\/*%< response code *\/$/;"	m	struct:__anon198	access:public
-rcode	/usr/include/arpa/nameser_compat.h	/^	unsigned	rcode :4;	\/*%< response code *\/$/;"	m	struct:__anon279	access:public
 rd	/usr/include/arpa/nameser_compat.h	/^	unsigned	rd :1;		\/*%< recursion desired *\/$/;"	m	struct:__anon198	access:public
-rd	/usr/include/arpa/nameser_compat.h	/^	unsigned	rd :1;		\/*%< recursion desired *\/$/;"	m	struct:__anon279	access:public
 rd	/usr/include/arpa/nameser_compat.h	/^	unsigned	rd: 1;		\/*%< recursion desired *\/$/;"	m	struct:__anon198	access:public
-rd	/usr/include/arpa/nameser_compat.h	/^	unsigned	rd: 1;		\/*%< recursion desired *\/$/;"	m	struct:__anon279	access:public
 rdata	/usr/include/arpa/nameser.h	/^	const u_char *	rdata;$/;"	m	struct:__ns_rr	access:public
 rdlength	/usr/include/arpa/nameser.h	/^	u_int16_t	rdlength;$/;"	m	struct:__ns_rr	access:public
 re_comp	/usr/include/regex.h	/^extern char *re_comp (const char *);$/;"	p	signature:(const char *)
@@ -24060,9 +24020,7 @@ tai	/usr/include/i386-linux-gnu/sys/timex.h	/^  long int tai;		\/* TAI offset (r
 tan	/usr/include/tgmath.h	268;"	d
 tanh	/usr/include/tgmath.h	285;"	d
 tc	/usr/include/arpa/nameser_compat.h	/^	unsigned	tc :1;		\/*%< truncated message *\/$/;"	m	struct:__anon198	access:public
-tc	/usr/include/arpa/nameser_compat.h	/^	unsigned	tc :1;		\/*%< truncated message *\/$/;"	m	struct:__anon279	access:public
 tc	/usr/include/arpa/nameser_compat.h	/^	unsigned	tc: 1;		\/*%< truncated message *\/$/;"	m	struct:__anon198	access:public
-tc	/usr/include/arpa/nameser_compat.h	/^	unsigned	tc: 1;		\/*%< truncated message *\/$/;"	m	struct:__anon279	access:public
 tc_brkc	/usr/include/i386-linux-gnu/sys/ttychars.h	/^	char	tc_brkc;	\/* input delimiter (like nl) *\/$/;"	m	struct:ttychars	access:public
 tc_dsuspc	/usr/include/i386-linux-gnu/sys/ttychars.h	/^	char	tc_dsuspc;	\/* delayed stop process signal *\/$/;"	m	struct:ttychars	access:public
 tc_eofc	/usr/include/i386-linux-gnu/sys/ttychars.h	/^	char	tc_eofc;	\/* end-of-file *\/$/;"	m	struct:ttychars	access:public
@@ -24354,13 +24312,9 @@ tftphdr	/usr/include/arpa/tftp.h	/^struct	tftphdr {$/;"	s
 tftphdr::__anon197::tu_block	/usr/include/arpa/tftp.h	/^		unsigned short	tu_block;	\/* block # *\/$/;"	m	union:tftphdr::__anon197	access:public
 tftphdr::__anon197::tu_code	/usr/include/arpa/tftp.h	/^		short	tu_code;		\/* error code *\/$/;"	m	union:tftphdr::__anon197	access:public
 tftphdr::__anon197::tu_stuff	/usr/include/arpa/tftp.h	/^		char	tu_stuff[1];		\/* request packet stuff *\/$/;"	m	union:tftphdr::__anon197	access:public
-tftphdr::__anon278::tu_block	/usr/include/arpa/tftp.h	/^		unsigned short	tu_block;	\/* block # *\/$/;"	m	union:tftphdr::__anon278	access:public
-tftphdr::__anon278::tu_code	/usr/include/arpa/tftp.h	/^		short	tu_code;		\/* error code *\/$/;"	m	union:tftphdr::__anon278	access:public
-tftphdr::__anon278::tu_stuff	/usr/include/arpa/tftp.h	/^		char	tu_stuff[1];		\/* request packet stuff *\/$/;"	m	union:tftphdr::__anon278	access:public
 tftphdr::th_data	/usr/include/arpa/tftp.h	/^	char	th_data[1];			\/* data or error string *\/$/;"	m	struct:tftphdr	access:public
 tftphdr::th_opcode	/usr/include/arpa/tftp.h	/^	short	th_opcode;			\/* packet type *\/$/;"	m	struct:tftphdr	access:public
 tftphdr::th_u	/usr/include/arpa/tftp.h	/^	} __attribute__ ((__packed__)) th_u;$/;"	m	struct:tftphdr	typeref:union:tftphdr::__anon197	access:public
-tftphdr::th_u	/usr/include/arpa/tftp.h	/^	} __attribute__ ((__packed__)) th_u;$/;"	m	struct:tftphdr	typeref:union:tftphdr::__anon278	access:public
 tgamma	/usr/include/i386-linux-gnu/bits/math-finite.h	/^__extern_always_inline double __NTH (tgamma (double __d))$/;"	f	signature:(double __d)
 tgamma	/usr/include/tgmath.h	389;"	d
 tgammaf	/usr/include/i386-linux-gnu/bits/math-finite.h	/^__extern_always_inline float __NTH (tgammaf (float __d))$/;"	f	signature:(float __d)
@@ -24386,7 +24340,6 @@ th_stuff	/usr/include/arpa/tftp.h	61;"	d
 th_sum	/usr/include/netinet/tcp.h	/^    u_int16_t th_sum;		\/* checksum *\/$/;"	m	struct:tcphdr	access:public
 th_ta_p	/usr/include/thread_db.h	/^  td_thragent_t *th_ta_p;$/;"	m	struct:td_thrhandle	access:public
 th_u	/usr/include/arpa/tftp.h	/^	} __attribute__ ((__packed__)) th_u;$/;"	m	struct:tftphdr	typeref:union:tftphdr::__anon197	access:public
-th_u	/usr/include/arpa/tftp.h	/^	} __attribute__ ((__packed__)) th_u;$/;"	m	struct:tftphdr	typeref:union:tftphdr::__anon278	access:public
 th_unique	/usr/include/thread_db.h	/^  psaddr_t th_unique;$/;"	m	struct:td_thrhandle	access:public
 th_urp	/usr/include/netinet/tcp.h	/^    u_int16_t th_urp;		\/* urgent pointer *\/$/;"	m	struct:tcphdr	access:public
 th_win	/usr/include/netinet/tcp.h	/^    u_int16_t th_win;		\/* window *\/$/;"	m	struct:tcphdr	access:public
@@ -24663,11 +24616,8 @@ ttyname_r	/usr/include/i386-linux-gnu/bits/unistd.h	/^__NTH (ttyname_r (int __fd
 ttytype	/usr/include/curses.h	1346;"	d
 ttytype	/usr/include/ncurses.h	1346;"	d
 tu_block	/usr/include/arpa/tftp.h	/^		unsigned short	tu_block;	\/* block # *\/$/;"	m	union:tftphdr::__anon197	access:public
-tu_block	/usr/include/arpa/tftp.h	/^		unsigned short	tu_block;	\/* block # *\/$/;"	m	union:tftphdr::__anon278	access:public
 tu_code	/usr/include/arpa/tftp.h	/^		short	tu_code;		\/* error code *\/$/;"	m	union:tftphdr::__anon197	access:public
-tu_code	/usr/include/arpa/tftp.h	/^		short	tu_code;		\/* error code *\/$/;"	m	union:tftphdr::__anon278	access:public
 tu_stuff	/usr/include/arpa/tftp.h	/^		char	tu_stuff[1];		\/* request packet stuff *\/$/;"	m	union:tftphdr::__anon197	access:public
-tu_stuff	/usr/include/arpa/tftp.h	/^		char	tu_stuff[1];		\/* request packet stuff *\/$/;"	m	union:tftphdr::__anon278	access:public
 tv_nsec	/usr/include/time.h	/^    long int tv_nsec;		\/* Nanoseconds.  *\/$/;"	m	struct:timespec	access:public
 tv_sec	/usr/include/i386-linux-gnu/bits/time.h	/^    __time_t tv_sec;		\/* Seconds.  *\/$/;"	m	struct:timeval	access:public
 tv_sec	/usr/include/i386-linux-gnu/bits/utmp.h	/^    int32_t tv_sec;		\/* Seconds.  *\/$/;"	m	struct:utmp::__anon248	access:public
@@ -24843,7 +24793,6 @@ untouchwin	/usr/include/cursesw.h	672;"	d
 untouchwin	/usr/include/cursesw.h	673;"	d
 untouchwin	/usr/include/ncurses.h	1136;"	d
 unused	/usr/include/arpa/nameser_compat.h	/^	unsigned	unused :1;	\/*%< unused bits (MBZ as of 4.9.3a3) *\/$/;"	m	struct:__anon198	access:public
-unused	/usr/include/arpa/nameser_compat.h	/^	unsigned	unused :1;	\/*%< unused bits (MBZ as of 4.9.3a3) *\/$/;"	m	struct:__anon279	access:public
 unused	/usr/include/resolv.h	/^	unsigned unused:23;$/;"	m	struct:__res_state	access:public
 uordblks	/usr/include/malloc.h	/^  int uordblks; \/* total allocated space *\/$/;"	m	struct:mallinfo	access:public
 up	/usr/include/menu.h	/^  struct tagITEM *up;$/;"	m	struct:tagITEM	typeref:struct:tagITEM::tagITEM	access:public
