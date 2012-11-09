@@ -154,7 +154,7 @@ function! ToggleQF()
         cclose
     endif
 endfunc
-map <F8> <Esc>:call ToggleQF()<CR>
+map <F4> <Esc>:call ToggleQF()<CR>
 nmap <C-N> <Esc>:cn<CR>
 nmap <C-P> <Esc>:cp<CR>
 
@@ -201,7 +201,7 @@ command! W w
 "vimtips 
 command! -nargs=0 VIMTIPS  :tabe | :r ! w3m -dump http://zzapper.co.uk/vimtips.html 
 " Open and close the NERD_tree.vim separately
-nmap <F4> <ESC>:NERDTreeToggle<RETURN>
+nmap <F5> <ESC>:NERDTreeToggle<RETURN>
 ":RENEW
 command! -nargs=0 RENEW  :source ~/.vim/comm.vim
 "括号相关
@@ -247,7 +247,7 @@ map <c-space> ?
 """"""""""""""""""""""""""""""
 " markbrowser setting
 """"""""""""""""""""""""""""""
-nmap <silent> <F6> <Esc>:MarksBrowser<cr>
+nmap <silent> <F7> <Esc>:MarksBrowser<cr>
 
 """"""""""""""""""""""""""""""
 " showmarks setting
@@ -294,6 +294,7 @@ let g:bufExplorerSplitVertical=1 " Split vertically.
 let g:bufExplorerSplitVertSize = 35 " Split width
 let g:bufExplorerUseCurrentWindow=1 " Open in new window.
 let g:bufExplorerMaxHeight=25 " Max height
+noremap <silent> <F7> <Esc>:BufExplorer<CR>
 
 """""""""""""""""""""""""""""
 " Tagbar setting
@@ -314,9 +315,11 @@ let g:LookupFile_UsingSpecializedTags = 1
 let g:LookupFile_Bufs_LikeBufCmd = 0
 let g:LookupFile_ignorecase = 1
 let g:LookupFile_smartcase = 1
+let g:LookupFile_DisableDefaultMap=1
 if filereadable("./tags")
     let g:LookupFile_TagExpr = '"./tags"'
 endif
+nmap <unique> <silent> <F6> <Plug>LookupFile
 nmap <silent> ,lk :LUTags<cr>
 nmap <silent> ,ll :LUBufs<cr>
 nmap <silent> ,lw :LUWalk<cr>

@@ -37,10 +37,11 @@ Insert mode
 
 <F2>  Tlist 开关
 <F3>  TagbarToggle 
-<F4>  NERDTreeToggle
-<F5>  lookupfile开关 
-<F6>  MarksBrowser 开关
-<F8>  quickfix 开关
+<F4>  quickfix 开关
+<F5>  NERDTreeToggle
+<F6>  lookupfile开关 
+<F7>  bufexplore 开关
+<F8>  MarksBrowser 开关
 <F9>  set paste 
 
 "bufexplorer  相关
