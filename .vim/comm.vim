@@ -247,7 +247,7 @@ map <c-space> ?
 """"""""""""""""""""""""""""""
 " markbrowser setting
 """"""""""""""""""""""""""""""
-nmap <silent> <F7> <Esc>:MarksBrowser<cr>
+nmap <silent> <F8> <Esc>:MarksBrowser<cr>
 
 """"""""""""""""""""""""""""""
 " showmarks setting
@@ -267,7 +267,7 @@ let g:showmarks_textupper="\t"
 let g:showmarks_textother="\t"
 let g:showmarks_auto_toggle = 0
 nnoremap <silent> mo :ShowMarksOn<CR>
-nnoremap <silent> mt :ShowMarksToggle<CR>
+nnoremap <silent> mt :<ESc>:ShowMarksToggle<CR>
 
 """"""""""""""""""""""""""""""
 " wokmark setting
