@@ -154,7 +154,7 @@ function! ToggleQF()
         cclose
     endif
 endfunc
-map <F4> <Esc>:call ToggleQF()<CR>
+map <F8> <Esc>:call ToggleQF()<CR>
 nmap <C-N> <Esc>:cn<CR>
 nmap <C-P> <Esc>:cp<CR>
 
@@ -201,7 +201,7 @@ command! W w
 "vimtips 
 command! -nargs=0 VIMTIPS  :tabe | :r ! w3m -dump http://zzapper.co.uk/vimtips.html 
 " Open and close the NERD_tree.vim separately
-nmap <F3> <ESC>:NERDTreeToggle<RETURN>
+nmap <F4> <ESC>:NERDTreeToggle<RETURN>
 ":RENEW
 command! -nargs=0 RENEW  :source ~/.vim/comm.vim
 "括号相关
@@ -300,7 +300,7 @@ let g:bufExplorerMaxHeight=25 " Max height
 """"""""""""""""""""""""""""""
 let g:tagbar_width = 20
 let g:tagbar_expand = 1
-nmap <silent> <F7> <Esc>:TagbarToggle<cr>
+nmap <silent> <F3> <Esc>:TagbarToggle<cr>
 
 """"""""""""""""""""""""""""""
 " lookupfile setting
