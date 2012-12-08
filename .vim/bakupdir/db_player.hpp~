@@ -1,9 +1,0 @@
-#ifndef DB_PLAYER_HPP
-#define DB_PLAYER_HPP
-
-#include "dbproxy.hpp"
-
-class player_t;
-int db_logout_save_data(player_t *p);
-
-#endif
