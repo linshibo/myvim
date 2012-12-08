@@ -1,0 +1,18 @@
+#ifndef  COMMON_H
+#define  COMMON_H
+#include "./proto/ultraman_db.h"
+#include "./proto/ultraman.h"
+#include "./proto/ultraman_db_enum.h"
+
+#define  DEFAULT_KEYS	area_id,userid,role_tm
+#define  DEFAULT_ARGS	uint16_t area_id,userid_t user_id,uint32_t role_tm
+typedef struct uman_proto_head{
+	uint32_t proto_length; //报文总长度
+	uint32_t proto_id;//序列号，需要原样返回
+	uint16_t cmd_id; //命令号
+	int32_t result; //返回值
+	userid_t id;  /*一般是米米号*/
+	uint32_t role_tm;
+	uint16_t area_id;
+} __attribute__((packed))uman_proto_head_t;
+#endif  /*COMMON_H*/

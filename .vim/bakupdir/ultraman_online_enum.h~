@@ -1,0 +1,59 @@
+#ifndef  ULTRAMAN_ONLINE_ENUM_H
+#define  ULTRAMAN_ONLINE_ENUM_H
+
+/*命令定义*/	
+enum  enum_ultraman_online_cmd{
+	 cli_get_online_version_cmd		=	1000, /**/
+	 cli_login_cmd		=	1001, /*登陆*/
+	 cli_notify_kick_user_offline_cmd		=	1002, /**/
+	 cli_del_friend_cmd		=	1003, /*删除好友*/
+	 cli_add_friend_cmd		=	1004, /*添加好友*/
+	 cli_add_to_blacklist_cmd		=	1005, /*加入黑名单*/
+	 cli_del_from_blacklist_cmd		=	1006, /**/
+	 cli_get_recommended_friends_list_cmd		=	1007, /*得到推荐好友列表*/
+	 cli_set_user_flag_cmd		=	1008, /*设置禁止添加好友*/
+	 cli_friend_notify_added_cmd		=	1009, /*通知某人你被另外的人加好友了*/
+	 cli_get_friends_list_cmd		=	1010, /*得到好友列表*/
+	 cli_get_blacklist_cmd		=	1011, /*得到黑名单列表*/
+	 cli_get_union_list_cmd		=	1012, /*得到工会好友列表*/
+	 cli_check_online_users_cmd		=	1013, /*查询哪些ID在线*/
+	 cli_get_recently_contacted_list_cmd		=	1014, /*获取最近联系人列表*/
+	 cli_get_user_info_cmd		=	1015, /*拉取玩家的信息*/
+	 cli_notify_sys_time_cmd		=	1016, /*与客户端同步时间*/
+	 cli_chat_private_msg_cmd		=	1017, /*私聊消息*/
+
+};
+
+/*错误码定义*/	
+enum  enum_ultraman_online_error{
+	 succ		=	0, /**/
+	 cli_session_is_wrong_err		=	100001, /**/
+	 cli_connect_db_err		=	100002, /**/
+	 cli_multiple_login_err		=	100003, /*重复登陆*/
+	 cli_admin_kick_usr_offline_err		=	100004, /**/
+	 cli_area_id_err		=	100005, /*区域服务器id不正确*/
+	 cli_system_busy_err		=	100006, /**/
+	 cli_critical_err		=	100007, /*服务器发生致命错误*/
+	 cli_db_err		=	100008, /**/
+	 cli_uid_not_exist_err		=	100010, /*米米号不存在*/
+	 cli_already_friend_err		=	100011, /*已经是好友*/
+	 cli_already_in_blacklist_err		=	100012, /*对方已在黑名单中*/
+	 cli_friend_forbid_add_err		=	100013, /*对方禁止添加好友*/
+	 cli_blacklist_max_err		=	100014, /*黑名单数量超限*/
+	 cli_friend_max_err		=	100015, /*好友数量超限(200)*/
+	 cli_not_friend_err		=	100016, /*对方已不是你好友(删除好友后,列表未更新,再次尝试删除时报错)*/
+	 cli_not_in_blacklist_err		=	100017, /*对方不在你的黑名单中*/
+	 cli_add_self_err		=	100018, /*不能加自己为好友、黑名单*/
+	 cli_chat_to_self_err		=	100019, /*聊天中 不许自己对自己说话*/
+	 cli_chat_blacklist_err		=	100020, /*聊天中 私聊的收信人在自己的黑名单中*/
+	 cli_dirty_word_err		=	100021, /*有脏词*/
+	 cli_max_flag_err		=	100022, /*flag位超过最大值*/
+	 cli_chat_self_err		=	100023, /*与自己聊天*/
+	 cli_msg_len_err		=	100024, /*消息长度错误*/
+	 cli_login_otherwhere_err		=	100025, /*在其他地方登陆*/
+
+};
+
+
+
+#endif // ULTRAMAN_ONLINE_ENUM_H

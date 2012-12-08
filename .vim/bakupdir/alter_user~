@@ -1,0 +1,15 @@
+#!/bin/bash
+my='mysql -uroot -pta0mee'
+for db in `seq 0 99`
+do
+        db=`printf %02d $db`
+        for tb in `seq 0 99`
+        do
+                echo "process db:$db tb:$tb"
+                tb=`printf %02d $tb`
+				echo "alter table USER_INFO_$db.t_user_$tb 
+					change map_x map_x int unsigned not null default 0 ,
+					change map_y map_y int unsigned not null default 0 ;
+				" | $my
+        done
+done

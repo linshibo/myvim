@@ -1,0 +1,22 @@
+#ifndef  CTASK_H
+#define  CTASK_H
+
+#include "CtableRoute.h"
+#include "benchapi.h"
+#include "common.h"
+#define TASK_BUF_LEN 32
+class Ctask: public CtableRoute
+{
+public:
+	Ctask(mysql_interface* db);	
+	int add( DEFAULT_ARGS,  uint32_t taskid, uint32_t buf_len, char *buff);
+	int del( DEFAULT_ARGS,  uint32_t taskid );
+	int update( DEFAULT_ARGS,  uint32_t taskid, uint32_t buf_len, char *buff, uint32_t flag );
+	int update_buf( DEFAULT_ARGS,  uint32_t taskid , uint32_t buf_len ,char * buff );
+	int get_flag_list( DEFAULT_ARGS,uint32_t begin,uint32_t end, std::vector<stru_task_flag > &task_list );
+	int get_full_list( DEFAULT_ARGS, uint32_t begin,uint32_t end, std::vector<stru_task_info > &task_list );
+	
+};
+
+
+#endif  /*CTASK_H*/

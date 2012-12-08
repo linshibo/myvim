@@ -1,0 +1,76 @@
+/**
+ * =====================================================================================
+ *
+ * @file  global_data.cpp
+ *
+ * @brief 全局数据
+ *
+ * compiler  gcc4.3.2
+ *
+ * platform  Linux
+ *
+ * copyright:  TaoMee, Inc. ShangHai CN. All rights reserved.
+ * 		
+ * =====================================================================================
+ */
+#include "global_data.hpp"
+#include "player.hpp"
+
+/* online服务器上总人数 */
+uint32_t player_num = 0;
+
+/* 用于在switch没连上时，不断连接switch的定时器 */
+timer_head_t timer_events;
+
+/* 与DBPROXY连接的FD */
+int proxy_fd = -1;
+/* 与SWITCH连接的FD */
+int switch_fd = -1;
+
+uint32_t g_move_id_max;
+
+/* udp socket fd */
+Cudp_sender dbsvr_udp_fd[max_udp_socket];
+
+/* fd和player结构体组成的hash, fd为key,player为value */
+GHashTable *fd_player_hash;
+/* 保存player的链表数组 */
+list_head_t  uid_buckets[bucket_size];
+
+std::map<uint32_t, player_t *> g_pending_cmd_player; /* key为米米号，value为player信息 */
+
+/* 统计文件 */
+const char* stat_file;
+
+/* 0表示电信，1表示网通 */
+uint32_t idc_zone;
+
+int g_log_send_buf_hex_flag;
+
+/* 加session的验证ID */
+uint32_t g_session_channel_id;
+
+/* 加session的安全码 */
+uint32_t g_session_security_code;
+
+/* 包体校验函数 */
+//map_check_body_t *g_check_body;
+
+/* 保存PLAYER结构体的缓存池 */
+boost::pool<> g_player_pool(sizeof(player_t));
+
+/* TCP连接的信息 */
+fd_ip_port_t g_tcp_info[tcp_index_max];
+
+//区域id online细分
+uint16_t area_id;
+//任务相关
+std::map<uint32_t, tsk_fn_t*> tsk_fn_map;
+tsk_able_map_t obtain_able_fn_map;
+tsk_able_map_t cancel_able_fn_map;
+tsk_able_map_t finish_able_fn_map;
+tsk_setbuff_map_t setbuff_fn_map;
+/*任务MAP*/
+std::map<uint32_t, task_info_t*> task_config_map;
+
+

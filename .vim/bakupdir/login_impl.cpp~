@@ -1,0 +1,675 @@
+/*
+ * =====================================================================================
+ *
+ *       Filename:  login_impl.cpp
+ *
+ *    Description:  副登录
+ *
+ *       Revision:  none
+ *       Compiler:  gcc
+ *
+ *        Company:  TaoMee, Inc. ShangHai CN
+ *
+ * =====================================================================================
+ */
+
+extern "C" {
+#include <libtaomee/timer.h>
+}
+
+#include <libtaomee++/utils/strings.hpp> //bin2hex
+#include <libtaomee++/inet/pdumanip.hpp>
+
+#include "login_impl.hpp"
+#include "../share/share_usr.hpp"
+
+
+UmanLogin login;
+
+/*保存定时备份online服务器的定时器列表*/
+timer_head_t get_backup_tmr;
+std::vector<sw_get_recommend_svr_t> online_backup_vector;
+
+
+int UmanLogin::m_switch_fd = FD_UNSET;
+
+/** @brief 初始化定时器
+ */
+void UmanLogin::init_timer()
+{
+	INIT_LIST_HEAD(&get_backup_tmr.timer_list);
+	ADD_TIMER_EVENT(&get_backup_tmr, update_svrlist_backup, NULL, get_now_tv()->tv_sec + 60);
+}
+
+
+/* @brief 发包给switch,但不初始化包头
+ */
+int UmanLogin::send_to_switch_for_backup(void* bodybuf, int bodylen)
+{
+	if (m_switch_fd == FD_UNSET) {
+		m_switch_fd = connect_to_service(config_get_strval("service_switch"), 0, 65535, 1);
+	}	
+
+	if (m_switch_fd < 0) {
+		return 0;
+	}
+
+	/*发包*/
+	static uint8_t switchbuf[pkg_size];
+	switch_proto_t * pkg = reinterpret_cast<switch_proto_t*> (switchbuf);
+	pkg->len = bodylen + sizeof(switch_proto_t);
+	pkg->seq = (0xFFFF<< 16) | 0;
+	pkg->cmd = svr_proto_ls_recommend_svr_list;
+	pkg->uid = 0;
+	memcpy(pkg->body, bodybuf, bodylen);
+	//KDEBUG_LOG(pkg->uid, "~~to sw: [cmd = %d] ", pkg->cmd);
+	return net_send(m_switch_fd, switchbuf, pkg->len);
+}
+
+/* @brief 定时备份服务器列表
+ */
+int UmanLogin::update_svrlist_backup(void* owner, void* data)
+{
+	if (m_switch_fd == FD_UNSET) {
+		m_switch_fd = connect_to_service(config_get_strval("service_switch"), 0, 65535, 1);
+	}
+	ADD_TIMER_EVENT(&get_backup_tmr, update_svrlist_backup, NULL, get_now_tv()->tv_sec + 60);
+
+    if(m_switch_fd == FD_UNSET) {
+        return 0;
+    }
+	return send_to_switch_for_backup(0,0); 
+}
+
+int UmanLogin::check_areaid_exist(uint16_t areaid)
+{
+	//DEBUG_LOG("xxx %lu",online_backup_vector.size());
+	for (size_t i = 0; i < online_backup_vector.size(); i++) {
+		if(online_backup_vector[i].area_id == areaid){
+			return 1;	
+		}
+	}
+	return 0;
+}
+
+/* @brief 定时备份服务器列表，sw返回包
+ */
+int UmanLogin::update_svrlist_backup_callback(const uint8_t *body, uint32_t bodylen, uint32_t ret)
+{
+	DEBUG_LOG("update_svrlist_backup_callback");
+	/*包长判断*/
+	if (bodylen < sizeof(uint32_t)) {
+		KERROR_LOG(0, "~~invalid pkg len from switch: [cmd = %u] [len = %u < %lu]", 
+			svr_proto_ls_recommend_svr_list, bodylen, sizeof(uint32_t));
+		return -1;
+	}
+	int idx = 0;
+	uint32_t count = 0;
+	taomee::unpack_h(body, count, idx);
+	uint32_t explen = sizeof(uint32_t) + count * (sizeof(sw_get_recommend_svr_t));
+	if (bodylen != explen) {
+		KERROR_LOG(0, "~~invalid pkg len from switch: [cmd = %u] [len = %u] [exp_len = %u]", 
+			svr_proto_ls_recommend_svr_list, bodylen, explen);
+		return -1;
+	}
+
+	online_backup_vector.clear();
+	/*解包switch数据*/
+	for (size_t i = 0; i < count; i++) {
+		sw_get_recommend_svr_t st;
+		st.Decode(body, idx);
+		online_backup_vector.push_back(st);
+	}
+	//DEBUG_LOG("iiiii %lu",online_backup_vector.size());
+
+	return 0;
+}
+
+/* @brief 从备份中得到推荐服务器或者某个范围的服务器列表
+ */
+int UmanLogin::get_backup_svr_list(usr_info_t* p)
+{
+    switch(p->waitcmd) {
+        case cli_proto_get_recommend_svr_list:
+            return send_recommend_svr_list(p);
+
+    	default:
+        	KERROR_LOG(p->uid, "invalid cmd=%u", p->waitcmd);
+    }
+    return 0;
+}
+
+/** @brief 发包给switch
+ */
+int UmanLogin::send_to_switch(usr_info_t *p, userid_t uid, uint16_t cmd, void * bodybuf, int bodylen, uint32_t seq)
+{
+	/*若与switch断开，则重连一次*/
+	if (m_switch_fd == FD_UNSET) {
+		m_switch_fd = connect_to_service(config_get_strval("service_switch"), 0, 65535, 1);
+	}	
+
+	uint32_t len = sizeof(switch_proto_t) + bodylen;
+	if (m_switch_fd == FD_UNSET && p) {
+		return get_backup_svr_list(p);
+	}
+
+	if (m_switch_fd == FD_UNSET || len > pkg_size - sizeof(switch_proto_t)) {
+		KERROR_LOG(uid, "send to switch failed: [cmd = %d] [len = %d]", cmd, len);
+		return -1;
+	}
+
+	/*发包*/
+	static uint8_t switchbuf[pkg_size];
+	switch_proto_t * pkg = reinterpret_cast<switch_proto_t*> (switchbuf);
+	pkg->len = bodylen + sizeof(switch_proto_t);
+	if (seq) {
+		pkg->seq = seq;
+	}else{
+		pkg->seq = p? ((p->session->fd)<<16)| p->counter : 0;
+	}
+	
+	pkg->cmd = cmd;
+	pkg->uid = uid;
+	memcpy(pkg->body, bodybuf, bodylen);
+
+	KDEBUG_LOG(pkg->uid, "SEND PKG TO SWITCH: [cmd = %d] ", pkg->cmd);
+
+	/*添加超时定时器*/
+	if (p) {
+		ADD_TIMER_EVENT(p, switch_timeout, this, get_now_tv()->tv_sec + m_svr_timeout);
+	}
+
+	/*char outbuf[13000];
+	bin2hex(outbuf,(char*)switchbuf,pkg->len ,500 );
+	DEBUG_LOG("~~o:[%s]", outbuf );*/
+
+	return net_send(m_switch_fd, switchbuf, pkg->len);
+}
+
+
+/** @brief 处理switch返回包
+ */
+void UmanLogin::switch_return(int fd, void *data, uint32_t pkglen)
+{
+	switch_proto_t *pkg = reinterpret_cast<switch_proto_t*> (data);
+
+	if (!pkg->seq) {
+		ERROR_LOG("unknown SEQ pkg from switch server");
+		return;
+	}
+
+	uint32_t counter = pkg->seq & 0xFFFF;
+	uint32_t connfd = pkg->seq >> 16;
+
+	if(connfd == 0xFFFF) {
+		update_svrlist_backup_callback(pkg->body, pkg->len - sizeof(switch_proto_t), pkg->ret);
+		return;
+	}
+
+	usr_info_t *p = user_mng.get_user(connfd);
+	if (!p || (counter != p->counter)) {
+		KDEBUG_LOG(p? p->uid:0, "connect had been closed or time out\t [cmd=%x %u cnt=%d %d]",
+			pkg->cmd, p?p->waitcmd:0, counter, p ? p->counter:0);
+		return;
+	}
+
+	/* 移除超时定时器 */
+	REMOVE_TIMERS(p);
+
+	KDEBUG_LOG(p->uid, "switch retrun [len = %u] [cmd = %u] [ret = %u]", pkg->len, 
+		pkg->cmd, pkg->ret);
+
+	int ret = -1;
+	switch (pkg->cmd) {
+		case svr_proto_ls_recommend_svr_list:
+			ret = handle_get_recommend_svr_list_callback(p, pkg->body, pkg->len - sizeof(switch_proto_t));
+			break;
+		default:
+			ERROR_LOG("switch return unknown cmd pkg [cmd = %d] [usr = %d]", pkg->cmd, pkg->uid);
+			break;
+	}
+
+	if (ret) {
+		close_client_conn(connfd);
+	}
+}
+
+
+/* @brief 连接Switch服务器的超时,发警报
+ * @param owner 用户
+ * @param data 包体
+ * @return 0成功，-1失败
+*/
+int UmanLogin::switch_timeout(void *owner, void *data)
+{
+	usr_info_t * p = reinterpret_cast<usr_info_t *>(owner);
+	KDEBUG_LOG(p->uid, "switch timeout\t[fd=%d] [cmd=%u]", p->session->fd, p->waitcmd);
+	send_warning("sw_timeout", p->uid, p->waitcmd, 0, 0);
+	if(p->waitcmd) {
+		get_backup_svr_list(p);
+	}
+
+	return 0;
+}
+
+/* @brief 打包服务器
+ */
+void UmanLogin::pack_svr_list(sw_get_recommend_svr_t& st)
+{
+	m_clipkg->pack(st.online_id);
+	m_clipkg->pack(st.online_ip, sizeof(st.online_ip));
+	m_clipkg->pack(st.online_port);
+	m_clipkg->pack(st.user_num);
+}
+
+/* @breif 初始化包头
+ */
+void UmanLogin::init_cli_proto_head(void* buf, uint32_t len, uint16_t cmd, uint32_t uid, uint32_t ret)
+{
+	cli_proto_t* p = reinterpret_cast<cli_proto_t*>(buf);
+	p->len = bswap(len);
+	p->cmd = bswap(cmd);
+	p->uid = bswap(uid);
+	p->seq = 0;
+	p->ret = bswap(ret);
+}
+/* @breif 初始化包头
+ */
+void UmanLogin::init_serv_proto_head(void* buf, uint32_t len, uint16_t cmd, uint32_t uid, uint32_t ret)
+{
+	svr_proto_t* p = reinterpret_cast<svr_proto_t*>(buf);
+	p->len = len;
+	p->cmd = cmd;
+	p->uid = uid;
+	p->seq = 0;
+	p->ret = ret;
+}
+
+/* @brief 发送数据给客户端
+ */
+int UmanLogin::send_to_self(usr_info_t* p, const uint8_t *buf, uint32_t len)
+{
+	DEBUG_LOG("SEND TO SELF\t[uid=%d cmd=%d len=%d]", p->uid, p->waitcmd, len);
+	char outbuf[13000];
+	bin2hex(outbuf,(char*)buf,len,500);
+	DEBUG_LOG("O[%s]", outbuf );
+	p->waitcmd = 0;
+	return send_pkg_to_client(p->session, buf, len);
+}
+
+/* @brief 发送备份的推荐服务器列表
+ */
+int UmanLogin::send_recommend_svr_list(usr_info_t *p)
+{
+	int idx = sizeof(cli_proto_t);
+	uint8_t cli_buf[1024 * 1024 * 2];
+	uint32_t count = online_backup_vector.size();
+	taomee::pack_h(cli_buf, count, idx);
+	for (uint32_t i = 0; i != count; ++i) {
+		taomee::pack_h(cli_buf, online_backup_vector.at(i).online_id, idx);
+		taomee::pack(cli_buf, online_backup_vector.at(i).online_ip, 16, idx);
+		taomee::pack_h(cli_buf, online_backup_vector.at(i).online_port, idx);
+		taomee::pack_h(cli_buf, online_backup_vector.at(i).user_num, idx);
+		taomee::pack_h(cli_buf, online_backup_vector.at(i).area_id, idx);
+	}
+	
+	init_cli_proto_head(cli_buf, idx, cli_proto_get_recommend_svr_list, p->uid, 0);
+	return send_to_self(p, cli_buf, idx);
+}
+
+
+/************************************************************************/
+/*                       Callback  Function                             */
+/************************************************************************/
+
+/** @brief 处理从Session Srv返回的session验证结果
+ */
+int UmanLogin::handle_check_loginsession_callback(usr_info_t *p, int ret)
+{
+	if (ret == svr_err_invalid_session) {
+		KERROR_LOG(p->uid, "invalid session!");
+		return -1;
+	}else if (ret != 0)	{
+		/* 如果session服务器连接不上，则本地校验*/
+		if (verify_login_session(p->uid, p->tmpinfo + 4) == -1) {
+			KERROR_LOG(p->uid, "local check session err!");
+			return -1;
+		}	
+	}
+
+	switch (p->waitcmd) {
+		case cli_proto_get_recommend_svr_list:{
+			KDEBUG_LOG(p->uid, "check session for recommend svr list call back");
+		    /*从DB拉取用户是否被禁信息*/
+			//if (send_to_dbproxy(p, p->uid, svr_proto_ld_get_user_info, 0, 0) != 0) { 
+				//m_clipkg->init(p->waitcmd, p->uid, clierr_system_error);
+				//return send_to_user(p);
+			//}
+			return send_to_switch(p, p->uid, svr_proto_ls_recommend_svr_list, 0, 0); 
+			break;
+		  }
+		case cli_proto_create_role:	{
+										//cli_create_role_t st;
+			//int idx1 = 0;
+			//st.Decode(reinterpret_cast<char*>(p->tmpinfo), idx1);
+
+			//int r1_ = tm_dirty_check(7, reinterpret_cast<char*>(st.nick));
+			//if (r1_ == 0){
+				//memcpy(p->tmpinfo, &st.channel, sizeof(st.channel));
+
+				//base_info_t base;
+				//strcpy(base.nick, st.nick);
+				//base.prof = st.prof;
+				//return	send_to_dbproxy(p, p->uid, svr_proto_ld_create_role, &base, sizeof(base));
+			//}else {
+				//KDEBUG_LOG(p->uid, "create role invalid name: [nick = %s]", st.nick);
+
+				//m_clipkg->init(cli_proto_create_role, p->uid, cli_err_invalid_name);
+				//return send_to_user(p);
+			//}
+		}
+		default:
+			break;
+	}
+	return 0;
+}
+
+/** @brief 处理client发来的查询角色创建
+ */
+int UmanLogin::handle_check_role(usr_info_t* p, uint8_t *bodybuf, int bodylen) 
+{
+	if (bodylen != session_len) {
+		KERROR_LOG(p->uid, "sess len err: [cmd = %u] [len_got = %d] [len_exp = %u]",
+			p->waitcmd, bodylen, session_len);
+		return -1;
+	}
+
+	/*向SessionSrv发验证请求*/
+	check_login_session_t session_check;
+	session_check.uiGameID = SEER2_GAME_ID;
+	memcpy(session_check.szSession, bodybuf, session_len);
+	session_check.uiDelFlag = KEEP_AFTER_CHECK;
+
+	char sendbuf[session_len + 8];
+	int idy = 0;
+	session_check.Encode(sendbuf, idy); 
+	
+	//KDEBUG_LOG(p->uid, "check session for check role creating");
+	return send_to_dbproxy(p, p->uid, svr_proto_ld_check_loginsession, sendbuf, idy);   
+}
+
+/** @brief db添加用户信息后，返回包
+ */
+int UmanLogin::handle_create_role_callback(usr_info_t *p, const uint8_t* body, uint32_t bodylen ,int ret)
+{
+	int i=0;
+	uint32_t role_tm=0;
+	taomee::unpack_h(body, role_tm, i);
+	uint32_t explen = sizeof(uint32_t);
+	if (bodylen != explen) {
+		KERROR_LOG(0, "~~invalid pkg len from switch: [cmd = %u] [len = %u] [exp_len = %u]", 
+			svr_proto_ld_create_role, bodylen, explen);
+		return -1;
+	}
+	KDEBUG_LOG( p->uid, "create role callback : [ret = %d %u]", ret, role_tm);
+	uint8_t cli_buf[1024];
+	int idx=sizeof(cli_proto_t);
+	pack(cli_buf,role_tm,idx);
+	init_cli_proto_head(cli_buf, idx, cli_proto_create_role, p->uid, 0);
+	return send_to_self(p, cli_buf, idx);
+
+	//send_to_user(p);
+	//return 0;
+	//if (ret == 0) {
+		//uint32_t channel = 0;
+		//memcpy(&channel, p->tmpinfo, sizeof(channel));
+		//KDEBUG_LOG(p->uid, "add gameflag to dbproxy: [game_flag=%u, channel=%u]", SEER2_GAME_ID, channel);
+		//return db_add_game_flag(p, SEER2_GAME_ID, static_cast<uint16_t>(channel),"");
+	//}else {
+		//ret += db_base_err;
+		//m_clipkg->init(cli_proto_create_role, p->uid, ret);
+		//KDEBUG_LOG( p->uid, "create role callback failed: [ret = %d]", ret);
+		//send_to_user(p);
+		//return 0;
+	//}
+}
+
+/** @brief 处理switch返回的推荐服务器列表包，处理后发给客户端
+ */
+int UmanLogin::handle_get_recommend_svr_list_callback(usr_info_t *p, uint8_t* body, uint32_t bodylen)
+{
+		/*包长判断*/
+		if (bodylen < sizeof(uint32_t)) {
+			KERROR_LOG(p->uid, "invalid pkg len from switch: [cmd = %u 0x%X] [len = %u < %lu]", 
+				p->waitcmd, p->waitcmd, bodylen, sizeof(uint32_t));
+			return -1;
+		}
+		int i=0;
+		uint32_t count=0;
+		taomee::unpack_h(body, count, i);
+		uint32_t explen = sizeof(uint32_t) + count * (sizeof(sw_get_recommend_svr_t));
+		if (bodylen != explen) {
+			KERROR_LOG(0, "~~invalid pkg len from switch: [cmd = %u] [len = %u] [exp_len = %u]", 
+				svr_proto_ls_recommend_svr_list, bodylen, explen);
+			return -1;
+		}
+		update_svrlist_backup_callback(body, bodylen, 0);
+		sw_get_recommend_svr_t st;
+		uint8_t cli_buf[1024*1024];
+		int idx=sizeof(cli_proto_t);
+		taomee::pack(cli_buf,count,idx);
+		for (size_t loop = 0; loop < count; loop++) {
+			//解包
+			st.Decode(body, i);
+			//cli打包	
+			st.CliEncode(cli_buf, idx);
+		}
+		init_cli_proto_head(cli_buf, idx, cli_proto_get_recommend_svr_list, p->uid, 0);
+		KDEBUG_LOG(p->uid,"handle_get_recommend_svr_list_callback");
+		return send_to_self(p, cli_buf, idx);
+}
+
+
+/** @brief 处理dbproxy返回的游戏是否注册角色的包
+ */
+int UmanLogin::handle_get_gameflag_callback(usr_info_t *p, const uint8_t *body, uint32_t bodylen, uint32_t ret)
+{
+	if (ret == 0) {
+		/*包长判断*/
+		if (bodylen != sizeof(uint32_t)) {
+			KERROR_LOG(p->uid, "invalid pkg len : [cmd = 0x%X] [len = %u < %lu]", 
+				p->waitcmd, bodylen, sizeof(uint32_t));
+			return -1;
+		}
+
+		uint32_t game_flag = *reinterpret_cast<const uint32_t *>(body);
+		game_flag = (game_flag & (0x01 << (SEER2_GAME_ID - 1))) ? 1 : 0;
+		KDEBUG_LOG(p->uid, "send gameflag to cli: [gameflag = %u]", game_flag);
+		m_clipkg->init(cli_proto_check_role, p->uid, 0);
+		m_clipkg->pack(game_flag);
+		return send_to_user(p);
+	}else{
+		ret += db_base_err;
+		m_clipkg->init(cli_proto_check_role, p->uid, ret);
+		KDEBUG_LOG( p->uid, "check role callback failed: [ret = %d]", ret);
+		return send_to_user(p);
+	}
+}
+
+int UmanLogin::send_error_to_self(usr_info_t *p, uint32_t cmd, uint32_t ret)
+{
+	DEBUG_LOG("SEND ERROR TO SELF\t[uid=%d cmd=%d ret=%d]", p->uid, p->waitcmd, ret);
+	m_clipkg->init(cmd, p->uid, ret);
+	return send_to_user(p);
+}
+
+int UmanLogin::handle_get_role_info_callback(usr_info_t *p, const uint8_t *body, uint32_t bodylen, uint32_t ret)
+{
+	KDEBUG_LOG(p->uid,"handle_get_role_info_callback:%u bodylen=%u",ret ,bodylen);
+	if (ret == 0) {
+		int i=0;
+		uint32_t count=0;
+		taomee::unpack_h(body, count, i);
+		DEBUG_LOG("role count=%u",count);
+		uint32_t explen = sizeof(uint32_t) + count * (sizeof(db_get_role_info_t));
+		if (bodylen != explen) {
+			KERROR_LOG(0, "~~invalid pkg len from switch: [cmd = %u] [len = %u] [exp_len = %u]", 
+				svr_proto_ld_get_role_info, bodylen, explen);
+			return -1;
+		}
+		db_get_role_info_t st;
+		uint8_t cli_buf[1024*1024];
+		int idx=sizeof(cli_proto_t);
+		pack(cli_buf,count,idx);
+		for (size_t loop = 0; loop < count; loop++) {
+			//解包
+			st.Decode(body, i);
+			//cli打包	
+			st.CliEncode(cli_buf, idx);
+		}
+		init_cli_proto_head(cli_buf, idx, cli_proto_get_role_info, p->uid, 0);
+		return send_to_self(p, cli_buf, idx);
+	}else{
+		ret += db_base_err;
+		m_clipkg->init(cli_proto_get_role_info, p->uid, ret);
+		KDEBUG_LOG( p->uid, "get role callback failed: [ret = %d]", ret);
+		return send_to_user(p);
+	}
+
+}
+/************************************************************************/
+/*                         Client Request                               */
+/************************************************************************/
+
+/** @brief 处理client发来的创建角色请求
+ */
+int UmanLogin::handle_create_role(usr_info_t* p, uint8_t *bodybuf, int bodylen) 
+{
+	if (bodylen != static_cast<int>(sizeof(cli_create_role_t))) {
+		KERROR_LOG(p->uid, "invalid pkg len from client: [cmd = %u] [len_got = %d] [len_exp = %lu]",
+			p->waitcmd, bodylen, sizeof(cli_create_role_t));
+		return -1;
+	}
+	int idx=0;
+	uint16_t area_id;
+	uint8_t prof;
+	char nick[16];
+	idx += 16;
+	taomee::unpack(bodybuf, area_id, idx);
+	taomee::unpack(bodybuf, nick, 16, idx);
+	taomee::unpack(bodybuf, prof,  idx);
+	KDEBUG_LOG(p->uid,"create role(areaid:%u nick:%s prof:%u)",area_id, nick, prof);
+	if(!check_areaid_exist(area_id)){
+		return	send_error_to_self(p, p->waitcmd, cli_area_id_err);
+	}
+	char cli_buf[4096];
+	idx=0;
+	taomee::pack(cli_buf, nick, 16, idx);
+	taomee::pack_h(cli_buf, prof, idx);
+	return send_to_db(p, area_id, 0,svr_proto_ld_create_role, cli_buf, idx);			
+	/*向SessionSrv发验证请求*/
+	//int idx = 0; //check_login_session_t session_check;
+	//session_check.uiGameID = SEER2_GAME_ID;
+	//taomee::unpack(bodybuf, session_check.szSession, session_len, idx);
+	//session_check.uiDelFlag = KEEP_AFTER_CHECK;
+
+	//char sendbuf[session_len + 8];
+	//int idy = 0;
+	//session_check.Encode(sendbuf, idy); 
+	
+	///*暂存用户信息*/
+	//memcpy(p->tmpinfo, bodybuf, bodylen);
+
+	////KDEBUG_LOG(p->uid, "check session for create role");
+	//return send_to_dbproxy(p, p->uid, svr_proto_ld_check_loginsession, sendbuf, idy);   
+}
+
+int UmanLogin::handle_get_role_info(usr_info_t* p, uint8_t *bodybuf, int bodylen) 
+{
+	if (bodylen != 2) {
+		KERROR_LOG(p->uid, "invalid pkg len from client: [cmd = %u] [len_got = %d]",
+			p->waitcmd, bodylen);
+		return -1;
+	}
+	uint16_t area_id;
+	int idx=0;
+	taomee::unpack(bodybuf,area_id,idx);
+
+	if(!check_areaid_exist(area_id)){
+		KERROR_LOG(p->uid,"areaid err %u",area_id);
+		return	send_error_to_self(p, p->waitcmd, cli_area_id_err);
+	}
+	KDEBUG_LOG(p->uid,"handle_get_role_info:areaid=%u",area_id);
+	return send_to_db(p,area_id,0, svr_proto_ld_get_role_info, 0, 0);
+}
+
+int UmanLogin::send_to_db(usr_info_t* p,uint16_t area_id, uint32_t role_tm, uint16_t cmd, const void* dbpkgbuf, uint32_t body_len)
+{
+	char db_sendbuf[1024*1024];
+	int idx=0;
+	taomee::pack_h(db_sendbuf, area_id, idx);
+	taomee::pack_h(db_sendbuf, role_tm, idx);
+    memcpy(db_sendbuf + idx, dbpkgbuf, body_len);
+	idx +=  body_len;
+    return send_to_dbproxy(p, p->uid, cmd, db_sendbuf, idx);
+}
+
+/** @brief 拉取推荐服务器列表,先进行session验证。包体（session<16>+channel<4>）
+ */
+int UmanLogin::handle_get_recommend_svr_list(usr_info_t *p, uint8_t *bodybuf, int bodylen)
+{
+	if (bodylen != sizeof(cli_get_recomm_svr_t)) {
+		KERROR_LOG(p->uid, "invalid pkg len from client: [cmd = %u] [len_got = %u] [len_exp = %lu]",
+			p->waitcmd, bodylen, sizeof(cli_get_recomm_svr_t));
+		return -1;
+	}
+	//old
+	//int idx = 0;
+	//check_login_session_t session_check;
+	//session_check.uiGameID = SEER2_GAME_ID;
+	//taomee::unpack(bodybuf, session_check.szSession, session_len, idx);
+	//session_check.uiDelFlag = KEEP_AFTER_CHECK;
+
+	///*向SessionSrv发验证请求*/
+	//char sendbuf[session_len + 8];
+	//int idy = 0;
+	//session_check.Encode(sendbuf, idy); 
+	//KDEBUG_LOG(p->uid, "check session for recommend svr");
+	//return send_to_dbproxy(p, p->uid, svr_proto_ld_check_loginsession_new, sendbuf, idy);   
+
+	//int idx = 0;
+	//check_login_session_new_t session_check;
+	//session_check.uiGameID = SEER2_GAME_ID;
+	//taomee::unpack(bodybuf, session_check.szSession, session_len, idx);
+	//session_check.uiDelFlag = KEEP_AFTER_CHECK;
+	//session_check.fromgame=SEER2_GAME_ID;
+	//session_check.region=idc;
+	//session_check.entergame=0;
+	//session_check.ip=p->session->remote_ip;
+	//taomee::unpack(bodybuf, session_check.tad, 128, idx);
+
+	///*向SessionSrv发验证请求*/
+	//char sendbuf[256];
+	//int idy = 0;
+	//session_check.Encode(sendbuf, idy); 
+	//KDEBUG_LOG(p->uid, "check session %u %s %u %u %u %u %u %s",
+			//session_check.fromgame,session_check.szSession,session_check.uiDelFlag
+			//,session_check.uiGameID,session_check.ip,session_check.region
+			//,session_check.entergame,session_check.tad);
+	//return send_to_dbproxy(p, p->uid, svr_proto_ld_check_loginsession_new, sendbuf, idy);   
+	return send_to_switch(p, p->uid, svr_proto_ls_recommend_svr_list, 0, 0); 
+}
+
+/** @brief 返回版本信息
+*/
+int UmanLogin::handle_get_version(usr_info_t* p, uint8_t *bodybuf, int bodylen)
+{
+	char str[255];
+	memset(str, 0, sizeof(str));
+const  char * version=	GetCompiledDate(__DATE__);
+	//memcpy(str, "AAA", sizeof("AAA"));
+	sprintf(str ,"XXXX %s %s",version , __TIME__);
+	m_clipkg->init(cli_proto_get_version, p->uid, 0);
+	m_clipkg->pack(str, sizeof(str));
+	return send_to_user(p);
+}

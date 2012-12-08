@@ -261,13 +261,14 @@ endif
 
 "DB的设置
 syn keyword	cType	 	userid_t 	
-"syn keyword  	cDefine		PRI_SEND_IN_POS   PRI_IN_POS RECVBUF_USERID
 syn keyword  	cDefine		PRI_SEND_IN_POS   PRI_IN_POS RECVBUF_USERID PROTO_MAX_SIZE
 syn match	cDberr  /\<\w\+_ERR\>/	
 syn match	cPrototype  /\<\w\w\w\w\w\+_in\>/	
 syn match	cPrototype  /\<\w\w\w\w\w\+_out\>/	
+"syn match	cPrototype  /\<\w\w\w\w\w\+_cmd\>/	
 syn match	cPrototype  /\<stru_\w\+\>/	
 syn match	cPrototype  /\<\w\+_t\>/	
+syn match	CliError    /\<\w\+_err\>/  "xxxxx_err	错误码
 
 
 " Accept %: for # (C99)

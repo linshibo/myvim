@@ -7,33 +7,46 @@ let g:Company="TAOMEE"
 "---------------------------------------------------------------------------
 "GENERAL SET
 "---------------------------------------------------------------------------
+" Enable filetype plugins
 filetype plugin on
+filetype indent on
+"语法
 syntax enable
 syntax on
+
+"Sets how many lines of history VIM har to remember
+set history=400
+
 set smarttab
-colorscheme desert
-"退格键能删除
-set backspace=indent,eol,start
+"显示命令
 set showcmd
+"Get out of VI's compatible mode..
 set nocp
+"tags 位置
 set tags=~/.vim/tags,~/.vim/tags_cpp,tags; 
+
 set laststatus=2
 set guifont=Bitstream\ Vera\ Sans\ Mono\ 11 
-set tabstop=4
+colorscheme desert
+"Include search
 set incsearch
+"no highlight search
 set nohlsearch
-set cindent shiftwidth=4
-set nu
+
+"set num
 "powerline{ 状态栏
 set guifont=PowerlineSymbols\ for\ Powerline
 set t_Co=256
 "let g:Powerline_symbols = 'fancy'
 "}
+"
 "鼠标和剪贴板
-set mouse=a
+set mouse=v
 set clipboard=unnamed
-set backupdir=~/.vim/bakupdir
+"备份
 set backup
+set backupdir=~/.vim/bakupdir
+set noswapfile
 " Height of the command bar
 set cmdheight=2
 " Cool tab completion stuff
@@ -46,6 +59,9 @@ set ruler
 " enables automatic C program indenting
 set autoindent
 set smartindent 
+set cindent 
+set shiftwidth=4
+set tabstop=4
 " autoread when a file is changed from the outside
 set autoread
 " write buffer when leaving
@@ -53,13 +69,47 @@ set autowrite
 " Don't redraw while executing macros (good performance config)
 set lazyredraw
 "Bbackspace and cursor keys wrap to
+"退格键能删除
+set backspace=indent,eol,start
 set whichwrap+=<,>
 "折叠
 set foldmethod=syntax
 ""默认情况下不折叠
 set foldlevel=99
 "nnoremap <Space> za
+"
+"When .vimrc is edited, reload it
+autocmd! bufwritepost vimrc source ~/.vimrc
 
+" No annoying sound on errors
+set noerrorbells
+set novisualbell
+set t_vb=
+set tm=500
+
+" For regular expressions turn magic on
+set magic
+
+" Show matching brackets when text indicator is over them
+set showmatch
+
+" Set extra options when running in GUI mode
+if has("gui_running")
+    set guioptions-=T
+    set guioptions+=e
+    set t_Co=256
+    set guitablabel=%M\ %t
+endif
+
+""""""""""""""""""""""""""""""
+" => Vim grep
+""""""""""""""""""""""""""""""
+let Grep_Skip_Dirs = 'RCS CVS SCCS .svn generated'
+set grepprg=/bin/grep\ -nH
+
+set path += "/usr/include/dbser/"
+"/usr/include/libtaomee/","/usr/include/libtaomee++/","/usr/local/include/async_serv/"
+""
 "---------------------------------------------------------------------------
 " ENCODING SETTINGS
 "---------------------------------------------------------------------------
@@ -68,35 +118,18 @@ set termencoding=utf-8
 set fileencoding=utf-8
 set fileencodings=ucs-bom,utf-8,gb2312,big5,euc-jp,euc-kr,latin1
 
-fun! ViewUTF8()
-set encoding=utf-8
-set termencoding=big5
-endfun
-
-fun! UTF8()
-set encoding=utf-8
-set termencoding=big5
-set fileencoding=utf-8
-set fileencodings=ucs-bom,big5,utf-8,latin1
-endfun
-
-fun! Big5()
-set encoding=big5
-set fileencoding=big5
-endfun
-
 "---------------------------------------------------------------------------
 "进行Tlist的设置
 "TlistUpdate可以更新tags
 "---------------------------------------------------------------------------
-map <F2> :silent! Tlist<CR>
-let Tlist_Ctags_Cmd='ctags' "因为我们放在环境变量里，所以可以直接执行
-let Tlist_Use_Right_Window=0 "让窗口显示在右边，0的话就是显示在左边
-let Tlist_Show_One_File=0 "让taglist可以同时展示多个文件的函数列表，如果想只有1个，设置为1
-let Tlist_File_Fold_Auto_Close=1 "非当前文件，函数列表折叠隐藏
-let Tlist_Exit_OnlyWindow=1 "当taglist是最后一个分割窗口时，自动推出vim
-let Tlist_Process_File_Always=0 "是否一直处理tags.1:处理;0:不处理。不是一直实时更新tags，因为没有必要
-let Tlist_Inc_Winwidth=0
+"map <F2> :silent! Tlist<CR>
+"let Tlist_Ctags_Cmd='ctags' "因为我们放在环境变量里，所以可以直接执行
+"let Tlist_Use_Right_Window=0 "让窗口显示在右边，0的话就是显示在左边
+"let Tlist_Show_One_File=0 "让taglist可以同时展示多个文件的函数列表，如果想只有1个，设置为1
+"let Tlist_File_Fold_Auto_Close=1 "非当前文件，函数列表折叠隐藏
+"let Tlist_Exit_OnlyWindow=1 "当taglist是最后一个分割窗口时，自动推出vim
+"let Tlist_Process_File_Always=0 "是否一直处理tags.1:处理;0:不处理。不是一直实时更新tags，因为没有必要
+"let Tlist_Inc_Winwidth=0
 "---------------------------------------------------------------------------
 
 "---------------------------------------------------------------------------
@@ -155,8 +188,8 @@ function! ToggleQF()
     endif
 endfunc
 map <F4> <Esc>:call ToggleQF()<CR>
-nmap <C-N> <Esc>:cn<CR>
-nmap <C-P> <Esc>:cp<CR>
+nmap ,n <Esc>:cn<CR>
+nmap ,p <Esc>:cp<CR>
 
 "----------------------------------------------------------------------------
 "map
@@ -177,21 +210,28 @@ cnoremap <C-B> <LEFT>
 cnoremap <C-F> <RIGHT>
 cnoremap <C-P> <UP>
 cnoremap <C-N> <DOWN>
+
 "tabedit
-map ,t <Esc>:tabedit 
-map <C-J> <C-PageUp>
-map <C-K> <C-PageDown>
+nmap ,t <Esc>:tabedit 
+nmap <C-P> <C-PageUp>
+nmap <C-N> <C-PageDown>
+
+"Smart way to move btw. windows
+nmap <C-j> <Esc><C-W>j
+nmap <C-k> <Esc><C-W>k
+"nmap <C-h> <Esc><C-W>h
+"nmap <C-l> <Esc><C-W>l
 
 map ,a <Esc>:A<CR>
 map ,g <Esc>:grep 
 map ,r <Esc>:call RESET_TAG() <CR> <CR>
-map ,m <Esc>:make<CR>
+map ,m <Esc>:make<CR><CR>
 map ,y    <Esc>:call OPT_RANGE("ya")<CR>
 map ,Y    <Esc>:call OPT_RANGE("yi")<CR>
 map ,d    <Esc>:call OPT_RANGE("da")<CR>
 map ,D    <Esc>:call OPT_RANGE("di")<CR>
 "转换单词大小写
-map ,u <Esc>:call SET_UAW()<CR>
+nmap ,u <Esc>:call SET_UAW()<CR>
 "支持粘贴
 map <F9> <Esc>:set paste<CR>i
 
@@ -200,10 +240,13 @@ command! W w
 
 "vimtips 
 command! -nargs=0 VIMTIPS  :tabe | :r ! w3m -dump http://zzapper.co.uk/vimtips.html 
+
 " Open and close the NERD_tree.vim separately
 nmap <F5> <ESC>:NERDTreeToggle<RETURN>
+
 ":RENEW
-command! -nargs=0 RENEW  :source ~/.vim/comm.vim
+"command! -nargs=0 RENEW  :source ~/.vim/comm.vim
+
 "括号相关
 inoremap ( ()<ESC>i
 inoremap [ []<ESC>i
@@ -218,36 +261,25 @@ imap " <c-r>=QuoteDelim('"')<CR>
 imap ' <c-r>=QuoteDelim("'")<CR>
 inoremap { <c-r>=SET_BIG_PAIR()<CR>
 
-"Map space to / and c-space to ?
-map <space> /
-map <c-space> ?
+nmap \l  <Esc>[I
+nmap \w <Esc><C-W><C-W>
+nmap ,h <Esc><C-W>h
+nmap ,l <Esc><C-W>l
+nmap ,j <Esc><C-W>j
+nmap ,k <Esc><C-W>k
 
-"---------------------------------------------------------------------------
-"" 状态栏各个状态
-"---------------------------------------------------------------------------
-"let statusHead         ="%-.50f\ %h%m%r"
-"let statusBreakPoint   ="%<"
-"let statusSeparator      ="|"
-"let statusFileType      ="%{((&ft\ ==\ \"help\"\ \|\|\ &ft\ ==\ \"\")?\"\":\"[\".&ft.\"]\")}"
-"let statusFileFormat    ="[%{(&ff\ ==\ \"unix\")?\"u\":\"d\"}]"
-"let statusAscii         ="\{%b:0x%B\}"
-"let statusCwd         ="%-.50{getcwd()}"
-"let statusBody         =statusFileType.statusFileFormat.statusSeparator.statusAscii.statusSeparator."\ ".statusBreakPoint.statusCwd
-"let statusEncoding      ="[%{(&fenc\ ==\ \"\"?&enc:&fenc).(&bomb?\",BOM\":\"\")}]"
-"let statusBlank         ="%="
-"let statusKeymap      ="%k"
-"let statusRuler         ="%-12.(%lL,%c%VC%)\ %P"
-"let statusTime         ="%{strftime(\"%y-%m-%d\",getftime(expand(\"%\")))}"
-"let statusEnd=statusKeymap."\ ".statusEncoding.statusRuler."\ ".statusTime
-""" 最终状态栏的模式字符串
-"let statusString=statusHead.statusBody.statusBlank.statusEnd
-"set statusline=%!statusString
-"---------------------------------------------------------------------------
+"Fast reloading of the .vimrc
+nmap \s <ESC>:source ~/.vimrc<cr>
+"Fast editing of .vimrc
+nmap \e <ESC>:e! ~/.vimrc<cr>
+
+"Switch to current dir
+nmap ,cd <ESC>:cd %:p:h<cr>
 
 """"""""""""""""""""""""""""""
 " markbrowser setting
 """"""""""""""""""""""""""""""
-nmap <silent> <F8> <Esc>:MarksBrowser<cr>
+nmap <silent> <F6> <Esc>:MarksBrowser<cr>
 
 """"""""""""""""""""""""""""""
 " showmarks setting
@@ -255,7 +287,7 @@ nmap <silent> <F8> <Esc>:MarksBrowser<cr>
 " Enable ShowMarks
 let showmarks_enable = 1
 " Show which marks
-let showmarks_include = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+let showmarks_include = "abcdefghilnpqrsuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 " Ignore help, quickfix, non-modifiable buffers
 let showmarks_ignore_type = "hqm"
 " Hilight lower & upper marks
@@ -267,7 +299,7 @@ let g:showmarks_textupper="\t"
 let g:showmarks_textother="\t"
 let g:showmarks_auto_toggle = 0
 nnoremap <silent> mo :ShowMarksOn<CR>
-nnoremap <silent> mt :<ESc>:ShowMarksToggle<CR>
+nnoremap <silent> mt <ESc>:ShowMarksToggle<CR>
 
 """"""""""""""""""""""""""""""
 " wokmark setting
@@ -294,57 +326,14 @@ let g:bufExplorerSplitVertical=1 " Split vertically.
 let g:bufExplorerSplitVertSize = 35 " Split width
 let g:bufExplorerUseCurrentWindow=1 " Open in new window.
 let g:bufExplorerMaxHeight=25 " Max height
-noremap <silent> <F7> <Esc>:BufExplorer<CR>
+noremap <silent> <F2> <Esc>:BufExplorer<CR>
 
 """""""""""""""""""""""""""""
 " Tagbar setting
 """"""""""""""""""""""""""""""
-let g:tagbar_width = 20
-let g:tagbar_expand = 1
+let g:tagbar_width = 30 
+let g:tagbar_expand = 0
 nmap <silent> <F3> <Esc>:TagbarToggle<cr>
-
-""""""""""""""""""""""""""""""
-" lookupfile setting
-""""""""""""""""""""""""""""""
-let g:LookupFile_MinPatLength = 2
-let g:LookupFile_PreserveLastPattern = 0
-let g:LookupFile_PreservePatternHistory = 0
-let g:LookupFile_AlwaysAcceptFirst = 1
-let g:LookupFile_AllowNewFiles = 0
-let g:LookupFile_UsingSpecializedTags = 1
-let g:LookupFile_Bufs_LikeBufCmd = 0
-let g:LookupFile_ignorecase = 1
-let g:LookupFile_smartcase = 1
-let g:LookupFile_DisableDefaultMap=1
-if filereadable("./tags")
-    let g:LookupFile_TagExpr = '"./tags"'
-endif
-nmap <unique> <silent> <F6> <Plug>LookupFile
-nmap <silent> ,lk :LUTags<cr>
-nmap <silent> ,ll :LUBufs<cr>
-nmap <silent> ,lw :LUWalk<cr>
-
-" lookup file with ignore case
-function! LookupFile_IgnoreCaseFunc(pattern)
-    let _tags = &tags
-    try
-        let &tags = eval(g:LookupFile_TagExpr)
-        let newpattern = '\c' . a:pattern
-        let tags = taglist(newpattern)
-    catch
-        echohl ErrorMsg | echo "Exception: " . v:exception | echohl NONE
-        return ""
-    finally
-        let &tags = _tags
-    endtry
-
-    " Show the matches for what is typed so far.
-    let files = map(tags, 'v:val["filename"]')
-    return files
-endfunction
-let g:LookupFile_LookupFunc = 'LookupFile_IgnoreCaseFunc'
-
-
 
 "------------------------------------------------------------------------------
 "获取当前路径的上一级的路径
@@ -436,6 +425,14 @@ autocmd FileType xml setlocal omnifunc=xmlcomplete#CompleteTags
 autocmd FileType css set omnifunc=csscomplete#CompleteCSS
 autocmd FileType c set omnifunc=ccomplete#Complete
 autocmd FileType java set omnifunc=javacomplete#Complete
+
+
+func! DeleteTrailingWS()
+exe "normal mz"
+%s/\s\+$//ge
+exe "normal `z"
+endfunc
+autocmd BufWrite *.py :call DeleteTrailingWS()
 
 " use syntax complete if nothing else available
 if has("autocmd") && exists("+omnifunc")
@@ -556,8 +553,8 @@ function! P_grep_curword()
 	"得到光标下的单词
 	let curword=expand("<cword>")
 	exec "grep -r -s " . curword . " *.cpp *.h *.c *.hpp"
-	copen
-	let g:fx_toggle=1
+	"copen
+	"let g:fx_toggle=1
 endfunction
 
 
@@ -776,8 +773,8 @@ if has("cscope")
   set csverb
 endif
 "cscope 使用quickfix
-set cscopequickfix=s+
-nmap ,s :cs find s <C-R>=expand("<cword>")<CR><CR><Esc>:copen<CR>:let g:fx_toggle=1<CR>
+"set cscopequickfix=s+
+nmap ,s :cs find s <C-R>=expand("<cword>")<CR><CR>
 nmap ,S :cs find s 
 "for cmake ':make' ,由于定位错误,中文会有问题，如下调整
 if finddir("build") == "build"

@@ -1,0 +1,4 @@
+cd `dirname $0`
+killall -9 onlineb
+sleep 1
+./onlineb ./bench.conf

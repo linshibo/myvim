@@ -270,10 +270,10 @@ let g:template = {}
 let g:template['c'] = {}
 let g:template['c']['cc'] = "/*  */\<left>\<left>\<left>"
 let g:template['c']['cd'] = "/**<  */\<left>\<left>\<left>"
-let g:template['c']['de'] = "#define     "
-let g:template['c']['in'] = "#include    \"\"\<left>"
-let g:template['c']['is'] = "#include  <>\<left>"
-let g:template['c']['ih'] = "#include  \"".GetFileName_h()."\""
+let g:template['c']['de'] = "#define "
+let g:template['c']['in'] = "#include \"\"\<left>"
+let g:template['c']['is'] = "#include <>\<left>"
+let g:template['c']['ih'] = "#include \"".GetFileName_h()."\""
 let g:template['c']['ihpp'] = "#include  \"".GetFileName_hpp()."\""
 let g:template['c']['ff'] = "#ifndef  \<c-r>=GetFileName()\<cr>\<CR>#define  \<c-r>=GetFileName()\<cr>".
             \repeat("\<cr>",5)."#endif  /*\<c-r>=GetFileName()\<cr>*/".repeat("\<up>",3)
@@ -293,6 +293,7 @@ let g:template['c']['ifeif'] = "if( ".g:rs."...".g:re." ){\<cr>".g:rs."...".g:re
             \else{\<cr>".g:rs."...".g:re."\<cr>}"
 
 let g:template['c']['class'] = "class ".g:rs."...".g:re." {\<cr>private:\<cr>\<cr>public:\<cr>\<cr>};"
+let g:template['c']['tds'] = "typedef struct ".g:rs."...".g:re." {\<cr>\<cr>} ".g:rs."...".g:re." ;"
 let g:template['c']['struct'] = "struct ".g:rs."...".g:re." {\<cr>\<cr>};"
 let g:template['c']['stru'] = "struct ".g:rs."...".g:re." {\<cr>\<cr>};"
 let g:template['c']['print'] = "printf(\"".g:rs."...".g:re."\");"
@@ -303,6 +304,10 @@ let g:template['c']['u32'] = "uint32_t"
 let g:template['c']['u64'] = "uint64_t"
 let g:template['c']['u8'] = "uint8_t"
 let g:template['c']['u16'] = "uint16_t"
+let g:template['c']['smap'] = "std::map<".g:rs."...".g:re.">"
+let g:template['c']['svec'] = "std::vector<".g:rs."...".g:re.">"
+let g:template['c']['slist'] = "std::list<".g:rs."...".g:re.">"
+let g:template['c']['null'] = "NULL"
  
 
 let g:template['c']['hd'] = "/*\<cr>=========================================================================\<cr>\<cr>       Filename: \<c-r>=expand(\"%:t\")\<cr>\<cr>\<cr>Version:  1.0\<cr>Created:  \<c-r>=strftime(\"%Y-%m-%d %H:%M:%S\")\<cr>\<cr>Description:  ".g:rs."...".g:re."\<cr>\<cr>Author:  ".g:Author." (".g:Email.")\<cr>Company:  ".g:Company."\<cr>\<cr>\<Backspace>\<Backspace>\<Backspace>\<Backspace>\<Backspace>\<Backspace>\<Backspace>=========================================================================\<cr>\<Backspace>/\<cr>\<cr>" 

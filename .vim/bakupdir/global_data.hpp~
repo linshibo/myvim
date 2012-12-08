@@ -1,0 +1,66 @@
+/**
+ * =====================================================================================
+ *
+ * @file  global_data.hpp
+ *
+ * @brief 放置全局变量，为在线重启
+ *
+ * compiler  gcc4.3.2
+ *
+ * platform  Linux
+ *
+ * copyright:  TaoMee, Inc. ShangHai CN. All rights reserved.
+ * 		
+ * =====================================================================================
+ */
+
+#ifndef  GLOBAL_DATA_HPP_
+#define  GLOBAL_DATA_HPP_
+#include <boost/pool/pool.hpp>
+#include <libtaomee++/utils/tcpip.h>
+#include <main_login/common.hpp>
+#include "common_def.hpp"
+//#include "dbproxy.hpp"
+#include <stdint.h>
+#include <map> 
+
+#define DEFAULT_ARG      player_t * p, Cmessage * c_in
+#define DB_DEFAULT_ARG      player_t * p, Cmessage * c_in, uint32_t ret
+#define DO_CLEAR_WAITCMD     1
+#define DONT_CLEAR_WAITCMD   0
+#define MAX_MAP_NAME_LEN     (64)
+#define MAX_ONLINE_PLAYER_LOWER_LIMIT (1000)
+#define MAX_ONLINE_PLAYER_UPPER_LIMIT (100000)
+#define MAX_MAP_LINE_PLAYER_LOWER_LIMIT (50)
+#define MAX_MAP_LINE_PLAYER_UPPER_LIMIT (1000)
+#define DO_SKIP_NOTIFIER     1
+#define DONT_SKIP_NOTIFIER     0
+
+struct fd_ip_port_t ;
+extern uint32_t	player_num;
+extern timer_head_t timer_events;
+
+extern int proxy_fd;
+extern int switch_fd;
+
+extern Cudp_sender dbsvr_udp_fd[max_udp_socket];
+
+extern GHashTable *fd_player_hash;
+extern list_head_t  uid_buckets[bucket_size];
+
+extern uint16_t area_id;
+struct player_t;
+extern std::map<uint32_t, player_t*> g_pending_cmd_player;
+
+extern uint32_t idc_zone;
+
+extern uint32_t g_session_channel_id;
+
+extern uint32_t g_session_security_code;
+
+extern boost::pool<> g_player_pool;
+
+extern fd_ip_port_t g_tcp_info[tcp_index_max];
+
+#endif   /* GLOBAL_DATA_HPP_ */
+

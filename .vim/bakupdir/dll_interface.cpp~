@@ -1,0 +1,270 @@
+/**
+ *============================================================
+ *
+ * @file  dll_interface.cpp
+ *
+ * @brief  AsynServ的接口函数，AsynServ通过加载SO,处理具体的逻辑
+ * compiler   gcc4.1.2
+ * 
+ * platform   Linux
+ *
+ * copyright:  TaoMee, Inc. ShangHai CN. All rights reserved.
+ *
+ *============================================================
+ */
+
+#include <ctime>
+#include <string>
+
+extern "C" {
+#include <arpa/inet.h>
+#include <libtaomee/conf_parser/config.h>
+#include <libtaomee/list.h>
+#include <libtaomee/log.h>
+#include <libtaomee/timer.h>
+#include <async_serv/dll.h>
+#include <async_serv/net_if.h>
+}
+
+#include <libtaomee++/utils/strings.hpp> //bin2hex
+
+#include "common_def.hpp"
+#include "global_data.hpp"
+#include "cli_dispatch.hpp"
+#include "player.hpp"
+#include "dbproxy.hpp"
+#include "switch.hpp"
+#include "mcast.hpp"
+#include "dbproxy.hpp"
+#include "map_data.hpp"
+#include "task_funcs.hpp"
+#include "./share/xmlutils.hpp"
+/**
+ * @brief Initialize service
+ *
+ */
+extern "C" int init_service(int isparent)
+{
+	if (!isparent) {
+		srand(time(0));
+		setup_timer();
+
+		KDEBUG_LOG(0, "====================== start ====================");
+
+		init_all_timer_type();
+		INIT_LIST_HEAD(&(timer_events.timer_list));
+		config_init("./conf/svr_list.conf");
+		init_cli_handle_funs();
+		init_db_handle_funs();
+		init_switch_handle_funs();
+		init_hash_list();
+
+		if (init_tcp_socket() != 0) {
+			return -1;
+		}
+
+		connect_to_switch(NULL, NULL);
+		/*首次连接，可能找不到service_name,等待一段时间后连接*/
+		if (switch_fd == -1) { 
+			connect_to_switch_timely(NULL, NULL);
+		}
+
+		//load xml
+	    map_data_mgr::get_instance()->init_xml("./conf/maps.xml");
+                                                                            
+    	if (init_map() == -1)return -1;                    		
+  		init_task_fn_map();
+  
+		stat_file = config_get_strval("statistic_log");
+		idc_zone = config_get_intval("idc_zone", 0);
+		area_id =  config_get_intval("area_id", 0);
+		g_session_channel_id = config_get_intval("session_channel_id", 0);
+		g_session_security_code = config_get_intval("session_security_code", 0);
+		idc_zone = config_get_intval("idc_zone", 0);
+
+		if(area_id==0 || stat_file == NULL ||g_session_channel_id == 0 || g_session_security_code == 0) {
+			KERROR_LOG(0, "[ stat_file = %p id = %u code = %u area_id=%u]",
+			stat_file, g_session_channel_id, g_session_security_code,area_id);
+			return -1;
+		}
+		send_sw_keepalive_pkg(0, 0);
+		kick_all_usrs_offline(0, 0);
+		if(init_all_udp_sockets() < 0){
+			return -1;
+		}
+	}
+	//else {
+		//if (load_pics_to_share_mem() == -1) {
+			//return -1;
+		//}
+	//}
+	g_log_send_buf_hex_flag = config_get_intval("print_hex_log", 0);
+	return 0;
+}
+
+/**
+  * @brief Finalize service
+  *
+  */
+extern "C" int fini_service(int isparent)
+{
+	if (!isparent) {
+   		map_data_mgr::get_instance()->final();
+    	fini_map();
+	    final_task_config_data();
+	    final_task_fn_map();
+	}
+	return 0;
+}
+
+ /**
+  * @brief Process events such as timers and signals
+  *
+  */
+extern "C" void proc_events()
+{
+	proc_waiting_cmd();
+	handle_timer();
+}
+
+/**
+  * @brief Return length of the receiving package
+  *
+  */
+extern "C" int get_pkg_len(int fd, const void* avail_data, int avail_len, int isparent)
+{
+	static char request[]  = "<policy-file-request/>";
+	static char response[] = "<?xml version=\"1.0\"?>"
+								"<!DOCTYPE cross-domain-policy>"
+								"<cross-domain-policy>"
+								"<allow-access-from domain=\"*\" to-ports=\"*\" />"
+								"</cross-domain-policy>";
+
+	if (avail_len < 4) {
+		return 0;
+	}
+
+	int len = -1;
+  	if (isparent) {
+		// the client requests for a socket policy file
+		if ((avail_len == sizeof(request)) && !memcmp(avail_data, request, sizeof(request))) {
+			net_send(fd, response, sizeof(response));
+			TRACE_LOG("Policy Req [%s] Received, Rsp [%s] Sent", request, response);
+			return 0;
+		}
+
+		cli_proto_head_t* pkg = (cli_proto_head_t *)avail_data;
+
+		len = ntohl(pkg->len);
+		if ((len > cli_proto_max_len) || (len < static_cast<int>(sizeof(cli_proto_head_t)))) {
+			ERROR_LOG("C->S INVALID [LEN = %d] FROM [FD = %d] %lu", len, fd, sizeof(cli_proto_head_t));
+			return -1;
+		}
+	} else {
+		len = *(uint32_t*)(avail_data);
+		/* DB，BATTLE...都经过此处理 */
+		if ((len < static_cast<int>(sizeof(db_proto_head_t)))) {
+			ERROR_LOG("DB SERVER ... invalid len=%d from fd=%d", len, fd);
+			char outbuf[13000];
+			bin2hex(outbuf,(char*)avail_data, avail_len,500);
+			ERROR_LOG("I[%s]", outbuf );
+			return -1;
+		}
+	}	
+	return len;
+
+}
+
+/**
+  * @brief Process packages from clients
+  *
+  */
+extern "C" int proc_pkg_from_client(void* data, int len, fdsession_t* fdsess)
+{
+	/* 返回非零，断开FD的连接*/
+	return cli_dispatch(data, fdsess);
+}
+
+/**
+  * @brief Process packages from servers
+  *
+  */
+extern "C" void proc_pkg_from_serv(int fd, void* data, int len)
+{
+	if (fd == proxy_fd) {
+		handle_db_return(reinterpret_cast<db_proto_head_t*>(data), len);
+	}else if (fd == switch_fd) {
+		handle_switch_return(reinterpret_cast<svr_proto_header_t*>(data), len);
+	}
+}
+
+/**
+  * @brief Called each time on client connection closed
+  *
+  */
+extern "C" void on_client_conn_closed(int fd)
+{
+	player_t *p = get_player_by_fd(fd);
+	if (p) {
+		del_player(p);
+	}
+}
+
+/**
+  * @brief Called each time on close of the fds created by the child process
+  *
+  */
+extern "C" void on_fd_closed(int fd)
+{
+	if (fd == proxy_fd) {
+		ERROR_LOG("dbproxy fd close\t[fd = %u]", fd);
+		proxy_fd = -1;
+	}else if (fd == switch_fd) {
+		DEBUG_LOG("switch connection closed\t[fd = %d]", fd);
+		switch_fd = -1;
+		connect_to_switch_timely(NULL, reinterpret_cast<void*>(1));
+	}else if(fd == g_tcp_info[gf_dbproxy_wt_fd_index].fd) {
+		g_tcp_info[gf_dbproxy_wt_fd_index].fd = -1;
+		KERROR_LOG(0, "gd dbproxy wt fd connection closed\t[fd = %d]", fd);
+	}else if(fd == g_tcp_info[gf_dbproxy_cnc_fd_index].fd) {
+		g_tcp_info[gf_dbproxy_cnc_fd_index].fd = -1;
+		KERROR_LOG(0, "gd dbproxy cnc fd connection closed\t[fd = %d]", fd);
+	}
+}
+
+/**
+  * @brief Called to process mcast package from the address and port configured in the config file
+  */
+extern "C" void proc_mcast_pkg(const void* data, int len)
+{
+	const mcast_proto_head_t* pkg = reinterpret_cast<const mcast_proto_head_t*>(data);
+	KINFO_LOG(0, "server_id=%u, main_cmd=%u, sub_cmd=%u len=%u sizeof()=%lu, diff=%lu", 
+		pkg->server_id, pkg->main_cmd, pkg->sub_cmd, len, sizeof(mcast_proto_head_t), len - sizeof(mcast_proto_head_t));
+	if (pkg->server_id != get_server_id()) {
+		switch(pkg->main_cmd){
+			case mcast_reload_conf:
+				reload_conf(pkg->sub_cmd, pkg->body, len - sizeof(mcast_proto_head_t));
+				break;
+			default:
+				KERROR_LOG(0, "unknown cmd %u", pkg->main_cmd);
+				break;
+		}
+	}
+}
+
+/**
+  * @brief Called to reload global data(mainly global function address.etc)
+  */
+extern "C" int	reload_global_data()
+{
+	unregister_timers_callback();
+
+	init_cli_handle_funs();
+	init_db_handle_funs();
+	init_switch_handle_funs();
+	init_all_timer_type();
+	refresh_timers_callback();
+	g_log_send_buf_hex_flag = config_get_intval("print_hex_log", 0);
+	DEBUG_LOG("reload so success!");
+	return 0;
+}

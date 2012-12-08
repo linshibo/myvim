@@ -1,0 +1,371 @@
+/*
+ * =====================================================================================
+ *
+ *  @file  player.cpp
+ *
+ *  @brief  玩家相关操作
+ *
+ *  compiler  gcc4.3.2 
+ *	
+ *  platform  Linux
+ *
+ * copyright:  TaoMee, Inc. ShangHai CN. All rights reserved
+ *
+ * =====================================================================================
+ */
+
+#include <string>
+#include <cmath>
+
+extern "C"{
+#include <glib.h>
+#include <libtaomee/list.h>
+#include <libtaomee/log.h>
+#include <async_serv/net_if.h>
+#include <async_serv/dll.h>
+#include <openssl/md5.h>
+}
+#include <libtaomee++/random/random.hpp>
+
+#include "common_def.hpp"
+#include "cli_dispatch.hpp"
+#include "player.hpp"
+#include "stat_log.hpp"
+#include "switch.hpp"
+#include "db_player.hpp"
+#include "./proto/ultraman_online.h"
+#include "./proto/ultraman_online_enum.h"
+#include "./share/share_funcs.hpp"
+#include "./share/share_usr.hpp"
+//#include "./proto/main_login.h"
+//#include "./proto/main_login_enum.h"
+
+enum screen_x_y_t {
+	/* 一屏的X的长度 */
+	e_one_screen_max_x = 960,
+	/* 一屏的Y的长度 */
+	e_one_screen_max_y = 560,
+};
+
+//extern int cli_swap_item(player_t *p, Cmessage *c_in);
+
+/************************************************************************/
+/*                            _功能函数_                                */
+/************************************************************************/
+
+/* @brief  初始化player结构体中的数据，并加入到链表和HASH中
+ */
+static void init_player(player_t *p)
+{
+    p->friends=new std::set<uint64_t>;
+    p->blacklist=new std::set<uint64_t>;
+    p->recently_contacted_key=new std::vector<uint64_t>;
+	p->login_time = time(0);
+	p->pending_cmd_queue = new std::queue<wait_queue_t>;
+	p->cli_buf = new std::map<uint32_t, cli_buf_t>;
+	init_player_task(p);
+	INIT_LIST_HEAD(&(p->online_player_list));
+	INIT_LIST_HEAD(&(p->maphook));
+	INIT_LIST_HEAD(&(p->timer_list));
+	list_add_tail(&p->online_player_list, &uid_buckets[p->uid % bucket_size]);
+	g_hash_table_insert(fd_player_hash, &(p->fd), p);
+}
+
+/* @brief 释放用户的空间
+ */
+static void free_player(void *p)
+{
+	//g_player_pool.free(p);
+	p = NULL;
+}
+
+/* @brief 初始化hash和链表
+ */
+void init_hash_list()
+{
+	fd_player_hash = g_hash_table_new(g_int_hash, g_int_equal);
+
+	int i = 0;
+	for (i = 0; i < bucket_size; i++) {
+		INIT_LIST_HEAD(&uid_buckets[i]);
+	}
+}
+
+/* @brief 根据FD得到player结构体
+ */
+player_t *get_player_by_fd(uint32_t fd)
+{
+	return (player_t *)g_hash_table_lookup(fd_player_hash, &fd);
+}
+
+/* @brief 根据UID得到player结构体
+ */
+player_t *get_player_by_uid(userid_t uid) 
+{
+	player_t *p = NULL;
+	list_for_each_entry(p, &uid_buckets[uid % bucket_size], online_player_list) {
+		if (p->uid == uid) {
+			return p;
+		}
+	}
+	return 0;
+}
+
+/* @brief 分配用户空间，初始化用户的数据 
+ */
+player_t *add_player(player_t *p)
+{
+	player_t *new_player = reinterpret_cast<player_t*>(g_player_pool.malloc());
+	memcpy(new_player, p, sizeof(player_t));	
+	init_player(new_player);
+	++player_num;
+	svr_proto_user_login_report(p);
+	return new_player;
+}
+
+/* @brief 释放等待命令占用的缓存
+ */
+inline void relase_waiting_cmd_mem(player_t *p)  
+{
+	uint32_t size = p->pending_cmd_queue->size();
+	for (uint32_t i = 0; i < size; i++) {
+		wait_queue_t info = p->pending_cmd_queue->front();
+		 g_slice_free1(info.len, info.data);
+		 p->pending_cmd_queue->pop();
+	}
+	g_pending_cmd_player.erase(p->uid);
+}
+
+
+/* @brief 清理链表和HASH中用户的信息等
+ */
+void del_player(player_t *p)
+{
+	//uint32_t stat_tmp[] = { 0, 1, p->uid, time(0) - p->login_time_for_msglog};
+	//statistic_msglog(stat_id_enter_online, stat_tmp, sizeof(stat_tmp));
+	//uint32_t stat_tmp_1[] = { p->uid, time(0) - p->login_time_for_msglog };
+	//statistic_msglog(stat_id_online_time, stat_tmp_1, sizeof(stat_tmp_1));
+
+	svr_proto_user_logout_report(p, NULL);
+	relase_waiting_cmd_mem(p); 
+
+	leave_map(p);
+
+	SAFE_DELETE(p->pending_cmd_queue);
+	SAFE_DELETE(p->cli_buf);
+	SAFE_DELETE(p->friends);
+    SAFE_DELETE(p->blacklist);
+    SAFE_DELETE(p->recently_contacted_key);
+	p->login_time = time(0);
+	p->pending_cmd_queue = new std::queue<wait_queue_t>;
+	p->cli_buf = new std::map<uint32_t, cli_buf_t>;
+
+
+	KDEBUG_LOG(p->uid, "player offline [fd = %u]", p->fdsess->fd);
+	db_logout_save_data(p);
+	REMOVE_TIMERS(p);
+	list_del(&p->online_player_list);
+	g_hash_table_remove(fd_player_hash, &(p->fd));
+	free_player(p);
+	--player_num;
+}
+
+/* @brief 每隔10秒下发服务器时间
+ * @param owner 用户指针
+ * @param data 其他传递参数，暂不用
+ */
+int notify_sys_time(void* owner, void* data)
+{
+	player_t* p = reinterpret_cast<player_t*>(owner);
+	ADD_TIMER_EVENT_EX(p, timer_notify_sys_time, 0, get_now_tv()->tv_sec + 10);
+
+	cli_notify_sys_time_out out;
+	out.time = static_cast<uint32_t>(get_now_tv()->tv_sec);
+	send_msg_to_self(p, cli_notify_sys_time_cmd, &out, 0);
+
+	return 0;
+}                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+
+uint32_t player_t::get_cur_map_id()
+{
+    return cur_map ? cur_map->id : 0;
+}   
+
+bool player_t::init_player_map()
+{
+    cur_map = NULL;
+    cur_line_index = -1;
+    x_pos = 0;
+    y_pos = 0;
+
+    last_map_id = 0;
+    last_map_x = 0;
+    last_map_y = 0;
+
+    return true;
+}
+
+bool player_t::final_player_map()
+{
+    cur_map = NULL;
+    cur_line_index = -1;
+    x_pos = 0;
+    y_pos = 0;
+
+    last_map_id = 0;
+    last_map_x = 0;
+    last_map_y = 0;
+    
+    return true;
+}   
+
+void player_t::reset_map()
+{
+    if (cur_map == NULL) {
+        last_map_id = 10;
+        last_map_x = 460;
+        last_map_y = 540;
+    } else {
+        last_map_id = get_cur_map_id();
+        last_map_x = x_pos;
+        last_map_y = y_pos;
+    }
+    cur_map = NULL;
+    //cur_map_line_index = -1;
+    x_pos = 0;
+    y_pos = 0;
+
+}
+
+bool player_t::check_in_map()
+{
+    return (cur_map != NULL);
+}
+
+
+///* @brief 踢所有用户下线
+ //*/
+static void kick_all_usr_offline()
+{
+	list_head_t* cur;
+	list_head_t* next;
+	for (int i = 0 ; i < bucket_size; ++i) {
+		list_for_each_safe (cur, next, &(uid_buckets[i])) {
+			player_t* p = list_entry(cur, player_t, online_player_list);
+			close_client_conn(p->fd);
+		}
+	}
+}
+
+///* @brief 定时器：踢所有用户下线
+ //* @param owner 标示位，为0表示设置23:57:00的定时器；
+						//为1表示设置23:57:00的提醒下线定时器；
+ 						//为2表示设置23:58:00的踢所有人下线的定时器
+ //* @param data 定时器的超时时间
+ //*/
+int kick_all_usrs_offline(void* owner, void* data)
+{
+	if (!data) {
+		int32_t exptm = cal_time_hms(23, 57, 0);
+		if (get_now_tv()->tv_sec > exptm) {
+			exptm += 3600 * 24;
+		} 
+		KDEBUG_LOG(0, "kick offline time\t[hour=%d, min=%d]", 23, 57);
+		ADD_TIMER_EVENT_EX(&timer_events, timer_kick_all_usrs_offline, (void*)1, exptm);
+	}else if (data == reinterpret_cast<void*>(1)) {
+		int32_t exptm = get_now_tv()->tv_sec + 24 * 3600;
+		KDEBUG_LOG(0, "kick offline time: [exptm=%d]", exptm);
+		ADD_TIMER_EVENT_EX(&timer_events, timer_kick_all_usrs_offline, (void*)1, exptm);
+		//kick_pkg_t st = {cli_notify_kick_user_offline_cmd, cli_sys_close_err};
+		//send_err_to_all(&st);
+
+		exptm = get_now_tv()->tv_sec + 60;
+		ADD_TIMER_EVENT_EX(&timer_events, timer_kick_all_usrs_offline, (void*)2, exptm);
+	} else if (data == reinterpret_cast<void*>(2)) {
+		KDEBUG_LOG(0, "kick all users offline: [usr_cnt=%u]", player_num);
+		//kick_pkg_t st = {cli_notify_kick_user_offline_cmd, cli_sys_close_err};
+		//send_err_to_all(&st);
+		kick_all_usr_offline();
+	}
+
+	return 0;
+}
+
+//void update_accelerate_count(player_t *p, uint32_t walk_time)
+//{
+	//if (p->cli_walk_time != 0) {
+		//uint32_t cli_diff_time = walk_time - p->cli_walk_time;
+		///* 采集的时间段必须大于20秒 */
+		//if (cli_diff_time < 20) {
+			//return;
+		//}
+		//uint32_t svr_diff_time = time(NULL) - p->server_walk_time;
+		//if ((cli_diff_time > svr_diff_time) && (cli_diff_time - svr_diff_time > 4)) {
+			//KDEBUG_LOG(p->uid, "use accelerate now walk time = %u, last walk time = %u,
+			//now svr time = %lu, last svr time = %u", walk_time, p->cli_walk_time, time(NULL), p->server_walk_time);
+			//p->accelerate_count++;
+		//} else {
+			//if (p->accelerate_count > 0) {
+				//p->accelerate_count--;
+			//}
+		//}
+	//}
+	//p->cli_walk_time = walk_time;
+	//p->server_walk_time = time(NULL);
+//}
+
+/* @brief 得到插入session所需的校验码
+ * @param req_body 请求的包体
+ * @param req_body_len 请求包的长度
+ */
+void req_verify_md5(const char* req_body, int req_body_len, char very_code[])
+{
+	char md_16[16];
+	char md_32[32 + 1];
+	const uint32_t verify_buf_len = 1024;
+	char verify_buf[verify_buf_len] = {0};
+	uint32_t s_len = snprintf(verify_buf, verify_buf_len, "channelId=%d&securityCode=%u&data=",
+			g_session_channel_id, g_session_security_code);
+	if (req_body_len + s_len >= verify_buf_len) {
+		KERROR_LOG(0, "req_body_len too long [%lu %u]", req_body_len + strlen(verify_buf), verify_buf_len);
+		return;
+	}
+	memcpy(verify_buf + s_len, req_body, req_body_len);
+	//get md5 by buf
+	MD5(reinterpret_cast<unsigned char*>(verify_buf), s_len + req_body_len, reinterpret_cast<unsigned char*>(md_16));
+	bin2hex_frm(md_32, md_16, 16, 0);
+	sprintf(very_code, md_32, 32);
+}
+
+///************************************************************************/
+///*                            Client  Request                           */
+///************************************************************************/
+
+/* @brief 用户登入执行的第一个命令
+ */
+int cli_login(player_t *p, Cmessage* c_in)
+{
+	cli_login_in* p_in = P_IN;
+	p = add_player(p);
+	KDEBUG_LOG(p->uid,"cli login:role_tm=%u",p_in->role_tm);
+	//return check_session(p, p_in->sess, seer2_game_id, delete_after_check);
+	db_proto_user_login_in out;
+	return	send_msg_to_dbproxy(p, p->uid, p_in->role_tm, db_proto_user_login_cmd, &out);
+}
+
+int cli_set_user_flag(DEFAULT_ARG)
+{
+	cli_set_user_flag_in*p_in = P_IN;
+	if( p_in->flag_bit > max_flag_bit){
+		KERROR_LOG(p->uid,"flag max err:%u",p_in->flag_bit);
+		return send_error_to_self(p, p->waitcmd, cli_max_flag_err, 1);
+	}
+	if(p_in->flag_bit){
+		cache_set_user_flag(p, p_in->flag_bit, p_in->value);
+		db_set_user_flag(p, p->uid, p->role_tm, p_in->flag_bit, p_in->value);
+	}
+	cli_set_user_flag_out out;
+	out.flag=p->flag;
+	return send_msg_to_self(p, p->waitcmd, &out, 1);
+}
+

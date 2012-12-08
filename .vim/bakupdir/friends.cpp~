@@ -1,0 +1,432 @@
+/*
+ * =========================================================================
+ *
+ *        Filename: friends.cpp
+ *
+ *        Created:  2012-11-29 18:17:25
+ *        Description: 好友  聊天系统 
+ *
+ * =========================================================================
+ */
+
+
+extern "C" {
+#include <glib.h>
+#include <libtaomee/log.h>
+#include <libtaomee/tm_dirty/tm_dirty.h>
+}
+
+#include <libtaomee++/inet/pdumanip.hpp>
+
+#include "player.hpp"   //玩家相关
+#include "friends.hpp"
+#include "db_friends.hpp"
+#include "global_data.hpp"
+#include "proto/ultraman_switch.h"
+#include "proto/ultraman_switch_enum.h"
+#include "cli_dispatch.hpp"
+#include "switch.hpp"
+enum {
+	MAX_FRIENDS				= 200,
+	MAX_BLACKLIST 			= 200,
+	NO						= 0,
+	YES						= 1,
+	RECOMMEND_FRIENDS_LIMIT	= 10,
+	RECENTLY_CONTACTED_LIMIT= 30,
+};
+
+enum chat_msg_type {
+	CHAT_MSG_TYPE_COUNT		= 8,	//目前的聊天类型数
+    CHAT_MSG_TYPE_BEGIN     = 0,    //聊天起始
+    CHAT_MSG_TYPE_WORLD     = 1,    //世界消息(本服)
+    CHAT_MSG_TYPE_UNION     = 2,    //工会消息
+    CHAT_MSG_TYPE_MAP       = 3,    //本地图消息
+    CHAT_MSG_TYPE_ITEM1     = 4,    //收费道具1消息
+	CHAT_MSG_TYPE_ROOM		= 5,	//房间聊天
+	CHAT_MSG_TYPE_TEAM		= 6,	//战斗中小队聊天
+	CHAT_MSG_TYPE_ALL_IN_BTL= 7,	//战斗中和所有参战人聊天
+    CHAT_MSG_TYPE_HALL      = 8,    //大厅聊天
+    CHAT_MSG_TYPE_END       = 9,   	//收尾
+
+	CHAT_MSG_MAX_PRIVATE_LEN	= 128,	//私聊消息最大长度
+	CHAT_MSG_MAX_PUBLIC_LEN		= 64,	//公聊消息最大长度
+};
+#define TIME_LIMIT 2
+
+       
+
+int do_add_friend(player_t *p, uint32_t user_id, uint32_t role_tm, uint32_t forbid_add_flag)
+{
+	if (p->uid == user_id) {
+		return send_error_to_self(p, p->waitcmd, cli_add_self_err,1);
+	}
+	uint64_t key = gen_key_by_uid_role(user_id, role_tm);
+	if (p->friends->find(key) != p->friends->end()) {
+		return send_error_to_self(p, p->waitcmd, cli_already_friend_err,1);
+	}
+	if (p->blacklist->find(key) != p->blacklist->end()) {
+		return send_error_to_self(p, p->waitcmd, cli_already_in_blacklist_err,1);
+	}
+	if (forbid_add_flag == YES) {
+		return send_error_to_self(p, p->waitcmd, cli_friend_forbid_add_err,1);
+	} 
+	if (user_id == 0) {//user_id do not exist
+		return send_error_to_self(p, p->waitcmd,cli_uid_not_exist_err ,1);
+	}
+	if (p->friends->size() >= MAX_FRIENDS) {
+		return send_error_to_self(p, p->waitcmd, cli_friend_max_err,1);
+	}
+	
+	return db_add_friend(p, user_id, role_tm);
+}
+
+int cli_add_friend(DEFAULT_ARG)
+{
+	cli_add_friend_in *p_in = P_IN;
+	KDEBUG_LOG(p->uid,"add friend:%u %u",p_in->user.user_id, p_in->user.role_tm);
+	player_t *p_dest = get_player_by_uid(p_in->user.user_id);
+	if (p_dest != NULL && p_dest->role_tm == p_in->user.role_tm) {//用户在本online
+		return do_add_friend(p, p_dest->uid, p_dest->role_tm,FORBID_ADD_FRIEND(p_dest->flag));
+	} else {//用户不在线,去DB查
+		return db_check_user_exist(p, p_in->user.user_id, p_in->user.role_tm);
+	}
+}
+
+//int cli_add_friend_by_nick(DEFAULT_ARG)
+//{
+	//cli_add_friend_by_nick_in *p_in = P_IN;
+    //p_in->nick[MAX_NICK_SIZE - 1] = 0;
+    //int ret = tm_dirty_check(0, p_in->nick);
+    //if (ret > 0) {
+        //ERROR_TLOG("user: %u add friends %s with dirty words", p->uid, p_in->nick);
+        //return send_error_to_self(p, p->waitcmd, cli_dirty_word_err, 1);
+    //}
+    //return db_query_user_info_by_nick(p, p_in->nick);
+//}
+
+int cli_del_friend(DEFAULT_ARG)
+{
+	cli_del_friend_in *p_in = P_IN;
+	uint64_t key = gen_key_by_uid_role(p_in->user.user_id, p_in->user.role_tm);
+	if (p->friends->find(key) == p->friends->end()) {
+		return send_error_to_self(p, p->waitcmd, cli_not_friend_err,1);
+	}
+
+	return db_del_friend(p, p_in->user.user_id, p_in->user.role_tm);
+}
+
+int do_add_to_blacklist(player_t *p, uint32_t user_id, uint32_t role_tm)
+{
+	if (user_id == 0) {
+		return send_error_to_self(p, p->waitcmd, cli_uid_not_exist_err,1);
+	}	
+	if (p->uid == user_id) {
+		return send_error_to_self(p, p->waitcmd, cli_add_self_err,1);
+	}
+	
+	uint64_t key = gen_key_by_uid_role(user_id, role_tm);
+	if (p->blacklist->find(key) != p->blacklist->end()) {
+		return send_error_to_self(p, p->waitcmd,cli_already_in_blacklist_err ,1);
+	}
+	if (p->blacklist->size() >= MAX_BLACKLIST) {
+		return send_error_to_self(p, p->waitcmd, cli_blacklist_max_err,1);
+	}
+	if (p->friends->find(key) != p->friends->end()) {
+		return db_del_friend(p, user_id, role_tm);
+	}
+	return db_add_to_blacklist(p, user_id, role_tm);
+}
+
+int cli_add_to_blacklist(DEFAULT_ARG)
+{
+	cli_add_to_blacklist_in *p_in = P_IN;
+
+	player_t *p_dest = get_player_by_uid(p_in->user.user_id);
+	if (p_dest != NULL && p_dest->role_tm == p_in->user.role_tm) {//用户在本online
+		return do_add_to_blacklist(p, p_dest->uid, p_dest->role_tm);
+	} else {//用户不在线,去DB查
+		return db_check_user_exist(p, p_in->user.user_id, p_in->user.role_tm);
+	}
+}
+
+int cli_del_from_blacklist(DEFAULT_ARG)
+{
+	cli_del_from_blacklist_in *p_in = P_IN;
+	uint64_t key = gen_key_by_uid_role(p_in->user.user_id, p_in->user.role_tm);
+	if (p->blacklist->find(key) == p->blacklist->end()) {
+		return send_error_to_self(p, p->waitcmd, cli_blacklist_max_err,1);
+	}
+
+	return db_del_from_blacklist(p, p_in->user.user_id, p_in->user.role_tm);
+}
+
+int cli_get_recommended_friends_list(DEFAULT_ARG)
+{
+	cli_get_recommended_friends_list_out out; 
+	int count = 0;
+	GHashTableIter iter;
+    gpointer key, val;
+    g_hash_table_iter_init(&iter, fd_player_hash);
+    while (g_hash_table_iter_next(&iter, &key, &val)) {
+        player_t *p_dest = reinterpret_cast<player_t*>(val);
+        uint64_t key = gen_key_by_uid_role(p_dest->uid, p_dest->role_tm);
+		if (p_dest != p 
+            && p->friends->find(key) == p->friends->end()
+            && p->blacklist->find(key) == p->blacklist->end()) {
+			//int level_diff = p_dest->get_player_by_uid_attr_value(OBJ_ATTR_LEVEL)	- p->get_player_attr_value(OBJ_ATTR_LEVEL);
+			int level_diff=0;
+			if (level_diff >= -5 && level_diff <= 5) {
+				count ++;
+				uid_role_t user;
+				user.user_id = p_dest->uid;
+				user.role_tm = p_dest->role_tm;
+				out.user_list.push_back(user);
+			}
+			if (count == RECOMMEND_FRIENDS_LIMIT)
+				break;
+		}
+    }
+	return send_msg_to_self(p, cli_get_recommended_friends_list_cmd, &out, 1);
+}
+
+
+int cli_get_user_info(DEFAULT_ARG)
+{
+	cli_get_user_info_in *p_in = P_IN;
+	cli_get_user_info_out out;
+	player_t *p_dest = get_player_by_uid(p_in->user.user_id);
+	if (p_dest && p_dest->role_tm == p_in->user.role_tm) {
+		out.userid = p_dest->uid;
+		out.role_tm = p_dest->role_tm;
+		memcpy(out.nick, p_dest->nick, sizeof(out.nick));
+		return send_msg_to_self(p, p->waitcmd, &out, 1);	
+	}
+	return db_get_user_info(p, p_in->user.user_id, p_in->user.role_tm);
+}
+
+int cli_get_friends_list(DEFAULT_ARG)
+{
+    cli_get_friends_list_out out;
+    std::set<uint64_t>::iterator it;
+    for (it = p->friends->begin(); it != p->friends->end(); it++) {
+		uint32_t user_id = (uint32_t)((*it) >> 32);
+		uint32_t role_tm = (uint32_t)(*it);
+		uid_role_t user;
+		user.user_id = user_id;
+		user.role_tm = role_tm;
+        out.user_list.push_back(user);
+    }
+	return send_msg_to_self(p, cli_get_friends_list_cmd, &out, 1);
+}
+
+int cli_get_blacklist(DEFAULT_ARG)
+{
+    cli_get_blacklist_out out;
+    std::set<uint64_t>::iterator it;
+    for (it = p->blacklist->begin(); it != p->blacklist->end(); it++) {
+        uint32_t user_id = (uint32_t)((*it) >> 32);
+		uint32_t role_tm = (uint32_t)(*it);
+		uid_role_t user;
+		user.user_id = user_id;
+		user.role_tm = role_tm;
+		out.blacklist.push_back(user);
+    }
+	return send_msg_to_self(p, cli_get_blacklist_cmd, &out, 1);
+}
+
+int cli_check_online_users(DEFAULT_ARG)
+{
+	cli_check_online_users_in *p_in = P_IN;
+	cli_check_online_users_out out, *p_out = &out;
+
+	int count = p_in->id_list.size();
+	for (int i = 0; i < count; ++i) {
+		uint32_t uid = p_in->id_list[i].user_id;
+		uint32_t role_tm = p_in->id_list[i].role_tm;
+		player_t *p_dest = get_player_by_uid(uid);
+		if (!p_dest || p_dest->role_tm != role_tm) continue;
+		p_out->online_list.push_back(p_in->id_list[i]);
+	}
+
+	return send_msg_to_self(p, p->waitcmd, p_out, 1);
+}
+
+int cli_get_union_list(DEFAULT_ARG)
+{
+	//return db_get_union_list(p);
+	return 0;
+}
+
+/* 每次聊天的时候触发这个更新 */
+int update_recently_contacted_list_chat(std::vector<uint64_t> *recently_contacted_key, uid_role_t *user_info)
+{
+	if( !user_info ){
+		return 0;
+	}
+	std::vector<uint64_t>::iterator it;
+
+	uint64_t key = gen_key_by_uid_role(user_info->user_id, user_info->role_tm);
+	/*30个最近联系人限制额度还没满 */
+	if(recently_contacted_key->size() < RECENTLY_CONTACTED_LIMIT && recently_contacted_key->size() >= 0){
+		it = std::find(recently_contacted_key->begin(), recently_contacted_key->end(), key);
+		if( it != recently_contacted_key->end()){
+			/*找到了，删除后插入首位*/
+			recently_contacted_key->erase(it);
+			recently_contacted_key->insert(recently_contacted_key->begin(),key);
+		}else{
+			/*没找到，则直接插入首位*/
+			recently_contacted_key->insert(recently_contacted_key->begin(),key);
+		}
+	/*30个最近联系限额已经满了*/
+	}else if(recently_contacted_key->size() >= RECENTLY_CONTACTED_LIMIT){
+		it = std::find(recently_contacted_key->begin(), recently_contacted_key->end(), key);
+		if( it != recently_contacted_key->end()){
+			/* 找到 */
+			recently_contacted_key->erase(it);
+			recently_contacted_key->insert(recently_contacted_key->begin(),key);
+		}else{
+			/* 没找到 */
+			recently_contacted_key->pop_back();
+			recently_contacted_key->insert(recently_contacted_key->begin(),key);
+		}
+	}else{
+		ERROR_LOG("impossible rearch! size:%lu",recently_contacted_key->size());
+		return -1;
+	}
+
+	return 0;
+}
+
+/* 每次客户端发起协议cli_get_recently_contacted触发这个更新 */
+int update_recently_contacted_list_cli(std::vector<uint64_t> *recently_contacted_key)
+{
+	//最多循环count次
+	uint32_t i=0;
+	uint32_t count = recently_contacted_key->size();
+
+	player_t *dest_p = NULL;
+
+	std::vector<uint64_t>::iterator it;
+	it = recently_contacted_key->begin();
+	while( it != recently_contacted_key->end() && i<count ){
+		i++;
+		uint64_t key = *it;
+		uint32_t uid = get_uid_from_key(key);  
+		dest_p = get_player_by_uid(uid);
+		if(dest_p != NULL){
+			it++;
+			continue;
+		}
+
+		//玩家不在线，后移
+		it = recently_contacted_key->erase(it);
+		//插入队尾
+		recently_contacted_key->push_back(key);
+	}
+
+	return 0;
+}
+
+int cli_get_recently_contacted_list(DEFAULT_ARG)
+{
+	cli_get_recently_contacted_list_out out, *p_out = &out;
+
+
+	int ret = update_recently_contacted_list_cli(p->recently_contacted_key); 
+	if( ret < 0 ){
+		send_error_to_self(p, p->waitcmd, cli_system_busy_err,1);
+	}
+
+	/* 填充报文 */
+	uid_role_t user_info;
+	std::vector<uint64_t>::iterator itp;
+	for( itp = p->recently_contacted_key->begin(); itp != p->recently_contacted_key->end() ; itp++)
+	{
+		user_info.user_id = get_uid_from_key(*itp);
+		user_info.role_tm = get_role_tm_from_key(*itp);
+		p_out->user_list.push_back(user_info);
+	}
+	
+	return send_msg_to_self(p, p->waitcmd, p_out, 1);
+}
+
+int cli_chat_private_msg(DEFAULT_ARG)
+{
+    cli_chat_private_msg_in *p_in = P_IN;
+
+	if (p_in->receiver.user_id == p->uid) {
+		return send_error_to_self(p, p->waitcmd, cli_chat_self_err, 1);
+	}
+	
+	/*MYTEST singku如果加对方为黑名单，则不可与对方聊 暂时去掉这个限制*/
+#if 0
+	if (p->blacklist->find(p_in->receiver_id) != p->blacklist->end()) {
+		//对方在自己的黑名单中,可能外挂
+		return send_error_to_self(p, p->waitcmd ONLINE_ERR_CHAT_BLACKLIST);
+	}
+#endif
+
+    /* 脏词检测 */
+	p_in->msg_content[p_in->_msg_content_len] = 0;//强制将最后一个字节置0
+    int ret = tm_dirty_check(0, p_in->msg_content);
+    if (ret > 0) {
+        ERROR_LOG("user: %u, chat msg to [%d] with dirty word[%s]", p->uid, p_in->receiver.user_id, p_in->msg_content);
+        return send_error_to_self(p, p->waitcmd, cli_dirty_word_err, 1);
+    } else if (ret < 0) {
+        ERROR_LOG("user: %u, tm_dirty_check: check error", p->uid);
+    }
+
+	/* 信息内容长度检测 */
+	if (p_in->_msg_content_len == 0 || p_in->_msg_content_len > CHAT_MSG_MAX_PRIVATE_LEN) {
+		ERROR_LOG("user: %u, chat msg len illegal[%u]", p->uid, p_in->_msg_content_len);
+		return send_error_to_self(p, p->waitcmd , cli_msg_len_err, 1);
+	}
+
+	//更新自己最近联系人
+	update_recently_contacted_list_chat(p->recently_contacted_key, &p_in->receiver);
+
+    cli_chat_private_msg_out cli_out ;
+    cli_out.msg_time = (uint32_t)(get_now_tv()->tv_sec);
+    cli_out.sender.user_id = p->uid;
+	cli_out.sender.role_tm = p->role_tm;
+    strncpy(cli_out.sender_nick, p->nick, nick_len);
+	cli_out.receiver.user_id = p_in->receiver.user_id;
+	cli_out.receiver.role_tm = p_in->receiver.role_tm;
+	cli_out._msg_content_len = p_in->_msg_content_len;
+    memcpy(cli_out.msg_content, p_in->msg_content, cli_out._msg_content_len);
+
+	uint64_t key = gen_key_by_uid_role(p->uid, p->role_tm);
+    player_t *p_dest = get_player_by_uid(p_in->receiver.user_id);
+    if (p_dest != NULL && p_dest->role_tm == p_in->receiver.role_tm) {
+		if (p_dest->blacklist->find(key) == p_dest->blacklist->end()) {
+			//更新对方的最近联系人,若对方不在线，先不更新
+			uid_role_t user_info;
+			user_info.user_id = p->uid;
+			user_info.role_tm = p->role_tm;
+			update_recently_contacted_list_chat(p_dest->recently_contacted_key, &user_info);
+			//对方玩家角色存在且对方没有加你到黑名单，你的消息才能发到对方
+        	send_msg_to_self(p_dest, p->waitcmd, &cli_out, 0);
+		} else {
+			ERROR_LOG("user: %u, chat msg to [%d], but [%d] is in you blacklist",
+				p->uid, p_in->receiver.user_id, p_in->receiver.user_id);
+		}
+    }else {
+		//发往switch
+		svr_proto_transmit_in out;
+		int idx = sizeof(cli_proto_head_t);
+		taomee::pack(out.msg.msg, cli_out.msg_time, idx);
+		taomee::pack(out.msg.msg, cli_out.sender.user_id, idx);
+		taomee::pack(out.msg.msg, cli_out.sender.role_tm, idx);
+        taomee::pack(out.msg.msg, cli_out.sender_nick, sizeof(cli_out.sender_nick), idx);
+		taomee::pack(out.msg.msg, cli_out.receiver.user_id, idx);
+		taomee::pack(out.msg.msg, cli_out.receiver.role_tm, idx);
+		taomee::pack(out.msg.msg, cli_out._msg_content_len, idx);
+		taomee::pack(out.msg.msg, cli_out.msg_content, cli_out._msg_content_len, idx);
+		init_cli_proto_head(out.msg.msg, p_in->receiver.user_id,0,cli_friend_notify_added_cmd,idx,0);
+		out.msg._msg_len = idx;
+		send_msg_to_switch(0, svr_proto_transmit_cmd, &out, p->uid);   
+    }
+    return send_msg_to_self(p, p->waitcmd, &cli_out, 1);
+}
+
+

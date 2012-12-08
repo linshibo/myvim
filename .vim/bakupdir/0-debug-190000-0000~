@@ -1,0 +1,1084 @@
+2012-12-06 09:45:13	LOGHEAD	16651	uman-db-10.1.1.20
+2012-12-06 09:45:13	nil	0	load bind  from lua 
+2012-12-06 09:45:13	nil	0	--lua config--
+2012-12-06 09:45:13	nil	0		recv_sem_key	= 97968 
+2012-12-06 09:45:13	nil	0		cfg_center_ip	= 10.1.1.5 
+2012-12-06 09:45:13	nil	0		DB_IP	= localhost 
+2012-12-06 09:45:13	nil	0		CHANGE_LOG_ADDR	= 10.1.1.58:30004 
+2012-12-06 09:45:13	nil	0		project_name	= uman 
+2012-12-06 09:45:13	nil	0		LOG_HEX_DATA_FLAG	= 0 
+2012-12-06 09:45:13	nil	0		DB_USER	= root 
+2012-12-06 09:45:13	nil	0		LOG_VIP_ITEM_ADDR	= 10.1.1.20:13001 
+2012-12-06 09:45:13	nil	0		max_log_files	= 0 
+2012-12-06 09:45:13	nil	0		send_sem_key	= 97966 
+2012-12-06 09:45:13	nil	0		pkg_timeout	= 5 
+2012-12-06 09:45:13	nil	0		log_size	= 32000000 
+2012-12-06 09:45:13	nil	0		svc_type	= db 
+2012-12-06 09:45:13	nil	0		tlog_file_interval_sec	= 86400 
+2012-12-06 09:45:13	nil	0		log_level	= 7 
+2012-12-06 09:45:13	nil	0		DB_PASSWD	= ta0mee 
+2012-12-06 09:45:13	nil	0		log_dir	= ./log 
+2012-12-06 09:45:13	nil	0		cfg_center_port	= 13330 
+2012-12-06 09:45:13	nil	0		IS_LOG_DEBUG_SQL	= 1 
+2012-12-06 09:45:13	nil	0		worker_num	= 2 
+2012-12-06 09:45:13	nil	0	
+2012-12-06 09:45:13	nil	0		 10.1.1.20  14001  tcp  0
+2012-12-06 09:45:13	nil	0		 10.1.1.20  14001  udp  0
+2012-12-06 09:45:13	nil	0	dlsym no find: :handle_open 
+2012-12-06 09:45:13	nil	0	dlsym no find: :handle_close 
+2012-12-06 09:45:13	nil	0	dlsym no find: :handle_timer 
+2012-12-06 09:45:13	nil	0	XXXXx work_num:2
+2012-12-06 13:21:22	LOGHEAD	19573	uman-db-10.1.1.20
+2012-12-06 13:21:22	nil	0	load bind  from lua 
+2012-12-06 13:21:22	nil	0	--lua config--
+2012-12-06 13:21:22	nil	0		recv_sem_key	= 97968 
+2012-12-06 13:21:22	nil	0		cfg_center_ip	= 10.1.1.5 
+2012-12-06 13:21:22	nil	0		DB_IP	= localhost 
+2012-12-06 13:21:22	nil	0		CHANGE_LOG_ADDR	= 10.1.1.58:30004 
+2012-12-06 13:21:22	nil	0		project_name	= uman 
+2012-12-06 13:21:22	nil	0		LOG_HEX_DATA_FLAG	= 0 
+2012-12-06 13:21:22	nil	0		DB_USER	= root 
+2012-12-06 13:21:22	nil	0		LOG_VIP_ITEM_ADDR	= 10.1.1.20:13001 
+2012-12-06 13:21:22	nil	0		max_log_files	= 0 
+2012-12-06 13:21:22	nil	0		send_sem_key	= 97966 
+2012-12-06 13:21:22	nil	0		pkg_timeout	= 5 
+2012-12-06 13:21:22	nil	0		log_size	= 32000000 
+2012-12-06 13:21:22	nil	0		svc_type	= db 
+2012-12-06 13:21:22	nil	0		tlog_file_interval_sec	= 86400 
+2012-12-06 13:21:22	nil	0		log_level	= 7 
+2012-12-06 13:21:22	nil	0		DB_PASSWD	= ta0mee 
+2012-12-06 13:21:22	nil	0		log_dir	= ./log 
+2012-12-06 13:21:22	nil	0		cfg_center_port	= 13330 
+2012-12-06 13:21:22	nil	0		IS_LOG_DEBUG_SQL	= 1 
+2012-12-06 13:21:22	nil	0		worker_num	= 2 
+2012-12-06 13:21:22	nil	0	
+2012-12-06 13:21:22	nil	0		 10.1.1.20  14001  tcp  0
+2012-12-06 13:21:22	nil	0		 10.1.1.20  14001  udp  0
+2012-12-06 13:21:22	nil	0	dlsym no find: :handle_open 
+2012-12-06 13:21:22	nil	0	dlsym no find: :handle_close 
+2012-12-06 13:21:22	nil	0	dlsym no find: :handle_timer 
+2012-12-06 13:21:22	nil	0	MYSQL_INTERFACE::MYSQL_INTERFACE  7
+2012-12-06 13:21:22	nil	0	DB conn msg [localhost][root][ta0mee][]
+2012-12-06 13:21:22	nil	0	DB connect is ok [0]
+
+2012-12-06 13:21:22	nil	0	MYSQL_INTERFACE::MYSQL_INTERFACE  7
+2012-12-06 13:21:22	nil	0	DB conn msg [localhost][root][ta0mee][]
+2012-12-06 13:21:22	nil	0	XXXXx work_num:2
+2012-12-06 13:21:22	nil	0	DB connect is ok [0]
+
+2012-12-06 13:32:38	nil	0	send_warning()
+2012-12-06 13:34:26	nil	0	50068 SQL:[select role_tm,nick,prof from USER_INFO_68.t_user_00 where user_id=50068  and area_id=1;]
+2012-12-06 13:34:33	nil	0	50068 SQL:[select count(role_tm) from USER_INFO_68.t_user_00 where  user_id=50068 and area_id=1 ;]
+2012-12-06 13:34:33	nil	0	50068 SQL:[insert into USER_INFO_68.t_user_00(user_id,area_id,role_tm, nick, prof) values(50068, 1, 1354818873, '\0聪慧的豌�', 1);]
+2012-12-06 13:38:46	LOGHEAD	20176	uman-db-10.1.1.20
+2012-12-06 13:38:46	nil	0	load bind  from lua 
+2012-12-06 13:38:46	nil	0	--lua config--
+2012-12-06 13:38:46	nil	0		recv_sem_key	= 97968 
+2012-12-06 13:38:46	nil	0		cfg_center_ip	= 10.1.1.5 
+2012-12-06 13:38:46	nil	0		DB_IP	= localhost 
+2012-12-06 13:38:46	nil	0		CHANGE_LOG_ADDR	= 10.1.1.58:30004 
+2012-12-06 13:38:46	nil	0		project_name	= uman 
+2012-12-06 13:38:46	nil	0		LOG_HEX_DATA_FLAG	= 0 
+2012-12-06 13:38:46	nil	0		DB_USER	= root 
+2012-12-06 13:38:46	nil	0		LOG_VIP_ITEM_ADDR	= 10.1.1.20:13001 
+2012-12-06 13:38:46	nil	0		max_log_files	= 0 
+2012-12-06 13:38:46	nil	0		send_sem_key	= 97966 
+2012-12-06 13:38:46	nil	0		pkg_timeout	= 5 
+2012-12-06 13:38:46	nil	0		log_size	= 32000000 
+2012-12-06 13:38:46	nil	0		svc_type	= db 
+2012-12-06 13:38:46	nil	0		tlog_file_interval_sec	= 86400 
+2012-12-06 13:38:46	nil	0		log_level	= 7 
+2012-12-06 13:38:46	nil	0		DB_PASSWD	= ta0mee 
+2012-12-06 13:38:46	nil	0		log_dir	= ./log 
+2012-12-06 13:38:46	nil	0		cfg_center_port	= 13330 
+2012-12-06 13:38:46	nil	0		IS_LOG_DEBUG_SQL	= 1 
+2012-12-06 13:38:46	nil	0		worker_num	= 2 
+2012-12-06 13:38:46	nil	0	
+2012-12-06 13:38:46	nil	0		 10.1.1.20  14001  tcp  0
+2012-12-06 13:38:46	nil	0		 10.1.1.20  14001  udp  0
+2012-12-06 13:38:46	nil	0	dlsym no find: :handle_open 
+2012-12-06 13:38:46	nil	0	dlsym no find: :handle_close 
+2012-12-06 13:38:46	nil	0	dlsym no find: :handle_timer 
+2012-12-06 13:38:46	nil	0	MYSQL_INTERFACE::MYSQL_INTERFACE  7
+2012-12-06 13:38:46	nil	0	DB conn msg [localhost][root][ta0mee][]
+2012-12-06 13:38:46	nil	0	DB connect is ok [0]
+
+2012-12-06 13:38:46	nil	0	EVN: TEST 
+2012-12-06 13:38:46	nil	0	MYSQL_INTERFACE::MYSQL_INTERFACE  7
+2012-12-06 13:38:46	nil	0	XXXXx work_num:2
+2012-12-06 13:38:46	nil	0	cur VERSION:DBPUB:2011-02-09
+2012-12-06 13:38:46	nil	0	cur VERSION:DBPUB:2011-02-09
+2012-12-06 13:38:46	nil	0	DB conn msg [localhost][root][ta0mee][]
+2012-12-06 13:38:46	nil	0	DB connect is ok [0]
+
+2012-12-06 13:38:46	nil	0	EVN: TEST 
+2012-12-06 13:38:56	nil	0	50068 I:2A03
+2012-12-06 13:38:56	nil	0	50068 SQL:[select role_tm,nick,prof from USER_INFO_68.t_user_00 where user_id=50068  and area_id=1;]
+2012-12-06 13:38:56	nil	0	50068 O:2A03:0
+2012-12-06 13:39:01	nil	0	50068 I:2A02
+2012-12-06 13:39:01	nil	0	50068 SQL:[select count(role_tm) from USER_INFO_68.t_user_00 where  user_id=50068 and area_id=1 ;]
+2012-12-06 13:39:01	nil	0	50068 SQL:[insert into USER_INFO_68.t_user_00(user_id,area_id,role_tm, nick, prof) values(50068, 1, 1354819141, '\0聪明的英�', 1);]
+2012-12-06 13:39:01	nil	0	50068 O:2A02:0
+2012-12-06 13:39:04	nil	0	50068 I:2A11
+2012-12-06 13:39:04	nil	0	50068 SQL:[select count(*) from USER_INFO_68.t_user_00 where user_id = 50068 and area_id=1 and role_tm=1354819141;]
+2012-12-06 13:39:04	nil	0	50068 O:2A11:1105
+2012-12-06 13:44:30	LOGHEAD	20290	uman-db-10.1.1.20
+2012-12-06 13:44:30	nil	0	load bind  from lua 
+2012-12-06 13:44:30	nil	0	--lua config--
+2012-12-06 13:44:30	nil	0		recv_sem_key	= 97968 
+2012-12-06 13:44:30	nil	0		cfg_center_ip	= 10.1.1.5 
+2012-12-06 13:44:30	nil	0		DB_IP	= localhost 
+2012-12-06 13:44:30	nil	0		CHANGE_LOG_ADDR	= 10.1.1.58:30004 
+2012-12-06 13:44:30	nil	0		project_name	= uman 
+2012-12-06 13:44:30	nil	0		LOG_HEX_DATA_FLAG	= 0 
+2012-12-06 13:44:30	nil	0		DB_USER	= root 
+2012-12-06 13:44:30	nil	0		LOG_VIP_ITEM_ADDR	= 10.1.1.20:13001 
+2012-12-06 13:44:30	nil	0		max_log_files	= 0 
+2012-12-06 13:44:30	nil	0		send_sem_key	= 97966 
+2012-12-06 13:44:30	nil	0		pkg_timeout	= 5 
+2012-12-06 13:44:30	nil	0		log_size	= 32000000 
+2012-12-06 13:44:30	nil	0		svc_type	= db 
+2012-12-06 13:44:30	nil	0		tlog_file_interval_sec	= 86400 
+2012-12-06 13:44:30	nil	0		log_level	= 7 
+2012-12-06 13:44:30	nil	0		DB_PASSWD	= ta0mee 
+2012-12-06 13:44:30	nil	0		log_dir	= ./log 
+2012-12-06 13:44:30	nil	0		cfg_center_port	= 13330 
+2012-12-06 13:44:30	nil	0		IS_LOG_DEBUG_SQL	= 1 
+2012-12-06 13:44:30	nil	0		worker_num	= 2 
+2012-12-06 13:44:30	nil	0	
+2012-12-06 13:44:30	nil	0		 10.1.1.20  14001  tcp  0
+2012-12-06 13:44:30	nil	0		 10.1.1.20  14001  udp  0
+2012-12-06 13:44:30	nil	0	dlsym no find: :handle_open 
+2012-12-06 13:44:30	nil	0	dlsym no find: :handle_close 
+2012-12-06 13:44:30	nil	0	dlsym no find: :handle_timer 
+2012-12-06 13:44:30	nil	0	MYSQL_INTERFACE::MYSQL_INTERFACE  7
+2012-12-06 13:44:30	nil	0	DB conn msg [localhost][root][ta0mee][]
+2012-12-06 13:44:30	nil	0	MYSQL_INTERFACE::MYSQL_INTERFACE  7
+2012-12-06 13:44:30	nil	0	DB conn msg [localhost][root][ta0mee][]
+2012-12-06 13:44:30	nil	0	DB connect is ok [0]
+
+2012-12-06 13:44:30	nil	0	XXXXx work_num:2
+2012-12-06 13:44:30	nil	0	cur VERSION:DBPUB:2011-02-09
+2012-12-06 13:44:30	nil	0	cur VERSION:DBPUB:2011-02-09
+2012-12-06 13:44:30	nil	0	DB connect is ok [0]
+
+2012-12-06 13:44:30	nil	0	EVN: TEST 
+2012-12-06 13:44:30	nil	0	EVN: TEST 
+2012-12-06 13:44:43	nil	0	50067 I:2A02
+2012-12-06 13:44:43	nil	0	还原对象失败
+2012-12-06 13:44:43	nil	0	send_warning()
+2012-12-06 13:44:43	nil	0	50067 O:2A02:1005
+2012-12-06 13:46:03	nil	0	50066 I:2A03
+2012-12-06 13:46:03	nil	0	50066 SQL:[select role_tm,nick,prof from USER_INFO_66.t_user_00 where user_id=50066  and area_id=1;]
+2012-12-06 13:46:03	nil	0	50066 O:2A03:0
+2012-12-06 13:46:04	nil	0	50066 I:2A11
+2012-12-06 13:46:04	nil	0	50066 SQL:[select count(*) from USER_INFO_66.t_user_00 where user_id = 50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 13:46:04	nil	0	50066 SQL:[select nick,prof,msglist from USER_INFO_66.t_user_00 where user_id=50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 13:46:04	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and  friend_type = 0;]
+2012-12-06 13:46:04	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and friend_type = 1;]
+2012-12-06 13:46:04	nil	0	50066 O:2A11:0
+2012-12-06 13:47:15	nil	0	50068 I:2A03
+2012-12-06 13:47:15	nil	0	50068 SQL:[select role_tm,nick,prof from USER_INFO_68.t_user_00 where user_id=50068  and area_id=1;]
+2012-12-06 13:47:15	nil	0	50068 O:2A03:0
+2012-12-06 13:47:21	nil	0	50068 I:2A02
+2012-12-06 13:47:21	nil	0	50068 SQL:[select count(role_tm) from USER_INFO_68.t_user_00 where  user_id=50068 and area_id=1 ;]
+2012-12-06 13:47:21	nil	0	50068 SQL:[insert into USER_INFO_68.t_user_00(user_id,area_id,role_tm, nick, prof) values(50068, 1, 1354819641, '\0漂亮的小�', 1);]
+2012-12-06 13:47:21	nil	0	50068 O:2A02:0
+2012-12-06 13:47:22	nil	0	50068 I:2A11
+2012-12-06 13:47:22	nil	0	50068 SQL:[select count(*) from USER_INFO_68.t_user_00 where user_id = 50068 and area_id=1 and role_tm=1354819641;]
+2012-12-06 13:47:22	nil	0	50068 O:2A11:1105
+2012-12-06 13:53:54	nil	0	50066 I:2A03
+2012-12-06 13:53:54	nil	0	50066 SQL:[select role_tm,nick,prof from USER_INFO_66.t_user_00 where user_id=50066  and area_id=1;]
+2012-12-06 13:53:54	nil	0	50066 O:2A03:0
+2012-12-06 13:53:55	nil	0	50066 I:2A11
+2012-12-06 13:53:55	nil	0	50066 SQL:[select count(*) from USER_INFO_66.t_user_00 where user_id = 50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 13:53:55	nil	0	50066 SQL:[select nick,prof,msglist from USER_INFO_66.t_user_00 where user_id=50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 13:53:55	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and  friend_type = 0;]
+2012-12-06 13:53:55	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and friend_type = 1;]
+2012-12-06 13:53:55	nil	0	50066 O:2A11:0
+2012-12-06 13:56:31	nil	0	50066 I:2A03
+2012-12-06 13:56:31	nil	0	50066 SQL:[select role_tm,nick,prof from USER_INFO_66.t_user_00 where user_id=50066  and area_id=1;]
+2012-12-06 13:56:31	nil	0	50066 O:2A03:0
+2012-12-06 13:56:32	nil	0	50066 I:2A11
+2012-12-06 13:56:32	nil	0	50066 SQL:[select count(*) from USER_INFO_66.t_user_00 where user_id = 50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 13:56:32	nil	0	50066 SQL:[select nick,prof,msglist from USER_INFO_66.t_user_00 where user_id=50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 13:56:32	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and  friend_type = 0;]
+2012-12-06 13:56:32	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and friend_type = 1;]
+2012-12-06 13:56:32	nil	0	50066 O:2A11:0
+2012-12-06 14:03:13	nil	0	50066 I:2A03
+2012-12-06 14:03:13	nil	0	50066 SQL:[select role_tm,nick,prof from USER_INFO_66.t_user_00 where user_id=50066  and area_id=1;]
+2012-12-06 14:03:13	nil	0	50066 O:2A03:0
+2012-12-06 14:03:14	nil	0	50066 I:2A11
+2012-12-06 14:03:14	nil	0	50066 SQL:[select count(*) from USER_INFO_66.t_user_00 where user_id = 50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 14:03:14	nil	0	50066 SQL:[select nick,prof,msglist from USER_INFO_66.t_user_00 where user_id=50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 14:03:14	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and  friend_type = 0;]
+2012-12-06 14:03:14	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and friend_type = 1;]
+2012-12-06 14:03:14	nil	0	50066 O:2A11:0
+2012-12-06 14:04:24	nil	0	50066 I:2A03
+2012-12-06 14:04:24	nil	0	50066 SQL:[select role_tm,nick,prof from USER_INFO_66.t_user_00 where user_id=50066  and area_id=1;]
+2012-12-06 14:04:24	nil	0	50066 O:2A03:0
+2012-12-06 14:04:25	nil	0	50066 I:2A11
+2012-12-06 14:04:25	nil	0	50066 SQL:[select count(*) from USER_INFO_66.t_user_00 where user_id = 50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 14:04:25	nil	0	50066 SQL:[select nick,prof,msglist from USER_INFO_66.t_user_00 where user_id=50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 14:04:25	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and  friend_type = 0;]
+2012-12-06 14:04:25	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and friend_type = 1;]
+2012-12-06 14:04:25	nil	0	50066 O:2A11:0
+2012-12-06 14:05:18	LOGHEAD	20853	uman-db-10.1.1.20
+2012-12-06 14:05:18	nil	0	load bind  from lua 
+2012-12-06 14:05:18	nil	0	--lua config--
+2012-12-06 14:05:18	nil	0		recv_sem_key	= 97968 
+2012-12-06 14:05:18	nil	0		cfg_center_ip	= 10.1.1.5 
+2012-12-06 14:05:18	nil	0		DB_IP	= localhost 
+2012-12-06 14:05:18	nil	0		CHANGE_LOG_ADDR	= 10.1.1.58:30004 
+2012-12-06 14:05:18	nil	0		project_name	= uman 
+2012-12-06 14:05:18	nil	0		LOG_HEX_DATA_FLAG	= 0 
+2012-12-06 14:05:18	nil	0		DB_USER	= root 
+2012-12-06 14:05:18	nil	0		LOG_VIP_ITEM_ADDR	= 10.1.1.20:13001 
+2012-12-06 14:05:18	nil	0		max_log_files	= 0 
+2012-12-06 14:05:18	nil	0		send_sem_key	= 97966 
+2012-12-06 14:05:18	nil	0		pkg_timeout	= 5 
+2012-12-06 14:05:18	nil	0		log_size	= 32000000 
+2012-12-06 14:05:18	nil	0		svc_type	= db 
+2012-12-06 14:05:18	nil	0		tlog_file_interval_sec	= 86400 
+2012-12-06 14:05:18	nil	0		log_level	= 7 
+2012-12-06 14:05:18	nil	0		DB_PASSWD	= ta0mee 
+2012-12-06 14:05:18	nil	0		log_dir	= ./log 
+2012-12-06 14:05:18	nil	0		cfg_center_port	= 13330 
+2012-12-06 14:05:18	nil	0		IS_LOG_DEBUG_SQL	= 1 
+2012-12-06 14:05:18	nil	0		worker_num	= 2 
+2012-12-06 14:05:18	nil	0	
+2012-12-06 14:05:18	nil	0		 10.1.1.20  14001  tcp  0
+2012-12-06 14:05:18	nil	0		 10.1.1.20  14001  udp  0
+2012-12-06 14:05:18	nil	0	dlsym no find: :handle_open 
+2012-12-06 14:05:18	nil	0	dlsym no find: :handle_close 
+2012-12-06 14:05:18	nil	0	dlsym no find: :handle_timer 
+2012-12-06 14:05:18	nil	0	MYSQL_INTERFACE::MYSQL_INTERFACE  7
+2012-12-06 14:05:18	nil	0	DB conn msg [localhost][root][ta0mee][]
+2012-12-06 14:05:18	nil	0	DB connect is ok [0]
+
+2012-12-06 14:05:18	nil	0	EVN: TEST 
+2012-12-06 14:05:18	nil	0	MYSQL_INTERFACE::MYSQL_INTERFACE  7
+2012-12-06 14:05:18	nil	0	XXXXx work_num:2
+2012-12-06 14:05:18	nil	0	cur VERSION:DBPUB:2011-02-09
+2012-12-06 14:05:18	nil	0	cur VERSION:DBPUB:2011-02-09
+2012-12-06 14:05:18	nil	0	DB conn msg [localhost][root][ta0mee][]
+2012-12-06 14:05:18	nil	0	DB connect is ok [0]
+
+2012-12-06 14:05:18	nil	0	EVN: TEST 
+2012-12-06 14:06:37	nil	0	50066 I:2A03
+2012-12-06 14:06:37	nil	0	50066 SQL:[select role_tm,nick,prof from USER_INFO_66.t_user_00 where user_id=50066  and area_id=1;]
+2012-12-06 14:06:37	nil	0	50066 O:2A03:0
+2012-12-06 14:06:38	nil	0	50066 I:2A11
+2012-12-06 14:06:38	nil	0	50066 SQL:[select count(*) from USER_INFO_66.t_user_00 where user_id = 50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 14:06:38	nil	0	50066 SQL:[select nick,prof,msglist from USER_INFO_66.t_user_00 where user_id=50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 14:06:38	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and  friend_type = 0;]
+2012-12-06 14:06:38	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and friend_type = 1;]
+2012-12-06 14:06:38	nil	0	50066 O:2A11:0
+2012-12-06 14:09:37	nil	0	50066 I:2A03
+2012-12-06 14:09:37	nil	0	50066 SQL:[select role_tm,nick,prof from USER_INFO_66.t_user_00 where user_id=50066  and area_id=1;]
+2012-12-06 14:09:37	nil	0	50066 O:2A03:0
+2012-12-06 14:09:37	nil	0	50066 I:2A11
+2012-12-06 14:09:37	nil	0	50066 SQL:[select count(*) from USER_INFO_66.t_user_00 where user_id = 50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 14:09:37	nil	0	50066 SQL:[select nick,prof,msglist from USER_INFO_66.t_user_00 where user_id=50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 14:09:37	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and  friend_type = 0;]
+2012-12-06 14:09:37	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and friend_type = 1;]
+2012-12-06 14:09:37	nil	0	50066 O:2A11:0
+2012-12-06 14:10:55	nil	0	50066 I:2A03
+2012-12-06 14:10:55	nil	0	50066 SQL:[select role_tm,nick,prof from USER_INFO_66.t_user_00 where user_id=50066  and area_id=1;]
+2012-12-06 14:10:55	nil	0	50066 O:2A03:0
+2012-12-06 14:10:56	nil	0	50066 I:2A11
+2012-12-06 14:10:56	nil	0	50066 SQL:[select count(*) from USER_INFO_66.t_user_00 where user_id = 50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 14:10:56	nil	0	50066 SQL:[select nick,prof,msglist from USER_INFO_66.t_user_00 where user_id=50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 14:10:56	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and  friend_type = 0;]
+2012-12-06 14:10:56	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and friend_type = 1;]
+2012-12-06 14:10:56	nil	0	50066 O:2A11:0
+2012-12-06 14:12:18	nil	0	50066 I:2A03
+2012-12-06 14:12:18	nil	0	50066 SQL:[select role_tm,nick,prof from USER_INFO_66.t_user_00 where user_id=50066  and area_id=1;]
+2012-12-06 14:12:18	nil	0	50066 O:2A03:0
+2012-12-06 14:12:19	nil	0	50066 I:2A11
+2012-12-06 14:12:19	nil	0	50066 SQL:[select count(*) from USER_INFO_66.t_user_00 where user_id = 50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 14:12:19	nil	0	50066 SQL:[select nick,prof,msglist from USER_INFO_66.t_user_00 where user_id=50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 14:12:19	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and  friend_type = 0;]
+2012-12-06 14:12:19	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and friend_type = 1;]
+2012-12-06 14:12:19	nil	0	50066 O:2A11:0
+2012-12-06 14:14:15	LOGHEAD	21165	uman-db-10.1.1.20
+2012-12-06 14:14:15	nil	0	load bind  from lua 
+2012-12-06 14:14:15	nil	0	--lua config--
+2012-12-06 14:14:15	nil	0		recv_sem_key	= 97968 
+2012-12-06 14:14:15	nil	0		cfg_center_ip	= 10.1.1.5 
+2012-12-06 14:14:15	nil	0		DB_IP	= localhost 
+2012-12-06 14:14:15	nil	0		CHANGE_LOG_ADDR	= 10.1.1.58:30004 
+2012-12-06 14:14:15	nil	0		project_name	= uman 
+2012-12-06 14:14:15	nil	0		LOG_HEX_DATA_FLAG	= 0 
+2012-12-06 14:14:15	nil	0		DB_USER	= root 
+2012-12-06 14:14:15	nil	0		LOG_VIP_ITEM_ADDR	= 10.1.1.20:13001 
+2012-12-06 14:14:15	nil	0		max_log_files	= 0 
+2012-12-06 14:14:15	nil	0		send_sem_key	= 97966 
+2012-12-06 14:14:15	nil	0		pkg_timeout	= 5 
+2012-12-06 14:14:15	nil	0		log_size	= 32000000 
+2012-12-06 14:14:15	nil	0		svc_type	= db 
+2012-12-06 14:14:15	nil	0		tlog_file_interval_sec	= 86400 
+2012-12-06 14:14:15	nil	0		log_level	= 7 
+2012-12-06 14:14:15	nil	0		DB_PASSWD	= ta0mee 
+2012-12-06 14:14:15	nil	0		log_dir	= ./log 
+2012-12-06 14:14:15	nil	0		cfg_center_port	= 13330 
+2012-12-06 14:14:15	nil	0		IS_LOG_DEBUG_SQL	= 1 
+2012-12-06 14:14:15	nil	0		worker_num	= 2 
+2012-12-06 14:14:15	nil	0	
+2012-12-06 14:14:15	nil	0		 10.1.1.20  14001  tcp  0
+2012-12-06 14:14:15	nil	0		 10.1.1.20  14001  udp  0
+2012-12-06 14:14:15	nil	0	dlsym no find: :handle_open 
+2012-12-06 14:14:15	nil	0	dlsym no find: :handle_close 
+2012-12-06 14:14:15	nil	0	dlsym no find: :handle_timer 
+2012-12-06 14:14:15	nil	0	MYSQL_INTERFACE::MYSQL_INTERFACE  7
+2012-12-06 14:14:15	nil	0	DB conn msg [localhost][root][ta0mee][]
+2012-12-06 14:14:15	nil	0	MYSQL_INTERFACE::MYSQL_INTERFACE  7
+2012-12-06 14:14:15	nil	0	DB conn msg [localhost][root][ta0mee][]
+2012-12-06 14:14:15	nil	0	DB connect is ok [0]
+
+2012-12-06 14:14:15	nil	0	cur VERSION:DBPUB:2011-02-09
+2012-12-06 14:14:15	nil	0	XXXXx work_num:2
+2012-12-06 14:14:15	nil	0	cur VERSION:DBPUB:2011-02-09
+2012-12-06 14:14:15	nil	0	DB connect is ok [0]
+
+2012-12-06 14:14:15	nil	0	EVN: TEST 
+2012-12-06 14:14:15	nil	0	EVN: TEST 
+2012-12-06 14:14:28	nil	0	50068 I:2A03
+2012-12-06 14:14:28	nil	0	335655 
+2012-12-06 14:14:28	nil	0	xxxx DEAL_FUNC xxxx 
+2012-12-06 14:14:28	nil	0	50068 SQL:[select role_tm,nick,prof from USER_INFO_68.t_user_00 where user_id=50068  and area_id=1;]
+2012-12-06 14:14:28	nil	0	50068 O:2A03:0
+2012-12-06 14:14:33	nil	0	50068 I:2A02
+2012-12-06 14:14:33	nil	0	335655 
+2012-12-06 14:14:33	nil	0	xxxx DEAL_FUNC xxxx 
+2012-12-06 14:14:33	nil	0	50068 SQL:[select count(role_tm) from USER_INFO_68.t_user_00 where  user_id=50068 and area_id=1 ;]
+2012-12-06 14:14:33	nil	0	50068 SQL:[insert into USER_INFO_68.t_user_00(user_id,area_id,role_tm, nick, prof) values(50068, 1, 1354821273, '\0漂亮的云�', 1);]
+2012-12-06 14:14:33	nil	0	50068 O:2A02:0
+2012-12-06 14:14:47	nil	0	50068 I:2A11
+2012-12-06 14:14:47	nil	0	335655 
+2012-12-06 14:14:47	nil	0	xxxx DEAL_FUNC xxxx 
+2012-12-06 14:14:47	nil	0	50068 SQL:[select count(*) from USER_INFO_68.t_user_00 where user_id = 50068 and area_id=1 and role_tm=1354821273;]
+2012-12-06 14:14:47	nil	0	50068 O:2A11:1105
+2012-12-06 14:15:47	nil	0	50066 I:2A03
+2012-12-06 14:15:47	nil	0	335655 
+2012-12-06 14:15:47	nil	0	xxxx DEAL_FUNC xxxx 
+2012-12-06 14:15:47	nil	0	50066 SQL:[select role_tm,nick,prof from USER_INFO_66.t_user_00 where user_id=50066  and area_id=1;]
+2012-12-06 14:15:47	nil	0	50066 O:2A03:0
+2012-12-06 14:15:47	nil	0	50066 I:2A11
+2012-12-06 14:15:47	nil	0	335655 
+2012-12-06 14:15:47	nil	0	xxxx DEAL_FUNC xxxx 
+2012-12-06 14:15:47	nil	0	50066 SQL:[select count(*) from USER_INFO_66.t_user_00 where user_id = 50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 14:15:47	nil	0	50066 SQL:[select nick,prof,map_x,map_y,msglist from USER_INFO_66.t_user_00 where user_id=50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 14:15:47	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and  friend_type = 0;]
+2012-12-06 14:15:47	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and friend_type = 1;]
+2012-12-06 14:15:47	nil	0	50066 O:2A11:0
+2012-12-06 14:16:37	nil	0	50066 I:2A03
+2012-12-06 14:16:37	nil	0	335655 
+2012-12-06 14:16:37	nil	0	xxxx DEAL_FUNC xxxx 
+2012-12-06 14:16:37	nil	0	50066 SQL:[select role_tm,nick,prof from USER_INFO_66.t_user_00 where user_id=50066  and area_id=1;]
+2012-12-06 14:16:37	nil	0	50066 O:2A03:0
+2012-12-06 14:16:38	nil	0	50066 I:2A11
+2012-12-06 14:16:38	nil	0	335655 
+2012-12-06 14:16:38	nil	0	xxxx DEAL_FUNC xxxx 
+2012-12-06 14:16:38	nil	0	50066 SQL:[select count(*) from USER_INFO_66.t_user_00 where user_id = 50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 14:16:38	nil	0	50066 SQL:[select nick,prof,map_x,map_y,msglist from USER_INFO_66.t_user_00 where user_id=50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 14:16:38	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and  friend_type = 0;]
+2012-12-06 14:16:38	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and friend_type = 1;]
+2012-12-06 14:16:38	nil	0	50066 O:2A11:0
+2012-12-06 14:17:55	nil	0	50066 I:2A03
+2012-12-06 14:17:55	nil	0	335655 
+2012-12-06 14:17:55	nil	0	xxxx DEAL_FUNC xxxx 
+2012-12-06 14:17:55	nil	0	50066 SQL:[select role_tm,nick,prof from USER_INFO_66.t_user_00 where user_id=50066  and area_id=1;]
+2012-12-06 14:17:55	nil	0	50066 O:2A03:0
+2012-12-06 14:17:55	nil	0	50066 I:2A11
+2012-12-06 14:17:55	nil	0	335655 
+2012-12-06 14:17:55	nil	0	xxxx DEAL_FUNC xxxx 
+2012-12-06 14:17:55	nil	0	50066 SQL:[select count(*) from USER_INFO_66.t_user_00 where user_id = 50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 14:17:55	nil	0	50066 SQL:[select nick,prof,map_x,map_y,msglist from USER_INFO_66.t_user_00 where user_id=50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 14:17:55	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and  friend_type = 0;]
+2012-12-06 14:17:55	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and friend_type = 1;]
+2012-12-06 14:17:55	nil	0	50066 O:2A11:0
+2012-12-06 14:20:54	nil	0	50066 I:2A03
+2012-12-06 14:20:54	nil	0	335655 
+2012-12-06 14:20:54	nil	0	xxxx DEAL_FUNC xxxx 
+2012-12-06 14:20:54	nil	0	50066 SQL:[select role_tm,nick,prof from USER_INFO_66.t_user_00 where user_id=50066  and area_id=1;]
+2012-12-06 14:20:54	nil	0	50066 O:2A03:0
+2012-12-06 14:20:54	nil	0	50066 I:2A11
+2012-12-06 14:20:54	nil	0	335655 
+2012-12-06 14:20:54	nil	0	xxxx DEAL_FUNC xxxx 
+2012-12-06 14:20:54	nil	0	50066 SQL:[select count(*) from USER_INFO_66.t_user_00 where user_id = 50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 14:20:54	nil	0	50066 SQL:[select nick,prof,map_x,map_y,msglist from USER_INFO_66.t_user_00 where user_id=50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 14:20:54	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and  friend_type = 0;]
+2012-12-06 14:20:54	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and friend_type = 1;]
+2012-12-06 14:20:54	nil	0	50066 O:2A11:0
+2012-12-06 14:21:09	nil	0	50066 I:2A03
+2012-12-06 14:21:09	nil	0	335655 
+2012-12-06 14:21:09	nil	0	xxxx DEAL_FUNC xxxx 
+2012-12-06 14:21:09	nil	0	50066 SQL:[select role_tm,nick,prof from USER_INFO_66.t_user_00 where user_id=50066  and area_id=1;]
+2012-12-06 14:21:09	nil	0	50066 O:2A03:0
+2012-12-06 14:21:11	nil	0	0 I:2A11
+2012-12-06 14:21:11	nil	0	335655 
+2012-12-06 14:21:11	nil	0	xxxx DEAL_FUNC xxxx 
+2012-12-06 14:21:11	nil	0	0 SQL:[select count(*) from USER_INFO_00.t_user_00 where user_id = 0 and area_id=1 and role_tm=1354750236;]
+2012-12-06 14:21:11	nil	0	0 O:2A11:1105
+2012-12-06 14:22:30	nil	0	50066 I:2A03
+2012-12-06 14:22:30	nil	0	335655 
+2012-12-06 14:22:30	nil	0	xxxx DEAL_FUNC xxxx 
+2012-12-06 14:22:30	nil	0	50066 SQL:[select role_tm,nick,prof from USER_INFO_66.t_user_00 where user_id=50066  and area_id=1;]
+2012-12-06 14:22:30	nil	0	50066 O:2A03:0
+2012-12-06 14:22:31	nil	0	50066 I:2A11
+2012-12-06 14:22:31	nil	0	335655 
+2012-12-06 14:22:31	nil	0	xxxx DEAL_FUNC xxxx 
+2012-12-06 14:22:31	nil	0	50066 SQL:[select count(*) from USER_INFO_66.t_user_00 where user_id = 50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 14:22:31	nil	0	50066 SQL:[select nick,prof,map_x,map_y,msglist from USER_INFO_66.t_user_00 where user_id=50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 14:22:31	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and  friend_type = 0;]
+2012-12-06 14:22:31	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and friend_type = 1;]
+2012-12-06 14:22:31	nil	0	50066 O:2A11:0
+2012-12-06 14:23:57	nil	0	50066 I:2A03
+2012-12-06 14:23:57	nil	0	335655 
+2012-12-06 14:23:57	nil	0	xxxx DEAL_FUNC xxxx 
+2012-12-06 14:23:57	nil	0	50066 SQL:[select role_tm,nick,prof from USER_INFO_66.t_user_00 where user_id=50066  and area_id=1;]
+2012-12-06 14:23:57	nil	0	50066 O:2A03:0
+2012-12-06 14:23:58	nil	0	50066 I:2A11
+2012-12-06 14:23:58	nil	0	335655 
+2012-12-06 14:23:58	nil	0	xxxx DEAL_FUNC xxxx 
+2012-12-06 14:23:58	nil	0	50066 SQL:[select count(*) from USER_INFO_66.t_user_00 where user_id = 50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 14:23:58	nil	0	50066 SQL:[select nick,prof,map_x,map_y,msglist from USER_INFO_66.t_user_00 where user_id=50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 14:23:58	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and  friend_type = 0;]
+2012-12-06 14:23:58	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and friend_type = 1;]
+2012-12-06 14:23:58	nil	0	50066 O:2A11:0
+2012-12-06 14:25:05	nil	0	50066 I:2A03
+2012-12-06 14:25:05	nil	0	335655 
+2012-12-06 14:25:05	nil	0	xxxx DEAL_FUNC xxxx 
+2012-12-06 14:25:05	nil	0	50066 SQL:[select role_tm,nick,prof from USER_INFO_66.t_user_00 where user_id=50066  and area_id=1;]
+2012-12-06 14:25:05	nil	0	50066 O:2A03:0
+2012-12-06 14:25:06	nil	0	50066 I:2A11
+2012-12-06 14:25:06	nil	0	335655 
+2012-12-06 14:25:06	nil	0	xxxx DEAL_FUNC xxxx 
+2012-12-06 14:25:06	nil	0	50066 SQL:[select count(*) from USER_INFO_66.t_user_00 where user_id = 50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 14:25:06	nil	0	50066 SQL:[select nick,prof,map_x,map_y,msglist from USER_INFO_66.t_user_00 where user_id=50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 14:25:06	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and  friend_type = 0;]
+2012-12-06 14:25:06	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and friend_type = 1;]
+2012-12-06 14:25:06	nil	0	50066 O:2A11:0
+2012-12-06 14:25:34	nil	0	50066 I:2A03
+2012-12-06 14:25:34	nil	0	335655 
+2012-12-06 14:25:34	nil	0	xxxx DEAL_FUNC xxxx 
+2012-12-06 14:25:34	nil	0	50066 SQL:[select role_tm,nick,prof from USER_INFO_66.t_user_00 where user_id=50066  and area_id=1;]
+2012-12-06 14:25:34	nil	0	50066 O:2A03:0
+2012-12-06 14:25:35	nil	0	50066 I:2A11
+2012-12-06 14:25:35	nil	0	335655 
+2012-12-06 14:25:35	nil	0	xxxx DEAL_FUNC xxxx 
+2012-12-06 14:25:35	nil	0	50066 SQL:[select count(*) from USER_INFO_66.t_user_00 where user_id = 50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 14:25:35	nil	0	50066 SQL:[select nick,prof,map_x,map_y,msglist from USER_INFO_66.t_user_00 where user_id=50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 14:25:35	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and  friend_type = 0;]
+2012-12-06 14:25:35	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and friend_type = 1;]
+2012-12-06 14:25:35	nil	0	50066 O:2A11:0
+2012-12-06 14:29:47	nil	0	50066 I:2A03
+2012-12-06 14:29:47	nil	0	335655 
+2012-12-06 14:29:47	nil	0	xxxx DEAL_FUNC xxxx 
+2012-12-06 14:29:47	nil	0	50066 SQL:[select role_tm,nick,prof from USER_INFO_66.t_user_00 where user_id=50066  and area_id=1;]
+2012-12-06 14:29:47	nil	0	50066 O:2A03:0
+2012-12-06 14:29:49	nil	0	50066 I:2A11
+2012-12-06 14:29:49	nil	0	335655 
+2012-12-06 14:29:49	nil	0	xxxx DEAL_FUNC xxxx 
+2012-12-06 14:29:49	nil	0	50066 SQL:[select count(*) from USER_INFO_66.t_user_00 where user_id = 50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 14:29:49	nil	0	50066 SQL:[select nick,prof,map_x,map_y,msglist from USER_INFO_66.t_user_00 where user_id=50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 14:29:49	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and  friend_type = 0;]
+2012-12-06 14:29:49	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and friend_type = 1;]
+2012-12-06 14:29:49	nil	0	50066 O:2A11:0
+2012-12-06 14:31:26	nil	0	50066 I:2A03
+2012-12-06 14:31:26	nil	0	335655 
+2012-12-06 14:31:26	nil	0	xxxx DEAL_FUNC xxxx 
+2012-12-06 14:31:26	nil	0	50066 SQL:[select role_tm,nick,prof from USER_INFO_66.t_user_00 where user_id=50066  and area_id=1;]
+2012-12-06 14:31:26	nil	0	50066 O:2A03:0
+2012-12-06 14:31:27	nil	0	50066 I:2A11
+2012-12-06 14:31:27	nil	0	335655 
+2012-12-06 14:31:27	nil	0	xxxx DEAL_FUNC xxxx 
+2012-12-06 14:31:27	nil	0	50066 SQL:[select count(*) from USER_INFO_66.t_user_00 where user_id = 50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 14:31:27	nil	0	50066 SQL:[select nick,prof,map_x,map_y,msglist from USER_INFO_66.t_user_00 where user_id=50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 14:31:27	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and  friend_type = 0;]
+2012-12-06 14:31:27	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and friend_type = 1;]
+2012-12-06 14:31:27	nil	0	50066 O:2A11:0
+2012-12-06 14:32:00	LOGHEAD	21641	uman-db-10.1.1.20
+2012-12-06 14:32:00	nil	0	load bind  from lua 
+2012-12-06 14:32:00	nil	0	--lua config--
+2012-12-06 14:32:00	nil	0		recv_sem_key	= 97968 
+2012-12-06 14:32:00	nil	0		cfg_center_ip	= 10.1.1.5 
+2012-12-06 14:32:00	nil	0		DB_IP	= localhost 
+2012-12-06 14:32:00	nil	0		CHANGE_LOG_ADDR	= 10.1.1.58:30004 
+2012-12-06 14:32:00	nil	0		project_name	= uman 
+2012-12-06 14:32:00	nil	0		LOG_HEX_DATA_FLAG	= 0 
+2012-12-06 14:32:00	nil	0		DB_USER	= root 
+2012-12-06 14:32:00	nil	0		LOG_VIP_ITEM_ADDR	= 10.1.1.20:13001 
+2012-12-06 14:32:00	nil	0		max_log_files	= 0 
+2012-12-06 14:32:00	nil	0		send_sem_key	= 97966 
+2012-12-06 14:32:00	nil	0		pkg_timeout	= 5 
+2012-12-06 14:32:00	nil	0		log_size	= 32000000 
+2012-12-06 14:32:00	nil	0		svc_type	= db 
+2012-12-06 14:32:00	nil	0		tlog_file_interval_sec	= 86400 
+2012-12-06 14:32:00	nil	0		log_level	= 7 
+2012-12-06 14:32:00	nil	0		DB_PASSWD	= ta0mee 
+2012-12-06 14:32:00	nil	0		log_dir	= ./log 
+2012-12-06 14:32:00	nil	0		cfg_center_port	= 13330 
+2012-12-06 14:32:00	nil	0		IS_LOG_DEBUG_SQL	= 1 
+2012-12-06 14:32:00	nil	0		worker_num	= 2 
+2012-12-06 14:32:00	nil	0	
+2012-12-06 14:32:00	nil	0		 10.1.1.20  14001  tcp  0
+2012-12-06 14:32:00	nil	0		 10.1.1.20  14001  udp  0
+2012-12-06 14:32:00	nil	0	dlsym no find: :handle_open 
+2012-12-06 14:32:00	nil	0	dlsym no find: :handle_close 
+2012-12-06 14:32:00	nil	0	dlsym no find: :handle_timer 
+2012-12-06 14:32:00	nil	0	MYSQL_INTERFACE::MYSQL_INTERFACE  7
+2012-12-06 14:32:00	nil	0	DB conn msg [localhost][root][ta0mee][]
+2012-12-06 14:32:00	nil	0	DB connect is ok [0]
+
+2012-12-06 14:32:00	nil	0	EVN: TEST 
+2012-12-06 14:32:00	nil	0	MYSQL_INTERFACE::MYSQL_INTERFACE  7
+2012-12-06 14:32:00	nil	0	cur VERSION:DBPUB:2011-02-09
+2012-12-06 14:32:00	nil	0	DB conn msg [localhost][root][ta0mee][]
+2012-12-06 14:32:00	nil	0	XXXXx work_num:2
+2012-12-06 14:32:00	nil	0	cur VERSION:DBPUB:2011-02-09
+2012-12-06 14:32:00	nil	0	DB connect is ok [0]
+
+2012-12-06 14:32:00	nil	0	EVN: TEST 
+2012-12-06 14:32:38	LOGHEAD	21724	uman-db-10.1.1.20
+2012-12-06 14:32:38	nil	0	load bind  from lua 
+2012-12-06 14:32:38	nil	0	--lua config--
+2012-12-06 14:32:38	nil	0		recv_sem_key	= 97968 
+2012-12-06 14:32:38	nil	0		cfg_center_ip	= 10.1.1.5 
+2012-12-06 14:32:38	nil	0		DB_IP	= localhost 
+2012-12-06 14:32:38	nil	0		CHANGE_LOG_ADDR	= 10.1.1.58:30004 
+2012-12-06 14:32:38	nil	0		project_name	= uman 
+2012-12-06 14:32:38	nil	0		LOG_HEX_DATA_FLAG	= 0 
+2012-12-06 14:32:38	nil	0		DB_USER	= root 
+2012-12-06 14:32:38	nil	0		LOG_VIP_ITEM_ADDR	= 10.1.1.20:13001 
+2012-12-06 14:32:38	nil	0		max_log_files	= 0 
+2012-12-06 14:32:38	nil	0		send_sem_key	= 97966 
+2012-12-06 14:32:38	nil	0		pkg_timeout	= 5 
+2012-12-06 14:32:38	nil	0		log_size	= 32000000 
+2012-12-06 14:32:38	nil	0		svc_type	= db 
+2012-12-06 14:32:38	nil	0		tlog_file_interval_sec	= 86400 
+2012-12-06 14:32:38	nil	0		log_level	= 7 
+2012-12-06 14:32:38	nil	0		DB_PASSWD	= ta0mee 
+2012-12-06 14:32:38	nil	0		log_dir	= ./log 
+2012-12-06 14:32:38	nil	0		cfg_center_port	= 13330 
+2012-12-06 14:32:38	nil	0		IS_LOG_DEBUG_SQL	= 1 
+2012-12-06 14:32:38	nil	0		worker_num	= 2 
+2012-12-06 14:32:38	nil	0	
+2012-12-06 14:32:38	nil	0		 10.1.1.20  14001  tcp  0
+2012-12-06 14:32:38	nil	0		 10.1.1.20  14001  udp  0
+2012-12-06 14:32:38	nil	0	dlsym no find: :handle_open 
+2012-12-06 14:32:38	nil	0	dlsym no find: :handle_close 
+2012-12-06 14:32:38	nil	0	dlsym no find: :handle_timer 
+2012-12-06 14:32:38	nil	0	MYSQL_INTERFACE::MYSQL_INTERFACE  7
+2012-12-06 14:32:38	nil	0	DB conn msg [localhost][root][ta0mee][]
+2012-12-06 14:32:38	nil	0	MYSQL_INTERFACE::MYSQL_INTERFACE  7
+2012-12-06 14:32:38	nil	0	cur VERSION:DBPUB:2011-02-09
+2012-12-06 14:32:38	nil	0	DB conn msg [localhost][root][ta0mee][]
+2012-12-06 14:32:38	nil	0	DB connect is ok [0]
+
+2012-12-06 14:32:38	nil	0	XXXXx work_num:2
+2012-12-06 14:32:38	nil	0	cur VERSION:DBPUB:2011-02-09
+2012-12-06 14:32:38	nil	0	DB connect is ok [0]
+
+2012-12-06 14:32:38	nil	0	EVN: TEST 
+2012-12-06 14:32:38	nil	0	EVN: TEST 
+2012-12-06 14:32:48	nil	0	50066 I:2A03
+2012-12-06 14:32:48	nil	0	335655 
+2012-12-06 14:32:48	nil	0	50066 SQL:[select role_tm,nick,prof from USER_INFO_66.t_user_00 where user_id=50066  and area_id=1;]
+2012-12-06 14:32:48	nil	0	xxx commit 1
+2012-12-06 14:32:48	nil	0	50066 O:2A03:0
+2012-12-06 14:32:50	nil	0	0 I:2A11
+2012-12-06 14:32:50	nil	0	335655 
+2012-12-06 14:32:50	nil	0	0 SQL:[select count(*) from USER_INFO_00.t_user_00 where user_id = 0 and area_id=1 and role_tm=1354750236;]
+2012-12-06 14:32:50	nil	0	xxx commit 1
+2012-12-06 14:32:50	nil	0	0 O:2A11:1105
+2012-12-06 14:33:01	nil	0	50066 I:2A03
+2012-12-06 14:33:01	nil	0	335655 
+2012-12-06 14:33:01	nil	0	50066 SQL:[select role_tm,nick,prof from USER_INFO_66.t_user_00 where user_id=50066  and area_id=1;]
+2012-12-06 14:33:01	nil	0	xxx commit 1
+2012-12-06 14:33:01	nil	0	50066 O:2A03:0
+2012-12-06 14:34:22	nil	0	50066 I:2A03
+2012-12-06 14:34:22	nil	0	335655 
+2012-12-06 14:34:22	nil	0	50066 SQL:[select role_tm,nick,prof from USER_INFO_66.t_user_00 where user_id=50066  and area_id=1;]
+2012-12-06 14:34:22	nil	0	xxx commit 1
+2012-12-06 14:34:22	nil	0	50066 O:2A03:0
+2012-12-06 14:34:23	nil	0	50066 I:2A11
+2012-12-06 14:34:23	nil	0	335655 
+2012-12-06 14:34:23	nil	0	50066 SQL:[select count(*) from USER_INFO_66.t_user_00 where user_id = 50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 14:34:23	nil	0	50066 SQL:[select nick,prof,map_x,map_y,msglist from USER_INFO_66.t_user_00 where user_id=50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 14:34:23	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and  friend_type = 0;]
+2012-12-06 14:34:23	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and friend_type = 1;]
+2012-12-06 14:34:23	nil	0	xxx commit 1
+2012-12-06 14:34:23	nil	0	50066 O:2A11:0
+2012-12-06 14:37:31	nil	0	50066 I:2A03
+2012-12-06 14:37:31	nil	0	335655 
+2012-12-06 14:37:31	nil	0	50066 SQL:[select role_tm,nick,prof from USER_INFO_66.t_user_00 where user_id=50066  and area_id=1;]
+2012-12-06 14:37:31	nil	0	xxx commit 1
+2012-12-06 14:37:31	nil	0	50066 O:2A03:0
+2012-12-06 14:37:32	nil	0	50066 I:2A11
+2012-12-06 14:37:32	nil	0	335655 
+2012-12-06 14:37:32	nil	0	50066 SQL:[select count(*) from USER_INFO_66.t_user_00 where user_id = 50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 14:37:32	nil	0	50066 SQL:[select nick,prof,map_x,map_y,msglist from USER_INFO_66.t_user_00 where user_id=50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 14:37:32	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and  friend_type = 0;]
+2012-12-06 14:37:32	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and friend_type = 1;]
+2012-12-06 14:37:32	nil	0	xxx commit 1
+2012-12-06 14:37:32	nil	0	50066 O:2A11:0
+2012-12-06 14:38:49	nil	0	50066 I:2A03
+2012-12-06 14:38:49	nil	0	335655 
+2012-12-06 14:38:49	nil	0	50066 SQL:[select role_tm,nick,prof from USER_INFO_66.t_user_00 where user_id=50066  and area_id=1;]
+2012-12-06 14:38:49	nil	0	xxx commit 1
+2012-12-06 14:38:49	nil	0	50066 O:2A03:0
+2012-12-06 14:38:50	nil	0	50066 I:2A11
+2012-12-06 14:38:50	nil	0	335655 
+2012-12-06 14:38:50	nil	0	50066 SQL:[select count(*) from USER_INFO_66.t_user_00 where user_id = 50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 14:38:50	nil	0	50066 SQL:[select nick,prof,map_x,map_y,msglist from USER_INFO_66.t_user_00 where user_id=50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 14:38:50	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and  friend_type = 0;]
+2012-12-06 14:38:50	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and friend_type = 1;]
+2012-12-06 14:38:50	nil	0	xxx commit 1
+2012-12-06 14:38:50	nil	0	50066 O:2A11:0
+2012-12-06 14:40:01	nil	0	50066 I:2A03
+2012-12-06 14:40:01	nil	0	335655 
+2012-12-06 14:40:01	nil	0	50066 SQL:[select role_tm,nick,prof from USER_INFO_66.t_user_00 where user_id=50066  and area_id=1;]
+2012-12-06 14:40:01	nil	0	xxx commit 1
+2012-12-06 14:40:01	nil	0	50066 O:2A03:0
+2012-12-06 14:40:02	nil	0	50066 I:2A11
+2012-12-06 14:40:02	nil	0	335655 
+2012-12-06 14:40:02	nil	0	50066 SQL:[select count(*) from USER_INFO_66.t_user_00 where user_id = 50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 14:40:02	nil	0	50066 SQL:[select nick,prof,map_x,map_y,msglist from USER_INFO_66.t_user_00 where user_id=50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 14:40:02	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and  friend_type = 0;]
+2012-12-06 14:40:02	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and friend_type = 1;]
+2012-12-06 14:40:02	nil	0	xxx commit 1
+2012-12-06 14:40:02	nil	0	50066 O:2A11:0
+2012-12-06 14:40:34	nil	0	50066 I:2A03
+2012-12-06 14:40:34	nil	0	335655 
+2012-12-06 14:40:34	nil	0	50066 SQL:[select role_tm,nick,prof from USER_INFO_66.t_user_00 where user_id=50066  and area_id=1;]
+2012-12-06 14:40:34	nil	0	xxx commit 1
+2012-12-06 14:40:34	nil	0	50066 O:2A03:0
+2012-12-06 14:40:35	nil	0	50066 I:2A11
+2012-12-06 14:40:35	nil	0	335655 
+2012-12-06 14:40:35	nil	0	50066 SQL:[select count(*) from USER_INFO_66.t_user_00 where user_id = 50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 14:40:35	nil	0	50066 SQL:[select nick,prof,map_x,map_y,msglist from USER_INFO_66.t_user_00 where user_id=50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 14:40:35	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and  friend_type = 0;]
+2012-12-06 14:40:35	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and friend_type = 1;]
+2012-12-06 14:40:35	nil	0	xxx commit 1
+2012-12-06 14:40:35	nil	0	50066 O:2A11:0
+2012-12-06 14:41:42	nil	0	50066 I:2A03
+2012-12-06 14:41:42	nil	0	335655 
+2012-12-06 14:41:42	nil	0	50066 SQL:[select role_tm,nick,prof from USER_INFO_66.t_user_00 where user_id=50066  and area_id=1;]
+2012-12-06 14:41:42	nil	0	xxx commit 1
+2012-12-06 14:41:42	nil	0	50066 O:2A03:0
+2012-12-06 14:41:43	nil	0	50066 I:2A11
+2012-12-06 14:41:43	nil	0	335655 
+2012-12-06 14:41:43	nil	0	50066 SQL:[select count(*) from USER_INFO_66.t_user_00 where user_id = 50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 14:41:43	nil	0	50066 SQL:[select nick,prof,map_x,map_y,msglist from USER_INFO_66.t_user_00 where user_id=50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 14:41:43	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and  friend_type = 0;]
+2012-12-06 14:41:43	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and friend_type = 1;]
+2012-12-06 14:41:43	nil	0	xxx commit 1
+2012-12-06 14:41:43	nil	0	50066 O:2A11:0
+2012-12-06 14:45:01	nil	0	50066 I:2A03
+2012-12-06 14:45:01	nil	0	335655 
+2012-12-06 14:45:01	nil	0	50066 SQL:[select role_tm,nick,prof from USER_INFO_66.t_user_00 where user_id=50066  and area_id=1;]
+2012-12-06 14:45:01	nil	0	xxx commit 1
+2012-12-06 14:45:01	nil	0	50066 O:2A03:0
+2012-12-06 14:45:02	nil	0	50066 I:2A11
+2012-12-06 14:45:02	nil	0	335655 
+2012-12-06 14:45:02	nil	0	50066 SQL:[select count(*) from USER_INFO_66.t_user_00 where user_id = 50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 14:45:02	nil	0	50066 SQL:[select nick,prof,map_x,map_y,msglist from USER_INFO_66.t_user_00 where user_id=50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 14:45:02	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and  friend_type = 0;]
+2012-12-06 14:45:02	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and friend_type = 1;]
+2012-12-06 14:45:02	nil	0	xxx commit 1
+2012-12-06 14:45:02	nil	0	50066 O:2A11:0
+2012-12-06 14:46:40	nil	0	50066 I:2A03
+2012-12-06 14:46:40	nil	0	335655 
+2012-12-06 14:46:40	nil	0	50066 SQL:[select role_tm,nick,prof from USER_INFO_66.t_user_00 where user_id=50066  and area_id=1;]
+2012-12-06 14:46:40	nil	0	xxx commit 1
+2012-12-06 14:46:40	nil	0	50066 O:2A03:0
+2012-12-06 14:46:41	nil	0	50066 I:2A11
+2012-12-06 14:46:41	nil	0	335655 
+2012-12-06 14:46:41	nil	0	50066 SQL:[select count(*) from USER_INFO_66.t_user_00 where user_id = 50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 14:46:41	nil	0	50066 SQL:[select nick,prof,map_x,map_y,msglist from USER_INFO_66.t_user_00 where user_id=50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 14:46:41	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and  friend_type = 0;]
+2012-12-06 14:46:41	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and friend_type = 1;]
+2012-12-06 14:46:41	nil	0	xxx commit 1
+2012-12-06 14:46:41	nil	0	50066 O:2A11:0
+2012-12-06 14:47:56	nil	0	50066 I:2A03
+2012-12-06 14:47:56	nil	0	335655 
+2012-12-06 14:47:56	nil	0	50066 SQL:[select role_tm,nick,prof from USER_INFO_66.t_user_00 where user_id=50066  and area_id=1;]
+2012-12-06 14:47:56	nil	0	xxx commit 1
+2012-12-06 14:47:56	nil	0	50066 O:2A03:0
+2012-12-06 14:47:57	nil	0	50066 I:2A11
+2012-12-06 14:47:57	nil	0	335655 
+2012-12-06 14:47:57	nil	0	50066 SQL:[select count(*) from USER_INFO_66.t_user_00 where user_id = 50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 14:47:57	nil	0	50066 SQL:[select nick,prof,map_x,map_y,msglist from USER_INFO_66.t_user_00 where user_id=50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 14:47:57	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and  friend_type = 0;]
+2012-12-06 14:47:57	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and friend_type = 1;]
+2012-12-06 14:47:57	nil	0	xxx commit 1
+2012-12-06 14:47:57	nil	0	50066 O:2A11:0
+2012-12-06 14:49:02	nil	0	50066 I:2A03
+2012-12-06 14:49:02	nil	0	335655 
+2012-12-06 14:49:02	nil	0	50066 SQL:[select role_tm,nick,prof from USER_INFO_66.t_user_00 where user_id=50066  and area_id=1;]
+2012-12-06 14:49:02	nil	0	xxx commit 1
+2012-12-06 14:49:02	nil	0	50066 O:2A03:0
+2012-12-06 14:49:03	nil	0	50066 I:2A11
+2012-12-06 14:49:03	nil	0	335655 
+2012-12-06 14:49:03	nil	0	50066 SQL:[select count(*) from USER_INFO_66.t_user_00 where user_id = 50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 14:49:03	nil	0	50066 SQL:[select nick,prof,map_x,map_y,msglist from USER_INFO_66.t_user_00 where user_id=50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 14:49:03	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and  friend_type = 0;]
+2012-12-06 14:49:03	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and friend_type = 1;]
+2012-12-06 14:49:03	nil	0	xxx commit 1
+2012-12-06 14:49:03	nil	0	50066 O:2A11:0
+2012-12-06 14:50:48	nil	0	50066 I:2A03
+2012-12-06 14:50:48	nil	0	335655 
+2012-12-06 14:50:48	nil	0	50066 SQL:[select role_tm,nick,prof from USER_INFO_66.t_user_00 where user_id=50066  and area_id=1;]
+2012-12-06 14:50:48	nil	0	xxx commit 1
+2012-12-06 14:50:48	nil	0	50066 O:2A03:0
+2012-12-06 14:50:48	nil	0	50066 I:2A11
+2012-12-06 14:50:48	nil	0	335655 
+2012-12-06 14:50:48	nil	0	50066 SQL:[select count(*) from USER_INFO_66.t_user_00 where user_id = 50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 14:50:48	nil	0	50066 SQL:[select nick,prof,map_x,map_y,msglist from USER_INFO_66.t_user_00 where user_id=50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 14:50:48	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and  friend_type = 0;]
+2012-12-06 14:50:48	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and friend_type = 1;]
+2012-12-06 14:50:48	nil	0	xxx commit 1
+2012-12-06 14:50:48	nil	0	50066 O:2A11:0
+2012-12-06 14:52:17	nil	0	0 I:2A11
+2012-12-06 14:52:17	nil	0	335655 
+2012-12-06 14:52:17	nil	0	0 SQL:[select count(*) from USER_INFO_00.t_user_00 where user_id = 0 and area_id=1 and role_tm=1354750236;]
+2012-12-06 14:52:17	nil	0	xxx commit 1
+2012-12-06 14:52:17	nil	0	0 O:2A11:1105
+2012-12-06 14:52:35	nil	0	50066 I:2A03
+2012-12-06 14:52:35	nil	0	335655 
+2012-12-06 14:52:35	nil	0	50066 SQL:[select role_tm,nick,prof from USER_INFO_66.t_user_00 where user_id=50066  and area_id=1;]
+2012-12-06 14:52:35	nil	0	xxx commit 1
+2012-12-06 14:52:35	nil	0	50066 O:2A03:0
+2012-12-06 14:52:36	nil	0	50066 I:2A11
+2012-12-06 14:52:36	nil	0	335655 
+2012-12-06 14:52:36	nil	0	50066 SQL:[select count(*) from USER_INFO_66.t_user_00 where user_id = 50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 14:52:36	nil	0	50066 SQL:[select nick,prof,map_x,map_y,msglist from USER_INFO_66.t_user_00 where user_id=50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 14:52:36	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and  friend_type = 0;]
+2012-12-06 14:52:36	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and friend_type = 1;]
+2012-12-06 14:52:36	nil	0	xxx commit 1
+2012-12-06 14:52:36	nil	0	50066 O:2A11:0
+2012-12-06 14:57:21	nil	0	50066 I:2A03
+2012-12-06 14:57:21	nil	0	335655 
+2012-12-06 14:57:21	nil	0	50066 SQL:[select role_tm,nick,prof from USER_INFO_66.t_user_00 where user_id=50066  and area_id=1;]
+2012-12-06 14:57:21	nil	0	xxx commit 1
+2012-12-06 14:57:21	nil	0	50066 O:2A03:0
+2012-12-06 14:57:22	nil	0	50066 I:2A11
+2012-12-06 14:57:22	nil	0	335655 
+2012-12-06 14:57:22	nil	0	50066 SQL:[select count(*) from USER_INFO_66.t_user_00 where user_id = 50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 14:57:22	nil	0	50066 SQL:[select nick,prof,map_x,map_y,msglist from USER_INFO_66.t_user_00 where user_id=50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 14:57:22	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and  friend_type = 0;]
+2012-12-06 14:57:22	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and friend_type = 1;]
+2012-12-06 14:57:22	nil	0	xxx commit 1
+2012-12-06 14:57:22	nil	0	50066 O:2A11:0
+2012-12-06 15:00:01	nil	0	50066 I:2A03
+2012-12-06 15:00:01	nil	0	335655 
+2012-12-06 15:00:01	nil	0	50066 SQL:[select role_tm,nick,prof from USER_INFO_66.t_user_00 where user_id=50066  and area_id=1;]
+2012-12-06 15:00:01	nil	0	xxx commit 1
+2012-12-06 15:00:01	nil	0	50066 O:2A03:0
+2012-12-06 15:00:02	nil	0	50066 I:2A11
+2012-12-06 15:00:02	nil	0	335655 
+2012-12-06 15:00:02	nil	0	50066 SQL:[select count(*) from USER_INFO_66.t_user_00 where user_id = 50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 15:00:02	nil	0	50066 SQL:[select nick,prof,map_x,map_y,msglist from USER_INFO_66.t_user_00 where user_id=50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 15:00:02	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and  friend_type = 0;]
+2012-12-06 15:00:02	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and friend_type = 1;]
+2012-12-06 15:00:02	nil	0	xxx commit 1
+2012-12-06 15:00:02	nil	0	50066 O:2A11:0
+2012-12-06 15:01:16	nil	0	50066 I:2A03
+2012-12-06 15:01:16	nil	0	335655 
+2012-12-06 15:01:16	nil	0	50066 SQL:[select role_tm,nick,prof from USER_INFO_66.t_user_00 where user_id=50066  and area_id=1;]
+2012-12-06 15:01:16	nil	0	xxx commit 1
+2012-12-06 15:01:16	nil	0	50066 O:2A03:0
+2012-12-06 15:01:17	nil	0	50066 I:2A11
+2012-12-06 15:01:17	nil	0	335655 
+2012-12-06 15:01:17	nil	0	50066 SQL:[select count(*) from USER_INFO_66.t_user_00 where user_id = 50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 15:01:17	nil	0	50066 SQL:[select nick,prof,map_x,map_y,msglist from USER_INFO_66.t_user_00 where user_id=50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 15:01:17	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and  friend_type = 0;]
+2012-12-06 15:01:17	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and friend_type = 1;]
+2012-12-06 15:01:17	nil	0	xxx commit 1
+2012-12-06 15:01:17	nil	0	50066 O:2A11:0
+2012-12-06 15:02:43	nil	0	50066 I:2A03
+2012-12-06 15:02:43	nil	0	335655 
+2012-12-06 15:02:43	nil	0	50066 SQL:[select role_tm,nick,prof from USER_INFO_66.t_user_00 where user_id=50066  and area_id=1;]
+2012-12-06 15:02:43	nil	0	xxx commit 1
+2012-12-06 15:02:43	nil	0	50066 O:2A03:0
+2012-12-06 15:02:44	nil	0	50066 I:2A11
+2012-12-06 15:02:44	nil	0	335655 
+2012-12-06 15:02:44	nil	0	50066 SQL:[select count(*) from USER_INFO_66.t_user_00 where user_id = 50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 15:02:44	nil	0	50066 SQL:[select nick,prof,map_x,map_y,msglist from USER_INFO_66.t_user_00 where user_id=50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 15:02:44	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and  friend_type = 0;]
+2012-12-06 15:02:44	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and friend_type = 1;]
+2012-12-06 15:02:44	nil	0	xxx commit 1
+2012-12-06 15:02:44	nil	0	50066 O:2A11:0
+2012-12-06 15:03:40	nil	0	50066 I:2A03
+2012-12-06 15:03:40	nil	0	335655 
+2012-12-06 15:03:40	nil	0	50066 SQL:[select role_tm,nick,prof from USER_INFO_66.t_user_00 where user_id=50066  and area_id=1;]
+2012-12-06 15:03:40	nil	0	xxx commit 1
+2012-12-06 15:03:40	nil	0	50066 O:2A03:0
+2012-12-06 15:03:41	nil	0	50066 I:2A11
+2012-12-06 15:03:41	nil	0	335655 
+2012-12-06 15:03:41	nil	0	50066 SQL:[select count(*) from USER_INFO_66.t_user_00 where user_id = 50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 15:03:41	nil	0	50066 SQL:[select nick,prof,map_x,map_y,msglist from USER_INFO_66.t_user_00 where user_id=50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 15:03:41	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and  friend_type = 0;]
+2012-12-06 15:03:41	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and friend_type = 1;]
+2012-12-06 15:03:41	nil	0	xxx commit 1
+2012-12-06 15:03:41	nil	0	50066 O:2A11:0
+2012-12-06 15:05:10	nil	0	50066 I:2A03
+2012-12-06 15:05:10	nil	0	335655 
+2012-12-06 15:05:10	nil	0	50066 SQL:[select role_tm,nick,prof from USER_INFO_66.t_user_00 where user_id=50066  and area_id=1;]
+2012-12-06 15:05:10	nil	0	xxx commit 1
+2012-12-06 15:05:10	nil	0	50066 O:2A03:0
+2012-12-06 15:05:11	nil	0	50066 I:2A11
+2012-12-06 15:05:11	nil	0	335655 
+2012-12-06 15:05:11	nil	0	50066 SQL:[select count(*) from USER_INFO_66.t_user_00 where user_id = 50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 15:05:11	nil	0	50066 SQL:[select nick,prof,map_x,map_y,msglist from USER_INFO_66.t_user_00 where user_id=50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 15:05:11	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and  friend_type = 0;]
+2012-12-06 15:05:11	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and friend_type = 1;]
+2012-12-06 15:05:11	nil	0	xxx commit 1
+2012-12-06 15:05:11	nil	0	50066 O:2A11:0
+2012-12-06 15:06:53	nil	0	50066 I:2A03
+2012-12-06 15:06:53	nil	0	335655 
+2012-12-06 15:06:53	nil	0	50066 SQL:[select role_tm,nick,prof from USER_INFO_66.t_user_00 where user_id=50066  and area_id=1;]
+2012-12-06 15:06:53	nil	0	xxx commit 1
+2012-12-06 15:06:53	nil	0	50066 O:2A03:0
+2012-12-06 15:06:54	nil	0	50066 I:2A11
+2012-12-06 15:06:54	nil	0	335655 
+2012-12-06 15:06:54	nil	0	50066 SQL:[select count(*) from USER_INFO_66.t_user_00 where user_id = 50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 15:06:54	nil	0	50066 SQL:[select nick,prof,map_x,map_y,msglist from USER_INFO_66.t_user_00 where user_id=50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 15:06:54	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and  friend_type = 0;]
+2012-12-06 15:06:54	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and friend_type = 1;]
+2012-12-06 15:06:54	nil	0	xxx commit 1
+2012-12-06 15:06:54	nil	0	50066 O:2A11:0
+2012-12-06 15:10:01	nil	0	50066 I:2A03
+2012-12-06 15:10:01	nil	0	335655 
+2012-12-06 15:10:01	nil	0	50066 SQL:[select role_tm,nick,prof from USER_INFO_66.t_user_00 where user_id=50066  and area_id=1;]
+2012-12-06 15:10:01	nil	0	xxx commit 1
+2012-12-06 15:10:01	nil	0	50066 O:2A03:0
+2012-12-06 15:10:10	nil	0	50066 I:2A11
+2012-12-06 15:10:10	nil	0	335655 
+2012-12-06 15:10:10	nil	0	50066 SQL:[select count(*) from USER_INFO_66.t_user_00 where user_id = 50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 15:10:10	nil	0	50066 SQL:[select nick,prof,map_x,map_y,msglist from USER_INFO_66.t_user_00 where user_id=50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 15:10:10	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and  friend_type = 0;]
+2012-12-06 15:10:10	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and friend_type = 1;]
+2012-12-06 15:10:10	nil	0	xxx commit 1
+2012-12-06 15:10:10	nil	0	50066 O:2A11:0
+2012-12-06 15:10:42	nil	0	50066 I:2A03
+2012-12-06 15:10:42	nil	0	335655 
+2012-12-06 15:10:42	nil	0	50066 SQL:[select role_tm,nick,prof from USER_INFO_66.t_user_00 where user_id=50066  and area_id=1;]
+2012-12-06 15:10:42	nil	0	xxx commit 1
+2012-12-06 15:10:42	nil	0	50066 O:2A03:0
+2012-12-06 15:10:43	nil	0	50066 I:2A11
+2012-12-06 15:10:43	nil	0	335655 
+2012-12-06 15:10:43	nil	0	50066 SQL:[select count(*) from USER_INFO_66.t_user_00 where user_id = 50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 15:10:43	nil	0	50066 SQL:[select nick,prof,map_x,map_y,msglist from USER_INFO_66.t_user_00 where user_id=50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 15:10:43	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and  friend_type = 0;]
+2012-12-06 15:10:43	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and friend_type = 1;]
+2012-12-06 15:10:43	nil	0	xxx commit 1
+2012-12-06 15:10:43	nil	0	50066 O:2A11:0
+2012-12-06 15:11:47	nil	0	50066 I:2A03
+2012-12-06 15:11:47	nil	0	335655 
+2012-12-06 15:11:47	nil	0	50066 SQL:[select role_tm,nick,prof from USER_INFO_66.t_user_00 where user_id=50066  and area_id=1;]
+2012-12-06 15:11:47	nil	0	xxx commit 1
+2012-12-06 15:11:47	nil	0	50066 O:2A03:0
+2012-12-06 15:11:48	nil	0	50066 I:2A11
+2012-12-06 15:11:48	nil	0	335655 
+2012-12-06 15:11:48	nil	0	50066 SQL:[select count(*) from USER_INFO_66.t_user_00 where user_id = 50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 15:11:48	nil	0	50066 SQL:[select nick,prof,map_x,map_y,msglist from USER_INFO_66.t_user_00 where user_id=50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 15:11:48	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and  friend_type = 0;]
+2012-12-06 15:11:48	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and friend_type = 1;]
+2012-12-06 15:11:48	nil	0	xxx commit 1
+2012-12-06 15:11:48	nil	0	50066 O:2A11:0
+2012-12-06 15:12:55	nil	0	50066 I:2A03
+2012-12-06 15:12:55	nil	0	335655 
+2012-12-06 15:12:55	nil	0	50066 SQL:[select role_tm,nick,prof from USER_INFO_66.t_user_00 where user_id=50066  and area_id=1;]
+2012-12-06 15:12:55	nil	0	xxx commit 1
+2012-12-06 15:12:55	nil	0	50066 O:2A03:0
+2012-12-06 15:12:56	nil	0	50066 I:2A11
+2012-12-06 15:12:56	nil	0	335655 
+2012-12-06 15:12:56	nil	0	50066 SQL:[select count(*) from USER_INFO_66.t_user_00 where user_id = 50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 15:12:56	nil	0	50066 SQL:[select nick,prof,map_x,map_y,msglist from USER_INFO_66.t_user_00 where user_id=50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 15:12:56	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and  friend_type = 0;]
+2012-12-06 15:12:56	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and friend_type = 1;]
+2012-12-06 15:12:56	nil	0	xxx commit 1
+2012-12-06 15:12:56	nil	0	50066 O:2A11:0
+2012-12-06 15:14:12	nil	0	50066 I:2A03
+2012-12-06 15:14:12	nil	0	335655 
+2012-12-06 15:14:12	nil	0	50066 SQL:[select role_tm,nick,prof from USER_INFO_66.t_user_00 where user_id=50066  and area_id=1;]
+2012-12-06 15:14:12	nil	0	xxx commit 1
+2012-12-06 15:14:12	nil	0	50066 O:2A03:0
+2012-12-06 15:14:13	nil	0	50066 I:2A11
+2012-12-06 15:14:13	nil	0	335655 
+2012-12-06 15:14:13	nil	0	50066 SQL:[select count(*) from USER_INFO_66.t_user_00 where user_id = 50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 15:14:13	nil	0	50066 SQL:[select nick,prof,map_x,map_y,msglist from USER_INFO_66.t_user_00 where user_id=50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 15:14:13	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and  friend_type = 0;]
+2012-12-06 15:14:13	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and friend_type = 1;]
+2012-12-06 15:14:13	nil	0	xxx commit 1
+2012-12-06 15:14:13	nil	0	50066 O:2A11:0
+2012-12-06 15:24:51	nil	0	50079 I:2A03
+2012-12-06 15:24:51	nil	0	335655 
+2012-12-06 15:24:51	nil	0	50079 SQL:[select role_tm,nick,prof from USER_INFO_79.t_user_00 where user_id=50079  and area_id=1;]
+2012-12-06 15:24:51	nil	0	xxx commit 1
+2012-12-06 15:24:51	nil	0	50079 O:2A03:0
+2012-12-06 15:24:57	nil	0	50079 I:2A02
+2012-12-06 15:24:57	nil	0	335655 
+2012-12-06 15:24:57	nil	0	50079 SQL:[select count(role_tm) from USER_INFO_79.t_user_00 where  user_id=50079 and area_id=1 ;]
+2012-12-06 15:24:57	nil	0	50079 SQL:[insert into USER_INFO_79.t_user_00(user_id,area_id,role_tm, nick, prof) values(50079, 1, 1354825497, '\0善良的雪�', 1);]
+2012-12-06 15:24:57	nil	0	xxx commit 1
+2012-12-06 15:24:57	nil	0	50079 O:2A02:0
+2012-12-06 15:24:59	nil	0	50079 I:2A11
+2012-12-06 15:24:59	nil	0	335655 
+2012-12-06 15:24:59	nil	0	50079 SQL:[select count(*) from USER_INFO_79.t_user_00 where user_id = 50079 and area_id=1 and role_tm=1354825497;]
+2012-12-06 15:24:59	nil	0	50079 SQL:[select nick,prof,map_x,map_y,msglist from USER_INFO_79.t_user_00 where user_id=50079 and area_id=1 and role_tm=1354825497;]
+2012-12-06 15:24:59	nil	0	50079 SQL:[select friend_id, friend_role_tm from USER_INFO_79.t_friend_00 where user_id = 50079 and area_id=1 and role_tm = 1354825497 and  friend_type = 0;]
+2012-12-06 15:24:59	nil	0	50079 SQL:[select friend_id, friend_role_tm from USER_INFO_79.t_friend_00 where user_id = 50079 and area_id=1 and role_tm = 1354825497 and friend_type = 1;]
+2012-12-06 15:24:59	nil	0	xxx commit 1
+2012-12-06 15:24:59	nil	0	50079 O:2A11:0
+2012-12-06 15:25:24	nil	0	50079 I:2A03
+2012-12-06 15:25:24	nil	0	335655 
+2012-12-06 15:25:24	nil	0	50079 SQL:[select role_tm,nick,prof from USER_INFO_79.t_user_00 where user_id=50079  and area_id=1;]
+2012-12-06 15:25:24	nil	0	xxx commit 1
+2012-12-06 15:25:24	nil	0	50079 O:2A03:0
+2012-12-06 15:25:41	nil	0	0 I:2A11
+2012-12-06 15:25:41	nil	0	335655 
+2012-12-06 15:25:41	nil	0	0 SQL:[select count(*) from USER_INFO_00.t_user_00 where user_id = 0 and area_id=1 and role_tm=1354825497;]
+2012-12-06 15:25:41	nil	0	xxx commit 1
+2012-12-06 15:25:41	nil	0	0 O:2A11:1105
+2012-12-06 15:39:22	nil	0	50066 I:2A03
+2012-12-06 15:39:22	nil	0	335655 
+2012-12-06 15:39:22	nil	0	50066 SQL:[select role_tm,nick,prof from USER_INFO_66.t_user_00 where user_id=50066  and area_id=1;]
+2012-12-06 15:39:22	nil	0	xxx commit 1
+2012-12-06 15:39:22	nil	0	50066 O:2A03:0
+2012-12-06 15:39:23	nil	0	50066 I:2A11
+2012-12-06 15:39:23	nil	0	335655 
+2012-12-06 15:39:23	nil	0	50066 SQL:[select count(*) from USER_INFO_66.t_user_00 where user_id = 50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 15:39:23	nil	0	50066 SQL:[select nick,prof,map_x,map_y,msglist from USER_INFO_66.t_user_00 where user_id=50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 15:39:23	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and  friend_type = 0;]
+2012-12-06 15:39:23	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and friend_type = 1;]
+2012-12-06 15:39:23	nil	0	xxx commit 1
+2012-12-06 15:39:23	nil	0	50066 O:2A11:0
+2012-12-06 15:42:29	nil	0	50066 I:2A03
+2012-12-06 15:42:29	nil	0	335655 
+2012-12-06 15:42:29	nil	0	50066 SQL:[select role_tm,nick,prof from USER_INFO_66.t_user_00 where user_id=50066  and area_id=1;]
+2012-12-06 15:42:29	nil	0	xxx commit 1
+2012-12-06 15:42:29	nil	0	50066 O:2A03:0
+2012-12-06 15:42:29	nil	0	50066 I:2A11
+2012-12-06 15:42:29	nil	0	335655 
+2012-12-06 15:42:29	nil	0	50066 SQL:[select count(*) from USER_INFO_66.t_user_00 where user_id = 50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 15:42:29	nil	0	50066 SQL:[select nick,prof,map_x,map_y,msglist from USER_INFO_66.t_user_00 where user_id=50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 15:42:29	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and  friend_type = 0;]
+2012-12-06 15:42:29	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and friend_type = 1;]
+2012-12-06 15:42:29	nil	0	xxx commit 1
+2012-12-06 15:42:29	nil	0	50066 O:2A11:0
+2012-12-06 15:45:47	nil	0	50066 I:2A03
+2012-12-06 15:45:47	nil	0	335655 
+2012-12-06 15:45:47	nil	0	50066 SQL:[select role_tm,nick,prof from USER_INFO_66.t_user_00 where user_id=50066  and area_id=1;]
+2012-12-06 15:45:47	nil	0	xxx commit 1
+2012-12-06 15:45:47	nil	0	50066 O:2A03:0
+2012-12-06 15:45:48	nil	0	50066 I:2A11
+2012-12-06 15:45:48	nil	0	335655 
+2012-12-06 15:45:48	nil	0	50066 SQL:[select count(*) from USER_INFO_66.t_user_00 where user_id = 50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 15:45:48	nil	0	50066 SQL:[select nick,prof,map_x,map_y,msglist from USER_INFO_66.t_user_00 where user_id=50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 15:45:48	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and  friend_type = 0;]
+2012-12-06 15:45:48	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and friend_type = 1;]
+2012-12-06 15:45:48	nil	0	xxx commit 1
+2012-12-06 15:45:48	nil	0	50066 O:2A11:0
+2012-12-06 16:03:33	LOGHEAD	25884	uman-db-10.1.1.20
+2012-12-06 16:03:33	nil	0	load bind  from lua 
+2012-12-06 16:03:33	nil	0	--lua config--
+2012-12-06 16:03:33	nil	0		recv_sem_key	= 97968 
+2012-12-06 16:03:33	nil	0		cfg_center_ip	= 10.1.1.5 
+2012-12-06 16:03:33	nil	0		DB_IP	= localhost 
+2012-12-06 16:03:33	nil	0		CHANGE_LOG_ADDR	= 10.1.1.58:30004 
+2012-12-06 16:03:33	nil	0		project_name	= uman 
+2012-12-06 16:03:33	nil	0		LOG_HEX_DATA_FLAG	= 0 
+2012-12-06 16:03:33	nil	0		DB_USER	= root 
+2012-12-06 16:03:33	nil	0		LOG_VIP_ITEM_ADDR	= 10.1.1.20:13001 
+2012-12-06 16:03:33	nil	0		max_log_files	= 0 
+2012-12-06 16:03:33	nil	0		send_sem_key	= 97966 
+2012-12-06 16:03:33	nil	0		pkg_timeout	= 5 
+2012-12-06 16:03:33	nil	0		log_size	= 32000000 
+2012-12-06 16:03:33	nil	0		svc_type	= db 
+2012-12-06 16:03:33	nil	0		tlog_file_interval_sec	= 86400 
+2012-12-06 16:03:33	nil	0		log_level	= 7 
+2012-12-06 16:03:33	nil	0		DB_PASSWD	= ta0mee 
+2012-12-06 16:03:33	nil	0		log_dir	= ./log 
+2012-12-06 16:03:33	nil	0		cfg_center_port	= 13330 
+2012-12-06 16:03:33	nil	0		IS_LOG_DEBUG_SQL	= 1 
+2012-12-06 16:03:33	nil	0		worker_num	= 2 
+2012-12-06 16:03:33	nil	0	
+2012-12-06 16:03:33	nil	0		 10.1.1.20  14001  tcp  0
+2012-12-06 16:03:33	nil	0		 10.1.1.20  14001  udp  0
+2012-12-06 16:03:33	nil	0	dlsym no find: :handle_open 
+2012-12-06 16:03:33	nil	0	dlsym no find: :handle_close 
+2012-12-06 16:03:33	nil	0	dlsym no find: :handle_timer 
+2012-12-06 16:03:33	nil	0	MYSQL_INTERFACE::MYSQL_INTERFACE  7
+2012-12-06 16:03:33	nil	0	DB conn msg [localhost][root][ta0mee][]
+2012-12-06 16:03:33	nil	0	DB connect is ok [0]
+
+2012-12-06 16:03:33	nil	0	EVN: TEST 
+2012-12-06 16:03:33	nil	0	MYSQL_INTERFACE::MYSQL_INTERFACE  7
+2012-12-06 16:03:33	nil	0	cur VERSION:DBPUB:2011-02-09
+2012-12-06 16:03:33	nil	0	DB conn msg [localhost][root][ta0mee][]
+2012-12-06 16:03:33	nil	0	XXXXx work_num:2
+2012-12-06 16:03:33	nil	0	cur VERSION:DBPUB:2011-02-09
+2012-12-06 16:03:33	nil	0	DB connect is ok [0]
+
+2012-12-06 16:03:33	nil	0	EVN: TEST 
+2012-12-06 16:04:29	nil	0	50066 I:2A03
+2012-12-06 16:04:29	nil	0	335655 
+2012-12-06 16:04:29	nil	0	50066 SQL:[select role_tm,nick,prof from USER_INFO_66.t_user_00 where user_id=50066  and area_id=1;]
+2012-12-06 16:04:29	nil	0	50066 O:2A03:0
+2012-12-06 16:04:30	nil	0	50066 I:2A11
+2012-12-06 16:04:30	nil	0	335655 
+2012-12-06 16:04:30	nil	0	50066 SQL:[select count(*) from USER_INFO_66.t_user_00 where user_id = 50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 16:04:30	nil	0	50066 SQL:[select nick,prof,map_x,map_y,msglist from USER_INFO_66.t_user_00 where user_id=50066 and area_id=1 and role_tm=1354750236;]
+2012-12-06 16:04:30	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and  friend_type = 0;]
+2012-12-06 16:04:30	nil	0	50066 SQL:[select friend_id, friend_role_tm from USER_INFO_66.t_friend_00 where user_id = 50066 and area_id=1 and role_tm = 1354750236 and friend_type = 1;]
+2012-12-06 16:04:30	nil	0	50066 O:2A11:0
+2012-12-06 16:09:50	nil	0	50067 I:2A03
+2012-12-06 16:09:50	nil	0	335655 
+2012-12-06 16:09:50	nil	0	50067 SQL:[select role_tm,nick,prof from USER_INFO_67.t_user_00 where user_id=50067  and area_id=1;]
+2012-12-06 16:09:50	nil	0	50067 O:2A03:0
+2012-12-06 16:09:59	nil	0	50067 I:2A02
+2012-12-06 16:09:59	nil	0	335655 
+2012-12-06 16:09:59	nil	0	50067 SQL:[select count(role_tm) from USER_INFO_67.t_user_00 where  user_id=50067 and area_id=1 ;]
+2012-12-06 16:09:59	nil	0	50067 SQL:[insert into USER_INFO_67.t_user_00(user_id,area_id,role_tm, nick, prof) values(50067, 1, 1354828199, '\0顽皮的豌�', 1);]
+2012-12-06 16:09:59	nil	0	50067 O:2A02:0
+2012-12-06 16:10:01	nil	0	50067 I:2A11
+2012-12-06 16:10:01	nil	0	335655 
+2012-12-06 16:10:01	nil	0	50067 SQL:[select count(*) from USER_INFO_67.t_user_00 where user_id = 50067 and area_id=1 and role_tm=1354828199;]
+2012-12-06 16:10:01	nil	0	50067 SQL:[select nick,prof,map_x,map_y,msglist from USER_INFO_67.t_user_00 where user_id=50067 and area_id=1 and role_tm=1354828199;]
+2012-12-06 16:10:01	nil	0	50067 SQL:[select friend_id, friend_role_tm from USER_INFO_67.t_friend_00 where user_id = 50067 and area_id=1 and role_tm = 1354828199 and  friend_type = 0;]
+2012-12-06 16:10:01	nil	0	50067 SQL:[select friend_id, friend_role_tm from USER_INFO_67.t_friend_00 where user_id = 50067 and area_id=1 and role_tm = 1354828199 and friend_type = 1;]
+2012-12-06 16:10:01	nil	0	50067 O:2A11:0
+2012-12-06 16:21:00	nil	0	50067 I:2A03
+2012-12-06 16:21:00	nil	0	335655 
+2012-12-06 16:21:00	nil	0	50067 SQL:[select role_tm,nick,prof from USER_INFO_67.t_user_00 where user_id=50067  and area_id=1;]
+2012-12-06 16:21:00	nil	0	50067 O:2A03:0
+2012-12-06 16:21:01	nil	0	50067 I:2A11
+2012-12-06 16:21:01	nil	0	335655 
+2012-12-06 16:21:01	nil	0	50067 SQL:[select count(*) from USER_INFO_67.t_user_00 where user_id = 50067 and area_id=1 and role_tm=1354828199;]
+2012-12-06 16:21:01	nil	0	50067 SQL:[select nick,prof,map_x,map_y,msglist from USER_INFO_67.t_user_00 where user_id=50067 and area_id=1 and role_tm=1354828199;]
+2012-12-06 16:21:01	nil	0	50067 SQL:[select friend_id, friend_role_tm from USER_INFO_67.t_friend_00 where user_id = 50067 and area_id=1 and role_tm = 1354828199 and  friend_type = 0;]
+2012-12-06 16:21:01	nil	0	50067 SQL:[select friend_id, friend_role_tm from USER_INFO_67.t_friend_00 where user_id = 50067 and area_id=1 and role_tm = 1354828199 and friend_type = 1;]
+2012-12-06 16:21:01	nil	0	50067 O:2A11:0
+2012-12-06 16:21:07	nil	0	50067 I:2A20
+2012-12-06 16:21:07	nil	0	335655 
+2012-12-06 16:21:07	nil	0	50067 SQL:[update USER_INFO_67.t_user_00 set map_x=578 ,map_y=331 ,map_id=0 where user_id = 50067 and area_id=1 and role_tm=1354828199;]
+2012-12-06 16:21:07	nil	0	50067 O:2A20:0
+2012-12-06 16:22:53	nil	0	50067 I:2A03
+2012-12-06 16:22:53	nil	0	335655 
+2012-12-06 16:22:53	nil	0	50067 SQL:[select role_tm,nick,prof from USER_INFO_67.t_user_00 where user_id=50067  and area_id=1;]
+2012-12-06 16:22:53	nil	0	50067 O:2A03:0
+2012-12-06 16:22:54	nil	0	50067 I:2A11
+2012-12-06 16:22:54	nil	0	335655 
+2012-12-06 16:22:54	nil	0	50067 SQL:[select count(*) from USER_INFO_67.t_user_00 where user_id = 50067 and area_id=1 and role_tm=1354828199;]
+2012-12-06 16:22:54	nil	0	50067 SQL:[select nick,prof,map_x,map_y,msglist from USER_INFO_67.t_user_00 where user_id=50067 and area_id=1 and role_tm=1354828199;]
+2012-12-06 16:22:54	nil	0	50067 SQL:[select friend_id, friend_role_tm from USER_INFO_67.t_friend_00 where user_id = 50067 and area_id=1 and role_tm = 1354828199 and  friend_type = 0;]
+2012-12-06 16:22:54	nil	0	50067 SQL:[select friend_id, friend_role_tm from USER_INFO_67.t_friend_00 where user_id = 50067 and area_id=1 and role_tm = 1354828199 and friend_type = 1;]
+2012-12-06 16:22:54	nil	0	50067 O:2A11:0
+2012-12-06 16:22:57	nil	0	50067 I:2A20
+2012-12-06 16:22:57	nil	0	335655 
+2012-12-06 16:22:57	nil	0	50067 SQL:[update USER_INFO_67.t_user_00 set map_x=496 ,map_y=330 ,map_id=0 where user_id = 50067 and area_id=1 and role_tm=1354828199;]
+2012-12-06 16:22:57	nil	0	50067 O:2A20:0

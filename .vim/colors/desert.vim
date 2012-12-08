@@ -100,9 +100,10 @@ hi Type          ctermfg=2
 hi Underlined    cterm=underline ctermfg=5
 hi Ignore        ctermfg=darkgrey
 hi Error         cterm=bold ctermfg=7 ctermbg=1
+hi CliError      cterm=bold ctermfg=red
 
 "hi LineNr		guifg=cyan		ctermfg=cyan
-hi LineNr term=underline ctermfg=3 guifg=Red3
+hi LineNr term=underline ctermfg=3 guifg=Red3 ctermbg=black
 "hi LineNr	guifg=#90f020			ctermfg=green cterm=none
 " For showmarks plugin
 hi ShowMarksHLl ctermbg=Yellow   ctermfg=Black  guibg=#FFDB72    guifg=Black

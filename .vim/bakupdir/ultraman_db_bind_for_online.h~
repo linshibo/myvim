@@ -1,0 +1,4 @@
+/*0-for_online-online的通讯*/
+	BIND_PROTO_CMD(0x2A11,db_proto_user_get_login_info,db_proto_user_get_login_info_in,db_proto_user_get_login_info_out,0x19752d99,1)
+	BIND_PROTO_CMD(0x2A16,db_proto_check_user_exist,Cmessage,db_proto_check_user_exist_out,0x90fc5cbd,1)
+	BIND_PROTO_CMD(0x2A18,db_proto_get_user_info,Cmessage,db_proto_get_user_info_out,0x2d42348f,1)
