@@ -1,0 +1,80 @@
+map A <Nop>
+map <C-a> <Nop>
+map <C-q> <Nop>
+map <C-o> <Nop>
+map <C-i> <Nop>
+map <C-z> <Nop>
+map <C-n> <Nop>
+map <C-p> <Nop>
+noremap y Y
+noremap Y y
+
+"5倍速的jk滚屏
+noremap j 6j
+noremap k 6k
+
+" tab
+nnoremap l <C-n>
+nnoremap h <C-p>
+nnoremap <silent> <C-l> :tabmove! +1<CR>
+nnoremap <silent> <C-h> :tabmove! -1<CR>
+
+nnoremap zi zI
+nnoremap zI zi
+nnoremap zm zM
+nnoremap zM zm
+nnoremap zo zO
+nnoremap zO zo
+nnoremap zr zR
+nnoremap zR zr
+nnoremap zz zZ
+nnoremap zZ zz
+
+noremap <silent> <C-r> :restart<CR>
+noremap <silent> <Leader>h :htabopen<Space>
+noremap <silent> <Leader>s :source ~/.vimperatorrc<CR>:echo<Space>"source completed."<CR>
+noremap <silent> <Leader>a :autopagerize<CR>
+noremap U :undo<Space>
+
+noremap <silent> eu :set encoding=UTF-8<CR>
+noremap <silent> es :set encoding=Shift_JIS<CR>
+noremap <silent> ee :set encoding=EUC-JP<CR>
+noremap <silent> ei :set encoding=ISO-2022-JP<CR>
+
+cnoremap <C-j> <Nop>
+cnoremap <C-b> <Left>
+cnoremap <C-f> <Right>
+cnoremap <C-n> <Tab>
+cnoremap <C-p> <S-Tab>
+inoremap <C-f> <Right>
+inoremap <C-b> <Left>
+inoremap <C-p> <Up>
+inoremap <C-n> <Down>
+
+"Options
+set messages=100
+set verbose=1
+set defsearch=google
+set guioptions=mT
+set titlestring=Mozilla Firefox
+set popups=2
+set complete=lfbs
+set suggestengines=google
+set focuscontent
+set nohlsearch
+set ignorecase
+set incsearch
+set smartcase
+let mapleader = ","
+set nextpattern=\s*下一页|下一张|下一篇|下页|后页|后一页\s*,^\bnext\b,\\bnext\\b,^>$,^(>>|»)$,^(>|»),(>|»)$,\\bmore\\b
+set previouspattern=\s*上一页|上一张|上一篇|上页|前页|前一页\s*,^\bprev|previous\b,\\bprev|previous\\b,^<$,^(<<|«)$,^(<|«),(<|«)$
+"PassThrough gmail and greader
+"autocmd LocationChange .* js modes.passAllKeys = /.*(mail\.google\.com|www\.google\.com\/reader).*/.test(buffer.URL)
+
+" Gmail.
+autocmd LocationChange mail¥.google¥.com/(mail|a)/ :fmap -d 4 c / j k n p o u e x s r a # [ ] z ? gi gs gt gd ga gc
+
+"Google Reader
+autocmd LocationChange www¥.google¥.(co¥.jp|com)/reader :fmap! -v i j k n p m s v A r S N P X O gh ga gs gt gu u / ?
+
+" vim: set ft=vimperator:
