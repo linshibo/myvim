@@ -1,0 +1,16 @@
+
+dbsvr_udp_chat_port 30004 
+dbsvr_udp_chat_ip 10.1.1.58
+udp_report_chat_content_port 28001 
+udp_report_chat_content_ip 10.1.1.101
+
+
+dbsvr_udp_contribution_port 11101 
+dbsvr_udp_contribution_ip   10.1.1.47
+
+#tel_record_online_id_port 30004 
+#tel_record_online_id_ip 10.1.1.58
+#cnc_record_online_id_port 30004
+#cnc_record_online_id_ip 10.1.1.58
+report_cmd_ip 192.168.4.68
+report_cmd_port 33339 

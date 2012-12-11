@@ -1,0 +1,195 @@
+#ifndef __TASK_FUNCS_HPP__
+#define __TASK_FUNCS_HPP__
+#include <vector>
+#include <map>
+#include <libtaomee++/conf_parser/xmlparser.hpp>
+
+enum tsk_op_t {
+	tsk_op_obtain		= 0,
+	tsk_op_cancel		= 1,
+	tsk_op_finish		= 2,
+};
+
+
+
+typedef int (*able_fn_t) (const player_t *p, uint32_t task_id);
+typedef int (*setbuff_fn_t) (const player_t *p, uint32_t task_id, uint32_t step,
+		uint32_t setter, bool &need_update_db, uint32_t count, char *buff, int bufflen);
+
+struct tsk_fn_t {
+	able_fn_t		obtain_able;
+	able_fn_t		cancel_able;
+	able_fn_t		finish_able;
+	setbuff_fn_t	setbuff;
+};
+
+typedef std::map<uint32_t, tsk_fn_t*>::iterator tsk_fn_iter_t;
+
+typedef std::map<uint32_t, able_fn_t> tsk_able_map_t;
+typedef std::map<uint32_t, setbuff_fn_t> tsk_setbuff_map_t;
+
+
+void init_obtain_able_fn_map(void);
+void init_cancel_able_fn_map(void);
+void init_finish_able_fn_map(void);
+void init_setbuff_fn_map(void);
+void final_obtain_able_fn_map(void);
+void final_cancel_able_fn_map(void);
+void final_finish_able_fn_map(void);
+void final_setbuff_fn_map(void);
+
+
+int init_task_fn_map(void);
+void final_task_fn_map(void);
+
+int task_setbuff_iface(player_t *p, uint32_t tskid, uint32_t step,
+		uint32_t setter, bool &need_update_db, uint32_t count);
+int task_able_iface(const player_t *p, uint32_t tskid, uint32_t op);
+
+
+//------------------------------------------------------------------
+// inline utils
+//------------------------------------------------------------------
+//
+
+enum {
+    task_type_begin             = 0,
+    task_type_main              = 1,
+    task_type_branch            = 2,
+    task_type_daily             = 3,
+    task_type_once              = 4,
+    task_type_end           
+};
+
+enum {
+    task_step_type_begin        = 0,
+    task_step_type_talk         = 1,    //对话是否完成 1个字节
+    task_step_type_pvp          = 2,    //PVP 次数(几v几 几次)2个字节
+    task_step_type_pve          = 3,    //战斗地图难度次数(MAPID,LV,TIME) 2个字节
+    task_step_type_open_panel   = 4,    //打开面板 1个字节
+    task_step_type_to_map       = 5,    //跳转地图 1个字节
+    task_step_type_play_video   = 6,    //播放动画 1个字节
+    task_step_type_open_url     = 7,    //打开URL 1个字节
+    task_step_type_add_favorite = 8,    //添加游戏地址到收藏夹 1个字节
+    task_step_type_in_shop      = 9,    //打开商店 1个字节
+    task_step_type_collect      = 10,   //收集物品 2个字节(ID, COUNT)
+    task_step_type_end
+};
+
+enum {
+    pre_condition_type_or       = 0,    //或类型的前置条件
+    pre_condition_type_and      = 1,    //与类型的前置条件
+    max_task_pre_condition      = 4,    //接收某个任务时候必须达到的前置条件
+    max_step_pre_condition      = 4,    //设置某个步骤的时候必须达到的前置条件
+    max_step_cond_key           = 4,    //步骤条件的key最多有4个
+};
+
+struct step_cond_t {
+    /*! 参数key 只有key val参数有key 其他为0*/
+    uint32_t key[max_step_cond_key];
+    /*! 参数值 如果不为0 表示完成该步骤需要的item数量*/
+    uint32_t val;
+};
+
+struct task_step_t {
+    /*! 步骤类型 */
+    uint32_t step_type;
+    /*! 任务步骤对应的完成条件*/
+    step_cond_t condition;
+    /*! 设置任务步骤的前置条件*/
+    uint32_t pre_cond[max_step_pre_condition];
+    /*! 任务步骤的前置步骤类型 与 或*/
+    uint32_t pre_cond_type;
+};
+
+typedef std::vector<task_step_t> step_vec_t;
+struct task_info_t {
+    /*! 任务ID */
+    uint32_t task_id;
+    /*! 任务类型 */
+    uint32_t task_type;
+    /*! 接受任务的前置任务*/
+    uint32_t pre_cond[max_task_pre_condition];
+    /*! 前置任务的类型与还是或*/
+    uint32_t pre_cond_type;
+    /*! 接受任务需要的等级*/
+    uint32_t need_level;
+    /*! 接受任务时玩家所需要在的地图ID*/
+    uint32_t bind_map_id;
+    /*! 任务完成时的奖励ID*/
+    uint32_t prize_id;
+	/*! 任务完成时回收的道具,[偶数]:物品ID,[奇数]:物品数量*/
+	uint32_t recover[10];
+    /*! 任务的步骤 */
+    step_vec_t *steps;
+};
+
+struct task_buffer_head_t {
+    int32_t taken_time;
+    int32_t finish_time;
+} __attribute__((packed));
+
+/*! 从配置文件读取的任务map */
+extern std::map<uint32_t, task_info_t*> task_config_map;
+
+/**
+ * @brief 初始化任务列表
+ * @return 0 ok -1 失败
+ */
+int init_task_config_data(xmlNodePtr task_node);
+
+/**
+ * @brief 销毁任务列表
+ */
+void final_task_config_data();
+
+//=====================task buffer check helper function===========
+static inline bool buff_8_eq_val(const char* buf, uint32_t val)
+{
+    return (*((uint8_t*)buf) == val);
+}
+static inline bool buff_8_ge_val(const char* buf, uint32_t val)
+{
+    return (*((uint8_t*)buf) >= val);
+}
+static inline bool buff_16_eq_val(const char* buf, uint32_t val)
+{
+    return (*((uint16_t*)buf) == val);
+}
+static inline bool buff_16_ge_val(const char* buf, uint32_t val)
+{
+    return (*((uint16_t*)buf) >= val);
+}
+static inline bool buff_32_eq_val(const char* buf, uint32_t val)
+{
+    return (*((uint32_t*)buf) >= val);
+}
+static inline bool buff_32_ge_val(const char* buf, uint32_t val)
+{
+    return (*((uint32_t*)buf) >= val);
+}
+//=========================================================
+//
+/**
+ * @brief 完成某件事后之后触发任务buff更新
+ * @para p玩家 task_step_type 步骤类型,para 步骤参数(比如地图ID NPC的ID)
+ */
+int update_task_by_finishing_sth(player_t *p, uint32_t task_step_type, uint32_t para);
+
+/**
+ * @brief 收集到道具之后触发任务buff更新
+ * @para p玩家 id收集到的物品、装备、精灵ID;count一次收集到的数量,默认为1
+ */
+int update_task_by_collect(player_t *p, uint32_t id, uint32_t count = 1);
+/**
+ * @brief pvp完结后触发任务buff更新
+ * @para p玩家, pvp_num: 几V几  pvp_count:打了几次 默认1次 if_wait_db_ack 表示是否等待DB返回
+ */
+int update_task_by_pvp(player_t *p, uint32_t pvp_num, uint32_t pvp_count = 1, bool if_wait_db_ack = true);
+/**
+ * @brief pve完结后触发任务buff更新
+ * @para p玩家， map_id pve所在地图 map_level pve地图的难度，pve_count 打了几次 默认1次 if_wait__ack表示是否等待DB返回
+ */
+int update_task_by_pve(player_t *p, uint32_t map_id, uint32_t map_level, uint32_t pve_count = 1, bool if_wait_db_ack = true);
+
+#endif // __TASK_FUNCS_HPP__

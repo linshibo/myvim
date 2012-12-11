@@ -1,0 +1,44 @@
+/**
+ * =====================================================================================
+ *
+ * @file  Croute_func.h
+ *
+ * @brief 处理其他服务器请求
+ *
+ * compiler  gcc4.3.2
+ *
+ * platform  Linux
+ *
+ * copyright:  TaoMee, Inc. ShangHai CN. All rights reserved.
+ * 		
+ * =====================================================================================
+ */
+
+#ifndef  CROUTE_FUNC_INC
+#define  CROUTE_FUNC_INC
+#include <libtaomee/project/stat_agent/msglog.h>
+#include "Cfunc_route_db_uman.h"
+/*#include "Citem_change_log.h"*/
+#include "Cuser.h" //自加
+#include "Cfriends.h" //自加
+
+
+class Croute_func:public Cfunc_route_db_uman
+{
+  private:
+	  /*Citem_change_log item_change_log;*/
+	Cuser user; 
+	Cfriends friends;
+	Ctask task;
+  public:
+	Croute_func (mysql_interface* db); 
+	
+#define PROTO_FUNC_DEF(cmd_name)\
+	int cmd_name(DEAL_FUNC_ARG);
+	#include "./proto/ultraman_db_func_def.h"
+  private:
+
+
+}; /* -----  end of class  Croute_func  ----- */
+#endif   /* ----- #ifndef CROUTE_FUNC_INC  ----- */
+

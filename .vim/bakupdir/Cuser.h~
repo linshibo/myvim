@@ -1,0 +1,45 @@
+/**
+ * =====================================================================================
+ *
+ * @file  Cbase_info.h
+ *
+ * @brief 用户基本信息
+ *
+ * compiler  gcc4.3.2
+ *
+ * platform  Linux
+ *
+ * copyright:  TaoMee, Inc. ShangHai CN. All rights reserved.
+ * 		
+ * =====================================================================================
+ */
+#ifndef  CUSER_H
+#define  CUSER_H
+
+#include "CtableRoute.h"
+#include "benchapi.h"
+#include   "common.h"
+
+extern void send_warning(const char* svr);
+
+class Cuser:public CtableRoute
+{
+	public:
+		Cuser(mysql_interface* db);
+		int check_user(DEFAULT_ARGS);
+		int create_raw_role(uint16_t area_id, userid_t user_id, uint32_t role_tm,char* nick, uint8_t prof);
+		int get_role_info(uint16_t area_id, userid_t user_id, db_proto_get_role_info_out & out);
+		int get_role_num(uint16_t area_id, userid_t user_id, uint32_t *count);
+		int get_friend_info(DEFAULT_ARGS, db_proto_get_user_info_out & out);
+		int set_flag(DEFAULT_ARGS, uint32_t flag);
+		int get_user_login_info(uint16_t area_id, userid_t user_id,uint32_t role_tm, db_proto_user_login_out* out);
+		int set_int_value_bit(DEFAULT_ARGS, const char* field,uint32_t bitid, uint32_t value);
+		int get_int_value(DEFAULT_ARGS, const char* field, uint32_t *value);
+		int set_int_value(DEFAULT_ARGS, const char* field, uint32_t value);
+		int update_logout_data(DEFAULT_ARGS, db_proto_logout_save_data_in* in);
+
+		int get_offline_msg(DEFAULT_ARGS, msg_list_t *p_msg );
+		int update_offline_msg(DEFAULT_ARGS, msg_list_t *p_msg );
+	private:
+};
+#endif  /*CUSER_H*/

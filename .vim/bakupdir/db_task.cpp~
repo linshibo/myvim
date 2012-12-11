@@ -1,0 +1,222 @@
+extern "C" {
+#include <libtaomee/timer.h>
+#include <libtaomee/dataformatter/bin_str.h>
+}
+#include "./proto/ultraman_db.h"
+#include "./proto/ultraman_online_enum.h"
+#include "./proto/ultraman_online.h"
+#include <time.h>
+#include "cli_proto.hpp"
+#include "task_funcs.hpp"
+#include "db_task.hpp"
+#include "task.hpp"
+#include "player.hpp"
+#include <assert.h>
+//------------------------------------------------------------------
+// obtain_task
+//------------------------------------------------------------------
+
+int db_obtain_task(player_t *p, uint32_t tskid)
+{
+	db_proto_obtain_task_in in;
+	in.tskid = tskid;
+    memset(in.buff, 0, sizeof(in.buff));
+    int32_t now = get_now_tv()->tv_sec;
+    //buff的前四个字节设置为任务接取时间
+    memcpy(in.buff, &now, sizeof(int32_t)) ;   
+
+	DEBUG_LOG("db_obtain_task, tskid=%u, u=%u", tskid, p->uid);
+	return send_msg_to_dbproxy(NULL, p->uid, p->role_tm, db_proto_obtain_task_cmd, &in);
+}
+
+//------------------------------------------------------------------
+//	cancel_task 
+//------------------------------------------------------------------
+
+int db_cancel_task(player_t *p, uint32_t tskid)
+{
+	db_proto_cancel_task_in in;
+	in.tskid = tskid;
+
+	DEBUG_LOG("db_cancel_task, tskid=%u, u=%u", tskid, p->uid);
+	return send_msg_to_dbproxy(p, p->uid, p->role_tm, db_proto_cancel_task_cmd, &in);
+}
+
+//------------------------------------------------------------------
+//	setbuff_task 
+//------------------------------------------------------------------
+int db_setbuff_task(player_t *p, uint32_t tskid,
+		void *buff, int bufflen, uint8_t need_ack)
+{
+	/* 注意: 此函数传入的 bufflen 目前被忽略, 因为DB是定长, 但以后会用lvdb支持变长 */
+	assert(bufflen == MAX_TASK_BUFF_LEN);
+
+	db_proto_setbuff_task_in in;
+	in.tskid = tskid;
+	memcpy(in.buff, buff, MAX_TASK_BUFF_LEN);
+
+#ifdef ENABLE_TRACE_LOG
+char tmpbuf[256] = {0};
+hex2str(in.buff, sizeof(in.buff), tmpbuf);
+	DEBUG_LOG("db_setbuff_task, tskid=%u, u=%u, buff_cache: %s",
+		tskid, p->uid, tmpbuf);
+#endif
+	if (need_ack) {
+		return send_msg_to_dbproxy(p, p->uid, p->role_tm, db_proto_setbuff_task_cmd, &in);
+	}
+	return send_msg_to_dbproxy(0, p->uid, p->role_tm, db_proto_setbuff_task_cmd, &in);
+}
+
+
+
+
+//------------------------------------------------------------------
+//	finish_task 
+//------------------------------------------------------------------
+
+int db_finish_task(player_t *p, uint32_t tskid)
+{
+	db_proto_finish_task_in in;
+	in.tskid = tskid;
+    tskiter_t iter = p->tskmap->find(tskid);
+	task_t *tsk = iter->second;
+    int32_t now = get_now_tv()->tv_sec;
+    memcpy(in.buff, tsk->buff, sizeof(in.buff));
+    //后四个字节设置为任务完成时间
+    memcpy(in.buff + 4, &now, sizeof(int32_t)) ;   
+
+	//判断是否需要回收的任务物品
+	std::vector<db_del_item_request_t> req_v;
+	req_v.clear();
+    std::map<uint32_t, task_info_t *>::iterator it;
+    it = task_config_map.find(tskid);
+	uint32_t i = 0;
+	while (it->second->recover[i]) {
+		//uint32_t item_id = it->second->recover[i];
+		//uint32_t count = it->second->recover[i+1];
+		//if (!parse_db_del_item_request(p, item_id, count, req_v)) {
+			//return send_error_to_self(p, p->waitcmd, ONLINE_ERR_ITEM_LACK, 1);
+		//}
+		i += 2;
+	}
+
+	DEBUG_LOG("db_finish_task, tskid=%u, u=%u", tskid, p->uid);
+	return send_msg_to_dbproxy(p, p->uid, p->role_tm, db_proto_finish_task_cmd, &in);
+}
+
+
+
+
+//------------------------------------------------------------------
+//	get_task_flag_list
+//------------------------------------------------------------------
+
+int db_get_task_flag_list(player_t *p, uint32_t begin_tskid, uint32_t end_tskid)
+{
+	db_proto_get_task_flag_list_in in;
+	in.begin_tskid = begin_tskid;
+	in.end_tskid = end_tskid;
+
+	DEBUG_LOG("db_get_task_flag, begin_tskid=%u, end_tskid=%u, u=%u", begin_tskid, end_tskid, p->uid);
+	return send_msg_to_dbproxy(p, p->uid, p->role_tm, db_proto_get_task_flag_list_cmd, &in);
+}
+
+int db_proto_get_task_flag_list_callback(DEFAULT_ARG)
+{
+	task_t *tsk;
+	uint32_t tskid, flag;
+	db_proto_get_task_flag_list_out *p_in = P_IN;
+
+	for (uint32_t i = 0; i < p_in->task_flag_list.size(); i++) {
+		/* 处理每一个task flag信息 */
+		tskid = p_in->task_flag_list[i].tskid;
+		flag = p_in->task_flag_list[i].flag;
+		if (!is_valid_task_flag(flag)) {
+			ERROR_LOG("ill_flag: %u, task=%u, uid=%u", flag, tskid, p->uid);
+			continue;
+		}
+		tskiter_t iter = p->tskmap->find(tskid);
+		if (iter == p->tskmap->end()) {
+			tsk = alloc_task_node(p, tskid, flag);
+			if (!tsk) {
+				ERROR_LOG("nomem for task=%u, uid=%u", tskid, p->uid);
+				return -1;
+			}
+			p->tskmap->insert(std::make_pair(tskid, tsk));
+		} else {
+			tsk = iter->second;
+			tsk->flag = flag;
+		}
+	DEBUG_LOG("get_task_flag_callback, tskid=%u, flag=%u, u=%u", tsk->tskid, tsk->flag, p->uid);
+	}
+
+	/* TODO(zog): anything else? eg: switch (p->waitcmd) {case ...} */
+	return 0;
+}
+
+//------------------------------------------------------------------
+//	get_task_full_list
+//------------------------------------------------------------------
+
+int db_get_task_full_list(player_t *p, uint32_t begin_tskid, uint32_t end_tskid)
+{
+	db_proto_get_task_full_list_in in;
+	in.begin_tskid = begin_tskid;
+	in.end_tskid = end_tskid;
+
+	DEBUG_LOG("db_get_task_full, begin_tskid=%u, end_tskid=%u, u=%u", begin_tskid, end_tskid, p->uid);
+	return send_msg_to_dbproxy(p, p->uid, p->role_tm, db_proto_get_task_full_list_cmd, &in);
+}
+
+int db_proto_get_task_full_list_callback(DEFAULT_ARG)
+{
+	int bufflen;
+	char *buff;
+	task_t *tsk;
+	uint32_t tskid, flag;
+
+	db_proto_get_task_full_list_out *p_in = P_IN;
+	for (uint32_t i = 0; i < p_in->task_full_list.size(); i++) {
+		/* 处理每一个task full信息 */
+		tskid = p_in->task_full_list[i].tskid;
+		flag = p_in->task_full_list[i].flag;
+		bufflen = sizeof(p_in->task_full_list[i].buff);
+		buff = p_in->task_full_list[i].buff;
+
+		if (!is_valid_task_flag(flag)) {
+			ERROR_LOG("ill_flag(full): %u, task=%u, uid=%u", flag, tskid, p->uid);
+			continue;
+		}
+
+		if (bufflen != MAX_TASK_BUFF_LEN) {
+			ERROR_LOG("error tskbuff len=%d task=%u, uid=%u",
+					bufflen, tskid, p->uid);
+			return -1;
+		}
+
+		tskiter_t iter = p->tskmap->find(tskid);
+		if (iter == p->tskmap->end()) {
+			tsk = alloc_task_node(p, tskid, flag);
+			if (!tsk) {
+				ERROR_LOG("nomem(full) for task=%u, uid=%u", tskid, p->uid);
+				return -1;
+			}
+			memcpy(tsk->buff, buff, bufflen);
+			p->tskmap->insert(std::make_pair(tskid, tsk));
+            if (flag == task_inprogress) {
+                p->inprogress_tskmap->insert(std::make_pair(tskid, tsk));
+            }
+		} else {
+			tsk = iter->second;
+			tsk->flag = flag;
+		}
+
+	DEBUG_LOG("get_task_full_callback, tskid=%u, flag=%u, u=%u", tsk->tskid, tsk->flag, p->uid);
+	}
+
+	switch (p->waitcmd) {
+		default:
+			break;
+	}
+	return 0;
+}

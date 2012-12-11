@@ -1,0 +1,4 @@
+#ifndef _CHAT_HPP_
+#define _CHAT_HPP_
+#hinclude    "global_data.hpp"
+#endif /*_CHAT_HPP_ END*/

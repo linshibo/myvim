@@ -1,0 +1,251 @@
+/**
+ * =====================================================================================
+ *
+ * @file  Croute_func.cpp
+ *
+ * @brief 处理其他服务器请求
+ *
+ * compiler  gcc4.3.2
+ *
+ * platform  Linux
+ *
+ * copyright:  TaoMee, Inc. ShangHai CN. All rights reserved.
+ * 		
+ * =====================================================================================
+ */
+#include <time.h>
+#include <limits.h>
+#include <libtaomee++/utils/strings.hpp> 
+#include <libtaomee++/bitmanip/bitmanip.hpp>
+#include "Croute_func.h" 
+#include "stat_log.h"
+#include    "common.h"
+extern  char * version_str;
+
+#include "./proto/ultraman_db.h"
+stru_cmd_item_t g_cmd_map[]={
+#include "./proto/ultraman_db_bind.h"
+};
+#define DEALFUN_COUNT  (int(sizeof(g_cmd_map )/sizeof(g_cmd_map[0])))
+stru_cmd_db_name g_cmd_db_name_list[]={
+    { 0x2A00, { "USER_INFO_" } } ,
+    { 0xC220, { "PUBLIC_INFO" } } ,
+};
+
+#include "./proto/ultraman_db_enum.h"
+#define    MAX_ROLE_NUM  3 
+//版本发布时间
+int32_t release_wday = 0;
+int32_t release_hour = 0;
+
+/*
+ *--------------------------------------------------------------------------------------
+ *	   Class:  Croute_func
+ *	  Method:  Croute_func
+ * Description:  constructor
+ *--------------------------------------------------------------------------------------
+ */
+Croute_func::Croute_func(mysql_interface * db):Cfunc_route_db_uman(db) , 
+	user(db),
+	friends(db),
+	task(db)
+{
+	this->set_cmd_list(g_cmd_map,DEALFUN_COUNT );
+    this->init_cmd_db_map(g_cmd_db_name_list,
+            sizeof(g_cmd_db_name_list )/sizeof(g_cmd_db_name_list[0]) );
+	
+	//读配置文件中发布版本时间
+	release_wday = config_get_intval("release_wday", 5);
+	release_hour = config_get_intval("release_hour", 0);
+
+}  /* -----  end of method Croute_func::Croute_func  (constructor)  ----- */
+
+/*-------------------------------for Login Server--------------------------------*/
+//登陆服务器创建角色
+int Croute_func::db_proto_user_create_role(DEAL_FUNC_ARG)
+{
+	db_proto_user_create_role_in *p_in=P_IN;
+	db_proto_user_create_role_out *p_out=P_OUT;
+	uint32_t count;
+	ret=user.get_role_num(area_id, userid, &count);
+	DEBUG_LOG("role count %u %u",count,ret);
+	if( count >= MAX_ROLE_NUM){
+		KERROR_LOG(userid,"max role num %u",count);
+		return (ret=db_err_max_role_num);
+	}
+	p_out->role_tm=(uint32_t)time(0);
+	ret=user.create_raw_role(area_id,userid,p_out->role_tm,p_in->nick,p_in->prof);
+	//判断操作是否成功
+	if(ret != SUCC){
+		KDEBUG_LOG(userid, "STD_ROLLBACK!");
+        STD_ROLLBACK(); //回滚
+    }
+	return ret;
+}
+
+//登陆服务器拉取所有的角色信息
+int Croute_func::db_proto_get_role_info(DEAL_FUNC_ARG)
+{
+	db_proto_get_role_info_out *p_out=P_OUT;
+	ret=user.get_role_info(area_id,userid,*p_out);
+	return ret;
+}
+/*-------------------------------for Online Server--------------------------------*/
+//登陆信息
+int Croute_func::db_proto_user_login(DEAL_FUNC_ARG)
+{
+	db_proto_user_login_out *p_out=P_OUT;
+	ret=user.check_user(DEFAULT_KEYS);
+	if( ret ){
+		return ret;
+	}
+	ret=user.get_user_login_info(DEFAULT_KEYS, p_out);
+	if(ret){
+		return ret;
+	}
+	ret=friends.get_friends_list(DEFAULT_KEYS,p_out->friend_list);;
+	if(ret){
+		return ret;
+	}
+	ret=friends.get_blacklist(DEFAULT_KEYS,p_out->black_list);;
+	//DEBUG_LOG("xxx %u",p_out->friend_list.size());
+	return ret;
+}
+//添加好友
+int Croute_func::db_proto_add_friend(DEAL_FUNC_ARG)
+{
+	db_proto_add_friend_in *p_in=P_IN;
+	ret=friends.add_friend(DEFAULT_KEYS, (p_in->ufriend));
+	return ret;
+}
+//删除好友
+int Croute_func::db_proto_del_friend(DEAL_FUNC_ARG)
+{
+	db_proto_del_friend_in *p_in=P_IN;
+	ret=friends.del_friend(DEFAULT_KEYS, (p_in->ufriend));
+	return ret;
+}
+//添加到黑米黑名单
+int Croute_func::db_proto_add_to_blacklist(DEAL_FUNC_ARG)
+{
+    db_proto_add_to_blacklist_in* p_in = P_IN;
+    ret = friends.add_to_blacklist(DEFAULT_KEYS, p_in->blacked_user);
+    if(ret != SUCC) {
+        STD_ROLLBACK();
+        return ret;
+    }
+    return ret;
+}
+//从黑名单删除
+int Croute_func::db_proto_del_from_blacklist(DEAL_FUNC_ARG)
+{
+    db_proto_del_from_blacklist_in* p_in = P_IN;
+    ret =  friends.del_from_blacklist(DEFAULT_KEYS, p_in->unblacked_user);
+    return ret;
+}
+//设置人物的flag
+int Croute_func::db_proto_set_user_flag(DEAL_FUNC_ARG)
+{
+    db_proto_set_user_flag_in* p_in = P_IN;
+	ret = user.set_int_value_bit(DEFAULT_KEYS, "flag",p_in->pos-1, p_in->val);
+    return ret;
+}
+//拉取某个好友基本信息
+int Croute_func::db_proto_get_user_info(DEAL_FUNC_ARG)
+{
+    db_proto_get_user_info_out* p_out = P_OUT;
+	p_out->userid=userid;
+	p_out->role_tm=role_tm;
+    ret = user.get_friend_info(DEFAULT_KEYS,  *p_out);
+    return ret;
+}
+//检测用户是否存在
+int Croute_func::db_proto_check_user_exist(DEAL_FUNC_ARG)
+{
+	db_proto_check_user_exist_out *p_out=P_OUT;
+	p_out->userid=userid;
+	p_out->role_tm=role_tm;
+    ret = user.check_user(DEFAULT_KEYS);
+    return ret;
+}
+
+/*online发送离线消息到DB*/
+int Croute_func::db_proto_send_offline_msg(DEAL_FUNC_ARG){
+    db_proto_send_offline_msg_in* p_in=P_IN;
+    msg_list_t offline_msg_list;
+
+    ret=user.get_offline_msg(DEFAULT_KEYS , &offline_msg_list );
+    if( ret != SUCC) return 0;
+
+    offline_msg_list.msg_list.push_back(p_in->msg);
+    ret=user.update_offline_msg(DEFAULT_KEYS , &offline_msg_list );
+
+    return ret;
+}
+
+/*接任务*/
+int Croute_func::db_proto_obtain_task(DEAL_FUNC_ARG){
+    db_proto_obtain_task_in* p_in=P_IN;
+    db_proto_obtain_task_out* p_out=P_OUT;
+    ret=this->task.add(DEFAULT_KEYS,p_in->tskid, sizeof(p_in->buff), p_in->buff);
+    p_out->tskid=p_in->tskid;
+    memcpy(p_out->buff, p_in->buff, sizeof(p_out->buff));
+    return ret;
+}
+
+/*取消任务*/
+int Croute_func::db_proto_cancel_task(DEAL_FUNC_ARG){
+    db_proto_cancel_task_in* p_in=P_IN;
+
+    ret=this->task.del(DEFAULT_KEYS,p_in->tskid);
+
+
+    return ret;
+}
+
+/*设置任务buf*/
+int Croute_func::db_proto_setbuff_task(DEAL_FUNC_ARG){
+    db_proto_setbuff_task_in* p_in=P_IN;
+
+    ret=this->task.update_buf(DEFAULT_KEYS,p_in->tskid,sizeof( p_in->buff) ,p_in->buff );
+
+    return ret;
+}
+
+/*完成任务*/
+int Croute_func::db_proto_finish_task(DEAL_FUNC_ARG){
+    db_proto_finish_task_in* p_in=P_IN;
+
+    ret=this->task.update(DEFAULT_KEYS,p_in->tskid, sizeof(p_in->buff), p_in->buff,1);
+
+    return ret;
+}
+/*拉取任务状态列表*/
+int Croute_func::db_proto_get_task_flag_list(DEAL_FUNC_ARG){
+    db_proto_get_task_flag_list_in* p_in=P_IN;
+    db_proto_get_task_flag_list_out* p_out=P_OUT;
+
+
+    ret=this->task.get_flag_list(DEFAULT_KEYS,p_in->begin_tskid,p_in->end_tskid,
+            p_out->task_flag_list );
+
+
+    return ret;
+}
+
+/*拉取任务全量列表*/
+int Croute_func::db_proto_get_task_full_list(DEAL_FUNC_ARG){
+    db_proto_get_task_full_list_in* p_in=P_IN;
+    db_proto_get_task_full_list_out* p_out=P_OUT;
+
+    ret=this->task.get_full_list(DEFAULT_KEYS,p_in->begin_tskid,p_in->end_tskid,
+            p_out->task_full_list );
+
+    return ret;
+}
+
+int Croute_func::db_proto_logout_save_data(DEAL_FUNC_ARG){
+    db_proto_logout_save_data_in* p_in=P_IN;
+	ret = user.update_logout_data(DEFAULT_KEYS, p_in);
+    return ret;
+}

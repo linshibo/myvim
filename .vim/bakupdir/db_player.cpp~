@@ -1,0 +1,103 @@
+#include <libtaomee++/inet/pdumanip.hpp>
+extern "C"
+{
+#include <arpa/inet.h>
+#include <libtaomee/timer.h>
+#include <libtaomee/crypt/qdes.h>
+#include <libtaomee/project/constants.h>
+#include <libtaomee/dataformatter/bin_str.h>
+#include <libtaomee/project/utilities.h>
+}
+#include "./proto/ultraman_online.h"
+#include "./proto/ultraman_online_enum.h"
+#include "./proto/ultraman_db.h"
+#include "./proto/ultraman_db_enum.h"
+#include "player.hpp"
+#include "cli_proto.hpp"
+#include "db_player.hpp"
+#include "db_friends.hpp"
+#include "dbproxy.hpp"
+using namespace taomee;
+
+        
+///************************************************************************/
+///*                       DBproxy  Callback                              */
+///************************************************************************/
+
+/* @brief 添加session返回包
+*/
+int main_login_check_session_new_callback(player_t *p, Cmessage* c_in, uint32_t ret)
+{
+	CHECK_DB_ERR(p, ret);
+	return	send_msg_to_dbproxy(p, p->uid, p_in->role_tm, db_proto_user_login_cmd, NULL);
+}
+
+
+/* @brief 把用户信息打包发给自己,以及地图里的其他用户
+ */
+int rsp_login(player_t *p)
+{
+	cli_login_out out;
+	memcpy(out.nick, p->nick, sizeof(out.nick));
+	out.prof=p->prof;
+	return send_msg_to_self(p, cli_login_cmd, &out, 1);
+}
+
+int send_offline_msg(player_t *p,msg_list_t&  offline_msg_list)
+{
+	std::vector<msg_t>::iterator is;
+    for (is = offline_msg_list.msg_list.begin(); is != offline_msg_list.msg_list.end(); is++) {
+        KDEBUG_LOG(p->uid,"push offline msg to user");
+        send_pkg_to_self(p, is->msg, sizeof(is->msg), 1);
+    }
+	return 0;
+}
+
+int cache_set_player(player_t* p, db_proto_user_login_out* out)
+{
+	DEBUG_LOG("xxxxxx");
+	p->role_tm=out->role_tm;
+	p->x_pos=out->map_x;
+	p->y_pos=out->map_y;
+	p->eye_model=20011;
+	p->resource_id=20001;
+	std::vector<uid_role_t>::iterator it;
+	//friend_list
+	for(it = out->friend_list.begin(); it != out->friend_list.end(); it++) {
+		uint64_t key = gen_key_by_uid_role(it->user_id, it->role_tm);
+		p->friends->insert(key);
+	}
+	//black_list
+	for(it = out->black_list.begin(); it != out->black_list.end(); it++) {
+		uint64_t key = gen_key_by_uid_role(it->user_id, it->role_tm);
+		p->blacklist->insert(key);
+	}
+	DEBUG_LOG("***********************************************");
+	KDEBUG_LOG(p->uid,"LOGIN SUCESS:%s  x:%u y%u",p->nick,p->x_pos,p->y_pos);
+	DEBUG_LOG("***********************************************");
+	return 0;
+}
+
+int db_proto_user_login_callback(DB_DEFAULT_ARG) 
+{
+	if (ret) { 
+		del_player(p);
+		return send_error_to_self(p, p->waitcmd, (db_base_err + ret), 1); 
+	}
+	db_proto_user_login_out *p_in=P_IN;
+	KDEBUG_LOG(p->uid,"db_proto_user_login:nick=%s prof=%u",p_in->nick,p_in->prof);
+	cache_set_player(p, p_in);
+	rsp_login(p);
+	send_offline_msg(p,p_in->offline_msg_list);
+	ADD_TIMER_EVENT_EX(p, timer_notify_sys_time, 0, get_now_tv()->tv_sec + 10);
+	return 0;
+}
+
+int db_logout_save_data(player_t *p)
+{
+	db_proto_logout_save_data_in	out;	
+	out.map_id=0;
+	out.map_x=p->x_pos;
+	out.map_y=p->y_pos;
+	return send_msg_to_dbproxy(NULL,p->uid, p->role_tm, db_proto_logout_save_data_cmd,&out);
+}

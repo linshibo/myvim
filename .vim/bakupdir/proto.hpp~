@@ -1,0 +1,465 @@
+/*
+ * =====================================================================================
+ *
+ *       Filename:  proto.hpp
+ *
+ *    Description: 与loginSrv通讯的相关协议命令号和结构的定义
+ *
+ *       Revision:  none
+ *       Compiler:  gcc
+ *
+ *        Company:  taomee.inc SH
+ *
+ * =====================================================================================
+ */
+#ifndef LOGIN_PROTO_HPP
+#define LOGIN_PROTO_HPP
+extern "C" {
+#include <stdint.h>
+}
+
+#include "libtaomee++/inet/pdumanip.hpp"
+using namespace taomee;
+
+
+enum SESSION_DEL_FLAG
+{
+	/*验证session后保留session*/
+	KEEP_AFTER_CHECK	= 0,
+	/*验证session后删除session*/
+	DELETE_AFTER_CHECK	= 1,
+};
+
+enum {
+	pkg_size = 8192, /*! 来包大小限制 */
+	FD_UNSET = -1, /*！非法fd */
+	SEER2_GAME_ID =  10, /* seer2游戏的编号 */
+	session_len	 = 16, /* 验证session的长度 */
+	nick_len = 16, /*昵称长度*/
+	ip_size = 16,  /* ip地址长度 */
+	min_online_id	= 1, /*最小online编号*/
+	max_online_id	= 4096, /*最大online编号*/
+	max_friend_num	= 200, /* 好友列表数目 */
+};
+
+enum active_code_t{
+	active_code_len	= 10, /* 激活码长度 */
+};
+
+/* client与loginSrv之间的命令号 */
+enum cli_cmd_t {
+	cli_proto_get_recommend_svr_list        = 105, 
+	cli_proto_get_role_info					= 106,
+	cli_proto_create_role                   = 107,
+	cli_proto_check_role                    = 110,
+	cli_check_role_in_our_db				= 111,
+	cli_proto_get_version					= 112,
+
+	cli_proto_keep_alive                    = 999
+};
+
+/* loginSrv与switchSrv之间的命令号 */
+enum svr_proto_login_2_switch {
+	svr_proto_ls_recommend_svr_list                = 63101,
+	svr_proto_ls_recommend_range_svr_list          = 63102,
+};
+
+/* loginSrv与dbproxy之间的命令号 */
+enum svr_proto_login_2_db {
+	svr_proto_ld_get_user_info					   = 0x2A01,
+	svr_proto_ld_create_role                       = 0x2A03,
+	svr_proto_ld_check_role_in_our_db              = 0x2A40,
+
+	svr_proto_ld_check_loginsession                = 0xA024,
+	svr_proto_ld_get_gameflag		               = 0x0007,
+
+};
+
+enum svr_err_t{
+	svr_err_proto_len_invalid		= 1005,
+	svr_err_user_existed			= 1014,
+	svr_err_user_not_exist			= 1105,	
+	svr_err_invalid_session			= 4331,
+	svr_err_user_ban_forever		= 4333,
+	svr_err_user_ban_24_hour		= 4334,
+	svr_err_user_ban_7_day			= 4335,
+	svr_err_user_ban_14_day			= 4336,
+
+};
+
+/*login服务器与客户端的错误码*/
+enum login_2_cli_err_t {
+	cli_err_invalid_name			= 6006,
+};
+
+
+typedef uint32_t userid_t;
+
+#pragma pack(1)
+
+struct timer_head_t {
+	list_head_t timer_list;
+};
+
+/*服务器间通讯的协议结构，譬如login-switch，login-session，login-online*/
+struct svr_proto_t {
+	uint32_t len; /*报文总长度*/
+	uint32_t seq; /*序列号*/
+	uint16_t cmd; /*命令号*/ 
+	uint32_t ret; /*返回值*/
+	userid_t uid; /*米米号*/
+	uint8_t body[];
+};
+
+/*login服务器与客户端通讯的协议头（不使用，写在这里以示清楚）*/
+struct cli_proto_t {
+	int len; /*报文总长度*/
+	uint16_t cmd; /*命令号*/ 
+	userid_t uid; /*米米号*/
+	uint32_t seq; /*序列号*/
+	uint32_t ret; /*返回值*/
+	uint8_t body[];
+};
+
+/**
+ * @brief Session验证的内容,login发向session服务器 
+ */
+struct check_login_session_t
+{
+	uint32_t uiGameID;
+	char szSession[session_len];
+	uint32_t uiDelFlag;
+
+	check_login_session_t()
+	{
+		Init();
+	}
+
+	void Init()
+	{
+		uiGameID = SEER2_GAME_ID;
+		memset(szSession, 0, sizeof(szSession));
+		uiDelFlag = DELETE_AFTER_CHECK;
+	}
+
+	void Encode(char* pBuff, int& idx)
+	{
+		pack_h(pBuff, uiGameID, idx);
+		pack(pBuff, szSession, session_len, idx); 
+		pack_h(pBuff, uiDelFlag, idx);
+	}
+
+	void Decode(char* pBuff, int & idx)
+	{
+		unpack_h(pBuff, uiGameID, idx);
+		unpack(pBuff, szSession, session_len, idx);  
+		unpack_h(pBuff, uiDelFlag, idx);
+	}
+};
+
+/**
+ * @brief 16字节session的结构
+ */
+struct login_session_t {
+	userid_t	uid;
+	uint32_t	tm1;
+	uint32_t	ip;
+	uint32_t	tm2;
+};
+
+/**
+ * @brief client传来拉取服务器列表的协议结构
+ */
+struct cli_get_recomm_svr_t {
+	char		session[session_len];
+	uint32_t	channel;
+};
+
+/**
+ * @brief client传来拉取服务器列表的协议结构
+ */
+struct cli_get_ranged_svr_t {
+	uint16_t	start_id;
+	uint16_t	end_id;
+
+	cli_get_ranged_svr_t()
+	{
+		Init();
+	}
+	void Init()
+	{
+		start_id = 1;
+		end_id = 2;
+	}
+
+	void Encode(char* pBuff, int& idx)
+	{
+		pack_h(pBuff, start_id, idx);
+		pack_h(pBuff, end_id, idx);
+	}
+
+	void Decode(char* pBuff, int & idx)
+	{
+		unpack_h(pBuff, start_id, idx);
+		unpack_h(pBuff, end_id, idx);
+	}
+};
+
+/**
+ * @brief 向switch发送拉去一定范围内服务器的结构
+ */
+struct svr_proto_ls_get_ranged_svrlist_in_t{
+	uint16_t	start_id;
+	uint16_t	end_id;
+	uint16_t	mon_highest_level;
+
+	svr_proto_ls_get_ranged_svrlist_in_t()
+	{
+		Init();
+	}
+	void Init()
+	{
+		start_id = 1;
+		end_id = 2;
+		mon_highest_level = 0;
+	}
+};
+
+/**
+ * @brief client传来创建角色的协议结构
+ */
+struct cli_create_role_t {
+	char		sess[session_len]; 
+	uint32_t	channel; //登陆渠道
+	char		nick[nick_len];  //昵称
+	uint32_t	color;  //颜色
+	uint8_t		sex;   //性别
+
+	cli_create_role_t()
+	{
+		Init();
+	}
+
+	void Init()
+	{
+		memset(sess, 0, sizeof(sess));
+		channel = 0;
+		memset(nick, 0, sizeof(nick));
+		color = 0;
+		sex = 0;
+	}
+
+	void Encode(char* pBuff, int& idx)
+	{
+		pack(pBuff, sess, session_len, idx); 
+		pack_h(pBuff, channel, idx);
+		pack(pBuff, nick, nick_len, idx); 
+		pack_h(pBuff, color, idx);
+		pack_h(pBuff, sex, idx);
+	}
+
+	void Decode(char* pBuff, int & idx)
+	{
+		unpack(pBuff, sess, session_len, idx);  
+		unpack_h(pBuff, channel, idx);
+		unpack(pBuff, nick, nick_len, idx);  
+		unpack_h(pBuff, color, idx);
+		unpack_h(pBuff, sex, idx);
+	}
+
+};
+
+/**
+ * @brief 用户基本信息（‘创建角色时间’字段DB自加）
+ */
+struct base_info_t {
+	char		nick[nick_len];
+	uint32_t	color;
+	uint8_t		sex;   //性别
+
+	base_info_t()
+	{
+		Init();
+	}
+
+	void Init()
+	{
+		memset(nick, 0, sizeof(nick));
+		color = 0;
+		sex = 0;
+	}
+
+	void Encode(char* pBuff, int& idx)
+	{
+		pack(pBuff, nick, nick_len, idx); 
+		pack_h(pBuff, color, idx);
+		pack_h(pBuff, sex, idx);
+	}
+
+	void Decode(char* pBuff, int & idx)
+	{
+		unpack(pBuff, nick, nick_len, idx);  
+		unpack_h(pBuff, color, idx);
+		unpack_h(pBuff, sex, idx);
+	}
+
+};
+
+/* @brief 用户ID列表 
+ */
+struct uid_list_t {
+	uint32_t	cnt;
+	userid_t	uids[max_friend_num];
+
+	uid_list_t()
+	{
+		init();
+	}
+
+	void init()
+	{
+		cnt = 0;
+		memset(uids, 0, sizeof(uids));
+	}
+
+	void Encode(char* pBuff, int& idx)
+	{
+		pack_h(pBuff, cnt, idx);
+		for (size_t i = 0; i < cnt; ++i) {
+			pack_h(pBuff, uids[i], idx);
+		}
+	}
+
+	void Decode(const void* pBuff, int & idx)
+	{
+		unpack_h(pBuff, cnt, idx);
+		for (size_t i = 0; i < cnt; ++i) {
+			unpack_h(pBuff, uids[i], idx);
+		}
+	}
+
+};
+
+/**
+ * @brief db返回的用户基本（被禁）信息
+ */
+struct user_info_callback_t {
+	/*uint32_t	is_vip;
+	uint32_t	ol_time;
+	uint32_t	ol_today;*/
+	uid_list_t	friends_list;
+	uid_list_t	blacks_list;
+	uint16_t last_login_online_id;
+	uint16_t mon_highest_level; 
+	user_info_callback_t()
+	{
+		Init();
+	}
+
+	void Init()
+	{
+		last_login_online_id = 0; //永远不会是0，id从1开始
+		mon_highest_level = 0; //精灵最高等级
+	}
+
+	void Encode(char* pBuff, int& idx)
+	{
+		friends_list.Encode(pBuff, idx);
+		blacks_list.Encode(pBuff, idx);
+		pack_h(pBuff, last_login_online_id, idx);
+		pack_h(pBuff, mon_highest_level, idx);
+	}
+
+	void Decode(const void* pBuff, int & idx)
+	{
+		friends_list.Decode(pBuff, idx);
+		blacks_list.Decode(pBuff, idx);
+		unpack_h(pBuff, last_login_online_id, idx);
+		unpack_h(pBuff, mon_highest_level, idx);
+	}
+
+};
+
+struct sw_get_recommend_svr_t{
+	uint16_t online_id;
+	char online_ip[ip_size];
+	uint16_t online_port;
+	uint32_t user_num;
+	uint8_t friend_num;
+	uint8_t is_new_comer_svr;
+
+	sw_get_recommend_svr_t()
+	{
+		init();
+	}
+
+	void init()
+	{
+		online_id = 0;
+		memset(online_ip, 0, sizeof(online_ip));
+		online_port = 0;
+		user_num = 0;
+		friend_num = 0;
+		is_new_comer_svr = 0;
+	}
+
+	void Encode(char* pBuff, int& idx)
+	{
+		pack_h(pBuff, online_id, idx);
+		pack(pBuff, online_ip, ip_size, idx); 
+		pack_h(pBuff, online_port, idx);
+		pack_h(pBuff, user_num, idx);
+		pack_h(pBuff, friend_num, idx);
+		pack_h(pBuff, is_new_comer_svr, idx);
+	}
+
+	void Decode(const void* pBuff, int & idx)
+	{
+		unpack_h(pBuff, online_id, idx);
+		unpack(pBuff, online_ip, ip_size, idx); 
+		unpack_h(pBuff, online_port, idx);
+		unpack_h(pBuff, user_num, idx);
+		unpack_h(pBuff, friend_num, idx);
+		unpack_h(pBuff, is_new_comer_svr, idx);
+	}
+};
+
+struct cli_set_active_code_t{
+	char active_code[active_code_len];
+	char img_id[verif_img_id_len];
+	char verif_code[verif_code_len];
+
+
+	cli_set_active_code_t()
+	{
+		init();
+	}
+
+	void init()
+	{
+		memset(active_code, 0, sizeof(active_code));
+		memset(img_id, 0, sizeof(img_id));
+		memset(verif_code, 0, sizeof(verif_code));
+	}
+	
+	void Encode(char* pBuff, int& idx)
+	{
+		pack(pBuff, active_code, active_code_len, idx); 
+		pack(pBuff, img_id, verif_img_id_len, idx); 
+		pack(pBuff, verif_code, verif_code_len, idx); 
+	}
+
+	void Decode(const void* pBuff, int & idx)
+	{
+		unpack(pBuff, active_code, active_code_len, idx); 
+		unpack(pBuff, img_id, verif_img_id_len, idx); 
+		unpack(pBuff, verif_code, verif_code_len, idx); 
+	}
+};
+
+
+#pragma pack()
+
+#endif
+
+

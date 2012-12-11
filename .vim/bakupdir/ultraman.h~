@@ -1,0 +1,109 @@
+#ifndef  ULTRAMAN_H
+#define  ULTRAMAN_H
+#include <libtaomee++/proto/proto_base.h>
+#include <stdio.h>
+
+class role_info_t: public Cmessage {
+	public:
+		/*创建时间*/
+		uint32_t		role_tm;
+		/*昵称*/
+		char		nick[16]; 
+		/*职业*/
+		uint8_t		prof;
+
+		role_info_t();
+		void init();
+		bool read_from_buf(byte_array_t & ba );
+		bool write_to_buf(byte_array_t & ba );
+};
+
+	
+class db_del_item_request_t: public Cmessage {
+	public:
+		/*唯一索引ID*/
+		uint64_t		id;
+		/*物品ID*/
+		uint32_t		item_id;
+		/*数量*/
+		uint32_t		item_count;
+
+		db_del_item_request_t();
+		void init();
+		bool read_from_buf(byte_array_t & ba );
+		bool write_to_buf(byte_array_t & ba );
+};
+
+	
+class msg_t: public Cmessage {
+	public:
+		/**/
+		uint32_t		msg_len;
+		//信息内容
+		uint32_t _msg_len;
+		char		msg[512];
+
+		msg_t();
+		void init();
+		bool read_from_buf(byte_array_t & ba );
+		bool write_to_buf(byte_array_t & ba );
+};
+
+	
+class msg_list_t: public Cmessage {
+	public:
+		//
+		std::vector<msg_t>		msg_list;
+
+		msg_list_t();
+		void init();
+		bool read_from_buf(byte_array_t & ba );
+		bool write_to_buf(byte_array_t & ba );
+};
+
+	
+class stru_task_flag: public Cmessage {
+	public:
+		/**/
+		uint32_t		tskid;
+		/**/
+		uint32_t		flag;
+
+		stru_task_flag();
+		void init();
+		bool read_from_buf(byte_array_t & ba );
+		bool write_to_buf(byte_array_t & ba );
+};
+
+	
+class stru_task_info: public Cmessage {
+	public:
+		/**/
+		uint32_t		tskid;
+		/**/
+		uint32_t		flag;
+		/**/
+		char		buff[32]; 
+
+		stru_task_info();
+		void init();
+		bool read_from_buf(byte_array_t & ba );
+		bool write_to_buf(byte_array_t & ba );
+};
+
+	
+class uid_role_t: public Cmessage {
+	public:
+		/*米米号*/
+		uint32_t		user_id;
+		/*角色创建时间*/
+		uint32_t		role_tm;
+
+		uid_role_t();
+		void init();
+		bool read_from_buf(byte_array_t & ba );
+		bool write_to_buf(byte_array_t & ba );
+};
+
+	
+#endif // ULTRAMAN_H

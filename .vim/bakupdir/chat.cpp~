@@ -1,0 +1,254 @@
+extern "C" {
+#include <glib.h>
+#include <libtaomee/tm_dirty/tm_dirty.h>
+#include <libtaomee/timer.h>
+}
+
+#include <time.h>
+#include <libtaomee++/inet/pdumanip.hpp>
+
+#include "player.hpp"   //玩家相关
+#include "friends.hpp"
+#include "dbproxy.hpp"
+#include "chat.hpp"
+#include "cli_dispatch.hpp"
+#include "switch.hpp"
+#include "./proto/ultraman_online_enum.h"
+#include "./proto/ultraman_switch.h"
+#include "./proto/ultraman_switch_enum.h"
+using namespace taomee;
+
+/*
+ * 检查玩家发言的频率
+ * chat_record: 检查某一类型的发言，现在只添加了世界类型
+ * threshold: 阀值，现指2秒内限制的发言次数，若超过次数则使用参数forbid_tm
+ * forbid_tm: 玩家发言超过阀值，这里设置禁止玩家发言的时间
+ */
+//int check_chat_msg_freq(player_t *p, chat_record_t *chat_record, uint32_t threshold, uint32_t forbid_tm)
+//{
+	//uint32_t cur_tm = get_now_tv()->tv_sec;
+	///* 是否还在禁言状态中 */
+	//if (cur_tm - chat_record->last_chat_point_tm < chat_record->forbid_chat_tm) {
+		//send_error_to_self(p, ONLINE_ERR_CHAT_TOO_FREQ);
+		//return -1;		
+	//}
+	
+	//if (cur_tm - chat_record->last_chat_point_tm >= TIME_LIMIT) {
+		//chat_record->last_chat_point_tm	= cur_tm;
+		//chat_record->forbid_chat_tm	= 0;
+		//chat_record->chat_count		= 1;
+		//return 0;
+	//}
+
+	//chat_record->chat_count++;
+	//uint32_t freq_number;
+	//if (cur_tm - chat_record->last_chat_point_tm != 0) {
+		//freq_number = chat_record->chat_count/(cur_tm - chat_record->last_chat_point_tm);
+	//} else {
+		///* 要是你一秒之内发消息次数大于阀值次数,必须禁了! */
+		//if (chat_record->chat_count >= threshold) {
+			//chat_record->last_chat_point_tm	= cur_tm;
+			//chat_record->forbid_chat_tm = forbid_tm;
+			//send_error_to_self(p,ONLINE_ERR_CHAT_TOO_FREQ);
+			//return -1;	
+		//} else {
+			//return 0;
+		//}
+	//}
+
+	//if (freq_number > threshold) {
+		//chat_record->last_chat_point_tm	= cur_tm;
+		//chat_record->forbid_chat_tm = forbid_tm;
+		//send_error_to_self(p,ONLINE_ERR_CHAT_TOO_FREQ);
+		//return -1;	
+	//} else {
+		///* 这里不更新时间基点 */
+		//return 0;
+	//}
+
+	//return 0;
+//}
+
+
+////hard code for testing 聊天类型-道具对应关系表
+//static uint32_t chat_msg_itemid_type_table[CHAT_MSG_TYPE_COUNT] = {0, 0, 0, 10038, 0, 0, 0};
+
+//int chat_msg_world(player_t *p, cli_chat_public_msg_out *p_out, int item_flag)
+//{
+	//uint64_t urkey = gen_key_by_uid_role(p->uid, p->role_tm);
+    //GHashTableIter iter;
+    //gpointer key, val;
+    //g_hash_table_iter_init(&iter, all_players);
+    //while (g_hash_table_iter_next(&iter, &key, &val)) {
+        //player_t *p_dest = reinterpret_cast<player_t*>(val);
+		//if (p_dest != p) {//先不给用户自己转发
+			//if (item_flag == 1) {//喇叭消息 不管是否黑名单
+				//send_to_player(p_dest, p_out, p->waitcmd, DONT_CLEAR_WAITCMD);
+			//} else if(p_dest->blacklist->find(urkey) == p_dest->blacklist->end()) {//不在黑名单
+        		//send_to_player(p_dest, p_out, p->waitcmd, DONT_CLEAR_WAITCMD);
+			//}
+		//}
+    //}
+    
+	////用户自身也要知道消息是否发送成功
+    //return send_to_player(p, p_out, p->waitcmd, DO_CLEAR_WAITCMD);
+//}
+
+//int chat_msg_union(player_t *p, cli_chat_public_msg_out *p_out)
+//{
+    ///*TODO singku 工会聊天*/
+    
+    //return send_to_player(p, p_out, p->waitcmd, DO_CLEAR_WAITCMD);
+//}
+
+//int chat_msg_map(player_t *p, cli_chat_public_msg_out *p_out)
+//{
+    //if (!p->check_in_map()) {/*几乎不可能的错误*/
+        //ERROR_LOG("user: %u, chat msg to map, cur map is null", p->uid);
+        //return send_error_to_self(p, p->waitcmd ONLINE_ERR_CUR_MAP_NULL);
+    //}
+	
+	//uint64_t key = gen_key_by_uid_role(p->uid, p->role_tm);
+    //list_head_t *l = NULL;
+    //list_for_each(l, &(p->cur_map->player_list)) {
+        //player_t *p_dest = list_entry(l, player_t, maphook);
+		//if (p_dest != p) {//先不给自己发
+			//if (p_dest->blacklist->find(key) == p_dest->blacklist->end())//不在黑名单才转发
+        		//send_to_player(p_dest, p_out, p->waitcmd, DONT_CLEAR_WAITCMD);
+		//}
+    //}
+    //return send_to_player(p, p_out, p->waitcmd, DO_CLEAR_WAITCMD);
+//}
+
+////在大厅中聊天
+//int chat_msg_hall (player_t *p, cli_chat_public_msg_out *p_out) 
+//{
+    ////协议函数里已经检测过是否在大厅
+    //uint64_t key = gen_key_by_uid_role(p->uid, p->role_tm);
+    //list_head_t *l = NULL;
+    ////轮询该线的大厅玩家
+    //list_for_each(l, &(all_lines[p->cur_line_index].line_player_in_hall_list)) {
+        //player_t *p_dest = list_entry(l, player_t, hallhook);
+		//if (p_dest != p) {//先不给自己发
+			//if (p_dest->blacklist->find(key) == p_dest->blacklist->end())//不在黑名单才转发
+        		//send_to_player(p_dest, p_out, p->waitcmd, DONT_CLEAR_WAITCMD);
+		//}
+    //}
+    //return send_to_player(p, p_out, p->waitcmd, DO_CLEAR_WAITCMD);
+//}
+
+////在房间中聊天,房间在battle_switch上面
+//int chat_msg_room(player_t *p, cli_chat_public_msg_out *p_out)
+//{
+	//return send_to_btlsw_forme(p, btlsw_chat_msg_transfer_cmd, p_out);
+//}
+
+//战斗中聊天，发给本队玩家
+//int chat_msg_team(player_t *p, cli_chat_public_msg_out *p_out)
+//{
+	//return send_to_battle_svr(p, p_out, online_proto_btl_chat_msg_transfer_cmd, p->battle_grp->fd_idx);
+//}
+
+//int cli_chat_public_msg(DEFAULT_ARG)
+//{
+    //cli_chat_public_msg_in *p_in = P_IN;
+
+    ///* 检查公聊类型是否正确 */
+    //if (p_in->msg_type <= CHAT_MSG_TYPE_BEGIN || p_in->msg_type >= CHAT_MSG_TYPE_END) {
+        //ERROR_LOG("user: %u, chat msg type error[%u]", p->uid, p_in->msg_type);
+        //return send_error_to_self(p, p->waitcmd ONLINE_ERR_CHAT_TYPE_NOT_EXIST);
+    //}
+
+	///* 信息内容长度检测 */
+	//if (p_in->_msg_content_len == 0 || p_in->_msg_content_len > CHAT_MSG_MAX_PUBLIC_LEN) {
+		//ERROR_LOG("user: %u, chat msg len ilegal[%u]", p->uid, p_in->_msg_content_len);
+		//return send_error_to_self(p, p->waitcmd ONLINE_ERR_CHAT_MSG_LEN_ILLEGAL);
+	//}
+
+    ///* 检查是否使用道具 */
+    //uint32_t item_id = chat_msg_itemid_type_table[(p_in->msg_type - 1) % CHAT_MSG_TYPE_COUNT];
+    //if (item_id) {//使用道具
+        //if (false == item_data_mgr::get_instance()->is_item_data_exist(item_id)) {//道具ID不存在
+            //ERROR_LOG("user: %u, chat msg item not exist[%u]", p->uid, item_id);
+            //return send_error_to_self(p, p->waitcmd ONLINE_ERR_CHAT_ITEM_ID_NOT_EXIST);
+        //}
+        //if (p->bag->get_item_count(item_id) <= 0) {//道具数量不够
+            //return send_error_to_self(p, p->waitcmd ONLINE_ERR_CHAT_ITEM_LACK);
+        //}    
+    //}
+
+	//p_in->msg_content[p_in->_msg_content_len] = 0;//强制置0
+    ///* 脏词检测 */
+    //int ret = tm_dirty_check(0, p_in->msg_content);
+    //if (ret > 0) {
+        //ERROR_LOG("user: %u, chat msg with dirty word[%s]", p->uid, p_in->msg_content);
+        //return send_error_to_self(p, p->waitcmd ONLINE_ERR_CHAT_DIRTY_MSG);
+    //} else if (ret < 0) {
+        //ERROR_LOG("user: %u, tm_dirty_check: check error", p->uid);
+    //}
+
+    //cli_chat_public_msg_out *p_out = P_OUT;
+    //p_out->sender.user_id = p->uid;
+	//p_out->sender.role_tm = p->role_tm;
+    //memcpy(p_out->sender_nick, p->nick, sizeof(p_out->sender_nick));
+    //p_out->msg_type = p_in->msg_type;
+	//p_out->_msg_content_len = p_in->_msg_content_len;
+    //memcpy(p_out->msg_content, p_in->msg_content, p_out->_msg_content_len);
+
+    //ret = 0;
+    //switch (p_in->msg_type) {
+    //case CHAT_MSG_TYPE_WORLD :
+////		ret = check_chat_msg_freq(p, &p->world_chat_record, 2 ,4);
+////		if( ret != 0) break;
+        //ret = chat_msg_world(p, p_out, 0);
+        //break;
+    //case CHAT_MSG_TYPE_UNION :
+        //ret = chat_msg_union(p, p_out);
+        //break;
+    //case CHAT_MSG_TYPE_MAP :
+        //ret = chat_msg_map(p, p_out);
+        //break;
+	//case CHAT_MSG_TYPE_ITEM1 :
+		//ret = chat_msg_world(p, p_out, 1);
+		//break;
+	//case CHAT_MSG_TYPE_ROOM :
+		//ret = chat_msg_room(p, p_out);
+		//break;
+	//case CHAT_MSG_TYPE_TEAM :
+		//if (p->battle_grp == NULL) {
+			//return send_error_to_self(p, p->waitcmd ONLINE_ERR_CHAT_NO_BATTLE);
+		//}
+		//ret = chat_msg_team(p, p_out);
+		//break;
+	//case CHAT_MSG_TYPE_ALL_IN_BTL :
+		//if (p->battle_grp == NULL) {
+			//return send_error_to_self(p, p->waitcmd ONLINE_ERR_CHAT_NO_BATTLE);
+		//}
+		//ret = chat_msg_all_in_btl(p, p_out);
+		//break;
+    //case CHAT_MSG_TYPE_HALL :
+        //if (!is_player_in_hall(p)) {
+            //return send_error_to_self(p, p->waitcmd ONLINE_ERR_CHAT_NOT_IN_HALL);
+        //}
+        //if (!VALID_LINE_INDEX((uint32_t)(p->cur_line_index))) {
+            //return send_error_to_self(p, p->waitcmd ONLINE_ERR_MAP_LINE_INVALID);
+        //}
+        //ret = chat_msg_hall(p, p_out);
+        //break;
+    //default :   /*之前已经检查过TYPE*/
+        //break;        
+    //}
+    
+	//if (ret == 0 && item_id && p_in->msg_type == CHAT_MSG_TYPE_ITEM1) {
+        ////用了道具且发送成功，则需扣除道(1枚)
+        //std::vector<db_del_item_request_t> rsp;
+        //ret = parse_db_del_item_request(p, item_id, 1, rsp);
+        //if(!ret) {
+            //ERROR_LOG("user: %u, chat: reduce chat item failed!", p->uid);
+            //return send_error_to_self(p, p->waitcmd ONLINE_ERR_ITEM_LACK);
+        //}
+        //db_del_item(p, rsp);
+        //return 0;
+    //} 
+    //return 0;
+//}

@@ -1,0 +1,270 @@
+extern "C" 
+{
+#include <libtaomee/conf_parser/config.h>
+#include <glib.h>
+}
+#include "cli_proto.hpp"
+#include "player.hpp"
+#include "task_funcs.hpp"
+#include "map.hpp"
+#include "./proto/ultraman_online.h"
+#include "./proto/ultraman_online_enum.h"
+#include "cli_dispatch.hpp"
+#include "global_data.hpp"
+using namespace taomee;
+
+uint32_t total_map = 0;
+map_t   *all_maps;
+
+bool get_map_data(map_t *all_maps)
+{
+    int i = 0;
+    std::map<uint32_t, map_data*>::iterator pItr = map_data_mgr::get_instance()->datas.begin();
+	for(; pItr != map_data_mgr::get_instance()->datas.end(); ++pItr) {
+		map_data* p_data = pItr->second;
+		if(p_data == NULL)continue;
+        all_maps[i].id = p_data->map_id;
+        all_maps[i].data = p_data;
+        INIT_LIST_HEAD(&(all_maps[i].player_list));
+        all_maps[i].cur_player_count = 0;
+        i++;
+	}
+	return true;	
+}
+
+map_t* get_map(uint32_t map_id)
+{
+	for (uint32_t i = 0; i < total_map; i++){
+		if(all_maps[i].id == map_id) {
+			return &(all_maps[i]);
+		}
+	}
+	return NULL;
+}
+
+bool init_map()
+{
+	total_map = map_data_mgr::get_instance()->datas.size();
+	all_maps = reinterpret_cast<map_t*>(g_slice_alloc0(sizeof(map_t) * total_map));
+	get_map_data(all_maps);
+	return true;
+}
+bool fini_map()
+{
+	for(uint32_t j = 0; j < total_map; j++) {
+		list_del_init(&(all_maps[j].player_list)); 
+		all_maps[j].cur_player_count = 0;
+	}
+	g_slice_free1(sizeof(map_t) * total_map, all_maps);
+	return true;
+}
+
+int enter_map(player_t* p, uint32_t mapid, uint32_t x, uint32_t y)
+{
+	map_t* m = get_map(mapid);
+	if(m == NULL) {
+		ERROR_LOG("enter map can not find.  map_id = %u uid = %u", mapid, p->uid);	
+		return cli_map_not_exist_err;
+	}
+	if(p->get_cur_map_id() == mapid) {
+		ERROR_LOG("enter the same map again map_id = %u uid = %u", mapid, p->uid);
+		return cli_same_map_err;
+	}
+
+	if(p->cur_map) {
+		leave_map(p);
+	}
+
+	if(x * y == 0){
+		p->x_pos = m->data->born_x;
+		p->y_pos = m->data->born_y;
+	} else {
+		p->x_pos = x;
+		p->y_pos = y;
+	}
+
+    list_add_tail(&(p->maphook), &(m->player_list));
+	m->cur_player_count ++;
+
+	p->cur_map = m;
+	p->cur_line_index = 0;
+
+    //更新任务相关
+    update_task_by_finishing_sth(p, task_step_type_to_map, mapid);
+	return 0;
+}
+
+int leave_map(player_t* p)
+{
+	map_t* m = p->cur_map;
+	if(m == NULL) {
+		ERROR_LOG("leave map player not in map uid = %u", p->uid);
+		return cli_cur_map_err;
+	}
+	
+	list_del(&p->maphook);
+    if (m->cur_player_count != 0) {
+	    m->cur_player_count--;
+    }
+    p->reset_map();
+	return 0;
+}
+
+int broadcast_player_enter_map(player_t* p, map_t* m, bool if_skip_notifier, bool if_clear_waitcmd)
+{
+	cli_proto_enter_map_out out;
+	out.userid=p->uid;
+	out.role_tm=p->role_tm;
+	out.map_x=p->x_pos;
+	out.map_y=p->y_pos;
+	out.map_line=0;
+	//DEBUG_LOG("xxxxxxxxx %u %u",p->x_pos,p->y_pos);	
+	return send_msg_to_map(p, &out, cli_proto_enter_map_cmd, if_skip_notifier, if_clear_waitcmd);
+}
+
+int broadcast_player_leave_map(player_t* p, map_t* m,  bool if_skip_notifier, bool if_clear_waitcmd)
+{
+	cli_proto_leave_map_out out;
+	out.user_id=p->uid;
+	out.map_id=m->id;
+	out.map_line=0;
+	return send_msg_to_map(p, &out, cli_proto_leave_map_cmd, if_skip_notifier, if_clear_waitcmd);
+}
+
+int broadcast_player_move_map(player_t* p, map_t* m, uint32_t x, uint32_t y, uint32_t dir, bool if_skip_notifier, bool if_clear_waitcmd)
+{
+	cli_proto_map_player_move_out out;
+	out.uid=p->uid;
+	out.x=x;
+	out.y=y;
+	out.dir=dir;
+	return send_msg_to_map(p, &out, cli_proto_map_player_move_cmd, if_skip_notifier, if_clear_waitcmd);
+}
+
+player_t* get_player_in_map(map_t* m, uint32_t user_id, uint32_t role_tm)
+{
+	list_head_t * l;
+	list_for_each (l, &(m->player_list)) {
+		player_t * p_player = list_entry(l, player_t, maphook);
+		if(p_player->uid == user_id && p_player->role_tm == role_tm) {
+			return p_player;	
+		}
+	}
+	return NULL;
+}
+
+//==========================================================
+//cli_proto_xxx functions
+//=========================================================
+int cli_proto_map_player_move(DEFAULT_ARG)
+{
+	cli_proto_map_player_move_in* p_in = P_IN;
+
+    if(!p->check_in_map()) {
+        return send_error_to_self(p, p->waitcmd, cli_cur_map_err ,1);
+    }
+
+	p->x_pos = p_in->x;
+	p->y_pos = p_in->y;
+
+	return broadcast_player_move_map(p, p->cur_map, p_in->x, p_in->y, p_in->dir, DONT_SKIP_NOTIFIER, DO_CLEAR_WAITCMD);
+}
+
+int cli_proto_enter_map(DEFAULT_ARG)
+{
+	cli_proto_enter_map_in* p_in = P_IN;
+    //目前所在地图与即将进入的地图不一样，则先离开当前地图
+    map_t *new_map = NULL;
+    map_t *old_map = p->cur_map;
+    int ret;
+
+    if (p->get_cur_map_id() != p_in->map_id) {
+        new_map = get_map(p_in->map_id);
+    }
+    if (p->cur_map && new_map != NULL) {//离开当前地图
+        ret = leave_map(p);
+        if (ret != 0) {
+            send_error_to_self(p, p->waitcmd, ret ,1);
+        } else {//NOTI(singku) online离开地图之后,角色自己在客户端是收不到这个广播包的(在enter_map时没关系)
+            broadcast_player_leave_map(p, old_map,  DONT_SKIP_NOTIFIER, DONT_CLEAR_WAITCMD);
+        }
+    }
+    //进入新地图
+	ret = enter_map(p, p_in->map_id, p_in->map_x, p_in->map_y);
+    if (ret != 0) {
+        return send_error_to_self(p, p->waitcmd, ret ,1);
+    }
+	return broadcast_player_enter_map(p, p->cur_map,  DONT_SKIP_NOTIFIER, DO_CLEAR_WAITCMD);
+}
+
+int cli_proto_leave_map(DEFAULT_ARG)
+{
+	if(!p->check_in_map()) {
+		ERROR_LOG("player call leave map but player not in map uid= %u", p->uid);
+		return send_error_to_self(p, p->waitcmd, cli_cur_map_err ,1);
+	}	
+    map_t *map = p->cur_map;
+    
+    //NOTI(singku) 先广播再离开,确保广播的时候同时给玩家自己回包
+    //由于已经check_in_map所以一定可以正常leave_map
+    broadcast_player_leave_map(p, map,  DONT_SKIP_NOTIFIER, DO_CLEAR_WAITCMD);
+    int ret = leave_map(p);
+    if (ret != 0) {
+        return send_error_to_self(p, p->waitcmd, ret ,1);
+    }
+    return 0;
+}
+
+int cli_proto_get_map_user_list(DEFAULT_ARG)
+{
+	if(!p->check_in_map()) {
+		ERROR_LOG("player get map user list but not in map uid = %u", p->uid);
+		send_error_to_self(p, p->waitcmd, cli_cur_map_err ,1);
+	}
+	cli_proto_get_map_user_list_out out;
+
+	list_head_t * l;
+	list_for_each (l, &(p->cur_map->player_list)) {
+		player_t * p_player = list_entry(l, player_t, maphook);
+		map_user_info tmp;
+		tmp.userid=p_player->uid;
+		tmp.role_tm=p_player->role_tm;
+		tmp.model.eye_model=p_player->eye_model;
+		tmp.model.resource_id=p_player->resource_id;
+		memcpy(tmp.nick,p_player->nick,sizeof(tmp.nick));
+		tmp.map_x=p_player->x_pos;
+		tmp.map_y=p_player->y_pos;
+		out.user_infos.push_back(tmp);
+	}
+	return send_msg_to_self(p, p->waitcmd, &out, DO_CLEAR_WAITCMD);
+}
+
+int cli_proto_get_map_user_detail_info(DEFAULT_ARG)
+{
+	cli_proto_get_map_user_detail_info_in* p_in = P_IN;
+    cli_proto_get_map_user_detail_info_out out;
+
+	if(!p->check_in_map()) {
+        return send_error_to_self(p, p->waitcmd, cli_cur_map_err ,1);
+	}
+		
+	player_t* obj = get_player_in_map(p->cur_map, p_in->user.user_id, p_in->user.role_tm);
+	
+	if(obj == NULL) {
+       return send_error_to_self(p, p->waitcmd, cli_user_not_in_map_err,1);
+	}
+
+    out.user.user_id = obj->uid;
+    out.user.role_tm = obj->role_tm;
+    memcpy(out.nick, obj->nick, sizeof(out.nick));
+    //out.level = obj->get_player_attr_value(OBJ_ATTR_LEVEL);
+    //out.exp = obj->get_player_attr_value(OBJ_ATTR_EXP);
+	out.level=0;
+	out.exp=0;
+	out.base_attr.hp            = 0;
+	out.base_attr.atk           = 0;
+	out.base_attr.crit          = 0;
+	out.base_attr.fight_ability = 0;
+
+	return send_msg_to_self(p, p->waitcmd, &out, 1);
+}

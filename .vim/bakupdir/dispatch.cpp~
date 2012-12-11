@@ -1,0 +1,193 @@
+/*
+ * =====================================================================================
+ *
+ *  @file  dispatch.cpp 
+ *
+ *  @brief  初始化协议处理函数和分发协议处理函数
+ *
+ *  compiler  gcc4.3.2 
+ *	
+ *  platform  Linux
+ *
+ * copyright:  TaoMee, Inc. ShangHai CN. All rights reserved
+ *
+ * =====================================================================================
+ */
+
+extern "C"{
+#include <async_serv/net_if.h>
+#include <libtaomee/log.h>
+#include <libtaomee/conf_parser/config.h>
+}
+
+#include <libtaomee++/proto/Ccmd_map.h>
+#include <libtaomee++/proto/proto_base.h>
+#include <libtaomee++/proto/proto_util.h>
+#include <libtaomee++/utils/strings.hpp>
+
+#include "dispatch.hpp"
+#include "switch_srv.hpp"
+
+
+//-------------------------------------------------------
+//函数定义
+#define PROTO_FUNC_DEF(proto_name)\
+	int proto_name( svr_proto_header_t * recv_ph, Cmessage* c_in, fdsession_t* fdsess ) ;
+#include "../proto/ultraman_switch_func_def.h" 
+
+//-------------------------------------------------------------
+//对应的结构体
+#include "../proto/ultraman_switch.h"
+//-------------------------------------------------------------
+//命令绑定
+typedef   int(*P_DEALFUN_T)( svr_proto_header_t * recv_ph, Cmessage* c_in, fdsession_t* fdsess );
+
+#define BIND_PROTO_CMD(cmdid,proto_name,c_in,c_out,md5_tag,bind_bitmap )\
+	{cmdid, new (c_in), md5_tag,bind_bitmap ,proto_name },
+
+Ccmd< P_DEALFUN_T> g_cmd_list[]={
+#include "../proto/ultraman_switch_bind.h" 
+};
+
+//命令map
+Ccmd_map< Ccmd< P_DEALFUN_T> >  g_cmd_map;
+
+#include "../proto/ultraman_switch_enum.h" 
+
+
+
+
+/* @brief 根据不同的命令号调用相应的处理函数
+ */
+int dispatch(void *data, fdsession_t *fdsess)
+{
+	svr_proto_header_t * ph=(svr_proto_header_t *) data;
+
+	Ccmd< P_DEALFUN_T> * p_cmd_item =g_cmd_map.getitem(ph->cmd );
+	if (p_cmd_item==NULL ) {
+		DEBUG_LOG("cmd_id not find: %u", ph->cmd);
+		return -1;
+	}
+
+	if (ph->uid >= (uint32_t)config_get_intval("max_uid", 0)) {
+		DEBUG_LOG("uid is error: [cmd=%u][user_id=%u] ", ph->cmd, ph->uid);
+		return 0;
+	}
+
+	//--------------------------------------------------------------------
+	/*if(ph->cmd == 10875)
+	{char outbuf[13000];
+	bin2hex(outbuf,(char*)data,ph->len ,500 );
+	DEBUG_LOG("tina I:[%s]", outbuf );	}*/
+	//--------------------------------------------------------------------
+
+	//还原对象
+	p_cmd_item->proto_pri_msg->init();
+	byte_array_t in_ba ( ((char*)data) + sizeof(svr_proto_header_t),
+		ph->len - sizeof(svr_proto_header_t));
+
+	//失败
+	if (!p_cmd_item->proto_pri_msg->read_from_buf(in_ba)) {
+		DEBUG_LOG("还原对象失败 [cmd=%u][usr_id=%u][fd=%u][ip=%u][port=%u]", 
+		ph->cmd, ph->uid, fdsess->fd, fdsess->remote_ip, fdsess->remote_port);
+		return -1;	
+	}
+
+	//客户端多上传报文
+	if (!in_ba.is_end()) {
+		DEBUG_LOG("client 过多报文");
+		return  -1;
+	}
+	//检查服务器的分区号
+	if(!sSwitch.check_area_serv(ph->areaid) && ph->cmd != svr_proto_register_online_info_cmd 
+			&& ph->cmd != svr_proto_recommend_svr_list_cmd ){
+		KERROR_LOG(ph->uid,"area_id wrong:cmd=%u area_id=%u",ph->cmd, ph->areaid);
+		return -1;
+	}
+	KDEBUG_LOG(ph->uid,"cmd = %u",ph->cmd);
+	return p_cmd_item->func(ph, p_cmd_item->proto_pri_msg, fdsess );	
+}
+
+
+/* @brief 初始化处理其他服务器数据的函数数组
+ */
+void init_cli_handle_funs()
+{
+  	g_cmd_map.initlist(g_cmd_list,sizeof(g_cmd_list)/sizeof(g_cmd_list[0]));
+}
+
+
+
+
+
+/************************************************************************/
+/*                       Client  Request                                */
+/************************************************************************/
+
+/* @brief 获取推荐服务器列表
+ */
+int svr_proto_recommend_svr_list(svr_proto_header_t * recv_ph, Cmessage* c_in, fdsession_t* fdsess)
+{
+	return sSwitch.handle_recommend_svr_list(recv_ph, c_in, fdsess);
+}
+
+
+/* @brief online启来后，收到online信息
+ */
+int svr_proto_register_online_info(svr_proto_header_t * recv_ph, Cmessage* c_in, fdsession_t* fdsess)
+{
+	return sSwitch.handle_register_online(recv_ph, c_in, fdsess);
+}
+
+
+/* @brief 获取一定范围的服务器列表
+ */
+int svr_proto_get_ranged_svrlist(svr_proto_header_t * recv_ph, Cmessage* c_in, fdsession_t* fdsess)
+{
+	return sSwitch.handle_get_ranged_svrlist(recv_ph, c_in, fdsess);
+}
+
+/* @brief online心跳包
+ */
+int svr_proto_keepalive(svr_proto_header_t * recv_ph, Cmessage* c_in, fdsession_t* fdsess)
+{
+	return sSwitch.handle_online_keepalive(recv_ph, c_in, fdsess);
+}
+
+
+/* @brief 用户上线报告
+ */
+int svr_proto_user_login_report(svr_proto_header_t * recv_ph, Cmessage* c_in, fdsession_t* fdsess)
+{
+	return sSwitch.handle_user_login_online(recv_ph, c_in, fdsess);
+}
+
+/* @brief 踢人下线
+ */
+int svr_proto_kick_user_offline(svr_proto_header_t * recv_ph, Cmessage* c_in, fdsession_t* fdsess)
+{
+	return sSwitch.kick_user_off(recv_ph->areaid,recv_ph->uid, 0, cli_admin_kick_usr_offline_err);
+}
+
+/* @brief 用户下线报告
+ */
+int svr_proto_user_logout_report(svr_proto_header_t * recv_ph, Cmessage* c_in, fdsession_t* fdsess)
+{
+	return sSwitch.handle_user_logout_online(recv_ph, c_in, fdsess);
+}
+
+/* @brief 查看用户是否在线
+ */
+int svr_proto_check_users_onoff(svr_proto_header_t * recv_ph, Cmessage* c_in, fdsession_t* fdsess)
+{
+	return sSwitch.handle_check_users_onoff(recv_ph, c_in, fdsess);
+}
+
+/* @brief 转发好友添加的请求信息
+ */
+int svr_proto_transmit(svr_proto_header_t * recv_ph, Cmessage* c_in, fdsession_t* fdsess)
+{
+	return sSwitch.handle_transmit(recv_ph, c_in, fdsess);
+}
+
+

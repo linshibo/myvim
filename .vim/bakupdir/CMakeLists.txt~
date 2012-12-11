@@ -1,0 +1,59 @@
+PROJECT(DBSER)
+cmake_minimum_required(VERSION 2.6)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
+#set(CMAKE_CXX_COMPILER "g++")
+SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/../bin ) 
+
+
+
+find_package(taomee REQUIRED)
+find_package(taomee++ REQUIRED)
+find_package(glib REQUIRED)
+
+find_package(libxml2 REQUIRED)
+find_package(AsncServ REQUIRED)
+set(CMAKE_USE_RELATIVE_PATHS  true )
+
+
+
+set (SRC_LIST 
+common_def.cpp
+dll_interface.cpp
+cli_dispatch.cpp
+dbproxy.cpp
+switch.cpp
+player.cpp
+db_player.cpp 
+mcast.cpp
+friends.cpp
+db_friends.cpp
+cli_proto.cpp
+task.cpp
+task_funcs.cpp 
+db_task.cpp 
+map.cpp
+map_data.cpp
+item_data.cpp 
+./proto/ultraman_db.cpp
+./proto/ultraman_online.cpp
+./proto/ultraman_switch.cpp
+./proto/ultraman.cpp
+./proto/main_login.cpp
+./proto/main.cpp
+)
+
+set (GLOBAL_DATA_LIST
+global_data.cpp
+)
+
+
+INCLUDE_DIRECTORIES("./share/trunk"  "./proto/trunk" ${GLIB_INCLUDE_DIR}   ${LIBXML2_INCLUDE_DIR} "/usr/include/boost" )
+ADD_LIBRARY(uman_online SHARED ${SRC_LIST}	)
+TARGET_LINK_LIBRARIES (uman_online "taomee" "taomee++" "xml2" "mainlogin" "ssl")
+ADD_DEFINITIONS( "-DUSE_HEX_LOG_PROTO -g -DDEBUG -DUSE_TLOG -Wall  -MMD  -funroll-loops -D__USE_STRING_INLINES  -fPIC -Winvalid-pch " )
+
+INCLUDE_DIRECTORIES("./proto" ${GLIB_INCLUDE_DIR}   ${LIBXML2_INCLUDE_DIR} )
+ADD_LIBRARY(data SHARED ${GLOBAL_DATA_LIST}	)
+TARGET_LINK_LIBRARIES ( data "taomee" "taomee++" "xml2" "dbser" "ssl")
+ADD_DEFINITIONS( "-DUSE_HEX_LOG_PROTO -g -DDEBUG -DUSE_TLOG -Wall  -MMD  -funroll-loops -D__USE_STRING_INLINES  -fPIC " )
+

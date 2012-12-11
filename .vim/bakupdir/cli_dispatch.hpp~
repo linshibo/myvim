@@ -1,0 +1,80 @@
+/*
+ * =====================================================================================
+ *
+ *  @file  cli_dispatch.hpp 
+ *
+ *  @brief  初始化处理函数，及分发处理命令 
+ *
+ *  compiler  gcc4.3.2 
+ *	
+ *  platform  Linux
+ *
+ * copyright:  TaoMee, Inc. ShangHai CN. All rights reserved
+ *
+ * =====================================================================================
+ */
+
+#ifndef CLI_DISPATCH_H_
+#define CLI_DISPATCH_H_
+
+extern "C" {
+#include <inttypes.h>
+}
+
+#include <libtaomee++/proto/proto_util.h>
+#include "common_def.hpp"
+
+enum {
+	/* 版本号 */
+	ver = 99,
+	/*SERVER和CLIENT协议包的最大长度 */
+	cli_proto_max_len = 32 * 1024,
+};
+
+#pragma pack(1)
+
+/* SERVER和CLIENT的协议包头格式 */
+struct cli_proto_head_t {
+	uint32_t len; /* 协议的长度 */
+	uint16_t cmd; /* 协议的命令号 */
+	userid_t uid; /* 用户的米米号 */
+	uint32_t seq;/* 序列号 */
+	uint32_t ret; /* S->C, 错误码 */
+	uint8_t body[]; /* 包体信息 */
+};
+
+struct report_cmd_head_t {
+	/* ! package length */
+	uint32_t	len;
+	/* ! protocol version */
+	uint8_t		ver;
+	/* ! protocol command id */
+	uint32_t	cmd;
+	/* ! user id */
+	uint32_t	id;
+	/* ! used as an auto-increment sequence number if from client */
+	uint32_t	ret;
+	/* ! body of the package */
+	uint8_t		body[];
+};
+
+#pragma pack()
+
+int cli_dispatch(void *data, fdsession_t *fdsess, bool first_tm = true);
+
+void init_cli_handle_funs();
+
+
+int init_all_timer_type();
+
+void proc_waiting_cmd();
+
+bool cmd_can_deal_not_in_map(uint32_t deal_cmd);
+
+void cli_get_online_version(fdsession_t *fdsess, cli_proto_head_t *head);
+struct player_t;
+bool is_invalid_seqno(player_t *p, uint32_t head_len, uint32_t head_seqno, uint16_t cmd);
+
+void report_cmd(cli_proto_head_t *head);
+  
+#endif

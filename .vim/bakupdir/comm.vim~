@@ -27,7 +27,7 @@ set tags=~/.vim/tags,~/.vim/tags_cpp,tags;
 
 set laststatus=2
 set guifont=Bitstream\ Vera\ Sans\ Mono\ 11 
-colorscheme desert
+"colorscheme desert
 
 "------------------------------------------------
 "let g:solarized_termcolors=   256
