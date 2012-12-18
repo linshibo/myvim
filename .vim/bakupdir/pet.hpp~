@@ -1,0 +1,32 @@
+#ifndef  PET_HPP
+#define  PET_HPP
+typedef struct pet{
+	uint32_t petid;
+	uint32_t gettime;
+	char nick[nick_len];
+	uint32_t level;
+
+	uint16_t strength;
+	uint16_t intelligence;
+	uint16_t physical;
+	uint16_t endurence;
+	uint16_t speed;
+	uint16_t additions;
+
+	uint32_t hp;
+	uint32_t mp;
+	uint32_t attack;
+	uint32_t mattack;
+	uint32_t defense;
+	uint32_t mdefense;
+	uint32_t speed;
+
+	uint32_t happiness;
+	uint32_t life;
+	uint8_t sex;
+	uint8_t character
+}pet_t;
+
+
+
+#endif  /*PET_HPP*/

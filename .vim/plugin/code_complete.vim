@@ -308,6 +308,8 @@ let g:template['c']['smap'] = "std::map<".g:rs."...".g:re.">"
 let g:template['c']['svec'] = "std::vector<".g:rs."...".g:re.">"
 let g:template['c']['slist'] = "std::list<".g:rs."...".g:re.">"
 let g:template['c']['null'] = "NULL"
+let g:template['c']['pin'] = "p_in"
+let g:template['c']['po'] = "p_out"
  
 
 let g:template['c']['hd'] = "/*\<cr>=========================================================================\<cr>\<cr>       Filename: \<c-r>=expand(\"%:t\")\<cr>\<cr>\<cr>Version:  1.0\<cr>Created:  \<c-r>=strftime(\"%Y-%m-%d %H:%M:%S\")\<cr>\<cr>Description:  ".g:rs."...".g:re."\<cr>\<cr>Author:  ".g:Author." (".g:Email.")\<cr>Company:  ".g:Company."\<cr>\<cr>\<Backspace>\<Backspace>\<Backspace>\<Backspace>\<Backspace>\<Backspace>\<Backspace>=========================================================================\<cr>\<Backspace>/\<cr>\<cr>" 
