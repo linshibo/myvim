@@ -1,5 +1,0 @@
-[18:30:39] 0 [00547][../net.c][317]do_read_conn: connection [fd=8 ip=0x4305010A] closed by peer
-[18:32:40] 0 [00547][../net.c][317]do_read_conn: connection [fd=8 ip=0x4305010A] closed by peer
-[18:34:36] 0 [00547][../net.c][317]do_read_conn: connection [fd=10 ip=0x4B05010A] closed by peer
-[18:35:45] 0 [00547][../net.c][317]do_read_conn: connection [fd=8 ip=0x4305010A] closed by peer
-[18:45:02] 0 [00547][../net.c][317]do_read_conn: connection [fd=8 ip=0x4305010A] closed by peer
