@@ -302,7 +302,7 @@ nmap <silent> <F6> <Esc>:MarksBrowser<cr>
 " showmarks setting
 """"""""""""""""""""""""""""""
 " Enable ShowMarks
-let showmarks_enable = 1
+let showmarks_enable = 0
 " Show which marks
 let showmarks_include = "abcdefghilnpqrsuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 " Ignore help, quickfix, non-modifiable buffers
@@ -799,7 +799,12 @@ if finddir("build") == "build"
 endif
 "自动更新 修改时间
 function! LastModified()
-	exe "%s/LastModified: .*/LastModified: " . 
-		\ strftime("%Y-%m-%d %H:%M:%S")
+	if search("LastModified: .*","",line("$"))>0
+		exe "silent! %s/LastModified: .*/LastModified: " . 
+			\ strftime("%Y-%m-%d %H:%M:%S") . "\\*\\/"
+	else
+		exe "silent! $,$g/$/s/$/\r\\/\\*LastModified: " . 
+			\ strftime("%Y-%m-%d %H:%M:%S") . "\\*\\/"
+	endif
 endfunc
-autocmd BufWritePre,FileWritePre *.[cpp],*.c,*.h,*.hpp call LastModified()
+autocmd BufWritePre,FileWritePre *.cpp,*.c,*.h,*.hpp exec "normal ms"|call LastModified()|exec "normal `s"
