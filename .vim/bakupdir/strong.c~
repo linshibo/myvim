@@ -1,0 +1,7 @@
+/*#include "strong.h"*/
+int a=1;
+int b=2;
+void func1()
+{
+	printf("xxx %d %d %u %u\n",a,b,&a,&b);
+}

@@ -1,0 +1,22 @@
+#ifndef  DATA_STACK_H
+#define  DATA_STACK_H
+
+typedef struct data_block{
+	int fd;
+	uint32_t len;
+	uint8_t data[];
+	struct data_block *self;
+}data_block_t;
+
+
+typedef struct data_block_queue{
+	data_block_t *head,*tail;
+	void *addr;
+	uint32_t maxlen;
+}data_block_queue_t;
+
+int create_stack(data_block_queue_t* pdbq, int len);
+int pop_stack(data_block_queue_t* pdbq, data_block_t* pdb);
+int push_stack(data_block_queue_t* pdbq, data_block_t* pdb);
+
+#endif  /*DATA_STACK_H*/

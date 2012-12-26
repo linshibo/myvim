@@ -1,0 +1,743 @@
+#include <assert.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <stdio.h>
+#include <linux/types.h>
+#include <string.h>
+#include <errno.h>
+#include <time.h>
+#include <sys/time.h>
+#include <sys/mman.h>
+
+#include <libtaomee/log.h>
+#include <libtaomee/timer.h>
+#include <libtaomee/conf_parser/config.h>
+#include <libtaomee/inet/tcp.h>
+
+#include "daemon.h"
+#include "shmq.h"
+#include "util.h"
+
+#include "dll.h"
+#include "mcast.h"
+#include "service.h"
+
+#include "net.h"
+#include "net_if.h"
+
+struct epinfo g_epi;
+time_t g_socket_timeout;
+int g_page_size;
+in_port_t g_listen_ports[MAX_LISTEN_PORTS];
+char  g_listen_ip[16];
+int g_count_listen_ports = 0;
+uint32_t g_send_buf_limit_size;
+
+static int net_recv(int fd);
+static int do_open_conn(int fd);
+static int handle_pipe_event(int fd, int pos);
+static void handle_asyn_connect(int fd);
+
+static inline void epi2shm(int fd, shm_block_t *mb) 
+{
+	mb->id      = g_epi.fd_set[fd].id;
+	mb->fd      = fd;
+	mb->type    = DATA_BLOCK;
+	mb->length  = g_epi.fd_set[fd].conn_info.protocol_len + 
+                    sizeof (shm_block_t);
+} 
+
+inline void free_conn_buf(conn_buf_t *p)
+{
+    if (p->send_ptr) {
+        free(p->send_ptr);
+        p->send_ptr = NULL;
+    }
+    if (p->recv_ptr) {
+        munmap(p->recv_ptr, g_page_size);
+        p->recv_ptr = NULL;
+    }
+    p->recv_len = 0;
+    p->send_len = 0;
+} 
+
+inline void del_from_close_queue (int fd)
+{
+    if (g_epi.fd_set[fd].flag & CN_NEED_CLOSE) {
+        g_epi.fd_set[fd].flag &= ~CN_NEED_CLOSE;
+        list_del_init(&g_epi.fd_set[fd].list);
+    }
+}
+inline void del_from_etin_queue (int fd)
+{
+    if (g_epi.fd_set[fd].flag & CN_NEED_POLLIN) {
+        g_epi.fd_set[fd].flag &= ~CN_NEED_POLLIN;
+        list_del_init(&g_epi.fd_set[fd].list);
+        TRACE_LOG("del fd=%d from etin queue", fd);
+    }
+}
+inline void add_to_etin_queue (int fd)
+{
+    if (!(g_epi.fd_set[fd].flag & (CN_NEED_CLOSE | CN_NEED_POLLIN))) {
+        list_add_tail(&g_epi.fd_set[fd].list, &g_epi.etin_head);
+        g_epi.fd_set[fd].flag |= CN_NEED_POLLIN;
+        TRACE_LOG ("add fd=%d to etin queue", fd);
+    }
+}
+
+inline void add_to_close_queue(int fd)
+{
+    del_from_etin_queue(fd);
+    if (!(g_epi.fd_set[fd].flag & CN_NEED_CLOSE)) {
+        list_add_tail(&g_epi.fd_set[fd].list, &g_epi.close_head);
+        g_epi.fd_set[fd].flag |= CN_NEED_CLOSE;
+        TRACE_LOG("add fd=%d to close queue, %x", fd, g_epi.fd_set[fd].flag);
+    }
+}
+
+inline void iterate_close_queue()
+{
+    struct list_head *l, *p;
+    fdinfo_t *fi;
+
+    list_for_each_safe(p, l, &g_epi.close_head) {
+        fi = list_entry(p, struct fdinfo, list);
+        if (fi->conn_info.send_len > 0) {
+            do_write_conn(fi->sockfd);
+        }
+
+        if (g_is_parent) {
+            do_clear_conn(fi->sockfd);
+        } else {
+            do_del_conn(fi->sockfd);
+        }
+    }
+}
+
+inline void iterate_etin_queue()
+{
+    struct list_head *l, *p;
+    struct fdinfo *fi;
+
+    list_for_each_safe(p, l, &g_epi.etin_head) {
+        fi = list_entry(p, struct fdinfo, list);
+        if (unlikely(fi->type == FD_TYPE_LISTEN)) {
+            //accept
+            while (do_open_conn(fi->sockfd) > 0) ;
+        } else if (net_recv(fi->sockfd) == -1) {
+            do_del_conn(fi->sockfd);
+        }
+    }
+}
+
+static inline int add_events(int epfd, int fd, uint32_t flag)
+{
+    struct epoll_event ev;
+
+    ev.events = flag;
+    ev.data.fd = fd;
+epoll_add_again:
+    if (unlikely (epoll_ctl (epfd, EPOLL_CTL_ADD, fd, &ev) != 0)) {
+        if (errno == EINTR)
+            goto epoll_add_again;
+        ERROR_RETURN (("epoll_ctl add %d error: %m", fd), -1);
+    }
+    return 0; 
+}
+
+int mod_events(int epfd, int fd, uint32_t flag)
+{
+    struct epoll_event ev;
+
+    ev.events = EPOLLET | flag;
+    ev.data.fd = fd;
+
+epoll_mod_again:
+    if (unlikely (epoll_ctl (epfd, EPOLL_CTL_MOD, fd, &ev) != 0)) {
+        ERROR_LOG ("epoll_ctl mod %d error: %m", fd);
+        if (errno == EINTR)
+            goto epoll_mod_again;
+        return -1;
+    }
+
+    return 0;
+}
+
+int do_add_conn(int fd, uint8_t type, struct sockaddr_in* socket_info, service_info_t* s_info)
+{
+    static uint32_t seq = 0;
+    uint32_t flag;
+
+    switch (type) {
+        case FD_TYPE_PIPE:
+        case FD_TYPE_MCAST:
+        case FD_TYPE_ADDR_MCAST:
+        case FD_TYPE_UDP:
+            flag = EPOLLIN;
+            break;
+        case FD_TYPE_ASYN_CONNECT:
+            flag = EPOLLOUT;
+            break;
+        default:
+            flag = EPOLLIN | EPOLLET;
+            break;
+    }
+
+    if (add_events(g_epi.epfd, fd, flag) == -1) {
+        return -1;
+    }
+
+    fdinfo_t *fi = &(g_epi.fd_set[fd]);
+
+    memset(fi, 0x0, sizeof(struct fdinfo));
+    fi->sockfd = fd;
+    fi->type = type;
+    fi->id = ++seq;
+    if (seq == 0) {
+        fi->id = ++seq;
+    }
+    fi->channel_id = INVALID_CHANNEL_ID;
+
+    if (socket_info) {
+        fi->socket_info.remote_ip = socket_info->sin_addr.s_addr;
+        fi->socket_info.remote_port = socket_info->sin_port;
+    }
+    fi->service_info = s_info;
+    g_epi.maxfd = g_epi.maxfd > fd ? g_epi.maxfd : fd;
+    g_epi.count ++;
+
+    TRACE_LOG("add fd=%d, type=%d, id=%u", fd, type, fi->id);
+    return 0;
+}
+
+void on_conn_closed(int fd)
+{
+    if (g_is_parent){//parent_process
+	    if (unlikely(g_epi.fd_set[fd].service_info != 0)) {
+		   struct shm_block mb;
+		   mb.id = g_epi.fd_set[fd].id;;
+		   mb.fd = fd;
+		   mb.type = CLOSE_BLOCK;
+		   mb.length = sizeof (mb);
+		   shmq_push(&(g_epi.fd_set[fd].service_info->recv_queue), &mb, NULL);
+	    }
+    } else {//0 child process
+        g_dll.on_fd_closed(fd);
+    }
+}
+
+void do_clear_conn(int fd)
+{
+    if (g_epi.fd_set[fd].type == FD_TYPE_UNUSED)
+        return ;
+
+    del_from_etin_queue(fd);
+    del_from_close_queue(fd);
+
+    free_conn_buf(&(g_epi.fd_set[fd].conn_info));
+    g_epi.fd_set[fd].type = FD_TYPE_UNUSED;
+
+    //epoll will auto clear epoll events when fd closed
+    close(fd);
+    g_epi.count--;
+
+    if (g_epi.maxfd == fd) {
+        int i;
+        for (i = fd - 1; i >= 0; i--)
+            if (g_epi.fd_set[i].type != FD_TYPE_UNUSED)
+                break;
+        g_epi.maxfd = i;
+    }
+    TRACE_LOG ("close fd=%d", fd);
+}
+
+void do_del_conn(int fd)
+{
+    if (g_epi.fd_set[fd].type == FD_TYPE_UNUSED)
+        return ;
+
+    on_conn_closed(fd);
+    do_clear_conn(fd);
+}
+
+
+static int do_open_conn(int fd)
+{
+    struct sockaddr_in peer;
+    int newfd;
+
+    newfd = safe_tcp_accept(fd, &peer, 1);
+    if (newfd != -1) {
+        do_add_conn(newfd, FD_TYPE_REMOTE, &peer, 0);
+        g_epi.fd_set[newfd].socket_info.last_tm = get_now_tv()->tv_sec;
+    } else if ((errno == EMFILE) || (errno == ENFILE)) {
+        add_to_etin_queue(fd);
+    } else if ((errno == EAGAIN) || (errno == EWOULDBLOCK)) {
+        del_from_etin_queue(fd);
+    }
+
+    return newfd;
+}
+
+int do_write_conn(int fd)
+{
+    int send_bytes;
+
+    conn_buf_t *ci = &(g_epi.fd_set[fd].conn_info);
+
+    send_bytes = safe_tcp_send_n(fd, ci->send_ptr, ci->send_len);
+    if (send_bytes == 0) {
+        return 0;
+    } else if (send_bytes > 0) {
+        if (send_bytes < ci->send_len) {
+            memcpy(ci->send_ptr, ci->send_ptr + send_bytes, ci->send_len - send_bytes);
+        }
+        ci->send_len -= send_bytes;
+        g_epi.fd_set[fd].socket_info.last_tm = get_now_tv()->tv_sec;
+    } else {
+        ERROR_LOG("failed to write to fd=%d err=%d %s", fd, errno, strerror(errno));
+        return -1;
+    }
+
+    return send_bytes;
+}
+
+static int do_read_conn(int fd)
+{
+    int recv_bytes;
+
+    conn_buf_t *ci = &(g_epi.fd_set[fd].conn_info);
+    if (!ci->recv_ptr) {
+        ci->protocol_len = 0;
+        ci->recv_len = 0;
+        ci->recv_ptr = mmap(0, g_page_size, PROT_READ | PROT_WRITE, 
+                            MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+        if (ci->recv_ptr == MAP_FAILED)
+            ERROR_RETURN (("mmap failed"), -1);
+    }
+
+    if (g_page_size == ci->recv_len) {
+        TRACE_LOG ("recv buffer is full, fd=%d", fd);
+        return 0;
+    }
+
+    recv_bytes = safe_tcp_recv(fd, ci->recv_ptr + ci->recv_len, g_page_size - ci->recv_len);
+    if (recv_bytes > 0) {
+        ci->recv_len += recv_bytes;
+        g_epi.fd_set[fd].socket_info.last_tm  = get_now_tv()->tv_sec;
+    } else if (recv_bytes == 0) {
+        ERROR_LOG("connection [fd=%d ip=0x%X] closed by peer", 
+                    fd, g_epi.fd_set[fd].socket_info.remote_ip);
+        return -1;
+    } else {//EAGAIN ...
+        ERROR_LOG("recv error: fd=%d errmsg=%s", fd, strerror(errno));
+        recv_bytes = 0;
+    }
+
+    if (ci->recv_len == g_page_size) {
+        add_to_etin_queue(fd);
+    } else {
+        del_from_etin_queue(fd);
+    }
+
+    return recv_bytes;
+}
+
+static int net_recv(int fd)
+{
+    int count = 0;
+
+    fdinfo_t *fi = &(g_epi.fd_set[fd]);
+    conn_buf_t *ci = &(fi->conn_info);
+
+    if (fi->type == FD_TYPE_PIPE) {
+        read(fd, ci->recv_ptr, g_page_size);
+        return 0;
+    }
+    if (do_read_conn(fd) == -1) {
+        return -1;
+    }
+
+    uint8_t* tmp_recv_ptr = ci->recv_ptr;
+    int channel_id = -1;
+
+parse_again:
+    if (ci->protocol_len == 0) {//unknown protocol length
+        ci->protocol_len = g_dll.get_pkg_len(fd, tmp_recv_ptr, ci->recv_len, g_is_parent);
+        TRACE_LOG("handle_parse pid=%d return %d, buffer len=%d, fd=%d", getpid(),
+                ci->protocol_len, ci->recv_len, fd);
+    }
+
+	//invalid protocol length
+    if (unlikely(ci->protocol_len > g_page_size)) {
+        return -1;
+    //unknow protocol length
+	} else if (unlikely(ci->protocol_len == 0)) {
+		if (ci->recv_len == g_page_size) {
+            ERROR_RETURN(("unsupported big protocol, recvlen=%d", ci->recv_len), -1);
+		}
+    //integrity protocol	
+	} else if (ci->recv_len >= ci->protocol_len) {
+		if (unlikely(g_is_parent && fi->channel_id == INVALID_CHANNEL_ID
+			        && g_epi.fd_set[fd].type == FD_TYPE_REMOTE)) {
+			//缓冲区够长,且channel_id还未知，且是父进程，则尝试解析
+			if (!g_dll.get_channel_id) {
+				channel_id = 0;	//first child process
+            } else {
+          	  	channel_id = g_dll.get_channel_id(fd, tmp_recv_ptr,
+                        ci->protocol_len, (g_service_set.service_num-1));
+            }
+
+			if (channel_id >= 0 && channel_id < g_service_set.service_num) {
+				//得到有效的子进程服务id
+				fi->channel_id = channel_id;
+				fi->service_info = &(g_service_set.elements[channel_id]);
+            } else {
+                //子进程id无效，且buf_len　>= prot_len,表明出错
+                ERROR_LOG("resolve a bad channel id \
+                        [buf_len:%u, prot_len:%u, channel_id:%u, count_child:%u]",
+                        ci->recv_len, ci->protocol_len, channel_id, g_service_set.service_num);
+                return -1;
+            }
+
+            shm_block_t mb;
+            mb.id = fi->id;
+            mb.fd = fd;
+            mb.type = OPEN_BLOCK;
+            mb.length = sizeof (mb) + sizeof (skinfo_t);
+            if (shmq_push(&(fi->service_info->recv_queue),
+                            &mb, (const uint8_t *)&fi->socket_info) == -1) {
+                return -1;
+            }
+        }
+
+        if (!g_is_parent) {
+            g_dll.proc_pkg_from_serv(fd, tmp_recv_ptr, ci->protocol_len);
+            if (fi->type == FD_TYPE_UNUSED) {
+                return count;
+            }
+        } else {
+            shm_block_t mb;
+            epi2shm(fd, &mb);
+            if (shmq_push(&(fi->service_info->recv_queue), &mb, tmp_recv_ptr)) {
+                return -1;
+            }
+        }
+
+        count++;
+        if (ci->recv_len > ci->protocol_len) {
+            tmp_recv_ptr += ci->protocol_len;
+        }
+        ci->recv_len -= ci->protocol_len;
+        ci->protocol_len = 0;
+        if (ci->recv_len > 0) 
+            goto parse_again;
+    }
+
+    if (ci->recv_ptr != tmp_recv_ptr) {
+        if (ci->recv_len) {
+            memcpy(ci->recv_ptr, tmp_recv_ptr, ci->recv_len);
+        }
+    }
+
+    return count;
+}
+
+int net_start(const char* listen_ip, in_port_t listen_port)
+{
+    int ret_code = -1;
+
+    int listenfd = safe_socket_listen(listen_ip, listen_port, SOCK_STREAM, 1024, 32 * 1024);
+    if (listenfd != -1) {
+        //set nonblock
+        set_io_blockability(listenfd, 1);
+        do_add_conn(listenfd, FD_TYPE_LISTEN, 0, 0);
+        ret_code = 0;
+    }
+
+    BOOT_LOG(ret_code, "Listen on %s:%u", listen_ip ? listen_ip : "ANYADDR", listen_port);
+}
+
+static int schedule_output(struct shm_block *mb)
+{
+    int data_len;
+    int fd = mb->fd;
+
+    if (unlikely((fd > g_epi.maxfd) || (fd < 0))) {
+        DEBUG_LOG("discard the message: mb->type=%d, fd=%d, maxfd=%d, id=%u", 
+                mb->type, fd, g_epi.maxfd, mb->id);
+        return -1;
+    }
+
+    if (g_epi.fd_set[fd].type != FD_TYPE_REMOTE || mb->id != g_epi.fd_set[fd].id) { 
+        TRACE_LOG ("connection %d closed, discard %u, %u block", fd, mb->id, g_epi.fd_set[fd].id);
+        return -1;
+    }
+
+    if (mb->type == FIN_BLOCK && g_epi.fd_set[fd].type != FD_TYPE_LISTEN) {
+        add_to_close_queue(fd);
+        return 0;
+    }
+
+    //shm block send
+    data_len = mb->length - sizeof(shm_block_t);
+    return net_send(fd, mb->data, data_len);
+}
+
+int net_init(int max_fd, int maxevents)
+{
+    if ((g_epi.epfd = epoll_create(maxevents)) < 0) {
+        ERROR_LOG ("epoll_create failed, %s", strerror (errno));
+        return -1;
+    }
+
+    g_epi.evs = calloc(maxevents, sizeof(struct epoll_event));
+    if (!g_epi.evs) 
+        goto events_fail;
+
+    g_epi.fd_set = (fdinfo_t*)calloc(max_fd, sizeof(fdinfo_t));
+    if (!g_epi.fd_set)
+        goto fd_fail;
+
+    g_epi.max_ev_num = maxevents;
+    g_epi.maxfd = 0;
+    g_epi.count = 0;
+    INIT_LIST_HEAD(&g_epi.etin_head);
+    INIT_LIST_HEAD(&g_epi.close_head);
+    return 0;
+
+fd_fail:	
+    free(g_epi.evs);
+events_fail:
+    close (g_epi.epfd);
+    ERROR_RETURN (("malloc failed, size=%d", max_fd), -1);
+}
+
+void net_exit()
+{
+    int i;
+    for (i = 0; i < g_epi.maxfd + 1; i++) {
+        if (g_epi.fd_set[i].type == FD_TYPE_UNUSED)
+            continue;
+
+        free_conn_buf(&(g_epi.fd_set[i].conn_info));
+        close (i);
+    }
+
+    free(g_epi.fd_set);
+    free(g_epi.evs);
+    close(g_epi.epfd);
+}
+
+static inline void handle_send_queue()
+{
+    shm_block_t *mb;
+    shm_queue_t *q;
+
+    int i = 0;
+    for ( ; i != g_service_set.service_num; ++i ) {
+        q = &(g_service_set.elements[i].send_queue);
+        while (shmq_pop(q, &mb) == 0) {
+            schedule_output(mb);	
+        }
+    }
+}
+
+int net_loop(int timeout)
+{
+    int pos, nr;
+
+    iterate_close_queue();
+    iterate_etin_queue();
+
+    nr = epoll_wait(g_epi.epfd, g_epi.evs, g_epi.max_ev_num, timeout);
+    if (unlikely(nr < 0 && errno != EINTR))
+        ERROR_RETURN(("epoll_wait failed, maxfd=%d, epfd=%d: %m", 
+                    g_epi.maxfd, g_epi.epfd), -1);
+
+    renew_now();
+
+    if (g_is_parent) {
+        handle_send_queue();
+    }
+
+    for (pos = 0; pos < nr; pos++) {
+        int fd = g_epi.evs[pos].data.fd;
+
+        if (fd > g_epi.maxfd 
+            || g_epi.fd_set[fd].sockfd != fd 
+            || g_epi.fd_set[fd].type == FD_TYPE_UNUSED) {
+            ERROR_LOG("delayed epoll events: event fd=%d, cache fd=%d, maxfd=%d, type=%d", 
+                    fd, g_epi.fd_set[fd].sockfd, g_epi.maxfd, g_epi.fd_set[fd].type);
+            continue;
+        }
+
+        if (unlikely(g_epi.fd_set[fd].type == FD_TYPE_PIPE)) {
+            if (handle_pipe_event(fd, pos) == 0) {
+                continue;
+            } else {
+                return -1;
+            }
+        }
+
+        if (unlikely(g_epi.fd_set[fd].type == FD_TYPE_ASYN_CONNECT)) {
+            handle_asyn_connect(fd);
+            continue;
+        }
+
+        if (g_epi.evs[pos].events & EPOLLIN) {
+            switch (g_epi.fd_set[fd].type) {
+                case FD_TYPE_LISTEN: {//accept
+                    while(do_open_conn(fd) > 0);
+                    break;
+                }
+                case FD_TYPE_MCAST: {
+                    static char buf[MCAST_PKG_SIZE];
+                    int len;
+                    int i = 0;
+                    while ((len = recv(fd, buf, MCAST_PKG_SIZE, MSG_DONTWAIT)) > 0) {
+                        if (g_dll.proc_mcast_pkg) {
+                            g_dll.proc_mcast_pkg((void*)buf, len);
+                        }
+                        if (++i == 5)
+                            break;
+                    }
+                    break;
+                }
+                case FD_TYPE_ADDR_MCAST: {
+                    static char buf[MCAST_PKG_SIZE];
+                    int  len;
+                    int i = 0;
+                    while ((len = recv(fd, buf, MCAST_PKG_SIZE, MSG_DONTWAIT)) > 0) {
+                        asyncserv_proc_mcast_pkg(buf, len);
+                        if (++i == 5)
+                            break;
+                    }
+                    break;
+                }
+                case FD_TYPE_UDP: {
+                    static char buf[UDP_PKG_SIZE];
+                    int  len;
+                    int i = 0;
+                    struct sockaddr_in from; 
+                    socklen_t fromlen;
+                    while ((len = recvfrom(fd, buf, UDP_PKG_SIZE, MSG_DONTWAIT,
+                                    (struct sockaddr*)(&from), &fromlen)) > 0) {
+                    	if(g_dll.proc_udp_pkg)
+                    		g_dll.proc_udp_pkg(fd, buf, len, &from, fromlen);
+                        if (++i == 5)
+                            break;
+                    }
+                    break;
+                }
+
+                default: {
+                    if (net_recv(fd) == -1) {
+                        do_del_conn(fd);
+                    }
+                    break;
+                }
+            }
+        }
+
+        if (g_epi.evs[pos].events & EPOLLOUT) {
+            if (g_epi.fd_set[fd].conn_info.send_len > 0 
+                && do_write_conn(fd) == -1) {
+                do_del_conn(fd);
+            }
+            if (g_epi.fd_set[fd].conn_info.send_len == 0) {
+                mod_events(g_epi.epfd, fd, EPOLLIN);
+            }
+        }
+
+        if (g_epi.evs[pos].events & EPOLLHUP) {
+            do_del_conn(fd);
+        }
+    }
+
+    if (g_is_parent && g_socket_timeout) {
+        int i;
+        for (i = 0; i <= g_epi.maxfd; ++i) {
+            if ((g_epi.fd_set[i].type == FD_TYPE_REMOTE)
+                && ((get_now_tv()->tv_sec - g_epi.fd_set[i].socket_info.last_tm) >= g_socket_timeout)) {
+                do_del_conn(i);
+            }
+        }
+    }
+
+    if(!g_is_parent) {
+        if (g_dll.proc_events) {
+            g_dll.proc_events();
+        }
+        handle_recv_queue();
+
+        time_t now_sec = get_now_tv()->tv_sec;
+        // syn addr
+        if (now_sec > g_next_syn_addr_tm) {
+            send_addr_mcast_pkg(ADDR_MCAST_SYN_PKG);
+        }
+        // del expired addrs
+        if (now_sec > g_next_del_addrs_tm) {
+            del_expired_addrs();
+        }
+    }
+
+    //add for cfg info report
+    static time_t cfg_report_next_time = 0;
+    if (unlikely(cfg_report_next_time == 0)) {
+        cfg_report_next_time = getpid()%60 + get_now_tv()->tv_sec;
+    }
+
+    if (cfg_report_next_time < get_now_tv()->tv_sec) {
+        bench_conf_heart_beat();
+        cfg_report_next_time = get_now_tv()->tv_sec + 60;//every 60 secs;
+    }
+    return 0;
+}
+
+static int handle_pipe_event(int fd, int pos)
+{
+    char trash[TRASH_SIZE];
+
+    if (g_epi.evs[pos].events & EPOLLHUP) {
+        if (g_is_parent) { // Child Crashed
+     	   	   return parent_get_broken_pipe(fd);
+        } else { // Parent Crashed
+     	   	   return child_get_broken_pipe();
+        }
+    } else {
+        while (read(fd, trash, TRASH_SIZE) == TRASH_SIZE) ;
+    }
+
+    return 0;
+}
+
+static void handle_asyn_connect(int fd)
+{
+    fdinfo_t* fdinfo = &(g_epi.fd_set[fd]);
+
+    int error;
+    socklen_t len = sizeof(error);
+    if (getsockopt(fd, SOL_SOCKET, SO_ERROR, &error, &len) < 0) {
+        error = errno;
+        ERROR_LOG("should be impossible: fd=%d id=%u err=%d (%s)",
+                fd, fdinfo->id, error, strerror(error));
+    }
+
+    if (!error) {
+        fdinfo->type = FD_TYPE_REMOTE;
+        mod_events(g_epi.epfd, fd, EPOLLIN);
+        DEBUG_LOG("ASYNC CONNECTED TO[fd=%d id=%u]", fd, fdinfo->id);
+    } else {
+        ERROR_LOG("failed to connect to fd=%d id=%u err=%d (%s)",
+                fd, fdinfo->id, error, strerror(error));
+        do_clear_conn(fd);
+        fd = -1;
+    }
+
+    fdinfo->callback(fd, fdinfo->arg);
+}
+

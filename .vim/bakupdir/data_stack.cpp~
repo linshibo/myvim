@@ -1,0 +1,33 @@
+#include "data_stack.h"
+
+int create_stack(data_block_queue_t* pdbq, int len)
+{
+	pdbq->maxlen=len;
+	pdbq->addr=mmap(NULL, len, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANON, -1, 0);
+	if (pdbq->addr == MAP_FAILED){
+        return  -1;
+    }
+	return 0;
+}
+
+int pop_stack(data_block_queue_t* pdbq, data_block_t* pdb)
+{
+	if(pdbq->head == pdbq->tail){
+		return -1;
+	}
+	data_block_t* cur=(data_block_t*)(pdbq->head-4);
+	memcpy(pdb, pdbq->head, sizeof(data_block_t)+pdbq->head->len);
+	pdbq->tail = cur;
+	return 0;	
+}
+
+int push_stack(data_block_queue_t* pdbq, data_block_t* pdb)
+{
+	if(pdbq->head-pdbq->tail + sizeof(data_block_t)+pdb->len >= pdbq->maxlen ){
+		return -1;
+	}
+	memcpy(pdbq->tail, pdb, sizeof(data_block_t)+pdb->len);
+	pdb->self=pdbq->tail;
+	pdbq->tail += sizeof(data_block_t)+pdb->len;
+	return 0;	
+}
