@@ -3,26 +3,24 @@ snippet cc
 	/*${1:comment}*/
 snippet hd
 	/*=========================================================================       
-	 *		Filename: `FileFullName()`
+	 *		Filename: `expand("%:t")`
 	 * 		Author: francisco 
-	 *		Created:  `StringTime()`
-
+	 *		Created:  `strftime("%Y-%m-%d %H:%M:%S")`
 	 *		Description: ${1:nothing}
 	 *
-	 *		LastModified: `StringTime()`
 	 * =========================================================================
 	 */
 snippet ih
-	include "`GetFileName_h()`"
+	#include "`expand('%:t:r')`.h"
 snippet ihpp
-	include "`GetFileName_hpp()`"
+	#include "`expand('%:t:r')`.hpp"
 snippet ff
-	#ifndef `toupper(FileFullNameNew())`
-	#define `toupper(FileFullNameNew())`
+	#ifndef `toupper(substitute(expand("%:t"),'\.','_',"g"))`
+	#define `toupper(substitute(expand("%:t"),'\.','_',"g"))`
 
 	${1:/*code*/}
 
-	#endif /*`toupper(FileFullNameNew())`*/
+	#endif /*`toupper(substitute(expand("%:t"),'\.','_',"g"))`*/
 
 # main()
 snippet main
@@ -32,10 +30,10 @@ snippet main
 		return 0;
 	}
 # #include <...>
-snippet in
+snippet is
 	#include <${1:stdio}.h>${2}
 # #include "..."
-snippet is
+snippet in
 	#include "${1:`Filename("$1.h")`}"${2}
 snippet de
 	#define 
@@ -47,17 +45,6 @@ snippet #if
 	#if ${1:FOO}
 		${2}
 	#endif
-# Header Include-Guard
-# (the randomizer code is taken directly from TextMate; it could probably be
-# cleaner, I don't know how to do it in vim script)
-snippet once
-	#ifndef ${1:`toupper(Filename('', 'UNTITLED').'_'.system("/usr/bin/ruby -e 'print (rand * 2821109907455).round.to_s(36)'"))`}
-
-	#define $1
-
-	${2}
-
-	#endif /* end of include guard: $1 */
 # If Condition
 snippet if
 	if(${1:/* condition */}) {
@@ -102,13 +89,17 @@ snippet forr
 		${5:/* code */}
 	}
 #switch 
-snippet sw
+snippet switch
 	switch(${1:condition}){
 		case ${2:value}:
 			break;
 		default:
 			break;
 	}
+#switch 
+snippet case
+	case ${1:value}:
+		break;
 # Function
 snippet fun
 	${1:void} ${2:function_name}(${3})

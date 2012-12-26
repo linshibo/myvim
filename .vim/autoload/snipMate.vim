@@ -4,43 +4,6 @@ fun! Filename(...)
 	return !a:0 || a:1 == '' ? filename : substitute(a:1, '$1', filename, 'g')
 endf
 
-" get now time
-function! StringTime()
-	let time=strftime("%Y-%m-%d %H:%M:%S")
-    return time
-endfunction
-
-" [Get converted file name like __THIS_FILE__ ]
-function! FileFullNameNew()
-    let filename=expand("%:t")
-    "let filename=toupper(filename)
-    let _name=substitute(filename,'\.','_',"g")
-    return _name
-endfunction
-
-" return filename.type
-function! FileFullName()
-    let filename=expand("%:t")
-    return filename
-endfunction
-
-"get filename.h
-function! GetFileName_h()
-    let filename=expand("%:t")
-    let _name=substitute(filename,'c\w*$','h',"g")
-    "let _name="__"._name."__"
-    return _name
-endfunction
-
-"get filename.hpp
-function! GetFileName_hpp()
-    let filename=expand("%:t")
-    let _name=substitute(filename,'c\w*$','hpp',"g")
-    "let _name="__"._name."__"
-    return _name
-endfunction
-
-
 fun s:RemoveSnippet()
 	unl! g:snipPos s:curPos s:snipLen s:endCol s:endLine s:prevLen
 	     \ s:lastBuf s:oldWord
