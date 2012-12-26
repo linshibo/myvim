@@ -182,6 +182,12 @@ let g:DoxygenToolkit_authorName="francisco"
 map \f :Dox<CR>
 map \a :DoxAuthor<CR>
 "map \b :DoxBlock<CR>
+"
+"-------------------------------------------------------------------------
+"rainbow_parenthsis_options.vimbow 
+"---------------------------------------------------------------------------
+let g:rainbow_active = 1
+let g:rainbow_operators = 1
 
 "-------------------------------------------------------------------------
 "quickfix 开关 
