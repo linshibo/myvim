@@ -29,27 +29,11 @@ set laststatus=2
 set guifont=Bitstream\ Vera\ Sans\ Mono\ 11 
 colorscheme desert
 
-"------------------------------------------------
-"let g:solarized_termcolors=   256
-"let g:solarized_termtrans =   1
-"let g:solarized_contrast  =   "hight"
-"let g:solarized_visibility=   "normal"
-"let g:solarized_hitrail   =   0 
-"colorscheme solarized
-"set background=dark
-"------------------------------------------------
-
 "Include search
 set incsearch
 "no highlight search
 set nohlsearch
 
-"set num
-"powerline{ 状态栏
-set guifont=PowerlineSymbols\ for\ Powerline
-set t_Co=256
-"let g:Powerline_symbols = 'fancy'
-"}
 "
 "鼠标和剪贴板
 set mouse=v
@@ -112,102 +96,30 @@ if has("gui_running")
     set guitablabel=%M\ %t
 endif
 
-""""""""""""""""""""""""""""""
 " => Vim grep
-""""""""""""""""""""""""""""""
 let Grep_Skip_Dirs = 'RCS CVS SCCS .svn generated'
 set grepprg=/bin/grep\ -nH
 
 set path += "/usr/include/dbser/"
 "/usr/include/libtaomee/","/usr/include/libtaomee++/","/usr/local/include/async_serv/"
-""
-"---------------------------------------------------------------------------
+
 " ENCODING SETTINGS
-"---------------------------------------------------------------------------
 set encoding=utf-8
 set termencoding=utf-8
 set fileencoding=utf-8
 set fileencodings=ucs-bom,utf-8,gb2312,big5,euc-jp,euc-kr,latin1
 
-"---------------------------------------------------------------------------
-"进行Tlist的设置
-"TlistUpdate可以更新tags
-"---------------------------------------------------------------------------
-"map <F2> :silent! Tlist<CR>
-"let Tlist_Ctags_Cmd='ctags' "因为我们放在环境变量里，所以可以直接执行
-"let Tlist_Use_Right_Window=0 "让窗口显示在右边，0的话就是显示在左边
-"let Tlist_Show_One_File=0 "让taglist可以同时展示多个文件的函数列表，如果想只有1个，设置为1
-"let Tlist_File_Fold_Auto_Close=1 "非当前文件，函数列表折叠隐藏
-"let Tlist_Exit_OnlyWindow=1 "当taglist是最后一个分割窗口时，自动推出vim
-"let Tlist_Process_File_Always=0 "是否一直处理tags.1:处理;0:不处理。不是一直实时更新tags，因为没有必要
-"let Tlist_Inc_Winwidth=0
-"---------------------------------------------------------------------------
-
-"---------------------------------------------------------------------------
-" Visual mode related
-"---------------------------------------------------------------------------
-function! VisualSelection(direction) range
-    let l:saved_reg = @"
-    execute "normal! vgvy"
-
-    let l:pattern = escape(@", '\\/.*$^~[]')
-    let l:pattern = substitute(l:pattern, "\n$", "", "")
-
-    if a:direction == 'b'
-        execute "normal ?" . l:pattern . "^M"
-    elseif a:direction == 'gv'
-        call CmdLine("vimgrep " . '/'. l:pattern . '/' . ' **/*.')
-    elseif a:direction == 'replace'
-        call CmdLine("%s" . '/'. l:pattern . '/')
-    elseif a:direction == 'f'
-        execute "normal /" . l:pattern . "^M"
-    endif
-    let @/ = l:pattern
-    let @" = l:saved_reg
-endfunction
-" Visual mode pressing * or # searches for the current selection
-" Super useful! From an idea by Michael Naumann
-vnoremap <silent> * :call VisualSelection('f')<CR>
-vnoremap <silent> # :call VisualSelection('b')<CR>
-
-"---------------------------------------------------------------------------
-"Doxygen插件
-"---------------------------------------------------------------------------
-let g:DoxygenToolkit_briefTag_pre="@brief  " 
-let g:DoxygenToolkit_paramTag_pre="@param  " 
-let g:DoxygenToolkit_returnTag="@return  " 
-let g:DoxygenToolkit_blockHeader="----------------------------------------------------------------------------"
-let g:DoxygenToolkit_blockFooter="----------------------------------------------------------------------------" 
-let g:DoxygenToolkit_authorName="francisco" 
-map \f :Dox<CR>
-map \a :DoxAuthor<CR>
-"map \b :DoxBlock<CR>
-"
-"-------------------------------------------------------------------------
-"rainbow_parenthsis_options.vimbow 
-"---------------------------------------------------------------------------
-let g:rainbow_active = 1
-let g:rainbow_operators = 1
-
-"-------------------------------------------------------------------------
-"quickfix 开关 
-"---------------------------------------------------------------------------
-function! ToggleQF()
-    if !exists("g:fx_toggle")
-        let g:fx_toggle = 0
-    endif
-    if g:fx_toggle == 0
-        let g:fx_toggle = 1
-        copen
-    else
-        let g:fx_toggle = 0
-        cclose
-    endif
+"自动更新 修改时间
+function! LastModified()
+	if search("LastModified: .*","",line("$"))>0
+		exe "silent! %s/LastModified: .*/LastModified: " . 
+			\ strftime("%Y-%m-%d %H:%M:%S") . "\\*\\/"
+	else
+		exe "silent! $,$g/$/s/$/\r\\/\\*LastModified: " . 
+			\ strftime("%Y-%m-%d %H:%M:%S") . "\\*\\/"
+	endif
 endfunc
-map <F4> <Esc>:call ToggleQF()<CR>
-nmap ,n <Esc>:cn<CR>
-nmap ,p <Esc>:cp<CR>
-
+autocmd BufWritePre,FileWritePre *.cpp,*.c,*.h,*.hpp exec "normal ms"|call LastModified()|exec "normal `s"
 "----------------------------------------------------------------------------
 "map
 "----------------------------------------------------------------------------
@@ -292,6 +204,130 @@ nmap \e <ESC>:e! ~/.vimrc<cr>
 
 "Switch to current dir
 nmap ,cd <ESC>:cd %:p:h<cr>
+
+"---------------------------------------------------------------------------
+" Visual mode related
+"---------------------------------------------------------------------------
+function! VisualSelection(direction) range
+    let l:saved_reg = @"
+    execute "normal! vgvy"
+
+    let l:pattern = escape(@", '\\/.*$^~[]')
+    let l:pattern = substitute(l:pattern, "\n$", "", "")
+
+    if a:direction == 'b'
+        execute "normal ?" . l:pattern . "^M"
+    elseif a:direction == 'gv'
+        call CmdLine("vimgrep " . '/'. l:pattern . '/' . ' **/*.')
+    elseif a:direction == 'replace'
+        call CmdLine("%s" . '/'. l:pattern . '/')
+    elseif a:direction == 'f'
+        execute "normal /" . l:pattern . "^M"
+    endif
+    let @/ = l:pattern
+    let @" = l:saved_reg
+endfunction
+" Visual mode pressing * or # searches for the current selection
+" Super useful! From an idea by Michael Naumann
+vnoremap <silent> * :call VisualSelection('f')<CR>
+vnoremap <silent> # :call VisualSelection('b')<CR>
+
+
+
+"---------------------------------------------------------------------------
+"插件设置
+"---------------------------------------------------------------------------
+
+"scheme solarized 
+"------------------------------------------------
+"let g:solarized_termcolors=   256
+"let g:solarized_termtrans =   1
+"let g:solarized_contrast  =   "hight"
+"let g:solarized_visibility=   "normal"
+"let g:solarized_hitrail   =   0 
+"colorscheme solarized
+"set background=dark
+"------------------------------------------------
+
+"进行Tlist的设置
+"TlistUpdate可以更新tags
+"---------------------------------------------------------------------------
+"map <F2> :silent! Tlist<CR>
+"let Tlist_Ctags_Cmd='ctags' "因为我们放在环境变量里，所以可以直接执行
+"let Tlist_Use_Right_Window=0 "让窗口显示在右边，0的话就是显示在左边
+"let Tlist_Show_One_File=0 "让taglist可以同时展示多个文件的函数列表，如果想只有1个，设置为1
+"let Tlist_File_Fold_Auto_Close=1 "非当前文件，函数列表折叠隐藏
+"let Tlist_Exit_OnlyWindow=1 "当taglist是最后一个分割窗口时，自动推出vim
+"let Tlist_Process_File_Always=0 "是否一直处理tags.1:处理;0:不处理。不是一直实时更新tags，因为没有必要
+"let Tlist_Inc_Winwidth=0
+"---------------------------------------------------------------------------
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" cscope setting
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+if has("cscope")
+  set csprg=/usr/bin/cscope
+  set csto=1
+  set cst
+  set nocsverb
+  " add any database in current directory
+  if filereadable("cscope.out")
+      cs add cscope.out
+  endif
+  set csverb
+endif
+"cscope 使用quickfix
+"set cscopequickfix=s+
+nmap ,s :cs find s <C-R>=expand("<cword>")<CR><CR>
+nmap ,S :cs find s 
+"for cmake ':make' ,由于定位错误,中文会有问题，如下调整
+if finddir("build") == "build"
+    set makeprg=export\ LANG=zh_CN:en;make\ -C\ ./build
+endif
+
+"powerline{ 状态栏
+set guifont=PowerlineSymbols\ for\ Powerline
+set t_Co=256
+"let g:Powerline_symbols = 'fancy'
+"}
+
+"---------------------------------------------------------------------------
+"Doxygen插件
+"---------------------------------------------------------------------------
+let g:DoxygenToolkit_briefTag_pre="@brief  " 
+let g:DoxygenToolkit_paramTag_pre="@param  " 
+let g:DoxygenToolkit_returnTag="@return  " 
+let g:DoxygenToolkit_blockHeader="----------------------------------------------------------------------------"
+let g:DoxygenToolkit_blockFooter="----------------------------------------------------------------------------" 
+let g:DoxygenToolkit_authorName="francisco" 
+map \f :Dox<CR>
+map \a :DoxAuthor<CR>
+"map \b :DoxBlock<CR>
+
+"-------------------------------------------------------------------------
+"rainbow_parenthsis_options.vimbow 
+"---------------------------------------------------------------------------
+let g:rainbow_active = 1
+let g:rainbow_operators = 1
+
+"-------------------------------------------------------------------------
+"quickfix 开关 
+"---------------------------------------------------------------------------
+function! ToggleQF()
+    if !exists("g:fx_toggle")
+        let g:fx_toggle = 0
+    endif
+    if g:fx_toggle == 0
+        let g:fx_toggle = 1
+        copen
+    else
+        let g:fx_toggle = 0
+        cclose
+    endif
+endfunc
+map <F4> <Esc>:call ToggleQF()<CR>
+nmap ,n <Esc>:cn<CR>
+nmap ,p <Esc>:cp<CR>
 
 """"""""""""""""""""""""""""""
 " markbrowser setting
@@ -389,7 +425,6 @@ function! s:SET_TAGS()
 
 	endif
 endfunction
-
 
 "---------------------------------------------------------------------------
 "设置相关 include , for cmd : gf 
@@ -775,36 +810,3 @@ if has('python')
 endif
 
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" cscope setting
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-if has("cscope")
-  set csprg=/usr/bin/cscope
-  set csto=1
-  set cst
-  set nocsverb
-  " add any database in current directory
-  if filereadable("cscope.out")
-      cs add cscope.out
-  endif
-  set csverb
-endif
-"cscope 使用quickfix
-"set cscopequickfix=s+
-nmap ,s :cs find s <C-R>=expand("<cword>")<CR><CR>
-nmap ,S :cs find s 
-"for cmake ':make' ,由于定位错误,中文会有问题，如下调整
-if finddir("build") == "build"
-    set makeprg=export\ LANG=zh_CN:en;make\ -C\ ./build
-endif
-"自动更新 修改时间
-function! LastModified()
-	if search("LastModified: .*","",line("$"))>0
-		exe "silent! %s/LastModified: .*/LastModified: " . 
-			\ strftime("%Y-%m-%d %H:%M:%S") . "\\*\\/"
-	else
-		exe "silent! $,$g/$/s/$/\r\\/\\*LastModified: " . 
-			\ strftime("%Y-%m-%d %H:%M:%S") . "\\*\\/"
-	endif
-endfunc
-autocmd BufWritePre,FileWritePre *.cpp,*.c,*.h,*.hpp exec "normal ms"|call LastModified()|exec "normal `s"
