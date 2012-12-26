@@ -797,4 +797,9 @@ nmap ,S :cs find s
 if finddir("build") == "build"
     set makeprg=export\ LANG=zh_CN:en;make\ -C\ ./build
 endif
-
+"自动更新 修改时间
+function! LastModified()
+	exe "%s/LastModified: .*/LastModified: " . 
+		\ strftime("%Y-%m-%d %H:%M:%S")
+endfunc
+autocmd BufWritePre,FileWritePre *.[cpp],*.c,*.h,*.hpp call LastModified()
