@@ -1,6 +1,29 @@
 #comment
 snippet cc
 	/*${1:comment}*/
+snippet hd
+	/*=========================================================================       
+	 *		Filename: `FileFullName()`
+	 * 
+	 *      Version:  1.0
+	 *		Created:  `StringTime()`
+	 *		Description: ${1:nothing}
+	 *
+	 * 		Author: francisco 
+	 * =========================================================================
+	 */
+snippet ih
+	include "`GetFileName_h()`"
+snippet ihpp
+	include "`GetFileName_hpp()`"
+snippet ff
+	#ifndef `toupper(FileFullNameNew())`
+	#define `toupper(FileFullNameNew())`
+
+	${1:/*code*/}
+
+	#endif /*`toupper(FileFullNameNew())`*/
+
 # main()
 snippet main
 	int main(int argc, const char *argv[])
@@ -35,14 +58,13 @@ snippet once
 	${2}
 
 	#endif /* end of include guard: $1 */
-
 # If Condition
 snippet if
-	if (${1:/* condition */}) {
+	if(${1:/* condition */}) {
 		${2:/* code */}
 	}
 snippet ife 
-	if (${1:/* condition */}) {
+	if(${1:/* condition */}) {
 		${2:/* code */}
 	}else {
 		${3:/*code*/}
@@ -55,8 +77,6 @@ snippet el
 	else{
 		${1:/*code*/}
 	}
-
-
 # Tertiary conditional
 snippet t
 	${1:/* condition */} ? ${2:a} : ${3:b}
@@ -73,12 +93,12 @@ snippet while
 
 # For Loop
 snippet for
-	for (uint32_t ${2:i} = 0; $2 < ${1:count}; $2${3:++}) {
+	for(uint32_t ${2:i} = 0; $2 < ${1:count}; $2${3:++}) {
 		${4:/* code */}
 	}
 # Custom For Loop
 snippet forr
-	for (uint32_t ${1:i} = ${2:0}; ${3:$1 < 10}; $1${4:++}) {
+	for(uint32_t ${1:i} = ${2:0}; ${3:$1 < 10}; $1${4:++}) {
 		${5:/* code */}
 	}
 #switch 
@@ -98,13 +118,6 @@ snippet fun
 # Function Declaration
 snippet fund
 	${1:void} ${2:function_name}(${3});${4}
-#class
-snippet class
-	class ${1:`Filename('$1_t', 'name')`} {
-		public:
-		private:
-	};
-#
 # Typedef
 snippet td
 	typedef ${1:int} ${2:MyCustomType};${3}
@@ -123,7 +136,6 @@ snippet tde
 	typedef enum {
 		${1:/* data */}
 	} ${2:foo};
-
 # printf
 # unfortunately version this isn't as nice as TextMates's, given the lack of a
 # dynamic `...`
@@ -159,13 +171,4 @@ snippet pin
 	p_in
 snippet pout
 	p_out
-snippet mkpair
-	std::make_pair(${1:key},${2:value})
-snippet vec
-	std::vector<${1:type}>
-snippet map
-	std::map<${1:type}>
-snippet list
-	std::list<${1:type}>
-snippet set
-	std::set<${1:type}>
+
