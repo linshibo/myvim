@@ -1,9 +1,3 @@
-"===========================
-let g:Author="francisco"
-let g:Email="francisco@taomee.com"
-let g:Company="TAOMEE"
-"===========================
-
 "---------------------------------------------------------------------------
 "GENERAL SET
 "---------------------------------------------------------------------------
@@ -13,7 +7,6 @@ filetype indent on
 "语法
 syntax enable
 syntax on
-
 "Sets how many lines of history VIM har to remember
 set history=400
 
@@ -34,7 +27,6 @@ set incsearch
 "no highlight search
 set nohlsearch
 
-"
 "鼠标和剪贴板
 set mouse=v
 set clipboard=unnamed
@@ -63,7 +55,6 @@ set autoread
 set autowrite
 " Don't redraw while executing macros (good performance config)
 set lazyredraw
-"Bbackspace and cursor keys wrap to
 "退格键能删除
 set backspace=indent,eol,start
 set whichwrap+=<,>
@@ -72,7 +63,7 @@ set foldmethod=syntax
 ""默认情况下不折叠
 set foldlevel=99
 "nnoremap <Space> za
-"
+
 "When .vimrc is edited, reload it
 autocmd! bufwritepost vimrc source ~/.vimrc
 
@@ -455,8 +446,6 @@ autocmd BufEnter *  set tabstop=4
 autocmd BufEnter /usr/include/c++/*  set tabstop=8  
 autocmd BufEnter ~/.vim/cpp_src/*  set filetype=cpp
 
-"autocmd BufEnter *    if ( &filetype == "php" )| map ,i <Esc>:e ~/DB/su/pub/| else | map ,i <Esc>:e ~/DB/include/| endif
-
 "---------------------------------------------------------------------------
 "用于支持代码补全时，提示存在。
 "---------------------------------------------------------------------------
@@ -553,6 +542,15 @@ autocmd BufRead,BufNewFile *.py set ai
 autocmd BufRead *.py set smartindent cinwords=if,elif,else,for,while,try,except,finally,def,class
 autocmd BufRead *.as set filetype=actionscript
 autocmd BufRead *.mxml set filetype=mxml
+"----------------------------------------------------------------------------
+"定位到原来的位置
+"----------------------------------------------------------------------------
+autocmd BufReadPost *
+	\ if line("'\"") > 0 && line ("'\"") <= line("$") |
+	\   exe "normal! g'\"" |
+	\ endif
+"转换paste
+autocmd InsertLeave * if &paste == 1|set nopaste |endif
 
 """""""""""""""""""""""""""""
 " HTML related
@@ -564,18 +562,14 @@ let xml_use_xhtml = 1
 let html_use_css = 1
 let html_number_lines = 0
 let use_xhtml = 1
+au FileType html set ft=xml
+au FileType html set syntax=html
 
 """""""""""""""""""""""""""""""
 " Vim section
 """""""""""""""""""""""""""""""
 autocmd FileType vim set nofen
 autocmd FileType vim map <buffer> <leader><space> :w!<cr>:source %<cr>
-
-""""""""""""""""""""""""""""""
-" HTML
-"""""""""""""""""""""""""""""""
-au FileType html set ft=xml
-au FileType html set syntax=html
 
 
 function! SET_UAW()
@@ -659,7 +653,6 @@ function! OPT_RANGE_NEW( opt_str )
   endwhile 
 endfunction
 
-autocmd InsertLeave * if &paste == 1|set nopaste |endif
 
 
 " 在视图模式下的整块移动
@@ -685,14 +678,6 @@ endfunction
 :vmap <C-L> <Esc>:call SET_BLOCK_MOVE_V(0) <CR>
 :vmap <C-H> <Esc>:call SET_BLOCK_MOVE_V(1) <CR>
 
-
-"----------------------------------------------------------------------------
-"定位到原来的位置
-"----------------------------------------------------------------------------
-autocmd BufReadPost *
-	\ if line("'\"") > 0 && line ("'\"") <= line("$") |
-	\   exe "normal! g'\"" |
-	\ endif
 
 "支持STL模板
 let OmniCpp_DefaultNamespaces   = ["std", "_GLIBCXX_STD"]
