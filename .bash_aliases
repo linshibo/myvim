@@ -16,7 +16,7 @@ alias ....="cd ../../../"
 alias getdate='~/bin/getdate'
 
 alias rmlog="rm -rf ./log/* " 
-alias cdol="cd ~/server/online/trunk"
+alias cdol="cd ~/server/online/trunk/src"
 alias cddb="cd ~/server/db/trunk"
 alias cdlg="cd ~/server/login/trunk"
 alias cdsw="cd ~/server/switch/trunk"

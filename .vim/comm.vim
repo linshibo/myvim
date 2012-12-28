@@ -91,24 +91,20 @@ endif
 let Grep_Skip_Dirs = 'RCS CVS SCCS .svn generated'
 set grepprg=/bin/grep\ -nH
 
-set path += "/usr/include/dbser/"
-"/usr/include/libtaomee/","/usr/include/libtaomee++/","/usr/local/include/async_serv/"
-
 " ENCODING SETTINGS
 set encoding=utf-8
 set termencoding=utf-8
 set fileencoding=utf-8
 set fileencodings=ucs-bom,utf-8,gb2312,big5,euc-jp,euc-kr,latin1
-
 "自动更新 修改时间
 function! LastModified()
-	if search("LastModified: .*","",line("$"))>0
-		exe "silent! %s/LastModified: .*/LastModified: " . 
-			\ strftime("%Y-%m-%d %H:%M:%S") . "\\*\\/"
-	else
-		exe "silent! $,$g/$/s/$/\r\\/\\*LastModified: " . 
-			\ strftime("%Y-%m-%d %H:%M:%S") . "\\*\\/"
-	endif
+    if search("\\/\\*LastModified: \\d\\{4}-\\d\\{2}-\\d\\{2} \\d\\{2}:\\d\\{2}:\\d\\{2}\\*\\/","",line("$"))>0
+        exe "silent! $,$g/$/s/LastModified: .*/LastModified: " .
+            \ strftime("%Y-%m-%d %H:%M:%S") . "\\*\\/"
+    else
+        exe "silent! $,$g/$/s/$/\r\\/\\*LastModified: " .
+            \ strftime("%Y-%m-%d %H:%M:%S") . "\\*\\/"
+    endif
 endfunc
 autocmd BufWritePre,FileWritePre *.cpp,*.c,*.h,*.hpp exec "normal ms"|call LastModified()|exec "normal `s"
 "----------------------------------------------------------------------------
@@ -793,5 +789,3 @@ endfunction
 if has('python')
     call s:UserDefPython()
 endif
-
-
