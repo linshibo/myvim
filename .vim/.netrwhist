@@ -1,6 +1,7 @@
 let g:netrw_dirhistmax  =10
-let g:netrw_dirhist_cnt =4
+let g:netrw_dirhist_cnt =5
 let g:netrw_dirhist_1='/home/francisco/.vimperator'
 let g:netrw_dirhist_2='/home/francisco/work/db/bak'
 let g:netrw_dirhist_3='/home/francisco/server/login/trunk/log'
 let g:netrw_dirhist_4='/home/francisco/.vimperator'
+let g:netrw_dirhist_5='/home/francisco/server/online/trunk/log/20121219'

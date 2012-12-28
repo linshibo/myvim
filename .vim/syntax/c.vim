@@ -268,7 +268,7 @@ syn match	cPrototype  /\<\w\w\w\w\w\+_out\>/
 "syn match	cPrototype  /\<\w\w\w\w\w\+_cmd\>/	
 syn match	cPrototype  /\<stru_\w\+\>/	
 syn match	cPrototype  /\<\w\+_t\>/	
-syn match	cEnum    /\<\w\+_err\>/  "xxxxx_err	错误码
+syn match	cEnum    /\<cli_\w\+_err\>/  "cli_xxxxx_err	错误码
 
 
 " Accept %: for # (C99)
