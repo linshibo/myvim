@@ -1,11 +1,8 @@
-source ~/.vimperator/plugin/_libly.js 
-map A <Nop>
 map <C-q> <Nop>
-map <C-o> <Nop>
-map <C-i> <Nop>
 map <C-z> <Nop>
 map <C-n> <Nop>
 map <C-p> <Nop>
+map <C-a> <C-v><C-a>
 noremap y Y
 noremap Y y
 
@@ -15,8 +12,6 @@ noremap k 6k
 " tab
 noremap w <C-n>
 noremap q <C-p>
-#nnoremap <silent> <C-l> :tabmove! +1<CR>
-#nnoremap <silent> <C-h> :tabmove! -1<CR>
 
 noremap zi zI
 noremap zI zi
@@ -30,9 +25,12 @@ noremap zz zZ
 noremap zZ zz
 
 noremap <silent> <C-r> :restart<CR>
+let mapleader = ","
 noremap <silent> <Leader>h :htabopen<Space>
 noremap <silent> <Leader>s :source ~/.vimperatorrc<CR>:echo<Space>"source completed."<CR>
 noremap <silent> <Leader>a :autopagerize<CR>
+noremap <silent> <Leader>p :dialog preferences<CR>
+noremap <silent> <Leader>d :dialog downloads<CR>
 noremap U :undo<Space>
 cnoremap <C-j> <Nop>
 cnoremap <C-b> <Left>
@@ -48,8 +46,6 @@ inoremap <C-n> <Down>
 set messages=100
 set verbose=1
 set defsearch=google
-set go=
-set guioptions=n
 set titlestring="Mozilla Firefox"
 set popups=2
 set complete=lfbs
@@ -58,14 +54,16 @@ set focuscontent
 set ignorecase
 set incsearch
 set smartcase
-let mapleader = ","
 set nextpattern=\s*下一页|下一张|下一篇|下页|后页|后一页\s*,^\bnext\b,\\bnext\\b,^>$,^(>>|»)$,^(>|»),(>|»)$,\\bmore\\b
-set previouspattern=\s*上一页|上一张|上一篇|上页|前页|前一页\s*,^\bprev|previous\b,\\bprev|previous\\b,^<$,^(<<|«)$,^(<|«),(<|«)$
+set previouspattern=\s*上一页|上一张|上一篇|上页|前页|前一页\s*,^\bprev|previous\b,\\bprev|previous\\b,^Older,^<$,^(<<|«)$,^(<|«),(<|«)$
+autocmd LocationChange .* :js modes.passAllKeys = /mail\.google\.com/.test(buffer.URL) || /google\.com\/reader\//.test(buffer.URL)
 
 qmark g http://www.google.com
 qmark t https://www.twitter.com
 qmark w http://www.weibo.com
-qmark h https://github.com/linshibo
-qmark d douban.fm  
-qmark e https://www.evernote.com/Home.action#st=p&n=f2b5aefe-b613-4462-b9a2-be78b506d1fc  
-qmark s http://www.slideshare.net/linshibo 
+qmark r https://www.google.com/reader/view/ 
+qmark e https://www.evernote.com/Home.action#st=p&n=f2b5aefe-b613-4462-b9a2-be78b506d1fc 
+qmark s http://www.slideshare.net/?ss
+qmark d douban.fm 
+"nnoremap 5 frefresh<CR>
+"autocmd LocationChange www\.dabr\.co\.uk :noremap 5 frefresh<CR>
