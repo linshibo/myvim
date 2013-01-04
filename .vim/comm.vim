@@ -230,9 +230,6 @@ imap   <expr> <Space>  Ex_space("\<Space>")
 "---------------------------------------------------------------------------
 "插件设置
 "---------------------------------------------------------------------------
-let g:UltiSnipsExpandTrigger="<tab>"
-let g:UltiSnipsJumpForwardTrigger="<tab>"
-let g:UltiSnipsJumpBackwardTrigger="<s-tab>"
 
 "a.vim {
 map ,a <Esc>:A<CR>
