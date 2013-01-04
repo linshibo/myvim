@@ -28,7 +28,6 @@ set foldmethod=syntax
 set foldlevel=99
 "nnoremap <Space> za
 
-
 " => Vim grep
 let Grep_Skip_Dirs = 'RCS CVS SCCS .svn generated'
 set grepprg=/bin/grep\ -nH
@@ -145,8 +144,8 @@ nmap <C-P> <C-PageUp>
 nmap <C-N> <C-PageDown>
 
 "查找当前光标下的单词
-map ,f <Esc>:call P_grep_curword()<CR>
-map ,g <Esc>:grep 
+map ,g <Esc>:call P_grep_curword()<CR>
+"map ,g <Esc>:grep 
 
 map ,r <Esc>:call RESET_TAG() <CR> <CR>
 map ,m <Esc>:make<CR><CR>
@@ -182,10 +181,10 @@ inoremap { <c-r>=SET_BIG_PAIR()<CR>
 "窗口间移动
 nmap \l  <Esc>[I
 nmap \w <Esc><C-W><C-W>
-nmap ,h <Esc><C-W>h
-nmap ,l <Esc><C-W>l
-nmap ,j <Esc><C-W>j
-nmap ,k <Esc><C-W>k
+nmap \h <Esc><C-W>h
+nmap \l <Esc><C-W>l
+nmap \j <Esc><C-W>j
+nmap \k <Esc><C-W>k
 
 "Fast reloading of the .vimrc
 nmap \s <ESC>:source ~/.vimrc<cr>
@@ -238,7 +237,7 @@ map ,a <Esc>:A<CR>
 
 "NERD_tree{
 " Open and close the NERD_tree.vim separately
-nmap <F5> <ESC>:NERDTreeToggle<RETURN>
+nmap <F2> <ESC>:NERDTreeToggle<RETURN>
 "}
 
 "scheme solarized {
@@ -262,6 +261,24 @@ nmap <F5> <ESC>:NERDTreeToggle<RETURN>
 "let Tlist_Process_File_Always=0 "是否一直处理tags.1:处理;0:不处理。不是一直实时更新tags，因为没有必要
 "let Tlist_Inc_Winwidth=0
 "}
+
+""""""""""""""""""""""""""""""
+" lookupfile setting
+""""""""""""""""""""""""""""""
+let g:LookupFile_MinPatLength = 2               "最少输入2个字符才开始查找
+let g:LookupFile_PreserveLastPattern = 0        "不保存上次查找的字符串
+let g:LookupFile_PreservePatternHistory = 1     "保存查找历史
+let g:LookupFile_AlwaysAcceptFirst = 1          "回车打开第一个匹配项目
+let g:LookupFile_AllowNewFiles = 0              "不允许创建不存在的文件
+if filereadable("./tags")                "设置tag文件的名字
+let g:LookupFile_TagExpr = '"./tags"'
+endif
+"映射LookupFile为,lk
+nmap <silent> ,f :LUTags<cr>
+"映射LUBufs为,ll
+"nmap <silent> ,ll :LUBufs<cr>
+"映射LUWalk为,lw
+"nmap <silent> <leader>lw :LUWalk<cr>
 
 " omnicppcomplete{
 let OmniCpp_ShowScopeInAbbr = 1
@@ -355,7 +372,7 @@ let g:bufExplorerSplitVertical=1 " Split vertically.
 let g:bufExplorerSplitVertSize = 35 " Split width
 let g:bufExplorerUseCurrentWindow=1 " Open in new window.
 let g:bufExplorerMaxHeight=25 " Max height
-noremap <silent> <F2> <Esc>:BufExplorer<CR>
+"noremap <silent> <F2> <Esc>:BufExplorer<CR>
 noremap <silent> ,b <Esc>:BufExplorer<CR>
 " }
 
