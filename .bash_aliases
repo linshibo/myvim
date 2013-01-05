@@ -1,7 +1,6 @@
 alias l='ls -allh'
 alias l.='ls -d .* --color=tty'
 alias ll='ls -lh --color=tty'
-alias ls='ls --color=tty'
 alias vi="vim"
 alias telnet="telnet -8 -e^e"
 alias grep="grep --color=auto"
@@ -35,6 +34,5 @@ alias goagent="~/bin/goagent.sh"
 alias translate="~/bin/gtrans en zh-cn"
 alias vimrc="vim ~/.vim/comm.vim"
 alias bashrc="vim ~/.bashrc"
-
 
 alias git="/usr/bin/git"
