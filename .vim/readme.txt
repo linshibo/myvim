@@ -35,12 +35,11 @@ Insert mode
 <CTRL-g>s - same as <CTRL-s>
 <CTRL-g>S - same as <CTRL-s><CTRL-s>
 
-<F2>  Tlist 开关
-<F3>  NERDTreeToggle
+<F2>  buffer explore 开关
+<F3>  TagbarToggle 
 <F4>  quickfix 开关
-<F5>  lookupfile开关 
+<F5>  NERDTreeToggle
 <F6>  MarksBrowser 开关
-<F7>  TagbarToggle 
 <F9>  set paste 
 
 "bufexplorer  相关

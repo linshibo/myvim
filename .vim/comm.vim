@@ -59,7 +59,7 @@ endif
 "Favorite filetypes
 set ffs=unix,mac
 
-"set laststatus=2
+set laststatus=2
 set guifont=Bitstream\ Vera\ Sans\ Mono\ 11 
 colorscheme desert
 
@@ -77,12 +77,12 @@ set magic
 set showmatch
 
 " Set extra options when running in GUI mode
-if has("gui_running")
-    set guioptions-=T
-    set guioptions+=e
-    set t_Co=256
-    set guitablabel=%M\ %t
-endif
+"if has("gui_running")
+    "set guioptions-=T
+    "set guioptions+=e
+    "set t_Co=256
+    "set guitablabel=%M\ %t
+"endif
 
 "鼠标和剪贴板
 set mouse=v
@@ -307,7 +307,7 @@ nmap ,S :cs find s
 "powerline{ 状态栏
 set guifont=PowerlineSymbols\ for\ Powerline
 set t_Co=256
-"let g:Powerline_symbols = 'fancy'
+let g:Powerline_symbols = 'unicode'
 "}
 
 "Doxygen插件{
