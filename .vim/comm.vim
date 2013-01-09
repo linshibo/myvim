@@ -4,11 +4,14 @@ try
 	call pathogen#helptags()
 catch
 endtry
+
 "---------------------------------------------------------------------------
 "GENERAL SET
 "---------------------------------------------------------------------------
 "Sets how many lines of history VIM har to remember
 set history=400
+
+let mapleader =","
 " Enable filetype plugins
 filetype plugin on
 filetype indent on
@@ -123,10 +126,11 @@ set novisualbell
 set t_vb=
 set tm=500
 
-
 "----------------------------------------------------------------------------
 "MAP BIND
 "----------------------------------------------------------------------------
+"use jj replace esc 
+inoremap jj <Esc>
 
 map ,q <Esc>:q!<CR>
 map ,w <Esc>:w!<CR>
@@ -145,9 +149,9 @@ cnoremap <C-P> <UP>
 cnoremap <C-N> <DOWN>
 
 "tabedit
-nmap ,t <Esc>:tabedit 
-nmap <C-P> <C-PageUp>
-nmap <C-N> <C-PageDown>
+nmap ,te <Esc>:tabedit 
+nmap ,tp <C-PageUp>
+nmap ,tn <C-PageDown>
 
 "查找当前光标下的单词
 map ,g <Esc>:call P_grep_curword()<CR>
@@ -246,23 +250,31 @@ map ,a <Esc>:A<CR>
 nmap <F2> <ESC>:NERDTreeToggle<RETURN>
 "}
 
-""""""""""""""""""""""""""""""
-" lookupfile setting
-""""""""""""""""""""""""""""""
+"YankRing {
+nnoremap <silent> ,y <Esc>:YRShow<CR> 
+"}
+
+"indent guides{
+nnoremap ,i <Esc>:IndentGuidesToggle<CR>
+let g:indent_guides_start_level = 2
+let g:indent_guides_auto_colors = 1
+let g:indent_guides_guide_size=1
+"}
+
+" lookupfile setting{
 let g:LookupFile_MinPatLength = 2               "最少输入2个字符才开始查找
 let g:LookupFile_PreserveLastPattern = 0        "不保存上次查找的字符串
 let g:LookupFile_PreservePatternHistory = 1     "保存查找历史
 let g:LookupFile_AlwaysAcceptFirst = 1          "回车打开第一个匹配项目
 let g:LookupFile_AllowNewFiles = 0              "不允许创建不存在的文件
 if filereadable("./tags")                "设置tag文件的名字
-let g:LookupFile_TagExpr = '"./tags"'
+	let g:LookupFile_TagExpr = '"./tags"'
 endif
-"映射LookupFile为,lk
 nmap <silent> ,f :LUTags<cr>
-"映射LUBufs为,ll
 "nmap <silent> ,ll :LUBufs<cr>
-"映射LUWalk为,lw
 "nmap <silent> <leader>lw :LUWalk<cr>
+let g:LookupFile_LookupFunc = 'LookupFile_IgnoreCaseFunc' 
+" }
 
 " omnicppcomplete{
 let OmniCpp_ShowScopeInAbbr = 1
@@ -270,7 +282,6 @@ let OmniCpp_ShowScopeInAbbr = 1
 let OmniCpp_DefaultNamespaces   = ["std", "_GLIBCXX_STD"]
 let OmniCpp_SelectFirstItem = 2
 " }
-
 
 " cscope setting {
 if has("cscope")
@@ -443,6 +454,24 @@ autocmd BufRead *.as set filetype=actionscript
 "----------------------------------------------------------------------------
 " FUNCTIONS
 "----------------------------------------------------------------------------
+" lookup file with ignore case
+function! LookupFile_IgnoreCaseFunc(pattern)
+    let _tags = &tags
+    try
+        let &tags = eval(g:LookupFile_TagExpr)
+        let newpattern = '\c' . a:pattern
+        let tags = taglist(newpattern)
+    catch
+        echohl ErrorMsg | echo "Exception: " . v:exception | echohl NONE
+        return ""
+    finally
+        let &tags = _tags
+    endtry
+
+    " Show the matches for what is typed so far.
+    let files = map(tags, 'v:val["filename"]')
+    return files
+endfunction
 
 "quickfix 开关 
 function! ToggleQF()
