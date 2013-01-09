@@ -1,6 +1,6 @@
 try
 	runtime bundle/vim-pathogen/autoload/pathogen.vim
-	call pathogen#infect("~/myvim/.vim/bundle")
+	call pathogen#infect()
 	call pathogen#helptags()
 catch
 endtry
@@ -730,7 +730,6 @@ function! CloseBracket()
 	endif
 endf
 
-
 function! QuoteDelim(char)
   let line = getline('.')
   let col = col('.')
@@ -806,5 +805,3 @@ endfunction
 if has('python')
     call s:UserDefPython()
 endif
-
-

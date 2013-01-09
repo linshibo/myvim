@@ -39,7 +39,7 @@
 	url = https://github.com/vim-scripts/comments.vim.git
 [submodule ".vim/bundle/bufexplorer"]
 	path = .vim/bundle/bufexplorer
-	url = https://github.com/vimcn/bufexplorer.vim.git
+	url = https://github.com/vim-scripts/bufexplorer.zip.git
 [submodule ".vim/bundle/Marks-Browser"]
 	path = .vim/bundle/Marks-Browser
 	url = https://github.com/vim-scripts/Marks-Browser.git
