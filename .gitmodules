@@ -1,0 +1,78 @@
+[submodule ".vim/bundle/vim-pathogen"]
+	path = .vim/bundle/vim-pathogen
+	url = git://github.com/tpope/vim-pathogen.git
+[submodule ".vim/bundle/nerdtree"]
+	path = .vim/bundle/nerdtree
+	url = git://github.com/scrooloose/nerdtree.git
+[submodule ".vim/bundle/a.vim"]
+	path = .vim/bundle/a.vim
+	url = https://github.com/vim-scripts/a.vim.git
+[submodule ".vim/bundle/DoxygenToolkit"]
+	path = .vim/bundle/DoxygenToolkit
+	url = https://github.com/vim-scripts/DoxygenToolkit.vim.git
+[submodule ".vim/bundle/wokmarks"]
+	path = .vim/bundle/wokmarks
+	url = https://github.com/vim-scripts/wokmarks.vim.git
+[submodule ".vim/bundle/FencView"]
+	path = .vim/bundle/FencView
+	url = https://github.com/vim-scripts/FencView.vim.git
+[submodule ".vim/bundle/matchit"]
+	path = .vim/bundle/matchit
+	url = https://github.com/vim-scripts/matchit.zip.git
+[submodule ".vim/bundle/surround"]
+	path = .vim/bundle/surround
+	url = https://github.com/tpope/vim-surround.git
+[submodule ".vim/bundle/genutils"]
+	path = .vim/bundle/genutils
+	url = https://github.com/vim-scripts/genutils.git
+[submodule ".vim/bundle/ShowMarks"]
+	path = .vim/bundle/ShowMarks
+	url = https://github.com/vim-scripts/ShowMarks.git
+[submodule ".vim/bundle/Tagbar"]
+	path = .vim/bundle/Tagbar
+	url = https://github.com/vim-scripts/Tagbar.git
+[submodule ".vim/bundle/powerline"]
+	path = .vim/bundle/powerline
+	url = https://github.com/Lokaltog/powerline.git
+[submodule ".vim/bundle/comments"]
+	path = .vim/bundle/comments
+	url = https://github.com/vim-scripts/comments.vim.git
+[submodule ".vim/bundle/bufexplorer"]
+	path = .vim/bundle/bufexplorer
+	url = https://github.com/vimcn/bufexplorer.vim.git
+[submodule ".vim/bundle/Marks-Browser"]
+	path = .vim/bundle/Marks-Browser
+	url = https://github.com/vim-scripts/Marks-Browser.git
+[submodule ".vim/bundle/Rainbow-Parentheses-Improved"]
+	path = .vim/bundle/Rainbow-Parentheses-Improved
+	url = https://github.com/vim-scripts/Rainbow-Parentheses-Improved-and2.git
+[submodule ".vim/bundle/cpp.vim"]
+	path = .vim/bundle/cpp.vim
+	url = https://github.com/vim-scripts/cpp.vim.git
+[submodule ".vim/bundle/c.vim"]
+	path = .vim/bundle/c.vim
+	url = https://github.com/vim-scripts/c.vim.git
+[submodule ".vim/bundle/xml.vim"]
+	path = .vim/bundle/xml.vim
+	url = https://github.com/vim-scripts/xml.vim.git
+[submodule ".vim/bundle/python.vim"]
+	path = .vim/bundle/python.vim
+	url = https://github.com/vim-scripts/python.vim.git
+[submodule ".vim/bundle/ack"]
+	path = .vim/bundle/ack
+	url = https://github.com/mileszs/ack.vim.git
+[submodule "bundle/ultisnips"]
+	path = bundle/ultisnips
+	url = https://github.com/SirVer/ultisnips
+[submodule ".vim/bundle/lookupfile"]
+	path = .vim/bundle/lookupfile
+	url = https://github.com/vim-scripts/lookupfile.git
+[submodule ".vim/bundle/OmniCppComplete"]
+	path = .vim/bundle/OmniCppComplete
+	url = https://github.com/vim-scripts/OmniCppComplete.git
+[submodule ".vim/bundle/vim-markdown"]
+	path = .vim/bundle/vim-markdown
+	url = git://github.com/tpope/vim-markdown.git
+[submodule ".vim/bundle/ultisnips"]
+	path = .vim/bundle/ultisnips
+	url = https://github.com/SirVer/ultisnips
