@@ -150,8 +150,8 @@ cnoremap <C-N> <DOWN>
 
 "tabedit
 nmap ,te <Esc>:tabedit 
-nmap ,tp <C-PageUp>
-nmap ,tn <C-PageDown>
+nmap <C-j> <C-PageUp>
+nmap <C-k> <C-PageDown>
 
 "查找当前光标下的单词
 map ,g <Esc>:call P_grep_curword()<CR>
@@ -267,13 +267,13 @@ let g:LookupFile_PreserveLastPattern = 0        "不保存上次查找的字符�
 let g:LookupFile_PreservePatternHistory = 1     "保存查找历史
 let g:LookupFile_AlwaysAcceptFirst = 1          "回车打开第一个匹配项目
 let g:LookupFile_AllowNewFiles = 0              "不允许创建不存在的文件
+let g:LookupFile_LookupFunc = 'LookupFile_IgnoreCaseFunc' 
 if filereadable("./tags")                "设置tag文件的名字
 	let g:LookupFile_TagExpr = '"./tags"'
 endif
-nmap <silent> ,f :LUTags<cr>
+nnoremap ,f <Esc>:LUTags<CR>
 "nmap <silent> ,ll :LUBufs<cr>
 "nmap <silent> <leader>lw :LUWalk<cr>
-let g:LookupFile_LookupFunc = 'LookupFile_IgnoreCaseFunc' 
 " }
 
 " omnicppcomplete{
@@ -651,7 +651,7 @@ endfunction
 function! P_grep_curword() 
 	"得到光标下的单词
 	let curword=expand("<cword>")
-	exec "grep -r -s " . curword . " *.cpp *.h *.c *.hpp"
+	exec "ack-grep -r -s " . curword 
 endfunction
 
 function! RESET_TAG() 
