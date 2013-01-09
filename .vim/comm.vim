@@ -26,7 +26,7 @@ set nocp
 
 set smarttab
 "tags 位置
-set tags=~/.vim/tags,~/.vim/tags_cpp,tags; 
+set tags=~/.vim/tags,tags; 
 
 "折叠
 set foldmethod=syntax
