@@ -220,8 +220,8 @@ vnoremap <silent> # :call VisualSelection('b')<CR>
 
 "quick fix toggle
 map <F4> <Esc>:call ToggleQF()<CR>
-nmap ,n <Esc>:cn<CR>
-nmap ,p <Esc>:cp<CR>
+nmap ,cn <Esc>:cn<CR>
+nmap ,cp <Esc>:cp<CR>
 
 "用于支持代码补全时，提示存在。
 set completeopt=longest,menuone
