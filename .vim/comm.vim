@@ -12,6 +12,7 @@ endtry
 set history=400
 
 let mapleader =","
+
 " Enable filetype plugins
 filetype plugin on
 filetype indent on
