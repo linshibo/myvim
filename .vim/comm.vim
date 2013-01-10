@@ -90,11 +90,29 @@ set mouse=v
 set clipboard=unnamed
 " Height of the command bar
 set cmdheight=2
-" Cool tab completion stuff
+
+" Wildmenu completion , Cool tab completion stuff{
 set wildmenu
 set wildmode=list:longest,full
+
+set wildignore+=.hg,.git,.svn                    " Version control
+set wildignore+=*.aux,*.out,*.toc                " LaTeX intermediate files
+set wildignore+=*.jpg,*.bmp,*.gif,*.png,*.jpeg   " binary images
+set wildignore+=*.o,*.obj,*.exe,*.dll,*.manifest " compiled object files
+set wildignore+=*.spl                            " compiled spelling word lists
+set wildignore+=*.sw?                            " Vim swap files
+set wildignore+=*.DS_Store                       " OSX bullshit
+set wildignore+=*.luac                           " Lua byte code
+set wildignore+=migrations                       " Django migrations
+set wildignore+=*.pyc                            " Python byte code
+set wildignore+=*.orig                           " Merge resolution files
+" Clojure/Leiningen
+set wildignore+=classes
+set wildignore+=lib
 " Ignore compiled files
 set wildignore=*.o,*~,*.pyc
+" }
+
 "Always show current position
 set ruler
 " enables automatic C program indenting
@@ -118,6 +136,10 @@ set novisualbell
 set t_vb=
 set tm=500
 
+" Highlight VCS conflict markers
+"match ErrorMsg '^\(<\|=\|>\)\{"7\"}\([^=].\+\)\?$'
+
+unmap <F1> 
 "----------------------------------------------------------------------------
 "MAP BIND
 "----------------------------------------------------------------------------
@@ -220,7 +242,8 @@ nmap ,cn <Esc>:cn<CR>
 nmap ,cp <Esc>:cp<CR>
 
 "用于支持代码补全时，提示存在。
-set completeopt=longest,menuone
+set complete=.,w,b,u,t
+set completeopt=longest,menuone,preview
 inoremap <expr> <CR> pumvisible() ? "\<c-y>" : "\<c-g>u\<cr>"
 inoremap <expr> <M-;> pumvisible() ? "\<c-n>" : "\<c-x>\<c-o>\<c-n>\<c-p>\<c-r>=pumvisible() ? \"\\<down>\" : \"\\<cr>\""
 inoremap <expr> <C-U>  pumvisible()?"\<C-E>":"\<C-U>"
