@@ -1,3 +1,4 @@
+"enable pathogen , 必须在最上方
 try
 	runtime bundle/vim-pathogen/autoload/pathogen.vim
 	call pathogen#infect()
@@ -19,18 +20,17 @@ filetype indent on
 "语法
 syntax enable
 syntax on
-"Sets how many lines of history VIM har to remember
-set history=400
 "备份
 set backup
 set backupdir=~/.vim/bakupdir
 set noswapfile
+
 "Get out of VI's compatible mode..
 set nocp
 
 set smarttab
 "tags 位置
-set tags=~/.vim/tags,tags; 
+set tags=~/.vim/bundle/myfix/tags,tags; 
 
 "折叠
 set foldmethod=syntax
@@ -42,7 +42,7 @@ set foldlevel=99
 let Grep_Skip_Dirs = 'RCS CVS SCCS .svn generated'
 set grepprg=/bin/grep\ -nH
 
-"定位到原来的位置
+"重新打开时自动定位到原来的位置
 autocmd BufReadPost *
 	\ if line("'\"") > 0 && line ("'\"") <= line("$") |
 	\   exe "normal! g'\"" |
@@ -50,7 +50,7 @@ autocmd BufReadPost *
 "转换paste
 autocmd InsertLeave * if &paste == 1|set nopaste |endif
 "When .vimrc is edited, reload it
-autocmd! bufwritepost vimrc source ~/.vimrc
+autocmd! bufwritepost comm.vim source ~/.vimrc
 
 " ENCODING SETTINGS
 set encoding=utf-8
@@ -58,7 +58,7 @@ set termencoding=utf-8
 set fileencoding=utf-8
 set fileencodings=ucs-bom,utf-8,gb2312,big5,euc-jp,euc-kr,latin1
 
-"自动更新 修改时间
+"自动更新cpp修改时间
 autocmd BufWritePre,FileWritePre *.cpp,*.c,*.h,*.hpp exec "normal ms"|call LastModified()|exec "normal `s"
 
 "for cmake ':make' ,由于定位错误,中文会有问题，如下调整
@@ -69,7 +69,6 @@ endif
 "Favorite filetypes
 set ffs=unix,mac
 
-set laststatus=2
 set guifont=Bitstream\ Vera\ Sans\ Mono\ 11 
 colorscheme desert
 
@@ -85,14 +84,6 @@ set magic
 
 " Show matching brackets when text indicator is over them
 set showmatch
-
-" Set extra options when running in GUI mode
-"if has("gui_running")
-    "set guioptions-=T
-    "set guioptions+=e
-    "set t_Co=256
-    "set guitablabel=%M\ %t
-"endif
 
 "鼠标和剪贴板
 set mouse=v
@@ -132,17 +123,19 @@ set tm=500
 "----------------------------------------------------------------------------
 "use jj replace esc 
 inoremap jj <Esc>
+"end of line
+nnoremap <C-e> $
 
-map ,q <Esc>:q!<CR>
-map ,w <Esc>:w!<CR>
+nnoremap ,q <Esc>:q!<CR>
+nnoremap ,w <Esc>:w!<CR>
 " sudo write this
-map ,W <Esc>:w !sudo tee % >/dev/null<CR>
-map ,e <Esc>:e 
-map ,x <Esc>:!
+nnoremap ,W <Esc>:w !sudo tee % >/dev/null<CR>
+nnoremap ,e <Esc>:e 
+nnoremap ,x <Esc>:!
 
 "cmd model map
-cmap <C-A> <HOME>
-cmap <C-E> <END>
+cnoremap <C-A> <HOME>
+cnoremap <C-E> <END>
 cnoremap <C-D> <DELETE>
 cnoremap <C-B> <LEFT>
 cnoremap <C-F> <RIGHT>
@@ -150,24 +143,26 @@ cnoremap <C-P> <UP>
 cnoremap <C-N> <DOWN>
 
 "tabedit
-nmap ,te <Esc>:tabedit 
-nmap <C-j> <C-PageUp>
-nmap <C-k> <C-PageDown>
+nnoremap ,te <Esc>:tabedit 
+nnoremap <C-p> <C-PageUp>
+nnoremap <C-n> <C-PageDown>
 
 "查找当前光标下的单词
-map ,g <Esc>:call P_grep_curword()<CR>
-"map ,g <Esc>:grep 
+nnoremap ,g <Esc>:call P_grep_curword()<CR>
+"nnoremap ,g <Esc>:grep 
 
-map ,r <Esc>:call RESET_TAG() <CR> <CR>
-map ,m <Esc>:make<CR><CR>
+nnoremap ,r <Esc>:call RESET_TAG() <CR> <CR>
+nnoremap ,m <Esc>:make<CR><CR>
 "map ,y    <Esc>:call OPT_RANGE("ya")<CR>
 "map ,Y    <Esc>:call OPT_RANGE("yi")<CR>
 "map ,d    <Esc>:call OPT_RANGE("da")<CR>
 "map ,D    <Esc>:call OPT_RANGE("di")<CR>
 "转换单词大小写
 nmap ,u <Esc>:call SET_UAW()<CR>
+
 "支持粘贴
-map <F9> <Esc>:set paste<CR>i
+"nmap ,p <Esc>:set paste<CR>i
+imap pp <Esc>:set paste<CR>i
 
 command! Wq wq
 command! W w
@@ -243,23 +238,23 @@ imap   <expr> <Space>  Ex_space("\<Space>")
 "---------------------------------------------------------------------------
 
 "a.vim {
-map ,a <Esc>:A<CR>
+nnoremap ,a <Esc>:A<CR>
+"}
+
+"FencView {
+let g:fencview_autodetect = 1                      
+nnoremap <F7> :FencView<CR>
 "}
 
 "NERD_tree{
 " Open and close the NERD_tree.vim separately
-nmap <F2> <ESC>:NERDTreeToggle<RETURN>
+nnoremap ,nt <ESC>:NERDTreeToggle<CR>
 "}
 
 "YankRing {
 nnoremap <silent> ,y <Esc>:YRShow<CR> 
-"}
-
-"indent guides{
-nnoremap ,i <Esc>:IndentGuidesToggle<CR>
-let g:indent_guides_start_level = 2
-let g:indent_guides_auto_colors = 1
-let g:indent_guides_guide_size=1
+let g:yankring_replace_n_pkey = '<m-p>'
+let g:yankring_replace_n_nkey = '<m-n>'
 "}
 
 " lookupfile setting{
@@ -296,12 +291,13 @@ if has("cscope")
   endif
   set csverb
 endif
-nmap ,s :cs find s <C-R>=expand("<cword>")<CR><CR>
-nmap ,S :cs find s 
+nnoremap ,s :cs find s <C-R>=expand("<cword>")<CR><CR>
+nnoremap ,S :cs find s 
 " }
 
 "powerline{ 状态栏
 set guifont=PowerlineSymbols\ for\ Powerline
+set laststatus=2
 set t_Co=256
 let g:Powerline_symbols = 'unicode'
 "}
@@ -310,11 +306,11 @@ let g:Powerline_symbols = 'unicode'
 let g:DoxygenToolkit_briefTag_pre="@brief  " 
 let g:DoxygenToolkit_paramTag_pre="@param  " 
 let g:DoxygenToolkit_returnTag="@return  " 
-let g:DoxygenToolkit_blockHeader="----------------------------------------------------------------------------"
-let g:DoxygenToolkit_blockFooter="----------------------------------------------------------------------------" 
+"let g:DoxygenToolkit_blockHeader="----------------------------------------------------------------------------"
+"let g:DoxygenToolkit_blockFooter="----------------------------------------------------------------------------" 
 let g:DoxygenToolkit_authorName="francisco" 
 map \f :Dox<CR>
-map \a :DoxAuthor<CR>
+"map \a :DoxAuthor<CR>
 "map \b :DoxBlock<CR>
 "}
 
@@ -325,38 +321,7 @@ let g:rainbow_operators = 1
 
 " markbrowser setting{
 nmap <silent> <F6> <Esc>:MarksBrowser<cr>
-" }
-
-" showmarks setting{
-" Enable ShowMarks
-let showmarks_enable = 0
-" Show which marks
-let showmarks_include = "abcdefghilnpqrsuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-" Ignore help, quickfix, non-modifiable buffers
-let showmarks_ignore_type = "hqm"
-" Hilight lower & upper marks
-let showmarks_hlline_lower = 1
-let showmarks_hlline_upper = 1
-let g:showmarks_ignore_type=""
-let g:showmarks_textlower="\t"
-let g:showmarks_textupper="\t"
-let g:showmarks_textother="\t"
-let g:showmarks_auto_toggle = 0
-nnoremap <silent> mo :ShowMarksOn<CR>
-nnoremap <silent> mt <ESc>:ShowMarksToggle<CR>
-" }
-
-" wokmark setting{
-let g:wokmarks_do_maps = 0
-let g:wokmarks_pool = "abcdefghijklmnopqrstuvwxyz"
-map mm <Plug>ToggleMarkWok
-map mj <Plug>NextMarkWok
-map mk <Plug>PrevMarkWok
-map <M-Left> <Plug>SetMarkWok
-map <M-Right> <Plug>ToggleMarkWok
-map <M-Up> <Plug>PrevMarkWok
-map <M-Down> <Plug>NextMarkWok
-autocmd User WokmarksChange :ShowMarksOn
+nmap <silent> ,zz <Esc>:MarksBrowser<cr>
 " }
 
 " bufexplorer setting{
@@ -376,6 +341,7 @@ noremap <silent> ,b <Esc>:BufExplorer<CR>
 let g:tagbar_width = 30 
 let g:tagbar_expand = 0
 nmap <silent> <F3> <Esc>:TagbarToggle<cr>
+nmap <silent> ,tb <Esc>:TagbarToggle<cr>
 " }
 
 "xml.vim{
@@ -599,10 +565,7 @@ function! s:SET_TAGS()
 		let dir=GET_UP_PATH(dir)
 	endwhile
 	if ( &filetype =="cpp" )
-		set tags+=~/.vim/tags
-		set tags+=~/.vim/tags_cpp
-		set tags+=~/.vim/tags_qt
-
+		set tags+=~/.vim/bundle/myfix/tags
 	endif
 endfunction
 
@@ -652,11 +615,11 @@ endfunction
 function! P_grep_curword() 
 	"得到光标下的单词
 	let curword=expand("<cword>")
-	exec "ack-grep -r -s " . curword 
+	exec "Ack " . curword . "./"
 endfunction
 
 function! RESET_TAG() 
-	!~/.vim/mtags.sh 
+	!~/.vim/./bundle/myfix/mtags.sh 
 	if filereadable("cscope.out")
 		cs reset 
 	endif

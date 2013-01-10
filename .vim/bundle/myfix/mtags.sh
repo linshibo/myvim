@@ -10,10 +10,10 @@ then
 	cd $path
 	./mtags $1
 	cscope -bq 
-elif [  -f ~/.vim/mtags ]   
+elif [  -f ~/.vim/bundle/myfix/mtags ]   
 then    
 	echo $path
-    ~/.vim/mtags
+    ~/.vim/bundle/myfix/mtags
     cscope -bq 
 fi
 
