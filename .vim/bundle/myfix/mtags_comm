@@ -1,7 +1,7 @@
 #!/bin/bash
 cd `dirname $0`
-rm -f tags
-ctags -R --c++-kinds=+p --fields=+iaS --extra=+q \
+rm -f comm_tags
+ctags -f comm_tags -R --c++-kinds=+p --fields=+iaS --extra=+q \
 	/usr/include/*.h \
 	/usr/include/netinet/\
 	/usr/include/net/\

@@ -85,6 +85,7 @@ hi Underlined    cterm=underline ctermfg=5
 hi Ignore        ctermfg=darkgrey
 hi Error         cterm=bold ctermfg=7 ctermbg=1
 
+
 hi cEnum      cterm=bold ctermfg=green
 hi LineNr term=underline ctermfg=3 guifg=Red3 ctermbg=black
 " For showmarks plugin

@@ -265,7 +265,7 @@ syn keyword  	cDefine		PRI_SEND_IN_POS   PRI_IN_POS RECVBUF_USERID PROTO_MAX_SIZ
 syn match	cDberr  /\<\w\+_ERR\>/	
 syn match	cPrototype  /\<\w\w\w\w\w\+_in\>/	
 syn match	cPrototype  /\<\w\w\w\w\w\+_out\>/	
-"syn match	cPrototype  /\<\w\w\w\w\w\+_cmd\>/	
+syn match	cEnum    /\<\w\w\w\w\w\+_cmd\>/	
 syn match	cPrototype  /\<stru_\w\+\>/	
 syn match	cPrototype  /\<\w\+_t\>/	
 syn match	cEnum    /\<cli_\w\+_err\>/  "cli_xxxxx_err	错误码
@@ -383,6 +383,7 @@ syn match       cBinaryOperator   display "\(&\||\|\^\|<<\|>>\)=\="
 syn match       cBinaryOperator   display "\~"
 " More C logical operators - highlight in preference to binary 
 syn match       cLogicalOperator  display "&&\|||"
+
 hi def link cMathOperator            Operator
 hi def link cPointerOperator         operator
 hi def link cLogicalOperator         operator

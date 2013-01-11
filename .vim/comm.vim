@@ -30,8 +30,8 @@ set nocp
 
 set smarttab
 "tags 位置
-set tags=~/.vim/bundle/myfix/tags,tags; 
-
+set tags=~/.vim/bundle/myfix/comm_tags,tags; 
+ 
 "折叠
 set foldmethod=syntax
 ""默认情况下不折叠
@@ -39,7 +39,7 @@ set foldlevel=99
 "nnoremap <Space> za
 
 " => Vim grep
-let Grep_Skip_Dirs = 'RCS CVS SCCS .svn generated'
+let Grep_Skip_Dirs = 'tags RCS CVS SCCS .svn generated'
 set grepprg=/bin/grep\ -nH
 
 "重新打开时自动定位到原来的位置
@@ -49,8 +49,6 @@ autocmd BufReadPost *
 	\ endif
 "转换paste
 autocmd InsertLeave * if &paste == 1|set nopaste |endif
-"When .vimrc is edited, reload it
-autocmd! bufwritepost comm.vim source ~/.vimrc
 
 " ENCODING SETTINGS
 set encoding=utf-8
@@ -94,7 +92,6 @@ set cmdheight=2
 " Wildmenu completion , Cool tab completion stuff{
 set wildmenu
 set wildmode=list:longest,full
-
 set wildignore+=.hg,.git,.svn                    " Version control
 set wildignore+=*.aux,*.out,*.toc                " LaTeX intermediate files
 set wildignore+=*.jpg,*.bmp,*.gif,*.png,*.jpeg   " binary images
@@ -137,14 +134,19 @@ set t_vb=
 set tm=500
 
 " Highlight VCS conflict markers
-"match ErrorMsg '^\(<\|=\|>\)\{"7\"}\([^=].\+\)\?$'
+syn match ErrorMsg '^\(<\|=\|>\)\{7}\([^=].\+\)\?$'
 
-unmap <F1> 
 "----------------------------------------------------------------------------
 "MAP BIND
 "----------------------------------------------------------------------------
 "use jj replace esc 
 inoremap jj <Esc>
+"A add num
+nnoremap A <C-A>
+"X minus num
+nnoremap X <C-X>
+"begin of line
+nnoremap <C-a> ^
 "end of line
 nnoremap <C-e> $
 
@@ -173,7 +175,7 @@ nnoremap <C-n> <C-PageDown>
 nnoremap ,g <Esc>:call P_grep_curword()<CR>
 "nnoremap ,g <Esc>:grep 
 
-nnoremap ,r <Esc>:call RESET_TAG() <CR> <CR>
+nnoremap ,r <Esc>:call RESET_TAG()<CR><CR>
 nnoremap ,m <Esc>:make<CR><CR>
 "map ,y    <Esc>:call OPT_RANGE("ya")<CR>
 "map ,Y    <Esc>:call OPT_RANGE("yi")<CR>
@@ -184,8 +186,8 @@ nmap ,u <Esc>:call SET_UAW()<CR>
 
 "支持粘贴
 "nmap ,p <Esc>:set paste<CR>i
-imap pp <Esc>:set paste<CR>i
-
+imap kk <Esc>:set paste<CR>i
+  
 command! Wq wq
 command! W w
 
@@ -254,7 +256,6 @@ inoremap <C-L> <C-X><C-L>
 " 用于支持 . -> 代码补全
 imap   <expr> <Backspace>  Ex_bspace() 
 imap   <expr> <Space>  Ex_space("\<Space>") 
-
 
 "---------------------------------------------------------------------------
 "插件设置
@@ -588,7 +589,7 @@ function! s:SET_TAGS()
 		let dir=GET_UP_PATH(dir)
 	endwhile
 	if ( &filetype =="cpp" )
-		set tags+=~/.vim/bundle/myfix/tags
+		set tags+=~/.vim/bundle/myfix/comm_tags
 	endif
 endfunction
 
