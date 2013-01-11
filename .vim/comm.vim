@@ -660,7 +660,7 @@ function! Do_CsTag()
     if(executable('cscope') && has("cscope") )
         silent! execute "!find . -name '*.h' -o -name '*.c' -o -name '*.cpp' -o -name '*.hpp' > cscope.files"
         silent! execute "!cscope -bkq"
-        if (filereadable("cscope.out")
+        if (filereadable("cscope.out"))
 		    execute "cs reset"
         endif
     endif
