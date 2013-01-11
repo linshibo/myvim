@@ -182,7 +182,7 @@ nnoremap <C-n> <C-PageDown>
 nnoremap ,g <Esc>:call P_grep_curword()<CR>
 "nnoremap ,g <Esc>:grep 
 
-nnoremap ,r <Esc>:call RESET_TAG()<CR><CR>
+nnoremap ,r <Esc>:call RESET_CTAG_CSCOPE()<CR><CR>
 nnoremap ,m <Esc>:make<CR><CR>
 "map ,y    <Esc>:call OPT_RANGE("ya")<CR>
 "map ,Y    <Esc>:call OPT_RANGE("yi")<CR>
@@ -311,7 +311,8 @@ nnoremap ,f <Esc>:LUTags<CR>
 let OmniCpp_ShowScopeInAbbr = 1
 "支持STL模板
 let OmniCpp_DefaultNamespaces   = ["std", "_GLIBCXX_STD"]
-let OmniCpp_SelectFirstItem = 2
+let OmniCpp_MayCompleteScope =1
+let OmniCpp_SelectFirstItem = 1
 " }
 
 " cscope setting {
@@ -326,6 +327,7 @@ if has("cscope")
   endif
   set csverb
 endif
+"nnoremap ,s :cs find s <C-R>=expand("<cword>")<CR><CR>
 nnoremap ,s :cs find s <C-R>=expand("<cword>")<CR><CR>
 nnoremap ,S :cs find s 
 " }
@@ -653,11 +655,31 @@ function! P_grep_curword()
 	exec "Ack " . curword . "./"
 endfunction
 
-function! RESET_TAG() 
-	!~/.vim/./bundle/myfix/mtags.sh 
-	if filereadable("cscope.out")
-		cs reset 
-	endif
+function! Do_CsTag()
+    if(executable('cscope') && has("cscope") )
+        if(g:iswindows!=1)
+            silent! execute "!find . -name '*.h' -o -name '*.c' -o -name '*.cpp' -o -name '*.hpp' > cscope.files"
+        endif
+        silent! execute "!cscope -bkq"
+        if filereadable("cscope.out")
+            execute "cs add cscope.out"
+		    execute "cs reset"
+        endif
+    endif
+endf
+
+function! Do_Ctag() 
+    if(executable('ctags'))
+        silent! execute "!rm -f tags"
+        silent! execute "!ctags -R  --languages=c,c++ --c++-kinds=+p --fields=+iaS --extra=+q ."
+    endif
+endfunction
+
+
+function! RESET_CTAG_CSCOPE() 
+	"!~/.vim/./bundle/myfix/mtags.sh 
+    call Do_Ctag()
+    call Do_CsTag()
 endfunction
 
 function! OPT_RANGE( opt_str ) 
