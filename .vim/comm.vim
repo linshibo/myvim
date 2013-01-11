@@ -28,7 +28,6 @@ set noswapfile
 "Get out of VI's compatible mode..
 set nocp
 
-set smarttab
 "tags 位置
 set tags=~/.vim/bundle/myfix/comm_tags,tags; 
  
@@ -63,6 +62,10 @@ autocmd BufWritePre,FileWritePre *.cpp,*.c,*.h,*.hpp exec "normal ms"|call LastM
 if finddir("build") == "build"
     set makeprg=export\ LANG=zh_CN:en;make\ -C\ ./build
 endif
+
+set scrolloff=3 " 距离垂直边界 n 行就开始滚动
+set sidescroll=1 " 水平滚动列数
+set sidescrolloff=10 " 距离水平边界 n 行就开始滚动
 
 "Favorite filetypes
 set ffs=unix,mac
@@ -116,8 +119,12 @@ set ruler
 set autoindent
 set smartindent 
 set cindent 
-set shiftwidth=4
-set tabstop=4
+set smarttab
+set expandtab " 开启把Tab扩展为空格
+set tabstop=4 " 设置Tab宽度为4个字符
+set softtabstop=4 " 软缩进宽度
+set shiftwidth=4 " 设置移动代码块宽度
+set shiftround " 移动代码块时取整到缩进宽度
 " autoread when a file is changed from the outside
 set autoread
 " write buffer when leaving
@@ -182,11 +189,11 @@ nnoremap ,m <Esc>:make<CR><CR>
 "map ,d    <Esc>:call OPT_RANGE("da")<CR>
 "map ,D    <Esc>:call OPT_RANGE("di")<CR>
 "转换单词大小写
-nmap ,u <Esc>:call SET_UAW()<CR>
+nnoremap ,u <Esc>:call SET_UAW()<CR>
 
 "支持粘贴
-"nmap ,p <Esc>:set paste<CR>i
-imap kk <Esc>:set paste<CR>i
+"nnoremap ,p <Esc>:set paste<CR>i
+inoremap kk <Esc>:set paste<CR>i
   
 command! Wq wq
 command! W w
@@ -200,38 +207,42 @@ inoremap [ []<ESC>i
 inoremap " ""<ESC>i
 inoremap ' ''<ESC>i
 autocmd Syntax html,vim inoremap < <lt>><ESC>i| inoremap > <c-r>=ClosePair('>')<CR>
-imap ) <c-r>=ClosePair(')')<CR>
-imap ] <c-r>=ClosePair(']')<CR>
-imap } <c-r>=CloseBracket()<CR>
-"imap <CR> <c-r>=Fix_cr()<CR>
-imap " <c-r>=QuoteDelim('"')<CR>
-imap ' <c-r>=QuoteDelim("'")<CR>
+inoremap ) <c-r>=ClosePair(')')<CR>
+inoremap ] <c-r>=ClosePair(']')<CR>
+inoremap } <c-r>=CloseBracket()<CR>
+"inoremap <CR> <c-r>=Fix_cr()<CR>
+inoremap " <c-r>=QuoteDelim('"')<CR>
+inoremap ' <c-r>=QuoteDelim("'")<CR>
 inoremap { <c-r>=SET_BIG_PAIR()<CR>
 
 "窗口间移动
-nmap \l  <Esc>[I
-nmap \w <Esc><C-W><C-W>
-nmap \h <Esc><C-W>h
-nmap \l <Esc><C-W>l
-nmap \j <Esc><C-W>j
-nmap \k <Esc><C-W>k
+nnoremap \l  <Esc>[I
+nnoremap \w <Esc><C-W><C-W>
+nnoremap \h <Esc><C-W>h
+nnoremap \l <Esc><C-W>l
+nnoremap \j <Esc><C-W>j
+nnoremap \k <Esc><C-W>k
 
 "Fast reloading of the .vimrc
-nmap \s <ESC>:source ~/.vimrc<cr>
+nnoremap \s <ESC>:source ~/.vimrc<cr>
 "Fast editing of .vimrc
-nmap \e <ESC>:e! ~/.vim/comm.vim<cr>
+nnoremap \e <ESC>:e! ~/.vim/comm.vim<cr>
 
 "Switch to current dir
-nmap ,cd <ESC>:cd %:p:h<cr>
+nnoremap ,cd <ESC>:cd %:p:h<cr>
 
 "在正常模式下的整块移动
 "大括号内向左移
-nmap <C-H> <Esc><i{
+"nnoremap <C-H> <Esc><i{
+noremap <A-h> <Esc><i{
 "大括号内向右移
-nmap <C-L> <Esc>>i{
+"nnoremap <C-L> <Esc>>i{
+noremap <A-l> <Esc>>i{
 "选择区移动
-vmap <C-L> <Esc>:call SET_BLOCK_MOVE_V(0) <CR>
-vmap <C-H> <Esc>:call SET_BLOCK_MOVE_V(1) <CR>
+"vmap <C-L> <Esc>:call SET_BLOCK_MOVE_V(0) <CR>
+"vmap <C-H> <Esc>:call SET_BLOCK_MOVE_V(1) <CR>
+vmap <A-l> <Esc>:call SET_BLOCK_MOVE_V(0) <CR>
+vmap <A-h> <Esc>:call SET_BLOCK_MOVE_V(1) <CR>
 
 " Visual mode pressing * or # searches for the current selection
 " Super useful! From an idea by Michael Naumann
@@ -239,9 +250,9 @@ vnoremap <silent> * :call VisualSelection('f')<CR>
 vnoremap <silent> # :call VisualSelection('b')<CR>
 
 "quick fix toggle
-map <F4> <Esc>:call ToggleQF()<CR>
-nmap ,cn <Esc>:cn<CR>
-nmap ,cp <Esc>:cp<CR>
+nnoremap <F4> <Esc>:call ToggleQF()<CR>
+nnoremap ,cn <Esc>:cn<CR>
+nnoremap ,cp <Esc>:cp<CR>
 
 "用于支持代码补全时，提示存在。
 set complete=.,w,b,u,t
@@ -254,8 +265,8 @@ inoremap <C-F> <C-X><C-F>
 inoremap <C-D> <C-X><C-D>
 inoremap <C-L> <C-X><C-L>
 " 用于支持 . -> 代码补全
-imap   <expr> <Backspace>  Ex_bspace() 
-imap   <expr> <Space>  Ex_space("\<Space>") 
+inoremap   <expr> <Backspace>  Ex_bspace() 
+inoremap   <expr> <Space>  Ex_space("\<Space>") 
 
 "---------------------------------------------------------------------------
 "插件设置
@@ -292,8 +303,8 @@ if filereadable("./tags")                "设置tag文件的名字
 	let g:LookupFile_TagExpr = '"./tags"'
 endif
 nnoremap ,f <Esc>:LUTags<CR>
-"nmap <silent> ,ll :LUBufs<cr>
-"nmap <silent> <leader>lw :LUWalk<cr>
+"nnoremap <silent> ,ll :LUBufs<cr>
+"nnoremap <silent> <leader>lw :LUWalk<cr>
 " }
 
 " omnicppcomplete{
@@ -333,7 +344,7 @@ let g:DoxygenToolkit_returnTag="@return  "
 "let g:DoxygenToolkit_blockHeader="----------------------------------------------------------------------------"
 "let g:DoxygenToolkit_blockFooter="----------------------------------------------------------------------------" 
 let g:DoxygenToolkit_authorName="francisco" 
-map \f :Dox<CR>
+nnoremap \f :Dox<CR>
 "map \a :DoxAuthor<CR>
 "map \b :DoxBlock<CR>
 "}
@@ -344,8 +355,8 @@ let g:rainbow_operators = 1
 "}
 
 " markbrowser setting{
-nmap <silent> <F6> <Esc>:MarksBrowser<cr>
-nmap <silent> ,zz <Esc>:MarksBrowser<cr>
+nnoremap <silent> <F6> <Esc>:MarksBrowser<cr>
+nnoremap <silent> ,zz <Esc>:MarksBrowser<cr>
 " }
 
 " bufexplorer setting{
@@ -364,8 +375,8 @@ noremap <silent> ,b <Esc>:BufExplorer<CR>
 " Tagbar setting{
 let g:tagbar_width = 30 
 let g:tagbar_expand = 0
-nmap <silent> <F3> <Esc>:TagbarToggle<cr>
-nmap <silent> ,tb <Esc>:TagbarToggle<cr>
+nnoremap <silent> <F3> <Esc>:TagbarToggle<cr>
+nnoremap <silent> ,tb <Esc>:TagbarToggle<cr>
 " }
 
 "xml.vim{
