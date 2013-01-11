@@ -27,7 +27,8 @@ set noswapfile
 
 "Get out of VI's compatible mode..
 set nocp
-
+"disable alt
+set winaltkeys=no
 "tags 位置
 set tags=~/.vim/bundle/myfix/comm_tags,tags; 
  
@@ -370,8 +371,8 @@ let g:bufExplorerSplitVertical=1 " Split vertically.
 let g:bufExplorerSplitVertSize = 35 " Split width
 let g:bufExplorerUseCurrentWindow=1 " Open in new window.
 let g:bufExplorerMaxHeight=25 " Max height
-"noremap <silent> <F2> <Esc>:BufExplorer<CR>
-noremap <silent> ,b <Esc>:BufExplorer<CR>
+noremap <silent> <F2> <Esc>:BufExplorer<CR>
+noremap <silent> ,b :BufExplorer<CR>
 " }
 
 " Tagbar setting{
@@ -657,12 +658,9 @@ endfunction
 
 function! Do_CsTag()
     if(executable('cscope') && has("cscope") )
-        if(g:iswindows!=1)
-            silent! execute "!find . -name '*.h' -o -name '*.c' -o -name '*.cpp' -o -name '*.hpp' > cscope.files"
-        endif
+        silent! execute "!find . -name '*.h' -o -name '*.c' -o -name '*.cpp' -o -name '*.hpp' > cscope.files"
         silent! execute "!cscope -bkq"
-        if filereadable("cscope.out")
-            execute "cs add cscope.out"
+        if (filereadable("cscope.out")
 		    execute "cs reset"
         endif
     endif
