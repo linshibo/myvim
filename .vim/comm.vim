@@ -1,4 +1,4 @@
-"enable pathogen , 必须在最上方
+"enable pathogen , 必须在最上方 
 try
 	runtime bundle/vim-pathogen/autoload/pathogen.vim
 	call pathogen#infect()
@@ -678,6 +678,7 @@ function! RESET_CTAG_CSCOPE()
 	"!~/.vim/./bundle/myfix/mtags.sh 
     call Do_Ctag()
     call Do_CsTag()
+    exec "redraw!"
 endfunction
 
 function! OPT_RANGE( opt_str ) 
