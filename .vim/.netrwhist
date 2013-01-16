@@ -1,5 +1,5 @@
 let g:netrw_dirhistmax  =10
-let g:netrw_dirhist_cnt =7
+let g:netrw_dirhist_cnt =8
 let g:netrw_dirhist_1='/home/francisco/.vimperator'
 let g:netrw_dirhist_2='/home/francisco/work/db/bak'
 let g:netrw_dirhist_3='/home/francisco/server/login/trunk/log'
@@ -7,3 +7,4 @@ let g:netrw_dirhist_4='/home/francisco/.vimperator'
 let g:netrw_dirhist_5='/home/francisco/server/online/trunk/log/20121219'
 let g:netrw_dirhist_6='/home/francisco/server/online/trunk/src'
 let g:netrw_dirhist_7='/home/francisco/myvim/.vim/bundle/vim-indent-guides'
+let g:netrw_dirhist_8='/home/francisco/server/gateway/trunk/log/20130115'

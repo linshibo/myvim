@@ -1,3 +1,8 @@
+"---------------------------------------------------------------------------
+"add to   .vimrc
+"source ~/.vim/comm.vim
+"---------------------------------------------------------------------------
+
 "enable pathogen , 必须在最上方 
 try
 	runtime bundle/vim-pathogen/autoload/pathogen.vim
@@ -150,9 +155,9 @@ syn match ErrorMsg '^\(<\|=\|>\)\{7}\([^=].\+\)\?$'
 "use jj replace esc 
 inoremap jj <Esc>
 "A add num
-nnoremap A <C-A>
+"nnoremap A <C-A>
 "X minus num
-nnoremap X <C-X>
+"nnoremap X <C-X>
 "begin of line
 nnoremap <C-a> ^
 "end of line
@@ -183,7 +188,7 @@ nnoremap <C-n> <C-PageDown>
 nnoremap ,g <Esc>:call P_grep_curword()<CR>
 "nnoremap ,g <Esc>:grep 
 
-nnoremap ,r <Esc>:call RESET_CTAG_CSCOPE()<CR><CR>
+nnoremap ,r <Esc>:call RESET_CTAG_CSCOPE()<CR>
 nnoremap ,m <Esc>:make<CR><CR>
 "map ,y    <Esc>:call OPT_RANGE("ya")<CR>
 "map ,Y    <Esc>:call OPT_RANGE("yi")<CR>
@@ -193,7 +198,6 @@ nnoremap ,m <Esc>:make<CR><CR>
 nnoremap ,u <Esc>:call SET_UAW()<CR>
 
 "支持粘贴
-"nnoremap ,p <Esc>:set paste<CR>i
 inoremap kk <Esc>:set paste<CR>i
   
 command! Wq wq
@@ -288,7 +292,7 @@ nnoremap ,nt <ESC>:NERDTreeToggle<CR>
 "}
 
 "YankRing {
-nnoremap <silent> ,y <Esc>:YRShow<CR> 
+nnoremap <silent> ,p <Esc>:YRShow<CR> 
 let g:yankring_replace_n_pkey = '<m-p>'
 let g:yankring_replace_n_nkey = '<m-n>'
 "}
