@@ -23,3 +23,4 @@ alias vimrc="vim ~/.vim/comm.vim"
 alias bashrc="vim ~/.bashrc"
 
 alias git="/usr/bin/git"
+

@@ -14,6 +14,11 @@ endtry
 "---------------------------------------------------------------------------
 "GENERAL SET
 "---------------------------------------------------------------------------
+
+"escalt 允许终端中绑定alt键{
+let g:loaded_escalt = 1
+"}
+
 "Sets how many lines of history VIM har to remember
 set history=400
 
@@ -237,18 +242,23 @@ nnoremap \e <ESC>:e! ~/.vim/comm.vim<cr>
 nnoremap ,cd <ESC>:cd %:p:h<cr>
 
 "在正常模式下的整块移动
-"大括号内向左移
-"nnoremap <C-H> <Esc><i{
-noremap <A-h> <Esc><i{
-"大括号内向右移
-"nnoremap <C-L> <Esc>>i{
-noremap <A-l> <Esc>>i{
-"选择区移动
-"vmap <C-L> <Esc>:call SET_BLOCK_MOVE_V(0) <CR>
-"vmap <C-H> <Esc>:call SET_BLOCK_MOVE_V(1) <CR>
-vmap <A-l> <Esc>:call SET_BLOCK_MOVE_V(0) <CR>
-vmap <A-h> <Esc>:call SET_BLOCK_MOVE_V(1) <CR>
-
+if g:loaded_escalt == 0
+	"大括号内向左移
+	nnoremap <C-H> <Esc><i{
+	"大括号内向右移
+	nnoremap <C-L> <Esc>>i{
+	"选择区移动
+	vmap <C-L> <Esc>:call SET_BLOCK_MOVE_V(0) <CR>
+	vmap <C-H> <Esc>:call SET_BLOCK_MOVE_V(1) <CR>
+else
+	"大括号内向左移
+	noremap <A-h> <Esc><i{
+	"大括号内向右移
+	noremap <A-l> <Esc>>i{
+	"选择区移动
+	vmap <A-l> <Esc>:call SET_BLOCK_MOVE_V(0) <CR>
+	vmap <A-h> <Esc>:call SET_BLOCK_MOVE_V(1) <CR>
+endif
 " Visual mode pressing * or # searches for the current selection
 " Super useful! From an idea by Michael Naumann
 vnoremap <silent> * :call VisualSelection('f')<CR>
@@ -288,7 +298,7 @@ nnoremap <F7> :FencView<CR>
 
 "NERD_tree{
 " Open and close the NERD_tree.vim separately
-nnoremap ,nt <ESC>:NERDTreeToggle<CR>
+nnoremap ,d <ESC>:NERDTreeToggle<CR>
 "}
 
 "YankRing {
@@ -734,7 +744,6 @@ function! SET_BLOCK_MOVE_V( move_type )
     else
         exec "'<,'>s/^	//"
     endif
-
 	let linecount = line("'>") - line("'<")
 	let save_cursor_begin = getpos("'<")
 	call setpos('.', save_cursor_begin)
@@ -839,7 +848,6 @@ import vim
 def get_proto_key(word,stroe_name):
 	if (word.isupper()):
 		word=word.lower();
-
 	if  re.search ("_in$", word ): value= word[:-3] 
 	elif  re.search ("_in_header$", word ): value=word[:-10] 
 	elif  re.search ("_out_header$", word ): value=word[:-11] 

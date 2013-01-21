@@ -88,3 +88,6 @@
 [submodule ".vim/bundle/scratch"]
 	path = .vim/bundle/scratch
 	url = https://github.com/vim-scripts/scratch.vim.git
+[submodule ".vim/bundle/vim-lua-ftplugin"]
+	path = .vim/bundle/vim-lua-ftplugin
+	url = https://github.com/xolox/vim-lua-ftplugin.git
