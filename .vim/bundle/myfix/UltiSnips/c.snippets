@@ -133,6 +133,15 @@ case ${1:value}:
 	break;
 endsnippet
 
+snippet olf "online cli_request"
+int cli_${1:request}(Csprite *p, Cmessage* c_in)
+{
+    cli_${2:$1}_in *p_in= P_IN;
+    cli_${3:$1}_out out;
+    return 0;
+}
+endsnippet
+
 snippet func
 ${1:void} ${2:function_name}(${3})
 {

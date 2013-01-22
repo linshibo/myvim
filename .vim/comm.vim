@@ -248,16 +248,16 @@ if g:loaded_escalt == 0
 	"大括号内向右移
 	nnoremap <C-L> <Esc>>i{
 	"选择区移动
-	vmap <C-L> <Esc>:call SET_BLOCK_MOVE_V(0) <CR>
-	vmap <C-H> <Esc>:call SET_BLOCK_MOVE_V(1) <CR>
+	vnoremap <C-L> <Esc>:call SET_BLOCK_MOVE_V(0) <CR>
+	vnoremap <C-H> <Esc>:call SET_BLOCK_MOVE_V(1) <CR>
 else
 	"大括号内向左移
 	noremap <A-h> <Esc><i{
 	"大括号内向右移
 	noremap <A-l> <Esc>>i{
 	"选择区移动
-	vmap <A-l> <Esc>:call SET_BLOCK_MOVE_V(0) <CR>
-	vmap <A-h> <Esc>:call SET_BLOCK_MOVE_V(1) <CR>
+	vnoremap <A-l> <Esc>:call SET_BLOCK_MOVE_V(0) <CR>
+	vnoremap <A-h> <Esc>:call SET_BLOCK_MOVE_V(1) <CR>
 endif
 " Visual mode pressing * or # searches for the current selection
 " Super useful! From an idea by Michael Naumann
@@ -298,13 +298,14 @@ nnoremap <F7> :FencView<CR>
 
 "NERD_tree{
 " Open and close the NERD_tree.vim separately
-nnoremap ,d <ESC>:NERDTreeToggle<CR>
+nnoremap ,nt <ESC>:NERDTreeToggle<CR>
 "}
 
 "YankRing {
 nnoremap <silent> ,p <Esc>:YRShow<CR> 
 let g:yankring_replace_n_pkey = '<m-p>'
 let g:yankring_replace_n_nkey = '<m-n>'
+let g:yankring_history_dir = '~/.vim/'
 "}
 
 " lookupfile setting{
