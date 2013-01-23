@@ -101,7 +101,7 @@ set showmatch
 set mouse=v
 set clipboard=unnamed
 " Height of the command bar
-set cmdheight=2
+set cmdheight=1
 
 " Wildmenu completion , Cool tab completion stuff{
 set wildmenu
@@ -154,19 +154,19 @@ set tm=500
 " Highlight VCS conflict markers
 syn match ErrorMsg '^\(<\|=\|>\)\{7}\([^=].\+\)\?$'
 
+"vimtips 
+command! -nargs=0 VIMTIPS  :tabe | :r ! w3m -dump http://zzapper.co.uk/vimtips.html 
+
 "----------------------------------------------------------------------------
 "MAP BIND
 "----------------------------------------------------------------------------
+"disable <F1>
+nmap <F1> <nop>
+
 "use jj replace esc 
 inoremap jj <Esc>
-"A add num
-"nnoremap A <C-A>
-"X minus num
-"nnoremap X <C-X>
-"begin of line
-nnoremap <C-a> ^
-"end of line
-nnoremap <C-e> $
+"go to shell
+nnoremap <C-Z> :sh<CR>
 
 nnoremap ,q <Esc>:q!<CR>
 nnoremap ,w <Esc>:w!<CR>
@@ -205,11 +205,9 @@ nnoremap ,u <Esc>:call SET_UAW()<CR>
 "支持粘贴
 inoremap kk <Esc>:set paste<CR>i
   
-command! Wq wq
-command! W w
+"command! Wq wq
+"command! W w
 
-"vimtips 
-command! -nargs=0 VIMTIPS  :tabe | :r ! w3m -dump http://zzapper.co.uk/vimtips.html 
 
 "括号相关
 inoremap ( ()<ESC>i
@@ -226,15 +224,15 @@ inoremap ' <c-r>=QuoteDelim("'")<CR>
 inoremap { <c-r>=SET_BIG_PAIR()<CR>
 
 "窗口间移动
-nnoremap \l  <Esc>[I
+nnoremap ,i  <Esc>[I
 nnoremap \w <Esc><C-W><C-W>
-nnoremap \h <Esc><C-W>h
-nnoremap \l <Esc><C-W>l
-nnoremap \j <Esc><C-W>j
-nnoremap \k <Esc><C-W>k
+nnoremap <C-H> <Esc><C-W>h
+nnoremap <C-L> <Esc><C-W>l
+nnoremap <C-J> <Esc><C-W>j
+nnoremap <C-K> <Esc><C-W>k
 
 "Fast reloading of the .vimrc
-nnoremap \s <ESC>:source ~/.vimrc<cr>
+nnoremap \s <ESC>:source ~/.vim/comm.vim<cr>
 "Fast editing of .vimrc
 nnoremap \e <ESC>:e! ~/.vim/comm.vim<cr>
 
@@ -271,7 +269,7 @@ nnoremap ,cp <Esc>:cp<CR>
 
 "用于支持代码补全时，提示存在。
 set complete=.,w,b,u,t
-set completeopt=longest,menuone,preview
+set completeopt=longest,menuone
 inoremap <expr> <CR> pumvisible() ? "\<c-y>" : "\<c-g>u\<cr>"
 inoremap <expr> <M-;> pumvisible() ? "\<c-n>" : "\<c-x>\<c-o>\<c-n>\<c-p>\<c-r>=pumvisible() ? \"\\<down>\" : \"\\<cr>\""
 inoremap <expr> <C-U>  pumvisible()?"\<C-E>":"\<C-U>"
@@ -286,9 +284,12 @@ inoremap   <expr> <Space>  Ex_space("\<Space>")
 "---------------------------------------------------------------------------
 "插件设置
 "---------------------------------------------------------------------------
-
 "a.vim {
 nnoremap ,a <Esc>:A<CR>
+"}
+
+"tabular{
+nnoremap <F8> :Tabularize /<C-R>=expand("<cWORD>")<CR><CR>
 "}
 
 "FencView {
@@ -333,15 +334,15 @@ let OmniCpp_SelectFirstItem = 1
 
 " cscope setting {
 if has("cscope")
-  set csprg=/usr/bin/cscope
-  set csto=1
-  set cst
-  set nocsverb
-  " add any database in current directory
-  if filereadable("cscope.out")
-      cs add cscope.out
-  endif
-  set csverb
+set csprg=/usr/bin/cscope
+set csto=1
+set cst
+set nocsverb
+" add any database in current directory
+if filereadable("cscope.out")
+cs add cscope.out
+endif
+set csverb
 endif
 "nnoremap ,s :cs find s <C-R>=expand("<cword>")<CR><CR>
 nnoremap ,s :cs find s <C-R>=expand("<cword>")<CR><CR>
@@ -359,9 +360,10 @@ let g:Powerline_symbols = 'unicode'
 let g:DoxygenToolkit_briefTag_pre="@brief  " 
 let g:DoxygenToolkit_paramTag_pre="@param  " 
 let g:DoxygenToolkit_returnTag="@return  " 
-"let g:DoxygenToolkit_blockHeader="----------------------------------------------------------------------------"
-"let g:DoxygenToolkit_blockFooter="----------------------------------------------------------------------------" 
 let g:DoxygenToolkit_authorName="francisco" 
+let g:DoxygenToolkit_undocTag="DOXIGEN_SKIP_BLOCK"
+let g:DoxygenToolkit_briefTag_funcName = "no"
+let g:DoxygenToolkit_maxFunctionProtoLines = 30
 nnoremap \f :Dox<CR>
 "map \a :DoxAuthor<CR>
 "map \b :DoxBlock<CR>
@@ -373,8 +375,8 @@ let g:rainbow_operators = 1
 "}
 
 " markbrowser setting{
-nnoremap <silent> <F6> <Esc>:MarksBrowser<cr>
-nnoremap <silent> ,zz <Esc>:MarksBrowser<cr>
+nnoremap <silent> <F6> :MarksBrowser<cr>
+nnoremap <silent> ,z :MarksBrowser<cr>
 " }
 
 " bufexplorer setting{
@@ -387,7 +389,7 @@ let g:bufExplorerSplitVertSize = 35 " Split width
 let g:bufExplorerUseCurrentWindow=1 " Open in new window.
 let g:bufExplorerMaxHeight=25 " Max height
 noremap <silent> <F2> <Esc>:BufExplorer<CR>
-noremap <silent> ,b :BufExplorer<CR>
+noremap <silent> ,b <Esc>:BufExplorer<CR>
 " }
 
 " Tagbar setting{
@@ -424,10 +426,7 @@ endif
 """"""""""""
 "c c++
 """"""""""""
-"autocmd BufEnter *.cpp,*.c,*.h call s:SET_TAGS() 
-"autocmd BufEnter *.php call s:SET_TAGS() 
 autocmd BufEnter  *.cpp,*.c,*.h call s:SET_PATH("include") 
-autocmd BufEnter /usr/include/c++/*  set tabstop=8  
 autocmd BufEnter ~/.vim/cpp_src/*  set filetype=cpp
 autocmd FileType c set omnifunc=ccomplete#Complete
 ".c  .h 文件设为 .cpp
@@ -703,47 +702,13 @@ function! OPT_RANGE( opt_str )
   endif
 endfunction
 
-function! OPT_RANGE_NEW( opt_str ) 
-	echo "start"
-  let cur_col=col('.') - 1
-  let cur_line=line('.')
-  let cur_char=''
-  echo "start pos:" cur_line cur_col 
-  while cur_line>0
-	while cur_col>0
-  		let cur_char=getline(cur_line)[cur_col]
-		echo "pos:" cur_line cur_col  "cur:" cur_char 
-  		if  cur_char == ")"  || cur_char == "}" || cur_char == "]" 
-			let pair_char=nr2char(char2nr(cur_char)-1)
-			let line=0
-			let col=0
-			let [line,col]= searchpairpos( pair_char , '', cur_char , 'bn') 
-			echo "pair--" pair_char line col
-			if col != 0 && line != 0
-				let cur_col=col-1
-				let cur_line=line-1
-			else
-				let cur_col=cur_col-1
-			endif
-		elseif cur_char == "(" || cur_char == "{" || cur_char == "["
-  				exec "normal! ".a:opt_str.cur_char
-				let cur_col=0
-				let cur_line=0
-		else
-			let cur_col=cur_col-1
-		endif
-	endwhile 
-	let cur_line=cur_line-1
-	let cur_col=strlen(getline(cur_line))
-  endwhile 
-endfunction
 
 " 在视图模式下的整块移动
 function! SET_BLOCK_MOVE_V( move_type )
     if a:move_type==0
-        exec "'<,'>s/^/	/"
+        exec "'<,'>s/^/    /"
     else
-        exec "'<,'>s/^	//"
+        exec "'<,'>s/^    //"
     endif
 	let linecount = line("'>") - line("'<")
 	let save_cursor_begin = getpos("'<")
@@ -760,7 +725,6 @@ function! SET_BIG_PAIR()
   elseif (&filetype=="python")
   		return "{}\<ESC>i"
   endif
-
   return "{\<CR>}\<ESC>O"
 endf
 
