@@ -57,10 +57,9 @@ unset color_prompt force_color_prompt
 # ~/.bash_aliases, instead of adding them here directly.
 # See /usr/share/doc/bash-doc/examples in the bash-doc package.
 
-#if [ -f ~/myvim/.bash_aliases ]; then
-    #. ~/myvim/.bash_aliases
-#fi
-
+if [ -f ~/myvim/.bash_aliases ]; then
+    . ~/myvim/.bash_aliases
+fi
 
 if [ -f ~/.bash_aliases ]; then
     . ~/.bash_aliases

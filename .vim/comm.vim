@@ -1,4 +1,6 @@
 "---------------------------------------------------------------------------
+"author:francisco 
+"email:linshibo3456@gmail.com
 "add to   .vimrc
 "source ~/.vim/comm.vim
 "---------------------------------------------------------------------------
@@ -25,8 +27,7 @@ set history=400
 let mapleader =","
 
 " Enable filetype plugins
-filetype plugin on
-filetype indent on
+filetype plugin indent on
 "语法
 syntax enable
 syntax on
@@ -36,7 +37,7 @@ set backupdir=~/.vim/bakupdir
 set noswapfile
 
 "Get out of VI's compatible mode..
-set nocp
+set nocompatible
 "disable alt
 set winaltkeys=no
 "tags 位置
@@ -61,10 +62,12 @@ autocmd BufReadPost *
 autocmd InsertLeave * if &paste == 1|set nopaste |endif
 
 " ENCODING SETTINGS
+let &termencoding = &encoding
 set encoding=utf-8
 set termencoding=utf-8
 set fileencoding=utf-8
 set fileencodings=ucs-bom,utf-8,gb2312,big5,euc-jp,euc-kr,latin1
+language messages POSIX
 
 "自动更新cpp修改时间
 autocmd BufWritePre,FileWritePre *.cpp,*.c,*.h,*.hpp exec "normal ms"|call LastModified()|exec "normal `s"
@@ -79,7 +82,7 @@ set sidescroll=1 " 水平滚动列数
 set sidescrolloff=10 " 距离水平边界 n 行就开始滚动
 
 "Favorite filetypes
-set ffs=unix,mac
+set fileformats=unix,mac
 
 set guifont=Bitstream\ Vera\ Sans\ Mono\ 11 
 colorscheme desert
@@ -96,6 +99,7 @@ set magic
 
 " Show matching brackets when text indicator is over them
 set showmatch
+set matchpairs+=<:>
 
 "鼠标和剪贴板
 set mouse=v
@@ -144,6 +148,7 @@ set autowrite
 set lazyredraw
 "退格键能删除
 set backspace=indent,eol,start
+"backspace and cursor keys wrap to
 set whichwrap+=<,>
 " No annoying sound on errors
 set noerrorbells
@@ -224,8 +229,8 @@ inoremap ' <c-r>=QuoteDelim("'")<CR>
 inoremap { <c-r>=SET_BIG_PAIR()<CR>
 
 "窗口间移动
-nnoremap ,i  <Esc>[I
-nnoremap \w <Esc><C-W><C-W>
+nnoremap <A-i>  [I
+nnoremap \w <C-W><C-W>
 nnoremap <C-H> <Esc><C-W>h
 nnoremap <C-L> <Esc><C-W>l
 nnoremap <C-J> <Esc><C-W>j
@@ -288,10 +293,18 @@ inoremap   <expr> <Space>  Ex_space("\<Space>")
 nnoremap ,a <Esc>:A<CR>
 "}
 
-"tabular{
-nnoremap <F8> :Tabularize /<C-R>=expand("<cWORD>")<CR><CR>
+"largefile{
+let g:LargeFile           = 40            " 超過這個 size 才會處理。 預設是 20
+let g:LargeFile_size_unit = 1024          " g:LargeFile 的單位，1024 就是 KB。 預設是 MB
 "}
 
+"tabular{
+nnoremap <F8> :Tabularize /<C-R>=getline(line('.'))[col('.')-1]<CR><CR>
+nnoremap <A-t> :Tabularize /<C-R>=getline(line('.'))[col('.')-1]<CR><CR>
+"}
+"vim-easymotion{
+let g:EasyMotion_leader_key = '0'
+"}
 "FencView {
 let g:fencview_autodetect = 1                      
 nnoremap <F7> :FencView<CR>
@@ -307,6 +320,7 @@ nnoremap <silent> ,p <Esc>:YRShow<CR>
 let g:yankring_replace_n_pkey = '<m-p>'
 let g:yankring_replace_n_nkey = '<m-n>'
 let g:yankring_history_dir = '~/.vim/'
+let g:yankring_history_file='.yankring_history_file'
 "}
 
 " lookupfile setting{
@@ -383,10 +397,10 @@ nnoremap <silent> ,z :MarksBrowser<cr>
 let g:bufExplorerDefaultHelp=1 " Do not show default help.
 let g:bufExplorerShowRelativePath=1 " Show relative paths.
 let g:bufExplorerSortBy='mru' " Sort by most recently used.
-let g:bufExplorerSplitRight=0 " Split left.
+let g:bufExplorerSplitRight=1 " Split left.
 let g:bufExplorerSplitVertical=1 " Split vertically.
 let g:bufExplorerSplitVertSize = 35 " Split width
-let g:bufExplorerUseCurrentWindow=1 " Open in new window.
+let g:bufExplorerUseCurrentWindow=0 " Open in new window.
 let g:bufExplorerMaxHeight=25 " Max height
 noremap <silent> <F2> <Esc>:BufExplorer<CR>
 noremap <silent> ,b <Esc>:BufExplorer<CR>
@@ -670,7 +684,8 @@ function! P_grep_curword()
 	exec "Ack " . curword . "./"
 endfunction
 
-function! Do_CsTag()
+function! RESET_CTAG_CSCOPE() 
+	"!~/.vim/./bundle/myfix/mtags.sh 
     if(executable('cscope') && has("cscope") )
         silent! execute "!find . -name '*.h' -o -name '*.c' -o -name '*.cpp' -o -name '*.hpp' > cscope.files"
         silent! execute "!cscope -bkq"
@@ -678,20 +693,10 @@ function! Do_CsTag()
 		    execute "cs reset"
         endif
     endif
-endf
-
-function! Do_Ctag() 
     if(executable('ctags'))
         silent! execute "!rm -f tags"
         silent! execute "!ctags -R  --languages=c,c++ --c++-kinds=+p --fields=+iaS --extra=+q ."
     endif
-endfunction
-
-
-function! RESET_CTAG_CSCOPE() 
-	"!~/.vim/./bundle/myfix/mtags.sh 
-    call Do_Ctag()
-    call Do_CsTag()
     exec "redraw!"
 endfunction
 

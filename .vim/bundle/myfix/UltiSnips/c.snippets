@@ -142,6 +142,14 @@ int cli_${1:request}(Csprite *p, Cmessage* c_in)
 }
 endsnippet
 
+snippet dbf "db func"
+int Croute_func::db_proto_${1:request}(DEAL_FUNC_ARG){
+    db_proto_${2:$1}_in *p_in = P_IN;
+    db_proto_${3:$1}_out *p_out = P_OUT;
+    return ret;
+}
+endsnippet
+
 snippet func
 ${1:void} ${2:function_name}(${3})
 {
@@ -225,5 +233,9 @@ endsnippet
 
 snippet pout
 p_out
+endsnippet
+
+snippet todo
+/*TODO:${1:something}*/
 endsnippet
 

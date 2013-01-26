@@ -21,6 +21,4 @@ alias goagent="~/myvim/bin/goagent.sh"
 alias translate="~/myvim/bin/gtrans en zh-cn"
 alias vimrc="vim ~/.vim/comm.vim"
 alias bashrc="vim ~/.bashrc"
-
-alias git="/usr/bin/git"
-
+alias qq="exit"
