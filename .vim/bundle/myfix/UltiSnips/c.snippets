@@ -67,7 +67,6 @@ endsnippet
 
 snippet if
 if(${1:/* condition */}) {
-	${2:/* code */}
 }
 endsnippet
 
@@ -108,13 +107,12 @@ while (${1:/* condition */}) {
 endsnippet
 
 snippet for
-for(uint32_t ${2:i} = 0; $2 < ${1:count}; $2${3:++}) {
-	${4:/* code */}
+for(${1:before}; ${2:conditon}; ${3:after}) {
 }
 endsnippet
 
 snippet loop
-for(uint32_t ${1:i} = ${2:0}; ${3:$1 < 10}; $1${4:++}) {
+for(uint32_t ${1:loop} = ${2:0}; ${3:$1}<${4:count}; ${5:$1++}) {
 	${5:/* code */}
 }
 endsnippet
@@ -171,6 +169,13 @@ struct ${1:name} {
 }${3: /* optional variable list */};${4}
 endsnippet
 
+snippet stru
+struct ${1:name} {
+	${2:/* data */}
+}${3: /* optional variable list */};${4}
+endsnippet
+
+
 snippet tds
 typedef struct ${1:name}{
 	${2:/* data */}
@@ -223,7 +228,7 @@ snippet u8
 uint8_t
 endsnippet
 
-snippet null
+snippet nu
 NULL
 endsnippet
 

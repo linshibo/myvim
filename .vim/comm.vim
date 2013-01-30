@@ -299,15 +299,17 @@ let g:LargeFile_size_unit = 1024          " g:LargeFile 的單位，1024 就是 
 "}
 
 "tabular{
-nnoremap <F8> :Tabularize /<C-R>=getline(line('.'))[col('.')-1]<CR><CR>
 nnoremap <A-t> :Tabularize /<C-R>=getline(line('.'))[col('.')-1]<CR><CR>
 "}
+
 "vim-easymotion{
 let g:EasyMotion_leader_key = '0'
 "}
+
 "FencView {
 let g:fencview_autodetect = 1                      
 nnoremap <F7> :FencView<CR>
+nnoremap <A-v> :FencView<CR>
 "}
 
 "NERD_tree{
@@ -333,9 +335,10 @@ let g:LookupFile_LookupFunc = 'LookupFile_IgnoreCaseFunc'
 if filereadable("./tags")                "设置tag文件的名字
 	let g:LookupFile_TagExpr = '"./tags"'
 endif
-nnoremap ,f <Esc>:LUTags<CR>
+nnoremap <silent> <A-f> :LUTags<CR>
 "nnoremap <silent> ,ll :LUBufs<cr>
 "nnoremap <silent> <leader>lw :LUWalk<cr>
+nnoremap <silent> <A-e> :LUWalk<cr>
 " }
 
 " omnicppcomplete{
@@ -390,21 +393,19 @@ let g:rainbow_operators = 1
 
 " markbrowser setting{
 nnoremap <silent> <F6> :MarksBrowser<cr>
-nnoremap <silent> ,z :MarksBrowser<cr>
+"nnoremap <silent> ,z :MarksBrowser<cr>
 " }
 
 " bufexplorer setting{
 let g:bufExplorerDefaultHelp=1 " Do not show default help.
 let g:bufExplorerShowRelativePath=1 " Show relative paths.
 let g:bufExplorerSortBy='mru' " Sort by most recently used.
-let g:bufExplorerSplitRight=1 " Split left.
-let g:bufExplorerSplitVertical=1 " Split vertically.
-let g:bufExplorerSplitVertSize = 35 " Split width
-let g:bufExplorerUseCurrentWindow=0 " Open in new window.
-let g:bufExplorerMaxHeight=25 " Max height
+let g:bufExplorerShowDirectories=1   " Show directories.
+let g:bufExplorerMaxHeight=20 " Max height
 noremap <silent> <F2> <Esc>:BufExplorer<CR>
-noremap <silent> ,b <Esc>:BufExplorer<CR>
-" }
+noremap <silent> ,z :BufExplorer<CR>
+noremap <silent> <A-b> :BufExplorer<CR>
+"}
 
 " Tagbar setting{
 let g:tagbar_width = 30 
