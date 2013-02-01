@@ -133,3 +133,21 @@
 [submodule ".vim/bundle/word_complete"]
 	path = .vim/bundle/word_complete
 	url = https://github.com/vim-scripts/word_complete.vim.git
+[submodule ".vim/bundle/vim-alignment"]
+	path = .vim/bundle/vim-alignment
+	url = https://github.com/yueyoum/vim-alignment.git
+[submodule ".vim/bundle/VimLite"]
+	path = .vim/bundle/VimLite
+	url = https://github.com/vim-scripts/VimLite.git
+[submodule ".vim/bundle/cscope-menu"]
+	path = .vim/bundle/cscope-menu
+	url = https://github.com/vim-scripts/cscope-menu.git
+[submodule ".vim/bundle/neocomplcache"]
+	path = .vim/bundle/neocomplcache
+	url = https://github.com/Shougo/neocomplcache.git
+[submodule ".vim/bundle/neosnippet"]
+	path = .vim/bundle/neosnippet
+	url = https://github.com/Shougo/neosnippet.git
+[submodule ".vim/bundle/snipmate"]
+	path = .vim/bundle/snipmate
+	url = https://github.com/msanders/snipmate.vim.git
