@@ -6,15 +6,11 @@
 "    Version:      2.1
 "---------------------------------------------------------------------------
 se nocp exrc
-se nu is cin smd wmnu magic
+se is cin smd wmnu magic
 im  ,, <ESC>
 im  ;; <ESC>
 map<Up>   gk
 map<Down> gj
-no!<M-k> <Up>
-no!<M-j> <Down>
-no!<M-h> <Left>
-no!<M-l> <Right>
 au BufRead,BufNewFile *.html setf html
 au FileType python,ruby,sh :call Py()
 au FileType cpp,c,cc,h,html,perl :call Cc()
