@@ -47,7 +47,6 @@ set tags=~/.vim/bundle/myfix/comm_tags,tags;
 set foldmethod=syntax
 ""默认情况下不折叠
 set foldlevel=99
-"nnoremap <Space> za
 
 " => Vim grep
 let Grep_Skip_Dirs = 'tags RCS CVS SCCS .svn generated'
@@ -84,7 +83,7 @@ set sidescrolloff=10 " 距离水平边界 n 行就开始滚动
 "Favorite filetypes
 set fileformats=unix,mac
 
-set guifont=Bitstream\ Vera\ Sans\ Mono\ 11 
+set guifont=Bitstream\ Vera\ Sans\ Mono\ 11
 colorscheme desert
 
 "显示命令
@@ -170,8 +169,6 @@ nmap <F1> <nop>
 
 "use jj replace esc 
 inoremap jj <Esc>
-"go to shell
-nnoremap <C-Z> :sh<CR>
 
 nnoremap ,q <Esc>:q!<CR>
 nnoremap ,w <Esc>:w!<CR>
@@ -209,10 +206,6 @@ nnoremap ,u <Esc>:call SET_UAW()<CR>
 
 "支持粘贴
 inoremap kk <Esc>:set paste<CR>i
-  
-"command! Wq wq
-"command! W w
-
 
 "括号相关
 inoremap ( ()<ESC>i
@@ -223,14 +216,12 @@ autocmd Syntax html,vim inoremap < <lt>><ESC>i| inoremap > <c-r>=ClosePair('>')<
 inoremap ) <c-r>=ClosePair(')')<CR>
 inoremap ] <c-r>=ClosePair(']')<CR>
 inoremap } <c-r>=CloseBracket()<CR>
-"inoremap <CR> <c-r>=Fix_cr()<CR>
 inoremap " <c-r>=QuoteDelim('"')<CR>
 inoremap ' <c-r>=QuoteDelim("'")<CR>
 inoremap { <c-r>=SET_BIG_PAIR()<CR>
 
 "窗口间移动
 nnoremap <A-i>  [I
-nnoremap \w <C-W><C-W>
 nnoremap <C-H> <Esc><C-W>h
 nnoremap <C-L> <Esc><C-W>l
 nnoremap <C-J> <Esc><C-W>j
@@ -272,20 +263,6 @@ nnoremap <F4> <Esc>:call ToggleQF()<CR>
 nnoremap ,cn <Esc>:cn<CR>
 nnoremap ,cp <Esc>:cp<CR>
 
-"用于支持代码补全时，提示存在。
-set complete=.,w,b,u,t
-set completeopt=longest,menuone
-inoremap <expr> <CR> pumvisible() ? "\<c-y>" : "\<c-g>u\<cr>"
-inoremap <expr> <M-;> pumvisible() ? "\<c-n>" : "\<c-x>\<c-o>\<c-n>\<c-p>\<c-r>=pumvisible() ? \"\\<down>\" : \"\\<cr>\""
-inoremap <expr> <C-U>  pumvisible()?"\<C-E>":"\<C-U>"
-inoremap <C-]> <C-X><C-]>
-inoremap <C-F> <C-X><C-F>
-inoremap <C-D> <C-X><C-D>
-inoremap <C-L> <C-X><C-L>
-" 用于支持 . -> 代码补全
-inoremap   <expr> <Backspace>  Ex_bspace() 
-inoremap   <expr> <Space>  Ex_space("\<Space>") 
-
 "---------------------------------------------------------------------------
 "插件设置
 "---------------------------------------------------------------------------
@@ -293,13 +270,12 @@ inoremap   <expr> <Space>  Ex_space("\<Space>")
 nnoremap ,a <Esc>:A<CR>
 "}
 
-"largefile{
-let g:LargeFile           = 40            " 超過這個 size 才會處理。 預設是 20
-let g:LargeFile_size_unit = 1024          " g:LargeFile 的單位，1024 就是 KB。 預設是 MB
+"unite{
+nnoremap <A-u> :Unite buffer file<CR>
+nnoremap ,b :Unite buffer file<CR>
 "}
-
 "tabular{
-nnoremap <A-t> :Tabularize /<C-R>=getline(line('.'))[col('.')-1]<CR><CR>
+nnoremap <A-a> :call SetAlign()<CR>
 "}
 
 "vim-easymotion{
@@ -308,17 +284,16 @@ let g:EasyMotion_leader_key = '0'
 
 "FencView {
 let g:fencview_autodetect = 1                      
-nnoremap <F7> :FencView<CR>
 nnoremap <A-v> :FencView<CR>
 "}
 
 "NERD_tree{
 " Open and close the NERD_tree.vim separately
-nnoremap ,nt <ESC>:NERDTreeToggle<CR>
+nnoremap <A-n> <ESC>:NERDTreeToggle<CR>
 "}
 
 "YankRing {
-nnoremap <silent> ,p <Esc>:YRShow<CR> 
+nnoremap <silent> <C-Y> :YRShow<CR> 
 let g:yankring_replace_n_pkey = '<m-p>'
 let g:yankring_replace_n_nkey = '<m-n>'
 let g:yankring_history_dir = '~/.vim/'
@@ -342,35 +317,55 @@ nnoremap <silent> <A-e> :LUWalk<cr>
 " }
 
 " omnicppcomplete{
+"用于支持代码补全时，提示存在。
+set complete=.,w,b,u,t
+set completeopt=longest,menuone
+inoremap <expr><CR> pumvisible() ?"\<C-Y>" : "\<c-g>u\<cr>"
+inoremap <expr><C-U>  pumvisible()?"\<C-E>":"\<C-U>"
+inoremap <expr><C-N>  pumvisible()?"\<C-N>":"\<C-x>\<C-o>"
+inoremap <expr><C-P>  pumvisible()?"\<C-N>":"\<C-x>\<C-o>"
+inoremap <C-]> <C-X><C-]> "根据标签补全
+inoremap <C-F> <C-X><C-F> "补全文件名
+inoremap <C-D> <C-X><C-D> "补全宏定义
+inoremap <C-L> <C-X><C-L> "整行补全
+inoremap <C-I> <C-X><C-I> "根据头文件内关键字补全
+inoremap <C-U> <C-X><C-U> "用户自定义补全方式   
+inoremap <C-O> <C-X><C-O>
+" 用于支持 退格后 . -> 代码补全
+inoremap   <expr> <Backspace>  Ex_bspace() 
 let OmniCpp_ShowScopeInAbbr = 1
 "支持STL模板
 let OmniCpp_DefaultNamespaces   = ["std", "_GLIBCXX_STD"]
 let OmniCpp_MayCompleteScope =1
-let OmniCpp_SelectFirstItem = 1
+let OmniCpp_SelectFirstItem = 0
+let OmniCpp_ShowAccess = 0
+let OmniCpp_ShowPrototypeInAbbr=1
 " }
 
 " cscope setting {
 if has("cscope")
-set csprg=/usr/bin/cscope
-set csto=1
-set cst
-set nocsverb
-" add any database in current directory
-if filereadable("cscope.out")
-cs add cscope.out
-endif
-set csverb
+    set csprg=/usr/bin/cscope
+    set csto=1
+    set cst
+    set nocsverb
+    " add any database in current directory
+    if filereadable("cscope.out")
+        cs add cscope.out
+        endif
+    set csverb
 endif
 "nnoremap ,s :cs find s <C-R>=expand("<cword>")<CR><CR>
 nnoremap ,s :cs find s <C-R>=expand("<cword>")<CR><CR>
-nnoremap ,S :cs find s 
+nnoremap ,cs :cs find s <C-R>=expand("<cword>")<CR><CR>
+nnoremap ,cc :cs find c <C-R>=expand("<cword>")<CR><CR>
+nnoremap ,cg :cs find g <C-R>=expand("<cword>")<CR><CR>
 " }
 
 "powerline{ 状态栏
 set guifont=PowerlineSymbols\ for\ Powerline
 set laststatus=2
 set t_Co=256
-let g:Powerline_symbols = 'unicode'
+let g:Powerline_symbols = 'fancy'
 "}
 
 "Doxygen插件{
@@ -393,7 +388,7 @@ let g:rainbow_operators = 1
 
 " markbrowser setting{
 nnoremap <silent> <F6> :MarksBrowser<cr>
-"nnoremap <silent> ,z :MarksBrowser<cr>
+nnoremap <silent> <A-m> :MarksBrowser<cr>
 " }
 
 " bufexplorer setting{
@@ -410,13 +405,56 @@ noremap <silent> <A-b> :BufExplorer<CR>
 " Tagbar setting{
 let g:tagbar_width = 30 
 let g:tagbar_expand = 0
+let g:tagbar_autofocus = 1
 nnoremap <silent> <F3> <Esc>:TagbarToggle<cr>
-nnoremap <silent> ,tb <Esc>:TagbarToggle<cr>
+nnoremap <silent> <A-t> <Esc>:TagbarToggle<cr>
 " }
+
+"neocomplcache{
+" Launches neocomplcache automatically on vim startup.
+let g:neocomplcache_enable_at_startup = 1
+" Use smartcase.
+let g:neocomplcache_enable_smart_case = 1
+" Use camel case completion.
+let g:neocomplcache_enable_camel_case_completion = 1
+" Use underscore completion.
+let g:neocomplcache_enable_underbar_completion = 1
+" Sets minimum char length of syntax keyword.
+let g:neocomplcache_min_syntax_length = 3
+" Define file-type dependent dictionaries.
+let g:neocomplcache_dictionary_filetype_lists = {
+    \ 'default' : '',
+    \ 'vimshell' : $HOME.'/.vimshell_hist',
+    \ 'scheme' : $HOME.'/.gosh_completions'
+    \ }
+" Define keyword, for minor languages
+if !exists('g:neocomplcache_keyword_patterns')
+  let g:neocomplcache_keyword_patterns = {}
+endif
+let g:neocomplcache_keyword_patterns['default'] = '\h\w*'
+inoremap <expr><C-g>     neocomplcache#undo_completion()
+inoremap <expr><C-l>     neocomplcache#complete_common_string()
+" Recommended key-mappings.
+" <CR>: close popup and save indent.
+inoremap <expr><CR>  neocomplcache#smart_close_popup() . "\<CR>"
+" <C-h>, <BS>: close popup and delete backword char.
+inoremap <expr><C-h> neocomplcache#smart_close_popup()."\<C-h>"
+"inoremap <expr><BS> neocomplcache#smart_close_popup()."\<C-h>"
+inoremap <expr><C-y>  neocomplcache#close_popup()
+inoremap <expr><C-e>  neocomplcache#cancel_popup()
+let g:neocomplcache_enable_auto_select = 0
+" Enable heavy omni completion, which require computational power and may stall the vim. 
+if !exists('g:neocomplcache_omni_patterns')
+  let g:neocomplcache_omni_patterns = {}
+endif
+let g:neocomplcache_omni_patterns.ruby = '[^. *\t]\.\w*\|\h\w*::'
+let g:neocomplcache_omni_patterns.php = '[^. \t]->\h\w*\|\h\w*::'
+let g:neocomplcache_omni_patterns.c = '\%(\.\|->\)\h\w*'
+"let g:neocomplcache_omni_patterns.cpp = '\h\w*\%(\.\|->\)\h\w*\|\h\w*::'
+"}
 
 "xml.vim{
 let xml_use_xhtml = 1
-"let xml_no_auto_nesting = 1
 let html_use_css = 1
 let html_number_lines = 0
 let use_xhtml = 1
@@ -488,6 +526,19 @@ autocmd BufRead *.as set filetype=actionscript
 "----------------------------------------------------------------------------
 " FUNCTIONS
 "----------------------------------------------------------------------------
+
+function! SetAlign()
+    let ch=getline(line('.'))[col('.')-1]
+    let next=getline(line('.'))[col('.')]
+    if ch == next 
+        let ch = ch . next
+    endif
+    if ch == '//'
+        let ch='\/\/'
+    endif 
+    exec "Tabularize /" . ch
+endfunc
+
 " lookup file with ignore case
 function! LookupFile_IgnoreCaseFunc(pattern)
     let _tags = &tags
@@ -579,6 +630,7 @@ function! Ex_space ( char )
 	return a:char 
 endf
 
+"退格时自动补全
 function! Ex_bspace()
 	if (&filetype == "cpp" || &filetype == "c" )
 		let pre_str= strpart(getline('.'),0,col('.')-2)
@@ -619,7 +671,6 @@ endfunction
 
 "设置相关tags
 function! s:SET_TAGS()
-    "let dir = expand("%:p:h") "获得源文件路径
     let dir =getcwd()  "获得源文件路径
 	set tags=
 	"在路径上递归向上查找tags文件 
@@ -679,16 +730,17 @@ function! Do_cn()
 	endtry	
 endfunction
 
+"得到光标下的单词
 function! P_grep_curword() 
-	"得到光标下的单词
 	let curword=expand("<cword>")
-	exec "Ack " . curword . "./"
+	exec "Ack " . curword . " ./"
 endfunction
 
+"重新生成ctag cscope
 function! RESET_CTAG_CSCOPE() 
 	"!~/.vim/./bundle/myfix/mtags.sh 
     if(executable('cscope') && has("cscope") )
-        silent! execute "!find . -name '*.h' -o -name '*.c' -o -name '*.cpp' -o -name '*.hpp' > cscope.files"
+        silent! execute "!find . -name '[^.]*.h' -o -name '[^.]*.c' -o -name '[^.]*.cpp' -o -name '[^.]*.hpp' > cscope.files"
         silent! execute "!cscope -bkq"
         if (filereadable("cscope.out"))
 		    execute "cs reset"
@@ -742,19 +794,7 @@ function! ClosePair(char)
   endif
 endf
 
-function! Fix_cr()
- if pumvisible() == 0
-  let line = getline('.')
-  let col = col('.')
- 	if line[col-1] == '"' ||  line[col-1] == "'"  || line[col-1] == "]"  ||line[col-1] == ")"    
-    "Escaping out of the string
-    	return "\<ESC>la"
-	endif
- endif
- return "\<CR>"
-
-endf
-
+"闭合大括号
 function! CloseBracket()
 	if match(getline(line('.') + 1), '\s*}') < 0
 		return "\<CR>}"
@@ -763,6 +803,7 @@ function! CloseBracket()
 	endif
 endf
 
+"插入引号时
 function! QuoteDelim(char)
   let line = getline('.')
   let col = col('.')
@@ -793,7 +834,6 @@ function! s:GetVisualSelection()
     return var
 endfunction
 
-"set cinoptions={0,1s,t0,n-2,p2s,(03s,=.5s,>1s,=1s,:1s
 "用于支持DB 协议查找 ：cmd<->function<->in<->out
 function! Proto_find() 
 	"得到光标下的单词
