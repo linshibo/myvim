@@ -24,21 +24,14 @@ let g:loaded_escalt = 1
 "Sets how many lines of history VIM har to remember
 set history=400
 
-if has('gui_running')
-    set guioptions-=T " remove the toolbar
-    set lines=40 " 40 lines of text instead of 24,
-else
-    set term=builtin_ansi " Make arrow and other keys work
-endif
-
 "map leader key ","
 let mapleader =","
 
 " Enable filetype plugins
 filetype plugin indent on
 "语法
-syntax enable
-syntax on
+syntax enable on
+
 "备份
 set backup
 "备份目录 
@@ -51,8 +44,11 @@ set nocompatible
 "disable alt
 set winaltkeys=no
 "tags 位置
-set tags=~/.vim/bundle/myfix/comm_tags,tags; 
- 
+set tags=bundle/myfix/comm_tags,tags; 
+
+"取消高亮
+nnoremap <C-[> <Esc>:nohl<CR>
+
 "折叠
 set foldmethod=syntax
 ""默认情况下不折叠
@@ -93,14 +89,15 @@ set sidescrolloff=10 " 距离水平边界 n 行就开始滚动
 "Favorite filetypes
 set fileformats=unix,mac
 
-set guifont=Bitstream\ Vera\ Sans\ Mono\ 11
+"主题 
 colorscheme desert
 
 "显示命令
 set showcmd
+
 "Include search
 set incsearch
-"no highlight search
+"highlight search
 set hlsearch
 
 " For regular expressions turn magic on
@@ -139,6 +136,7 @@ set wildignore=*.o,*~,*.pyc
 
 "Always show current position
 set ruler
+
 " enables automatic C program indenting
 set autoindent
 set smartindent 
@@ -149,6 +147,7 @@ set tabstop=4 " 设置Tab宽度为4个字符
 set softtabstop=4 " 软缩进宽度
 set shiftwidth=4 " 设置移动代码块宽度
 set shiftround " 移动代码块时取整到缩进宽度
+
 " autoread when a file is changed from the outside
 set autoread
 " write buffer when leaving
@@ -159,6 +158,7 @@ set lazyredraw
 set backspace=indent,eol,start
 "backspace and cursor keys wrap to
 set whichwrap+=<,>
+
 " No annoying sound on errors
 set noerrorbells
 set novisualbell
@@ -283,6 +283,7 @@ nnoremap ,a <Esc>:A<CR>
 nnoremap <A-u> :Unite buffer file<CR>
 nnoremap ,b :Unite buffer file<CR>
 "}
+
 "tabular{
 nnoremap <A-a> :call SetAlign()<CR>
 "}

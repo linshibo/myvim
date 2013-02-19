@@ -5,104 +5,104 @@
 "    License:      GPL v2.0
 "    Version:      2.1
 "---------------------------------------------------------------------------
-se nocp exrc
-se is cin smd wmnu magic
-im  ,, <ESC>
-im  ;; <ESC>
-au BufRead,BufNewFile *.html setf html
-au FileType python,ruby,sh :call Py()
-au FileType cpp,c,cc,h,html,perl :call Cc()
-au FileType c,cc,cpp,h,html,python :call Cp()
-fu Cp()
-        ino , ,<SPACE>
-	ino ; ;<SPACE>
-	ino <= <SPACE><=<SPACE>
-	ino *= <SPACE>*=<SPACE>
-	ino /= <SPACE>/=<SPACE>
-	ino >> <SPACE>>><SPACE>
-	ino << <SPACE><<<SPACE>
-	ino >= <SPACE>>=<SPACE>
-	ino == <SPACE>==<SPACE>
-	ino += <SPACE>+=<SPACE>
-	ino && <SPACE>&&<SPACE>
+set nocp exrc
+set is cin smd wmnu magic
+"imap ,, <ESC>
+"imap ;; <ESC>
+autocmd BufRead,BufNewFile *.html setf html
+autocmd FileType python,ruby,sh :call Py()
+autocmd FileType cpp,c,cc,h,html,perl :call Cc()
+autocmd FileType c,cc,cpp,h,html,python :call Cp()
+function Cp()
+    inoreabbrev , ,<SPACE>
+	inoreabbrev ; ;<SPACE>
+	inoreabbrev <= <SPACE><=<SPACE>
+	inoreabbrev *= <SPACE>*=<SPACE>
+	inoreabbrev /= <SPACE>/=<SPACE>
+	inoreabbrev >> <SPACE>>><SPACE>
+	inoreabbrev << <SPACE><<<SPACE>
+	inoreabbrev >= <SPACE>>=<SPACE>
+	inoreabbrev == <SPACE>==<SPACE>
+	inoreabbrev += <SPACE>+=<SPACE>
+	inoreabbrev && <SPACE>&&<SPACE>
 endf
-fu Py()
-	nm mm :call Ct()<CR>
-	im mm <ESC>$
-	im nn <ESC>o
-	im <F2> <ESC>
+function Py()
+	nnoremap mm :call Ct()<CR>
+	inoremap mm <ESC>$
+	inoremap nn <ESC>o
+	inoremap <F2> <ESC>
 	if exists("$DISPLAY")
-		nm <F2> :call Cv()<CR>
-	el
-		nm <F2> :call Ct()<CR>
-	en
+		nnoremap <F2> :call Cv()<CR>
+	else
+		nnoremap <F2> :call Ct()<CR>
+	endif
 endf
-fu Cc()
+function Cc()
 	no != <SPACE>!=<SPACE>
-    im mm <ESC>A;<ESC>
-	im nn <ESC>A;<ESC>o
+    inoremap mm <ESC>A;<ESC>
+	inoremap nn <ESC>A;<ESC>o
 	if exists("$DISPLAY")
 		if &filetype == 'perl'
-		   nm mm :call Ct()<CR>
-		   nm<F2> :call Cv()<CR>
-		   im<F2> <ESC> :call Cv()<CR>
-	    el
-		   nm mm :call Ct()<CR><CR>
-		   nm mm :call Ct()<CR><CR>
-		   nm<F2> :call Cv()<CR><CR>
-		   im<F2> <ESC> :call Cv()<CR><CR>
-		en
-	el
-		nm<F2> :call Ct()<CR>
-		im<F2> <ESC> :call Ct()<CR>
-		nm mm :call Ct()<CR>
-	en
+		   nnoremap mm :call Ct()<CR>
+		   nnoremap<F2> :call Cv()<CR>
+		   inoremap<F2> <ESC> :call Cv()<CR>
+	    else
+		   nnoremap mm :call Ct()<CR><CR>
+		   nnoremap mm :call Ct()<CR><CR>
+		   nnoremap<F2> :call Cv()<CR><CR>
+		   inoremap<F2> <ESC> :call Cv()<CR><CR>
+		endif
+	else
+		nnoremap<F2> :call Ct()<CR>
+		inoremap<F2> <ESC> :call Ct()<CR>
+		nnoremap mm :call Ct()<CR>
+	endif
 endf
-fu Cv()
+function Cv()
 	exe "w"
 	if &filetype == 'c'
 		exe "!gcc -Wall % -o %<"
 		exe "!clear;./%< 2>/dev/null && rm -f %<"
-	elsei &filetype == 'cpp'
+	elseif &filetype == 'cpp'
 		exe "!g++ -Wall % -o %<"
 		exe "!clear;./%< 2>/dev/null && rm -f %<"
-	elsei &filetype == 'python'
+	elseif &filetype == 'python'
 		exe "!clear;python %"
-	elsei &filetype == 'ruby'
+	elseif &filetype == 'ruby'
 		exe "!clear;ruby  %"
-	elsei &filetype == 'sh'
+	elseif &filetype == 'sh'
 		exe "!clear;bash %"
-	elsei &filetype == 'perl'
+	elseif &filetype == 'perl'
 		exe "!clear;perl %"
-	en
+	endif
 endf
-fu Ct()
+function Ct()
 	exe "w"
 	if &filetype == 'c'
 		exe "!gcc -Wall % -o %<"
 		exe "!./%< 2>/dev/null && rm -f %<"
-	elsei &filetype == 'cpp'
+	elseif &filetype == 'cpp'
 		exe "!g++ -Wall % -o %<"
 		exe "!./%< 2>/dev/null && rm -f %<"
-	elsei &filetype == 'python'
+	elseif &filetype == 'python'
 		exe "!python %"
-	elsei &filetype == 'ruby'
+	elseif &filetype == 'ruby'
 		exe "!ruby  %"
-	elsei &filetype == 'sh'
+	elseif &filetype == 'sh'
 		exe "!bash %"
-	elsei &filetype == 'perl'
+	elseif &filetype == 'perl'
 		exe "!perl %"
-	elsei &filetype =='html'
+	elseif &filetype =='html'
 		exe "!firefox %"
-	en
+	endif
 endf
-au FileType h,c,cc,cpp,sh,perl,python :call YWcode()
-fu YWcode()
-	se ai si
-	se sw=4 ts=4 sts=4
+autocmd FileType h,c,cc,cpp,sh,perl,python :call YWcode()
+function YWcode()
+	set ai si
+	set sw=4 ts=4 sts=4
 endf
-au FileType ruby :call YWruby()
-fu YWruby()
-	se ai si
-	se sw=2 ts=2 sts=2
+autocmd FileType ruby :call YWruby()
+function YWruby()
+	set ai si
+	set sw=2 ts=2 sts=2
 endf
