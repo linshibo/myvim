@@ -1,8 +1,10 @@
+let mapleader = ","
 map <C-q> <Nop>
 map <C-z> <Nop>
 map <C-n> <Nop>
 map <C-p> <Nop>
 map <C-a> <C-v><C-a>
+noremap ,a <C-a>
 noremap y Y
 noremap Y y
 
@@ -12,7 +14,8 @@ noremap k 6k
 " tab
 noremap w <C-n>
 noremap q <C-p>
-
+noremap P p
+noremap p P
 noremap zi zI
 noremap zI zi
 noremap zm zM
@@ -25,7 +28,6 @@ noremap zz zZ
 noremap zZ zz
 
 noremap <silent> <C-r> :restart<CR>
-let mapleader = ","
 noremap <silent> <Leader>h :htabopen<Space>
 noremap <silent> <Leader>s :source ~/.vimperatorrc<CR>:echo<Space>"source completed."<CR>
 noremap <silent> <Leader>a :autopagerize<CR>

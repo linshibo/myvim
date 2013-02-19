@@ -24,6 +24,14 @@ let g:loaded_escalt = 1
 "Sets how many lines of history VIM har to remember
 set history=400
 
+if has('gui_running')
+    set guioptions-=T " remove the toolbar
+    set lines=40 " 40 lines of text instead of 24,
+else
+    set term=builtin_ansi " Make arrow and other keys work
+endif
+
+"map leader key ","
 let mapleader =","
 
 " Enable filetype plugins
@@ -33,7 +41,9 @@ syntax enable
 syntax on
 "备份
 set backup
+"备份目录 
 set backupdir=~/.vim/bakupdir
+"不产生.swap文件
 set noswapfile
 
 "Get out of VI's compatible mode..
@@ -91,7 +101,7 @@ set showcmd
 "Include search
 set incsearch
 "no highlight search
-set nohlsearch
+set hlsearch
 
 " For regular expressions turn magic on
 set magic
@@ -102,7 +112,7 @@ set matchpairs+=<:>
 
 "鼠标和剪贴板
 set mouse=v
-set clipboard=unnamed
+set clipboard+=unnamed
 " Height of the command bar
 set cmdheight=1
 
@@ -176,7 +186,7 @@ nnoremap ,w <Esc>:w!<CR>
 nnoremap ,W <Esc>:w !sudo tee % >/dev/null<CR>
 nnoremap ,e <Esc>:e 
 nnoremap ,x <Esc>:!
-
+nnoremap Y y$
 "cmd model map
 cnoremap <C-A> <HOME>
 cnoremap <C-E> <END>
@@ -193,7 +203,6 @@ nnoremap <C-n> <C-PageDown>
 
 "查找当前光标下的单词
 nnoremap ,g <Esc>:call P_grep_curword()<CR>
-"nnoremap ,g <Esc>:grep 
 
 nnoremap ,r <Esc>:call RESET_CTAG_CSCOPE()<CR>
 nnoremap ,m <Esc>:make<CR><CR>
@@ -311,9 +320,8 @@ if filereadable("./tags")                "设置tag文件的名字
 	let g:LookupFile_TagExpr = '"./tags"'
 endif
 nnoremap <silent> <A-f> :LUTags<CR>
-"nnoremap <silent> ,ll :LUBufs<cr>
-"nnoremap <silent> <leader>lw :LUWalk<cr>
 nnoremap <silent> <A-e> :LUWalk<cr>
+"nnoremap <silent> ,ll :LUBufs<cr>
 " }
 
 " omnicppcomplete{
@@ -323,7 +331,7 @@ set completeopt=longest,menuone
 inoremap <expr><CR> pumvisible() ?"\<C-Y>" : "\<c-g>u\<cr>"
 inoremap <expr><C-U>  pumvisible()?"\<C-E>":"\<C-U>"
 inoremap <expr><C-N>  pumvisible()?"\<C-N>":"\<C-x>\<C-o>"
-inoremap <expr><C-P>  pumvisible()?"\<C-N>":"\<C-x>\<C-o>"
+inoremap <expr><C-P>  pumvisible()?"\<C-p>":"\<C-x>\<C-o>"
 inoremap <C-]> <C-X><C-]> "根据标签补全
 inoremap <C-F> <C-X><C-F> "补全文件名
 inoremap <C-D> <C-X><C-D> "补全宏定义
@@ -336,10 +344,12 @@ inoremap   <expr> <Backspace>  Ex_bspace()
 let OmniCpp_ShowScopeInAbbr = 1
 "支持STL模板
 let OmniCpp_DefaultNamespaces   = ["std", "_GLIBCXX_STD"]
-let OmniCpp_MayCompleteScope =1
+"不自动选择第一个
 let OmniCpp_SelectFirstItem = 0
-let OmniCpp_ShowAccess = 0
-let OmniCpp_ShowPrototypeInAbbr=1
+"使用本地搜索函数
+let OmniCpp_LocalSearchDecl = 1
+"::补全
+let OmniCpp_MayCompleteScope =1
 " }
 
 " cscope setting {
@@ -354,6 +364,7 @@ if has("cscope")
         endif
     set csverb
 endif
+
 "nnoremap ,s :cs find s <C-R>=expand("<cword>")<CR><CR>
 nnoremap ,s :cs find s <C-R>=expand("<cword>")<CR><CR>
 nnoremap ,cs :cs find s <C-R>=expand("<cword>")<CR><CR>
@@ -377,7 +388,7 @@ let g:DoxygenToolkit_undocTag="DOXIGEN_SKIP_BLOCK"
 let g:DoxygenToolkit_briefTag_funcName = "no"
 let g:DoxygenToolkit_maxFunctionProtoLines = 30
 nnoremap \f :Dox<CR>
-"map \a :DoxAuthor<CR>
+nnoremap \a :DoxAuthor<CR>
 "map \b :DoxBlock<CR>
 "}
 
@@ -398,7 +409,7 @@ let g:bufExplorerSortBy='mru' " Sort by most recently used.
 let g:bufExplorerShowDirectories=1   " Show directories.
 let g:bufExplorerMaxHeight=20 " Max height
 noremap <silent> <F2> <Esc>:BufExplorer<CR>
-noremap <silent> ,z :BufExplorer<CR>
+"noremap <silent> ,z :BufExplorer<CR>
 noremap <silent> <A-b> :BufExplorer<CR>
 "}
 
@@ -437,9 +448,7 @@ inoremap <expr><C-l>     neocomplcache#complete_common_string()
 " Recommended key-mappings.
 " <CR>: close popup and save indent.
 inoremap <expr><CR>  neocomplcache#smart_close_popup() . "\<CR>"
-" <C-h>, <BS>: close popup and delete backword char.
 inoremap <expr><C-h> neocomplcache#smart_close_popup()."\<C-h>"
-"inoremap <expr><BS> neocomplcache#smart_close_popup()."\<C-h>"
 inoremap <expr><C-y>  neocomplcache#close_popup()
 inoremap <expr><C-e>  neocomplcache#cancel_popup()
 let g:neocomplcache_enable_auto_select = 0

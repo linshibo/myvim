@@ -9,8 +9,6 @@ se nocp exrc
 se is cin smd wmnu magic
 im  ,, <ESC>
 im  ;; <ESC>
-map<Up>   gk
-map<Down> gj
 au BufRead,BufNewFile *.html setf html
 au FileType python,ruby,sh :call Py()
 au FileType cpp,c,cc,h,html,perl :call Cc()
