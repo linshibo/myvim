@@ -46,6 +46,9 @@ set backupdir=~/.vim/bakupdir
 "不产生.swap文件
 set noswapfile
 
+"中文帮助
+set helplang=cn
+
 "Get out of VI's compatible mode..
 set nocompatible
 "disable alt
@@ -179,6 +182,9 @@ nmap <F1> <nop>
 
 "use jj replace esc 
 inoremap jj <Esc>
+
+"取消高亮
+nnoremap <C-[> <Esc>:nohl<CR>
 
 nnoremap ,q <Esc>:q!<CR>
 nnoremap ,w <Esc>:w!<CR>
@@ -332,12 +338,18 @@ inoremap <expr><CR> pumvisible() ?"\<C-Y>" : "\<c-g>u\<cr>"
 inoremap <expr><C-U>  pumvisible()?"\<C-E>":"\<C-U>"
 inoremap <expr><C-N>  pumvisible()?"\<C-N>":"\<C-x>\<C-o>"
 inoremap <expr><C-P>  pumvisible()?"\<C-p>":"\<C-x>\<C-o>"
-inoremap <C-]> <C-X><C-]> "根据标签补全
-inoremap <C-F> <C-X><C-F> "补全文件名
-inoremap <C-D> <C-X><C-D> "补全宏定义
-inoremap <C-L> <C-X><C-L> "整行补全
-inoremap <C-I> <C-X><C-I> "根据头文件内关键字补全
-inoremap <C-U> <C-X><C-U> "用户自定义补全方式   
+"根据标签补全
+inoremap <C-]> <C-X><C-]> 
+"补全文件名
+inoremap <C-F> <C-X><C-F> 
+"补全宏定义
+inoremap <C-D> <C-X><C-D>
+"整行补全
+inoremap <C-L> <C-X><C-L>
+"根据头文件内关键字补全
+inoremap <C-I> <C-X><C-I> 
+"用户自定义补全方式   
+inoremap <C-U> <C-X><C-U> 
 inoremap <C-O> <C-X><C-O>
 " 用于支持 退格后 . -> 代码补全
 inoremap   <expr> <Backspace>  Ex_bspace() 
