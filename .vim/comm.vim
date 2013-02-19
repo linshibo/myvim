@@ -49,9 +49,6 @@ set winaltkeys=no
 "tags 位置
 set tags=bundle/myfix/comm_tags,tags; 
 
-"取消高亮
-nnoremap <C-[> <Esc>:nohl<CR>
-
 "折叠
 set foldmethod=syntax
 ""默认情况下不折叠
@@ -182,9 +179,6 @@ nmap <F1> <nop>
 
 "use jj replace esc 
 inoremap jj <Esc>
-
-"取消高亮
-nnoremap <C-[> <Esc>:nohl<CR>
 
 nnoremap ,q <Esc>:q!<CR>
 nnoremap ,w <Esc>:w!<CR>

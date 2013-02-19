@@ -1,4 +1,7 @@
 let g:netrw_dirhistmax  =10
-let g:netrw_dirhist_cnt =2
+let g:netrw_dirhist_cnt =5
 let g:netrw_dirhist_1='/home/francisco/myvim/.vim/bundle/vim-alignment'
 let g:netrw_dirhist_2='/home/francisco/server/gateway/trunk/log/20130201'
+let g:netrw_dirhist_3='/home/francisco/server/online/trunk/src'
+let g:netrw_dirhist_4='/home/francisco/server/online/trunk/src/.svn'
+let g:netrw_dirhist_5='/home/francisco/server/online/trunk/src'
