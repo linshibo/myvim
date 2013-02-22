@@ -35,7 +35,10 @@ syntax enable on
 "备份
 set backup
 "备份目录 
-set backupdir=~/.vim/bakupdir
+if !isdirectory($HOME."/.vim/backupdir")
+    silent! execute "!mkdir ~/.vim/backupdir"
+endif
+set backupdir=~/.vim/backupdir
 "不产生.swap文件
 set noswapfile
 
@@ -259,9 +262,9 @@ else
 	noremap <A-h> <Esc><i{
 	"大括号内向右移
 	noremap <A-l> <Esc>>i{
-	"选择区移动
-	vnoremap <A-l> <Esc>:call SET_BLOCK_MOVE_V(0) <CR>
-	vnoremap <A-h> <Esc>:call SET_BLOCK_MOVE_V(1) <CR>
+        "选择区移动
+        vnoremap <A-l> <Esc>:call SET_BLOCK_MOVE_V(0) <CR>
+        vnoremap <A-h> <Esc>:call SET_BLOCK_MOVE_V(1) <CR>
 endif
 " Visual mode pressing * or # searches for the current selection
 " Super useful! From an idea by Michael Naumann
@@ -315,7 +318,7 @@ let g:LookupFile_AlwaysAcceptFirst = 1          "回车打开第一个匹配项�
 let g:LookupFile_AllowNewFiles = 0              "不允许创建不存在的文件
 let g:LookupFile_LookupFunc = 'LookupFile_IgnoreCaseFunc' 
 if filereadable("./tags")                "设置tag文件的名字
-	let g:LookupFile_TagExpr = '"./tags"'
+    let g:LookupFile_TagExpr = '"./tags"'
 endif
 "nnoremap <silent> <A-f> :LUTags<CR>
 "nnoremap <silent> <A-e> :LUWalk<cr>
@@ -463,7 +466,7 @@ let g:neocomplcache_dictionary_filetype_lists = {
     \ }
 " Define keyword, for minor languages
 if !exists('g:neocomplcache_keyword_patterns')
-  let g:neocomplcache_keyword_patterns = {}
+let g:neocomplcache_keyword_patterns = {}
 endif
 let g:neocomplcache_keyword_patterns['default'] = '\h\w*'
 inoremap <expr><C-g>     neocomplcache#undo_completion()
@@ -475,7 +478,7 @@ inoremap <expr><C-e>  neocomplcache#cancel_popup()
 inoremap <expr><space> pumvisible() ? neocomplcache#close_popup() . "\<SPACE>" : "\<SPACE>"
 " Enable heavy omni completion, which require computational power and may stall the vim. 
 if !exists('g:neocomplcache_omni_patterns')
-  let g:neocomplcache_omni_patterns = {}
+let g:neocomplcache_omni_patterns = {}
 endif
 let g:neocomplcache_omni_patterns.php = '[^. \t]->\h\w*\|\h\w*::'
 let g:neocomplcache_omni_patterns.c = '\%(\.\|->\)\h\w*'
@@ -499,10 +502,10 @@ let use_xhtml = 1
 autocmd BufEnter *  set tabstop=4 
 " use syntax complete if nothing else available
 if has("autocmd") && exists("+omnifunc")
-  autocmd Filetype *
-              \ if &omnifunc == "" |
-              \ setlocal omnifunc=syntaxcomplete#Complete |
-              \ endif
+autocmd Filetype *
+            \ if &omnifunc == "" |
+            \ setlocal omnifunc=syntaxcomplete#Complete |
+            \ endif
 endif
 
 """"""""""""
@@ -635,144 +638,144 @@ function! LastModified()
 endfunc
 
 function! Ex_space ( char )
-	if (&filetype == "cpp" || &filetype == "c" )
-		let pre_str= strpart(getline('.'),0,col('.')-1)
-		if pumvisible() != 0  
-			"in completing , complete it    
-			return "\<CR>"	
-  		elseif pre_str  =~ "[.][\s\t]*$" || pre_str  =~ "->[\s\t]*$"   
-			return "\<C-X>\<C-O>"	
-		endif 
-	endif
+    if (&filetype == "cpp" || &filetype == "c" )
+        let pre_str= strpart(getline('.'),0,col('.')-1)
+        if pumvisible() != 0  
+            "in completing , complete it    
+            return "\<CR>"	
+        elseif pre_str  =~ "[.][\s\t]*$" || pre_str  =~ "->[\s\t]*$"   
+            return "\<C-X>\<C-O>"	
+        endif 
+    endif
 
-	if (&filetype == "python" ||&filetype == "html"  ||&filetype == "php"     )
-		let pre_str= strpart(getline('.'),0,col('.')-1)
-		if pumvisible() != 0  
-			"in completing , complete it    
-			return "\<CR>"	
-  		elseif pre_str  =~ "[.][\s\t]*$" || pre_str  =~ "->[\s\t]*$"   
-			return "\<C-X>\<C-O>\<C-P>\<C-R>=pumvisible() ? \"\\<down>\" : \"\"\<cr>"	
-		endif 
-	
-	endif
-	"default
-	return a:char 
+    if (&filetype == "python" ||&filetype == "html"  ||&filetype == "php"     )
+        let pre_str= strpart(getline('.'),0,col('.')-1)
+        if pumvisible() != 0  
+            "in completing , complete it    
+            return "\<CR>"	
+        elseif pre_str  =~ "[.][\s\t]*$" || pre_str  =~ "->[\s\t]*$"   
+            return "\<C-X>\<C-O>\<C-P>\<C-R>=pumvisible() ? \"\\<down>\" : \"\"\<cr>"	
+        endif 
+    
+    endif
+    "default
+    return a:char 
 endf
 
 "退格时自动补全
 function! Ex_bspace()
-	if (&filetype == "cpp" || &filetype == "c" )
-		let pre_str= strpart(getline('.'),0,col('.')-2)
-  		if pre_str  =~ "[.][ \t]*$" || pre_str  =~ "->[ \t]*$"   
-			return "\<Backspace>\<C-X>\<C-O>"	
-		endif 
-	endif
+    if (&filetype == "cpp" || &filetype == "c" )
+        let pre_str= strpart(getline('.'),0,col('.')-2)
+        if pre_str  =~ "[.][ \t]*$" || pre_str  =~ "->[ \t]*$"   
+            return "\<Backspace>\<C-X>\<C-O>"	
+        endif 
+    endif
 
-	if (&filetype == "python"|| &filetype == "html"  || &filetype == "python"  )
-		let pre_str= strpart(getline('.'),0,col('.')-2)
-  		if pre_str  =~ "[.][ \t]*$"
-			return "\<Backspace>\<C-X>\<C-O>\<C-P>\<C-R>=pumvisible() ? \"\\<down>\" : \"\"\<cr>"	
-		endif 
-	endif
+    if (&filetype == "python"|| &filetype == "html"  || &filetype == "python"  )
+        let pre_str= strpart(getline('.'),0,col('.')-2)
+        if pre_str  =~ "[.][ \t]*$"
+            return "\<Backspace>\<C-X>\<C-O>\<C-P>\<C-R>=pumvisible() ? \"\\<down>\" : \"\"\<cr>"	
+        endif 
+    endif
 
-	"default
-	return "\<Backspace>"	
+    "default
+    return "\<Backspace>"	
 endf
 
 " Delete trailing white space on save, useful for Python and CoffeeScript ;)
 func! DeleteTrailingWS()
-	exe "normal mz"
-	%s/\s\+$//ge
-	exe "normal `z"
+    exe "normal mz"
+    %s/\s\+$//ge
+    exe "normal `z"
 endfunc
 
 "获取当前路径的上一级的路径
 function! GET_UP_PATH(dir)
-	let pos=len(a:dir)-1
-	while pos>0 
-		if (a:dir[pos]=="/" )
-			return 	strpart(a:dir,0,pos)
-		endif
-		let pos=pos-1 
-	endwhile
-	return  ""  
+    let pos=len(a:dir)-1
+    while pos>0 
+        if (a:dir[pos]=="/" )
+            return 	strpart(a:dir,0,pos)
+        endif
+        let pos=pos-1 
+    endwhile
+    return  ""  
 endfunction
 
 "设置相关tags
 function! s:SET_TAGS()
     let dir =getcwd()  "获得源文件路径
-	set tags=
-	"在路径上递归向上查找tags文件 
-	while dir!=""
-		if findfile("tags",dir ) !=""
-			"找到了就加入到tags
-			exec "set tags+=" . dir . "/tags"
-		endif
-		"得到上级路径
-		let dir=GET_UP_PATH(dir)
-	endwhile
-	if ( &filetype =="cpp" )
-		set tags+=~/.vim/bundle/myfix/comm_tags
-	endif
+    set tags=
+    "在路径上递归向上查找tags文件 
+    while dir!=""
+        if findfile("tags",dir ) !=""
+            "找到了就加入到tags
+            exec "set tags+=" . dir . "/tags"
+        endif
+        "得到上级路径
+        let dir=GET_UP_PATH(dir)
+    endwhile
+    if ( &filetype =="cpp" )
+        set tags+=~/.vim/bundle/myfix/comm_tags
+    endif
 endfunction
 
 "设置相关 include , for cmd : gf 
 function! s:SET_PATH( find_dir )
     let dir = expand("%:p:h") "获得源文件路径
-	let dir_relative=''
-	let g:alternateSearchPath = ''
-	"let g:alternateSearchPath = 'sfr:../source,sfr:../src,sfr:../include,sfr:../inc,sfr:.'
-	"在路径上递归向上查找tags文件 
-	while dir!=""
-		if finddir(a:find_dir ,dir ) !=""
-			"找到了就加入到tags
-			exec "set path+=" . dir . "/". a:find_dir
-			let g:alternateSearchPath = g:alternateSearchPath.'sfr:'.dir_relative.a:find_dir."," 
-		endif
-		"得到上级路径
-		let dir_relative=dir_relative . "../"
-		let dir=GET_UP_PATH(dir)
-	endwhile
+    let dir_relative=''
+    let g:alternateSearchPath = ''
+    "let g:alternateSearchPath = 'sfr:../source,sfr:../src,sfr:../include,sfr:../inc,sfr:.'
+    "在路径上递归向上查找tags文件 
+    while dir!=""
+        if finddir(a:find_dir ,dir ) !=""
+            "找到了就加入到tags
+            exec "set path+=" . dir . "/". a:find_dir
+            let g:alternateSearchPath = g:alternateSearchPath.'sfr:'.dir_relative.a:find_dir."," 
+        endif
+        "得到上级路径
+        let dir_relative=dir_relative . "../"
+        let dir=GET_UP_PATH(dir)
+    endwhile
 endfunction
 
 "upper case
 function! SET_UAW()
-	let save_cursor = getpos(".")
+    let save_cursor = getpos(".")
 
-	let line = getline('.')
-	let col_num = col('.')
-	if match("ABCDEFGHIJKLMNOPQRSTUVWXYZ",line[col_num-1])!= -1
-		exec "normal! guaw"
-	else
-		exec "normal! gUaw"
-	endif
+    let line = getline('.')
+    let col_num = col('.')
+    if match("ABCDEFGHIJKLMNOPQRSTUVWXYZ",line[col_num-1])!= -1
+        exec "normal! guaw"
+    else
+        exec "normal! gUaw"
+    endif
 
-	call setpos('.', save_cursor)
+    call setpos('.', save_cursor)
 endfunction
 
 "for grep cn 
 function! Do_cn() 
-	try
-		exec "cn"
-	catch /E553/
-		exec "cc 1"
-	endtry	
+    try
+        exec "cn"
+    catch /E553/
+        exec "cc 1"
+    endtry	
 endfunction
 
 "得到光标下的单词
 function! P_grep_curword() 
-	let curword=expand("<cword>")
-	exec "Ack " . curword . " ./"
+    let curword=expand("<cword>")
+    exec "Ack " . curword . " ./"
 endfunction
 
 "重新生成ctag cscope
 function! RESET_CTAG_CSCOPE() 
-	"!~/.vim/./bundle/myfix/mtags.sh 
+    "!~/.vim/./bundle/myfix/mtags.sh 
     if(executable('cscope') && has("cscope") )
         silent! execute "!find . -name '[^.]*.h' -o -name '[^.]*.c' -o -name '[^.]*.cpp' -o -name '[^.]*.hpp' > cscope.files"
         silent! execute "!cscope -bkq"
         if (filereadable("cscope.out"))
-		    execute "cs reset"
+            execute "cs reset"
         endif
     endif
     if(executable('ctags'))
@@ -783,10 +786,10 @@ function! RESET_CTAG_CSCOPE()
 endfunction
 
 function! OPT_RANGE( opt_str ) 
-  let cur_char=getline('.')[col('.') - 1] 
-  if cur_char == "(" || cur_char == "<" || cur_char == "{" || cur_char == "[" || cur_char == "\"" || cur_char == "'" || cur_char == ")" || cur_char == ">" || cur_char == "}" || cur_char == "]" 
-  	exec "normal! ".a:opt_str.cur_char
-  endif
+let cur_char=getline('.')[col('.') - 1] 
+if cur_char == "(" || cur_char == "<" || cur_char == "{" || cur_char == "[" || cur_char == "\"" || cur_char == "'" || cur_char == ")" || cur_char == ">" || cur_char == "}" || cur_char == "]" 
+    exec "normal! ".a:opt_str.cur_char
+endif
 endfunction
 
 
@@ -797,35 +800,35 @@ function! SET_BLOCK_MOVE_V( move_type )
     else
         exec "'<,'>s/^    //"
     endif
-	let linecount = line("'>") - line("'<")
-	let save_cursor_begin = getpos("'<")
-	call setpos('.', save_cursor_begin)
-	exec  "normal! v" . linecount . "j"	
+    let linecount = line("'>") - line("'<")
+    let save_cursor_begin = getpos("'<")
+    call setpos('.', save_cursor_begin)
+    exec  "normal! v" . linecount . "j"	
 endfunction
 
 
 function! SET_BIG_PAIR()
-  if (&filetype=="php" ||  &filetype=="sh"  )
-	if match( getline('.'), '"' ) >= 0 || match( getline('.'), "'" ) >= 0 
-  		return "{}\<ESC>i"
-	endif
-  elseif (&filetype=="python")
-  		return "{}\<ESC>i"
-  endif
-  return "{\<CR>}\<ESC>O"
+if (&filetype=="php" ||  &filetype=="sh"  )
+    if match( getline('.'), '"' ) >= 0 || match( getline('.'), "'" ) >= 0 
+        return "{}\<ESC>i"
+    endif
+elseif (&filetype=="python")
+        return "{}\<ESC>i"
+endif
+return "{\<CR>}\<ESC>O"
 endf
 
 function! ClosePair(char)
-  if getline('.')[col('.') - 1] == a:char
+if getline('.')[col('.') - 1] == a:char
     return "\<Right>"
-  else
+else
     return a:char
-  endif
+endif
 endf
 
 "闭合大括号
 function! CloseBracket()
-	if match(getline(line('.') + 1), '\s*}') < 0
+    if match(getline(line('.') + 1), '\s*}') < 0
 		return "\<CR>}"
 	else
 		return "\<ESC>j0f}a"
