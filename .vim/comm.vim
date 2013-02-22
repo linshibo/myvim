@@ -75,7 +75,7 @@ set fileencodings=ucs-bom,utf-8,gb2312,big5,euc-jp,euc-kr,latin1
 language messages POSIX
 
 "自动更新cpp修改时间
-autocmd BufWritePre,FileWritePre *.cpp,*.c,*.h,*.hpp exec "normal ms"|call LastModified()|exec "normal `s"
+"autocmd BufWritePre,FileWritePre *.cpp,*.c,*.h,*.hpp exec "normal ms"|call LastModified()|exec "normal `s"
 
 "for cmake ':make' ,由于定位错误,中文会有问题，如下调整
 if finddir("build") == "build"
@@ -186,7 +186,8 @@ nnoremap ,w <Esc>:w!<CR>
 nnoremap ,W <Esc>:w !sudo tee % >/dev/null<CR>
 nnoremap ,e <Esc>:e 
 nnoremap ,x <Esc>:!
-nnoremap Y y$
+nmap  Y  y$
+
 "cmd model map
 cnoremap <C-A> <HOME>
 cnoremap <C-E> <END>
@@ -206,10 +207,10 @@ nnoremap ,g <Esc>:call P_grep_curword()<CR>
 
 nnoremap ,r <Esc>:call RESET_CTAG_CSCOPE()<CR>
 nnoremap ,m <Esc>:make<CR><CR>
-"map ,y    <Esc>:call OPT_RANGE("ya")<CR>
-"map ,Y    <Esc>:call OPT_RANGE("yi")<CR>
-"map ,d    <Esc>:call OPT_RANGE("da")<CR>
-"map ,D    <Esc>:call OPT_RANGE("di")<CR>
+nnoremap ,y    <Esc>:call OPT_RANGE("ya")<CR>
+nnoremap ,Y    <Esc>:call OPT_RANGE("yi")<CR>
+nnoremap ,d    <Esc>:call OPT_RANGE("da")<CR>
+nnoremap ,D    <Esc>:call OPT_RANGE("di")<CR>
 "转换单词大小写
 nnoremap ,u <Esc>:call SET_UAW()<CR>
 
@@ -268,7 +269,7 @@ vnoremap <silent> * :call VisualSelection('f')<CR>
 vnoremap <silent> # :call VisualSelection('b')<CR>
 
 "quick fix toggle
-nnoremap <F4> <Esc>:call ToggleQF()<CR>
+"nnoremap <F4> <Esc>:call ToggleQF()<CR>
 nnoremap ,cn <Esc>:cn<CR>
 nnoremap ,cp <Esc>:cp<CR>
 
@@ -281,7 +282,8 @@ nnoremap ,a <Esc>:A<CR>
 
 "unite{
 nnoremap <A-u> :Unite buffer file<CR>
-nnoremap ,b :Unite buffer file<CR>
+nnoremap ,f :Unite file<CR>
+nnoremap ,bb :Unite buffer<CR>
 "}
 
 "tabular{
@@ -289,17 +291,12 @@ nnoremap <A-a> :call SetAlign()<CR>
 "}
 
 "vim-easymotion{
-let g:EasyMotion_leader_key = '0'
+let g:EasyMotion_leader_key = '\'
 "}
 
 "FencView {
 let g:fencview_autodetect = 1                      
 nnoremap <A-v> :FencView<CR>
-"}
-
-"NERD_tree{
-" Open and close the NERD_tree.vim separately
-nnoremap <A-n> <ESC>:NERDTreeToggle<CR>
 "}
 
 "YankRing {
@@ -320,19 +317,20 @@ let g:LookupFile_LookupFunc = 'LookupFile_IgnoreCaseFunc'
 if filereadable("./tags")                "设置tag文件的名字
 	let g:LookupFile_TagExpr = '"./tags"'
 endif
-nnoremap <silent> <A-f> :LUTags<CR>
-nnoremap <silent> <A-e> :LUWalk<cr>
-"nnoremap <silent> ,ll :LUBufs<cr>
+"nnoremap <silent> <A-f> :LUTags<CR>
+"nnoremap <silent> <A-e> :LUWalk<cr>
+"nnoremap <silent> <A-b> :LUBufs<cr>
 " }
 
 " omnicppcomplete{
 "用于支持代码补全时，提示存在。
 set complete=.,w,b,u,t
 set completeopt=longest,menuone
+"当离开INSERT模式时，Preview窗口会自动关闭
+"autocmd CursorMovedI * if pumvisible() == 0|pclose|endif
+"autocmd InsertLeave * if pumvisible() == 0|pclose|endif
 inoremap <expr><CR> pumvisible() ?"\<C-Y>" : "\<c-g>u\<cr>"
 inoremap <expr><C-U>  pumvisible()?"\<C-E>":"\<C-U>"
-inoremap <expr><C-N>  pumvisible()?"\<C-N>":"\<C-x>\<C-o>"
-inoremap <expr><C-P>  pumvisible()?"\<C-p>":"\<C-x>\<C-o>"
 "根据标签补全
 inoremap <C-]> <C-X><C-]> 
 "补全文件名
@@ -345,9 +343,10 @@ inoremap <C-L> <C-X><C-L>
 inoremap <C-I> <C-X><C-I> 
 "用户自定义补全方式   
 inoremap <C-U> <C-X><C-U> 
+"全能补全
 inoremap <C-O> <C-X><C-O>
 " 用于支持 退格后 . -> 代码补全
-inoremap   <expr> <Backspace>  Ex_bspace() 
+"inoremap   <expr> <Backspace>  Ex_bspace() 
 let OmniCpp_ShowScopeInAbbr = 1
 "支持STL模板
 let OmniCpp_DefaultNamespaces   = ["std", "_GLIBCXX_STD"]
@@ -358,6 +357,33 @@ let OmniCpp_LocalSearchDecl = 1
 "::补全
 let OmniCpp_MayCompleteScope =1
 " }
+
+"SrcExpl{
+"  The switch of the Source Explorer 
+nnoremap ,z :SrcExplToggle<CR> 
+"  Set the height of Source Explorer window 
+let g:SrcExpl_winHeight = 8 
+"  Set 100 ms for refreshing the Source Explorer 
+let g:SrcExpl_refreshTime = 100 
+"  Set "Enter" key to jump into the exact definition context 
+let g:SrcExpl_jumpKey = "<ENTER>" 
+"  Set "Space" key for back from the definition context 
+let g:SrcExpl_gobackKey = "<SPACE>" 
+"  In order to Avoid conflicts, the Source Explorer should know what plugins 
+"  are using buffers. And you need add their bufname into the list below 
+"  according to the command ":buffers!" 
+let g:SrcExpl_pluginList = [ 
+        \ "__Tag_List__", 
+        \ "_NERD_tree_", 
+        \ "Source_Explorer" 
+    \ ] 
+"  Enable/Disable the local definition searching, and note that this is not 
+"  guaranteed to work, the Source Explorer doesn't check the syntax for now. 
+"  It only searches for a match with the keyword according to command 'gd' 
+let g:SrcExpl_searchLocalDef = 1 
+"  Do not let the Source Explorer update the tags file when opening 
+let g:SrcExpl_isUpdateTags = 0 
+"}
 
 " cscope setting {
 if has("cscope")
@@ -371,8 +397,6 @@ if has("cscope")
         endif
     set csverb
 endif
-
-"nnoremap ,s :cs find s <C-R>=expand("<cword>")<CR><CR>
 nnoremap ,s :cs find s <C-R>=expand("<cword>")<CR><CR>
 nnoremap ,cs :cs find s <C-R>=expand("<cword>")<CR><CR>
 nnoremap ,cc :cs find c <C-R>=expand("<cword>")<CR><CR>
@@ -409,17 +433,6 @@ nnoremap <silent> <F6> :MarksBrowser<cr>
 nnoremap <silent> <A-m> :MarksBrowser<cr>
 " }
 
-" bufexplorer setting{
-let g:bufExplorerDefaultHelp=1 " Do not show default help.
-let g:bufExplorerShowRelativePath=1 " Show relative paths.
-let g:bufExplorerSortBy='mru' " Sort by most recently used.
-let g:bufExplorerShowDirectories=1   " Show directories.
-let g:bufExplorerMaxHeight=20 " Max height
-noremap <silent> <F2> <Esc>:BufExplorer<CR>
-"noremap <silent> ,z :BufExplorer<CR>
-noremap <silent> <A-b> :BufExplorer<CR>
-"}
-
 " Tagbar setting{
 let g:tagbar_width = 30 
 let g:tagbar_expand = 0
@@ -428,7 +441,8 @@ nnoremap <silent> <F3> <Esc>:TagbarToggle<cr>
 nnoremap <silent> <A-t> <Esc>:TagbarToggle<cr>
 " }
 
-"neocomplcache{
+"neocomplcache{{{
+let g:neocomplcache_enable_quick_match = 1
 " Launches neocomplcache automatically on vim startup.
 let g:neocomplcache_enable_at_startup = 1
 " Use smartcase.
@@ -439,6 +453,8 @@ let g:neocomplcache_enable_camel_case_completion = 1
 let g:neocomplcache_enable_underbar_completion = 1
 " Sets minimum char length of syntax keyword.
 let g:neocomplcache_min_syntax_length = 3
+let g:neocomplcache_lock_buffer_name_pattern = '\*ku\*'
+let g:neocomplcache_enable_auto_select = 0
 " Define file-type dependent dictionaries.
 let g:neocomplcache_dictionary_filetype_lists = {
     \ 'default' : '',
@@ -452,22 +468,19 @@ endif
 let g:neocomplcache_keyword_patterns['default'] = '\h\w*'
 inoremap <expr><C-g>     neocomplcache#undo_completion()
 inoremap <expr><C-l>     neocomplcache#complete_common_string()
-" Recommended key-mappings.
-" <CR>: close popup and save indent.
 inoremap <expr><CR>  neocomplcache#smart_close_popup() . "\<CR>"
 inoremap <expr><C-h> neocomplcache#smart_close_popup()."\<C-h>"
 inoremap <expr><C-y>  neocomplcache#close_popup()
 inoremap <expr><C-e>  neocomplcache#cancel_popup()
-let g:neocomplcache_enable_auto_select = 0
+inoremap <expr><space> pumvisible() ? neocomplcache#close_popup() . "\<SPACE>" : "\<SPACE>"
 " Enable heavy omni completion, which require computational power and may stall the vim. 
 if !exists('g:neocomplcache_omni_patterns')
   let g:neocomplcache_omni_patterns = {}
 endif
-let g:neocomplcache_omni_patterns.ruby = '[^. *\t]\.\w*\|\h\w*::'
 let g:neocomplcache_omni_patterns.php = '[^. \t]->\h\w*\|\h\w*::'
 let g:neocomplcache_omni_patterns.c = '\%(\.\|->\)\h\w*'
-"let g:neocomplcache_omni_patterns.cpp = '\h\w*\%(\.\|->\)\h\w*\|\h\w*::'
-"}
+let g:neocomplcache_omni_patterns.cpp = '\h\w*\%(\.\|->\)\h\w*\|\h\w*::'
+"}}}
 
 "xml.vim{
 let xml_use_xhtml = 1
