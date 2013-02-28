@@ -361,6 +361,7 @@ let OmniCpp_LocalSearchDecl = 1
 let OmniCpp_MayCompleteScope =1
 " }
 
+
 "SrcExpl{
 "  The switch of the Source Explorer 
 nnoremap ,z :SrcExplToggle<CR> 
