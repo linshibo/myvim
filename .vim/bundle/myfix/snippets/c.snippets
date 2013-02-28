@@ -14,29 +14,23 @@ snippet hd
 	*/ 
 snippet ih
 	#include "`expand('%:t:r')`.h"
-
-
 snippet ihpp
 	#include "`expand('%:t:r')`.hpp"
-
-
 snippet ff 
 	#ifndef `toupper(substitute(expand("%:t"),'\.','_',"g"))` 
 	#define `toupper(substitute(expand("%:t"),'\.','_',"g"))`
 
 	${1:/*code*/}
 
-	#endif /*`!v toupper(substitute(expand("%:t"),'\.','_',"g"))`*/
-
+	#endif /*`toupper(substitute(expand("%:t"),'\.','_',"g"))`*/
 snippet main
 	int main(int argc, const char *argv[])
 	{
 		${0:/* code */}
 		return 0;
 	}
-
-snippet is	
-	#include <${1:stdio}>${2}
+snippet is
+	#include <${1:iostream}>
 snippet in
 	#include "${1:`Filename("$1.h")`}"${2}
 snippet de

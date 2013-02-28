@@ -50,7 +50,7 @@ set nocompatible
 "disable alt
 set winaltkeys=no
 "tags 位置
-set tags=bundle/myfix/comm_tags,tags; 
+set tags=~/.vim/bundle/myfix/comm_tags,tags; 
 
 "折叠
 set foldmethod=syntax
@@ -85,7 +85,7 @@ if finddir("build") == "build"
     set makeprg=export\ LANG=zh_CN:en;make\ -C\ ./build
 endif
 
-set scrolloff=3 " 距离垂直边界 n 行就开始滚动
+set scrolloff=5 " 距离垂直边界 n 行就开始滚动
 set sidescroll=1 " 水平滚动列数
 set sidescrolloff=10 " 距离水平边界 n 行就开始滚动
 
@@ -294,7 +294,7 @@ nnoremap <A-a> :call SetAlign()<CR>
 "}
 
 "vim-easymotion{
-let g:EasyMotion_leader_key = '\'
+let g:EasyMotion_leader_key = '0'
 "}
 
 "FencView {
@@ -364,6 +364,7 @@ let OmniCpp_MayCompleteScope =1
 "SrcExpl{
 "  The switch of the Source Explorer 
 nnoremap ,z :SrcExplToggle<CR> 
+nnoremap <c-q> :SrcExplToggle<CR> 
 "  Set the height of Source Explorer window 
 let g:SrcExpl_winHeight = 8 
 "  Set 100 ms for refreshing the Source Explorer 
@@ -410,7 +411,7 @@ nnoremap ,cg :cs find g <C-R>=expand("<cword>")<CR><CR>
 set guifont=PowerlineSymbols\ for\ Powerline
 set laststatus=2
 set t_Co=256
-let g:Powerline_symbols = 'fancy'
+"let g:Powerline_symbols = 'fancy'
 "}
 
 "Doxygen插件{
@@ -786,10 +787,10 @@ function! RESET_CTAG_CSCOPE()
 endfunction
 
 function! OPT_RANGE( opt_str ) 
-let cur_char=getline('.')[col('.') - 1] 
-if cur_char == "(" || cur_char == "<" || cur_char == "{" || cur_char == "[" || cur_char == "\"" || cur_char == "'" || cur_char == ")" || cur_char == ">" || cur_char == "}" || cur_char == "]" 
-    exec "normal! ".a:opt_str.cur_char
-endif
+    let cur_char=getline('.')[col('.') - 1] 
+    if cur_char == "(" || cur_char == "<" || cur_char == "{" || cur_char == "[" || cur_char == "\"" || cur_char == "'" || cur_char == ")" || cur_char == ">" || cur_char == "}" || cur_char == "]" 
+        exec "normal! ".a:opt_str.cur_char
+    endif
 endfunction
 
 
@@ -882,30 +883,3 @@ endfunction
 function! GetCurWord()
 	return expand("<cword>")
 endfunc
-
-function! s:UserDefPython()
-python << PYTHONEOF
-import re
-import sys 
-import vim 
-def get_proto_key(word,stroe_name):
-	if (word.isupper()):
-		word=word.lower();
-	if  re.search ("_in$", word ): value= word[:-3] 
-	elif  re.search ("_in_header$", word ): value=word[:-10] 
-	elif  re.search ("_out_header$", word ): value=word[:-11] 
-	elif  re.search ("_out$", word ): value=word[:-4] 
-	elif  re.search ("_cmd$", word ): value=word[:-4].lower() 
-	elif  re.search ("_out_item$", word ): value=word[:-9] 
-	elif  re.search ("_in_item$", word ): value=word[:-8] 
-	else: value=word 
-	if value!= word: 
-		key="\<%s_cmd\>\|\<%s_CMD\>\|\<%s\>\|\<%s_in\>\|\<%s_in_header\>\|\<%s_out_header\>\|\<%s_out\>\|\<%s_in_item\>\|\<%s_out_item\>"%(value,value.upper(), 
-					 value,value,value,value,value,value,value)	
-	else: key=word
-	vim.command("silent let %s='%s'" % (stroe_name,key))
-PYTHONEOF
-endfunction
-if has('python')
-    call s:UserDefPython()
-endif
