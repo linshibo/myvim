@@ -5,21 +5,51 @@
 "source ~/.vim/comm.vim
 "---------------------------------------------------------------------------
 
-"enable pathogen , 必须在最上方 
-try
-	runtime bundle/vim-pathogen/autoload/pathogen.vim
-	call pathogen#infect()
-	call pathogen#helptags()
-catch
-endtry
+"Brief help
+":BundleList          - list configured bundles
+":BundleInstall(!)    - install(update) bundles
+":BundleSearch(!) foo - search(or refresh cache first) for foo
+":BundleClean(!)      - confirm(or auto-approve) removal of unused bundles
+
+"Vundle 管理
+set rtp+=~/.vim/bundle/vundle/
+call vundle#rc()
+
+" 让 Vundle 管理 Vundle
+" 此条必须有
+Bundle 'gmarik/vundle'
+
+" 代码源在 github 上的
+Bundle 'vim-scripts/DoxygenToolkit.vim'
+Bundle 'vim-scripts/FencView.vim'
+Bundle 'vim-scripts/OmniCppComplete'
+Bundle 'vim-scripts/Rainbow-Parentheses-Improved-and2'
+Bundle 'vim-scripts/Tagbar'
+Bundle 'vim-scripts/matchit.zip'
+Bundle 'vim-scripts/python.vim'
+Bundle 'vim-scripts/xml.vim'
+Bundle 'vim-scripts/YankRing.vim'
+Bundle 'vim-scripts/auto_mkdir'
+Bundle 'vim-scripts/Tabular'
+Bundle 'vim-scripts/snipMate'
+Bundle 'vim-scripts/AutoClose'
+Bundle 'vim-scripts/a.vim'
+Bundle 'mileszs/ack.vim'
+Bundle 'Lokaltog/vim-powerline'
+Bundle 'Lokaltog/vim-easymotion'
+Bundle 'Shougo/unite.vim'
+Bundle 'Shougo/neocomplcache'
+Bundle 'yueyoum/vim-alignment'
+Bundle 'tpope/vim-surround'
+
+" 代码存放在 vim script 上
+"Bundle 'FuzzyFinder'
+" 代码存放在其他地方
+"Bundle 'git://git.wincent.com/command-t.git'
 
 "---------------------------------------------------------------------------
 "GENERAL SET
 "---------------------------------------------------------------------------
-
-"escalt 允许终端中绑定alt键{
-let g:loaded_escalt = 1
-"}
 
 "Sets how many lines of history VIM har to remember
 set history=400
@@ -50,7 +80,7 @@ set nocompatible
 "disable alt
 set winaltkeys=no
 "tags 位置
-set tags=~/.vim/bundle/myfix/comm_tags,tags; 
+set tags=~/.vim/comm_tags,~/.vim/cpp_tags,tags,tags; 
 
 "折叠
 set foldmethod=syntax
@@ -119,6 +149,7 @@ set cmdheight=1
 " Wildmenu completion , Cool tab completion stuff{
 set wildmenu
 set wildmode=list:longest,full
+" Ignore compiled files
 set wildignore+=.hg,.git,.svn                    " Version control
 set wildignore+=*.aux,*.out,*.toc                " LaTeX intermediate files
 set wildignore+=*.jpg,*.bmp,*.gif,*.png,*.jpeg   " binary images
@@ -130,10 +161,8 @@ set wildignore+=*.luac                           " Lua byte code
 set wildignore+=migrations                       " Django migrations
 set wildignore+=*.pyc                            " Python byte code
 set wildignore+=*.orig                           " Merge resolution files
-" Clojure/Leiningen
 set wildignore+=classes
 set wildignore+=lib
-" Ignore compiled files
 set wildignore=*.o,*~,*.pyc
 " }
 
@@ -201,13 +230,13 @@ cnoremap <C-P> <UP>
 cnoremap <C-N> <DOWN>
 
 "tabedit
-nnoremap ,te <Esc>:tabedit 
+nnoremap ,t <Esc>:tabedit 
 nnoremap <C-p> <C-PageUp>
 nnoremap <C-n> <C-PageDown>
 
 "查找当前光标下的单词
 nnoremap ,g <Esc>:call P_grep_curword()<CR>
-
+vnoremap ,g :call VisualSelection
 nnoremap ,r <Esc>:call RESET_CTAG_CSCOPE()<CR>
 nnoremap ,m <Esc>:make<CR><CR>
 nnoremap ,y    <Esc>:call OPT_RANGE("ya")<CR>
@@ -220,21 +249,8 @@ nnoremap ,u <Esc>:call SET_UAW()<CR>
 "支持粘贴
 inoremap kk <Esc>:set paste<CR>i
 
-"括号相关
-inoremap ( ()<ESC>i
-inoremap [ []<ESC>i
-inoremap " ""<ESC>i
-inoremap ' ''<ESC>i
-autocmd Syntax html,vim inoremap < <lt>><ESC>i| inoremap > <c-r>=ClosePair('>')<CR>
-inoremap ) <c-r>=ClosePair(')')<CR>
-inoremap ] <c-r>=ClosePair(']')<CR>
-inoremap } <c-r>=CloseBracket()<CR>
-inoremap " <c-r>=QuoteDelim('"')<CR>
-inoremap ' <c-r>=QuoteDelim("'")<CR>
-inoremap { <c-r>=SET_BIG_PAIR()<CR>
-
 "窗口间移动
-nnoremap <A-i>  [I
+nnoremap \i  [I
 nnoremap <C-H> <Esc><C-W>h
 nnoremap <C-L> <Esc><C-W>l
 nnoremap <C-J> <Esc><C-W>j
@@ -244,32 +260,21 @@ nnoremap <C-K> <Esc><C-W>k
 nnoremap \s <ESC>:source ~/.vim/comm.vim<cr>
 "Fast editing of .vimrc
 nnoremap \e <ESC>:e! ~/.vim/comm.vim<cr>
-
 "Switch to current dir
 nnoremap ,cd <ESC>:cd %:p:h<cr>
 
 "在正常模式下的整块移动
-if g:loaded_escalt == 0
-	"大括号内向左移
-	nnoremap <C-H> <Esc><i{
-	"大括号内向右移
-	nnoremap <C-L> <Esc>>i{
-	"选择区移动
-	vnoremap <C-L> <Esc>:call SET_BLOCK_MOVE_V(0) <CR>
-	vnoremap <C-H> <Esc>:call SET_BLOCK_MOVE_V(1) <CR>
-else
-	"大括号内向左移
-	noremap <A-h> <Esc><i{
-	"大括号内向右移
-	noremap <A-l> <Esc>>i{
-        "选择区移动
-        vnoremap <A-l> <Esc>:call SET_BLOCK_MOVE_V(0) <CR>
-        vnoremap <A-h> <Esc>:call SET_BLOCK_MOVE_V(1) <CR>
-endif
+"大括号内向左移
+nnoremap \h <Esc><i{
+"大括号内向右移
+nnoremap \l <Esc>>i{
+"选择区移动
+vnoremap \l <Esc>:call SET_BLOCK_MOVE_V(0) <CR>
+vnoremap \h <Esc>:call SET_BLOCK_MOVE_V(1) <CR>
 " Visual mode pressing * or # searches for the current selection
 " Super useful! From an idea by Michael Naumann
 vnoremap <silent> * :call VisualSelection('f')<CR>
-vnoremap <silent> # :call VisualSelection('b')<CR>
+vnoremap <silent> # :call Ack('b')<CR>
 
 "quick fix toggle
 "nnoremap <F4> <Esc>:call ToggleQF()<CR>
@@ -279,18 +284,20 @@ nnoremap ,cp <Esc>:cp<CR>
 "---------------------------------------------------------------------------
 "插件设置
 "---------------------------------------------------------------------------
+
+nmap \x <Plug>ToggleAutoCloseMappings
+
 "a.vim {
 nnoremap ,a <Esc>:A<CR>
 "}
 
 "unite{
-nnoremap <A-u> :Unite buffer file<CR>
 nnoremap ,f :Unite file<CR>
-nnoremap ,bb :Unite buffer<CR>
+nnoremap ,b :Unite buffer<CR>
 "}
 
 "tabular{
-nnoremap <A-a> :call SetAlign()<CR>
+nnoremap ,= :call SetAlign()<CR>
 "}
 
 "vim-easymotion{
@@ -299,7 +306,6 @@ let g:EasyMotion_leader_key = '0'
 
 "FencView {
 let g:fencview_autodetect = 1                      
-nnoremap <A-v> :FencView<CR>
 "}
 
 "YankRing {
@@ -318,7 +324,7 @@ let g:LookupFile_AlwaysAcceptFirst = 1          "回车打开第一个匹配项�
 let g:LookupFile_AllowNewFiles = 0              "不允许创建不存在的文件
 let g:LookupFile_LookupFunc = 'LookupFile_IgnoreCaseFunc' 
 if filereadable("./tags")                "设置tag文件的名字
-    let g:LookupFile_TagExpr = '"./tags"'
+let g:LookupFile_TagExpr = '"./tags"'
 endif
 "nnoremap <silent> <A-f> :LUTags<CR>
 "nnoremap <silent> <A-e> :LUWalk<cr>
@@ -362,45 +368,17 @@ let OmniCpp_MayCompleteScope =1
 " }
 
 
-"SrcExpl{
-"  The switch of the Source Explorer 
-nnoremap ,z :SrcExplToggle<CR> 
-nnoremap <c-q> :SrcExplToggle<CR> 
-"  Set the height of Source Explorer window 
-let g:SrcExpl_winHeight = 8 
-"  Set 100 ms for refreshing the Source Explorer 
-let g:SrcExpl_refreshTime = 100 
-"  Set "Enter" key to jump into the exact definition context 
-let g:SrcExpl_jumpKey = "<ENTER>" 
-"  Set "Space" key for back from the definition context 
-let g:SrcExpl_gobackKey = "<SPACE>" 
-"  In order to Avoid conflicts, the Source Explorer should know what plugins 
-"  are using buffers. And you need add their bufname into the list below 
-"  according to the command ":buffers!" 
-let g:SrcExpl_pluginList = [ 
-        \ "__Tag_List__", 
-        \ "_NERD_tree_", 
-        \ "Source_Explorer" 
-    \ ] 
-"  Enable/Disable the local definition searching, and note that this is not 
-"  guaranteed to work, the Source Explorer doesn't check the syntax for now. 
-"  It only searches for a match with the keyword according to command 'gd' 
-let g:SrcExpl_searchLocalDef = 1 
-"  Do not let the Source Explorer update the tags file when opening 
-let g:SrcExpl_isUpdateTags = 0 
-"}
-
 " cscope setting {
 if has("cscope")
-    set csprg=/usr/bin/cscope
-    set csto=1
-    set cst
-    set nocsverb
-    " add any database in current directory
-    if filereadable("cscope.out")
-        cs add cscope.out
-        endif
-    set csverb
+set csprg=/usr/bin/cscope
+set csto=1
+set cst
+set nocsverb
+" add any database in current directory
+if filereadable("cscope.out")
+    cs add cscope.out
+    endif
+set csverb
 endif
 nnoremap ,s :cs find s <C-R>=expand("<cword>")<CR><CR>
 nnoremap ,cs :cs find s <C-R>=expand("<cword>")<CR><CR>
@@ -431,19 +409,16 @@ nnoremap \a :DoxAuthor<CR>
 "rainbow_parenthsis_options.vimbow {
 let g:rainbow_active = 1
 let g:rainbow_operators = 1
+autocmd BufEnter *.cpp,*hpp,*.h*.c  call rainbow#load()
+"nnoremap <F5> :call rainbow#load()<CR>
 "}
 
-" markbrowser setting{
-nnoremap <silent> <F6> :MarksBrowser<cr>
-nnoremap <silent> <A-m> :MarksBrowser<cr>
-" }
 
 " Tagbar setting{
 let g:tagbar_width = 30 
 let g:tagbar_expand = 0
 let g:tagbar_autofocus = 1
 nnoremap <silent> <F3> <Esc>:TagbarToggle<cr>
-nnoremap <silent> <A-t> <Esc>:TagbarToggle<cr>
 " }
 
 "neocomplcache{{{
@@ -462,10 +437,10 @@ let g:neocomplcache_lock_buffer_name_pattern = '\*ku\*'
 let g:neocomplcache_enable_auto_select = 0
 " Define file-type dependent dictionaries.
 let g:neocomplcache_dictionary_filetype_lists = {
-    \ 'default' : '',
-    \ 'vimshell' : $HOME.'/.vimshell_hist',
-    \ 'scheme' : $HOME.'/.gosh_completions'
-    \ }
+\ 'default' : '',
+\ 'vimshell' : $HOME.'/.vimshell_hist',
+\ 'scheme' : $HOME.'/.gosh_completions'
+\ }
 " Define keyword, for minor languages
 if !exists('g:neocomplcache_keyword_patterns')
 let g:neocomplcache_keyword_patterns = {}
@@ -504,17 +479,16 @@ let use_xhtml = 1
 autocmd BufEnter *  set tabstop=4 
 " use syntax complete if nothing else available
 if has("autocmd") && exists("+omnifunc")
-autocmd Filetype *
-            \ if &omnifunc == "" |
-            \ setlocal omnifunc=syntaxcomplete#Complete |
-            \ endif
+    autocmd Filetype *
+        \ if &omnifunc == "" |
+        \ setlocal omnifunc=syntaxcomplete#Complete |
+        \ endif
 endif
 
 """"""""""""
 "c c++
 """"""""""""
 autocmd BufEnter  *.cpp,*.c,*.h call s:SET_PATH("include") 
-autocmd BufEnter ~/.vim/cpp_src/*  set filetype=cpp
 autocmd FileType c set omnifunc=ccomplete#Complete
 ".c  .h 文件设为 .cpp
 autocmd BufEnter *.c  set filetype=cpp
@@ -586,7 +560,7 @@ function! LookupFile_IgnoreCaseFunc(pattern)
     finally
         let &tags = _tags
     endtry
-
+    
     " Show the matches for what is typed so far.
     let files = map(tags, 'v:val["filename"]')
     return files
@@ -594,30 +568,31 @@ endfunction
 
 "quickfix 开关 
 function! ToggleQF()
-    if !exists("g:fx_toggle")
-        let g:fx_toggle = 0
-    endif
-    if g:fx_toggle == 0
-        let g:fx_toggle = 1
-        copen
-    else
-        let g:fx_toggle = 0
-        cclose
-    endif
+if !exists("g:fx_toggle")
+    let g:fx_toggle = 0
+endif
+if g:fx_toggle == 0
+    let g:fx_toggle = 1
+    copen
+else
+    let g:fx_toggle = 0
+    cclose
+endif
 endfunc
 
 " Visual mode related
 function! VisualSelection(direction) range
     let l:saved_reg = @"
     execute "normal! vgvy"
-
+    
     let l:pattern = escape(@", '\\/.*$^~[]')
     let l:pattern = substitute(l:pattern, "\n$", "", "")
-
+    
     if a:direction == 'b'
         execute "normal ?" . l:pattern . "^M"
     elseif a:direction == 'gv'
-        call CmdLine("vimgrep " . '/'. l:pattern . '/' . ' **/*.')
+        ""call CmdLine("vimgrep " . '/'. l:pattern . '/' . ' **/*.')
+        call CmdLine("Ack " . '/'. l:pattern . '/' . ' **/*.')
     elseif a:direction == 'replace'
         call CmdLine("%s" . '/'. l:pattern . '/')
     elseif a:direction == 'f'
@@ -629,66 +604,13 @@ endfunction
 
 "自动更新 修改时间
 function! LastModified()
-    if search("\\/\\*LastModified: \\d\\{4}-\\d\\{2}-\\d\\{2} \\d\\{2}:\\d\\{2}:\\d\\{2}\\*\\/","","")>0
-    "if search("\\/\\*LastModified: \\d\\{4}-\\d\\{2}-\\d\\{2} \\d\\{2}:\\d\\{2}:\\d\\{2}\\*\\/","",line("$"))>0
-        exe "silent! $,$g/$/s/LastModified: .*/LastModified: " .
-            \ strftime("%Y-%m-%d %H:%M:%S") . "\\*\\/"
-    else
-        exe "silent! $,$g/$/s/$/\r\\/\\*LastModified: " .
-            \ strftime("%Y-%m-%d %H:%M:%S") . "\\*\\/"
-    endif
-endfunc
-
-function! Ex_space ( char )
-    if (&filetype == "cpp" || &filetype == "c" )
-        let pre_str= strpart(getline('.'),0,col('.')-1)
-        if pumvisible() != 0  
-            "in completing , complete it    
-            return "\<CR>"	
-        elseif pre_str  =~ "[.][\s\t]*$" || pre_str  =~ "->[\s\t]*$"   
-            return "\<C-X>\<C-O>"	
-        endif 
-    endif
-
-    if (&filetype == "python" ||&filetype == "html"  ||&filetype == "php"     )
-        let pre_str= strpart(getline('.'),0,col('.')-1)
-        if pumvisible() != 0  
-            "in completing , complete it    
-            return "\<CR>"	
-        elseif pre_str  =~ "[.][\s\t]*$" || pre_str  =~ "->[\s\t]*$"   
-            return "\<C-X>\<C-O>\<C-P>\<C-R>=pumvisible() ? \"\\<down>\" : \"\"\<cr>"	
-        endif 
-    
-    endif
-    "default
-    return a:char 
-endf
-
-"退格时自动补全
-function! Ex_bspace()
-    if (&filetype == "cpp" || &filetype == "c" )
-        let pre_str= strpart(getline('.'),0,col('.')-2)
-        if pre_str  =~ "[.][ \t]*$" || pre_str  =~ "->[ \t]*$"   
-            return "\<Backspace>\<C-X>\<C-O>"	
-        endif 
-    endif
-
-    if (&filetype == "python"|| &filetype == "html"  || &filetype == "python"  )
-        let pre_str= strpart(getline('.'),0,col('.')-2)
-        if pre_str  =~ "[.][ \t]*$"
-            return "\<Backspace>\<C-X>\<C-O>\<C-P>\<C-R>=pumvisible() ? \"\\<down>\" : \"\"\<cr>"	
-        endif 
-    endif
-
-    "default
-    return "\<Backspace>"	
-endf
-
-" Delete trailing white space on save, useful for Python and CoffeeScript ;)
-func! DeleteTrailingWS()
-    exe "normal mz"
-    %s/\s\+$//ge
-    exe "normal `z"
+if search("\\/\\*LastModified: \\d\\{4}-\\d\\{2}-\\d\\{2} \\d\\{2}:\\d\\{2}:\\d\\{2}\\*\\/","","")>0
+    exe "silent! $,$g/$/s/LastModified: .*/LastModified: " .
+        \ strftime("%Y-%m-%d %H:%M:%S") . "\\*\\/"
+else
+    exe "silent! $,$g/$/s/$/\r\\/\\*LastModified: " .
+        \ strftime("%Y-%m-%d %H:%M:%S") . "\\*\\/"
+endif
 endfunc
 
 "获取当前路径的上一级的路径
@@ -743,7 +665,7 @@ endfunction
 "upper case
 function! SET_UAW()
     let save_cursor = getpos(".")
-
+    
     let line = getline('.')
     let col_num = col('.')
     if match("ABCDEFGHIJKLMNOPQRSTUVWXYZ",line[col_num-1])!= -1
@@ -751,7 +673,7 @@ function! SET_UAW()
     else
         exec "normal! gUaw"
     endif
-
+    
     call setpos('.', save_cursor)
 endfunction
 
@@ -772,7 +694,6 @@ endfunction
 
 "重新生成ctag cscope
 function! RESET_CTAG_CSCOPE() 
-    "!~/.vim/./bundle/myfix/mtags.sh 
     if(executable('cscope') && has("cscope") )
         silent! execute "!find . -name '[^.]*.h' -o -name '[^.]*.c' -o -name '[^.]*.cpp' -o -name '[^.]*.hpp' > cscope.files"
         silent! execute "!cscope -bkq"
@@ -808,56 +729,6 @@ function! SET_BLOCK_MOVE_V( move_type )
     exec  "normal! v" . linecount . "j"	
 endfunction
 
-
-function! SET_BIG_PAIR()
-if (&filetype=="php" ||  &filetype=="sh"  )
-    if match( getline('.'), '"' ) >= 0 || match( getline('.'), "'" ) >= 0 
-        return "{}\<ESC>i"
-    endif
-elseif (&filetype=="python")
-        return "{}\<ESC>i"
-endif
-return "{\<CR>}\<ESC>O"
-endf
-
-function! ClosePair(char)
-if getline('.')[col('.') - 1] == a:char
-    return "\<Right>"
-else
-    return a:char
-endif
-endf
-
-"闭合大括号
-function! CloseBracket()
-    if match(getline(line('.') + 1), '\s*}') < 0
-		return "\<CR>}"
-	else
-		return "\<ESC>j0f}a"
-	endif
-endf
-
-"插入引号时
-function! QuoteDelim(char)
-  let line = getline('.')
-  let col = col('.')
-
-  if (&filetype == "vim")
-    return a:char
-  endif
-	
-  if line[col - 2] == "\\"
-    "Inserting a quoted quotation mark into the string
-    return a:char
-  elseif line[col - 1] == a:char
-    "Escaping out of the string
-	return "\<Right>"
-  else
-    "Starting a string
-    return a:char.a:char."\<ESC>i"
-  endif
-endf 
-
 "获取选择模式的内容
 function! s:GetVisualSelection()
     let save_a = @a
@@ -866,18 +737,6 @@ function! s:GetVisualSelection()
     let @a = save_a
     let var = escape(v, '\\/.$*')
     return var
-endfunction
-
-"用于支持DB 协议查找 ：cmd<->function<->in<->out
-function! Proto_find() 
-	"得到光标下的单词
-	let curword=expand("<cword>")
- 	python get_proto_key(vim.eval("curword"),"find_word" )
-	"设置搜索寄存器
-	let  @/ = find_word 
-	call histadd("/", find_word )
-	"查找下一个..
-	exec "normal! n"
 endfunction
 
 "得到光标下的单词

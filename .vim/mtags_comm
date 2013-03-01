@@ -1,0 +1,49 @@
+#!/bin/bash
+cd `dirname $0`
+rm -f comm_tags
+ctags -f comm_tags -R --c++-kinds=+p --fields=+iaS --extra=+q \
+	/usr/include/*.h \
+	/usr/include/netinet/\
+	/usr/include/net/\
+	/usr/include/arpa/\
+	/usr/include/sys\
+	/usr/include/bits\
+	/usr/include/i386-linux-gnu/sys/\
+	/usr/include/i386-linux-gnu/bits/\
+	/usr/include/asm\
+	/usr/include/asm-generic\
+	/usr/include/arpa/\
+	/usr/include/dbser/\
+	/usr/include/libtaomee/\
+	/usr/include/libtaomee/attr_api/\
+	/usr/include/libtaomee/bitmanip/\
+	/usr/include/libtaomee/conf_parser/\
+	/usr/include/libtaomee/crypt/\
+	/usr/include/libtaomee/dataformatter/\
+	/usr/include/libtaomee/inet/\
+	/usr/include/libtaomee/interprocess/\
+	/usr/include/libtaomee/lua/\
+	/usr/include/libtaomee/project/\
+	/usr/include/libtaomee/random/\
+	/usr/include/libtaomee/time/\
+	/usr/include/libtaomee/tlog/\
+	/usr/include/libtaomee/tm_dirty/\
+	/usr/include/libtaomee/tm_shm/\
+	/usr/include/libtaomee++/bitmanip/\
+	/usr/include/libtaomee++/conf_parser/\
+	/usr/include/libtaomee++/ev/\
+	/usr/include/libtaomee++/event/\
+	/usr/include/libtaomee++/factory/\
+	/usr/include/libtaomee++/inet/\
+	/usr/include/libtaomee++/memory/\
+	/usr/include/libtaomee++/pathfinder/\
+	/usr/include/libtaomee++/proto/\
+	/usr/include/libtaomee++/random/\
+	/usr/include/libtaomee++/thread/\
+	/usr/include/libtaomee++/time/\
+	/usr/include/libtaomee++/utils/\
+	/usr/include/libtaomee++/verification_image/\
+	/usr/include/mysql/\
+	/usr/local/include/async_serv/\
+	/usr/local/include/main_login/\
+	./cpp_src

@@ -1,7 +1,7 @@
 alias l='ls -allh'
 alias l.='ls -d .* --color=tty'
 alias ll='ls -lh --color=tty'
-alias vi="vim"
+#alias vi="vim"
 alias telnet="telnet -8 -e^e"
 alias grep="grep --color=auto"
 alias rm="rm -i"
