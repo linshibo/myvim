@@ -41,6 +41,7 @@ Bundle 'Shougo/unite.vim'
 Bundle 'Shougo/neocomplcache'
 Bundle 'yueyoum/vim-alignment'
 Bundle 'tpope/vim-surround'
+Bundle 'bootleq/LargeFile'
 
 " 代码存放在 vim script 上
 "Bundle 'FuzzyFinder'
@@ -206,19 +207,28 @@ command! -nargs=0 VIMTIPS  :tabe | :r ! w3m -dump http://zzapper.co.uk/vimtips.h
 "----------------------------------------------------------------------------
 "MAP BIND
 "----------------------------------------------------------------------------
-"disable <F1>
-nmap <F1> <nop>
 
 "use jj replace esc 
 inoremap jj <Esc>
 
+nnoremap gr gT
+map  <F1> :help <C-R>=expand('<cword>')<CR><CR>
+
+" }}}2   跨 Vim 剪貼    {{{2
+
+" http://vim.wikia.com/wiki/Transfer_text_between_two_Vim_instances
+nmap <Leader>xp :r $HOME/.vimxfer<CR>
+nmap <Leader>xy V:w! $HOME/.vimxfer<CR>
+vmap <Leader>xy :w! $HOME/.vimxfer<CR>
+vmap <Leader>xa :w>> $HOME/.vimxfer<CR>
 nnoremap ,q <Esc>:q!<CR>
 nnoremap ,w <Esc>:w!<CR>
+
 " sudo write this
 nnoremap ,W <Esc>:w !sudo tee % >/dev/null<CR>
 nnoremap ,e <Esc>:e 
 nnoremap ,x <Esc>:!
-nmap  Y  y$
+nnoremap  Y  y$
 
 "cmd model map
 cnoremap <C-A> <HOME>
@@ -287,36 +297,36 @@ nnoremap ,cp <Esc>:cp<CR>
 
 nmap \x <Plug>ToggleAutoCloseMappings
 
-"a.vim {
+"a.vim {{{
 nnoremap ,a <Esc>:A<CR>
-"}
+"}}}
 
-"unite{
+"unite{{{
 nnoremap ,f :Unite file<CR>
 nnoremap ,b :Unite buffer<CR>
-"}
+"}}}
 
-"tabular{
+"tabular{{{
 nnoremap ,= :call SetAlign()<CR>
-"}
+"}}}
 
-"vim-easymotion{
+"vim-easymotion{{{
 let g:EasyMotion_leader_key = '0'
-"}
+"}}}
 
-"FencView {
+"FencView {{{
 let g:fencview_autodetect = 1                      
-"}
+"}}}
 
-"YankRing {
+"YankRing {{{
 nnoremap <silent> <C-Y> :YRShow<CR> 
 let g:yankring_replace_n_pkey = '<m-p>'
 let g:yankring_replace_n_nkey = '<m-n>'
 let g:yankring_history_dir = '~/.vim/'
 let g:yankring_history_file='.yankring_history_file'
-"}
+"}}}
 
-" lookupfile setting{
+" lookupfile setting{{{
 let g:LookupFile_MinPatLength = 2               "最少输入2个字符才开始查找
 let g:LookupFile_PreserveLastPattern = 0        "不保存上次查找的字符串
 let g:LookupFile_PreservePatternHistory = 1     "保存查找历史
@@ -329,9 +339,9 @@ endif
 "nnoremap <silent> <A-f> :LUTags<CR>
 "nnoremap <silent> <A-e> :LUWalk<cr>
 "nnoremap <silent> <A-b> :LUBufs<cr>
-" }
+" }}}
 
-" omnicppcomplete{
+" omnicppcomplete{{{
 "用于支持代码补全时，提示存在。
 set complete=.,w,b,u,t
 set completeopt=longest,menuone
@@ -365,10 +375,10 @@ let OmniCpp_SelectFirstItem = 0
 let OmniCpp_LocalSearchDecl = 1
 "::补全
 let OmniCpp_MayCompleteScope =1
-" }
+" }}}
 
 
-" cscope setting {
+" cscope setting {{{
 if has("cscope")
 set csprg=/usr/bin/cscope
 set csto=1
@@ -376,7 +386,7 @@ set cst
 set nocsverb
 " add any database in current directory
 if filereadable("cscope.out")
-    cs add cscope.out
+    silent cs add cscope.out
     endif
 set csverb
 endif
@@ -384,16 +394,25 @@ nnoremap ,s :cs find s <C-R>=expand("<cword>")<CR><CR>
 nnoremap ,cs :cs find s <C-R>=expand("<cword>")<CR><CR>
 nnoremap ,cc :cs find c <C-R>=expand("<cword>")<CR><CR>
 nnoremap ,cg :cs find g <C-R>=expand("<cword>")<CR><CR>
-" }
+" }}}
 
-"powerline{ 状态栏
+"largefile{{{
+let g:LargeFile           = 40
+let g:LargeFile_size_unit = 1024    " KB
+let g:LargeFile_patterns  = '*.log,*.log.1,*.sql'
+let g:LargeFile_verbose   = 0
+autocmd User LargeFileRead call s:large_file_read()
+autocmd User LargeFile call s:large_file_read()
+"}}}
+
+"powerline{{{ 状态栏
 set guifont=PowerlineSymbols\ for\ Powerline
 set laststatus=2
 set t_Co=256
 "let g:Powerline_symbols = 'fancy'
-"}
+"}}}
 
-"Doxygen插件{
+"Doxygen插件{{{
 let g:DoxygenToolkit_briefTag_pre="@brief  " 
 let g:DoxygenToolkit_paramTag_pre="@param  " 
 let g:DoxygenToolkit_returnTag="@return  " 
@@ -404,22 +423,22 @@ let g:DoxygenToolkit_maxFunctionProtoLines = 30
 nnoremap \f :Dox<CR>
 nnoremap \a :DoxAuthor<CR>
 "map \b :DoxBlock<CR>
-"}
+"}}}
 
-"rainbow_parenthsis_options.vimbow {
+"rainbow_parenthsis_options.vimbow {{{
 let g:rainbow_active = 1
 let g:rainbow_operators = 1
 autocmd BufEnter *.cpp,*hpp,*.h*.c  call rainbow#load()
 "nnoremap <F5> :call rainbow#load()<CR>
-"}
+"}}}
 
 
-" Tagbar setting{
+" Tagbar setting{{{
 let g:tagbar_width = 30 
 let g:tagbar_expand = 0
 let g:tagbar_autofocus = 1
 nnoremap <silent> <F3> <Esc>:TagbarToggle<cr>
-" }
+" }}}
 
 "neocomplcache{{{
 let g:neocomplcache_enable_quick_match = 1
@@ -433,7 +452,8 @@ let g:neocomplcache_enable_camel_case_completion = 1
 let g:neocomplcache_enable_underbar_completion = 1
 " Sets minimum char length of syntax keyword.
 let g:neocomplcache_min_syntax_length = 3
-let g:neocomplcache_lock_buffer_name_pattern = '\*ku\*'
+""let g:neocomplcache_lock_buffer_name_pattern = '\*ku\*'
+let g:neocomplcache_lock_buffer_name_pattern = '\[fuf\]'
 let g:neocomplcache_enable_auto_select = 0
 " Define file-type dependent dictionaries.
 let g:neocomplcache_dictionary_filetype_lists = {
@@ -441,6 +461,11 @@ let g:neocomplcache_dictionary_filetype_lists = {
 \ 'vimshell' : $HOME.'/.vimshell_hist',
 \ 'scheme' : $HOME.'/.gosh_completions'
 \ }
+let g:neocomplcache_omni_functions = {
+      \ 'c' : 'ccomplete#Complete',
+      \ 'python' : 'pythoncomplete#Complete',
+      \ 'ruby' : 'rubycomplete#Complete',
+      \ }
 " Define keyword, for minor languages
 if !exists('g:neocomplcache_keyword_patterns')
 let g:neocomplcache_keyword_patterns = {}
@@ -462,12 +487,12 @@ let g:neocomplcache_omni_patterns.c = '\%(\.\|->\)\h\w*'
 let g:neocomplcache_omni_patterns.cpp = '\h\w*\%(\.\|->\)\h\w*\|\h\w*::'
 "}}}
 
-"xml.vim{
+"xml.vim{{{
 let xml_use_xhtml = 1
 let html_use_css = 1
 let html_number_lines = 0
 let use_xhtml = 1
-"}
+"}}}
 
 "----------------------------------------------------------------------------
 " FileType related
@@ -534,6 +559,8 @@ autocmd BufRead *.as set filetype=actionscript
 "----------------------------------------------------------------------------
 " FUNCTIONS
 "----------------------------------------------------------------------------
+function! s:large_file_read()
+endfunction
 
 function! SetAlign()
     let ch=getline(line('.'))[col('.')-1]
