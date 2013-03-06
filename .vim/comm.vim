@@ -34,6 +34,9 @@ Bundle 'vim-scripts/Tabular'
 Bundle 'vim-scripts/snipMate'
 Bundle 'vim-scripts/AutoClose'
 Bundle 'vim-scripts/a.vim'
+Bundle 'vim-scripts/L9'
+Bundle 'vim-scripts/comments.vim'
+Bundle 'vim-scripts/FuzzyFinder'
 Bundle 'mileszs/ack.vim'
 Bundle 'Lokaltog/vim-powerline'
 Bundle 'Lokaltog/vim-easymotion'
@@ -42,7 +45,9 @@ Bundle 'Shougo/neocomplcache'
 Bundle 'yueyoum/vim-alignment'
 Bundle 'tpope/vim-surround'
 Bundle 'bootleq/LargeFile'
-
+Bundle 'bootleq/vim-cycle'
+Bundle 'kana/vim-smartinput'
+Bundle 'kana/vim-smartword'
 " 代码存放在 vim script 上
 "Bundle 'FuzzyFinder'
 " 代码存放在其他地方
@@ -217,10 +222,9 @@ map  <F1> :help <C-R>=expand('<cword>')<CR><CR>
 " }}}2   跨 Vim 剪貼    {{{2
 
 " http://vim.wikia.com/wiki/Transfer_text_between_two_Vim_instances
-nmap <Leader>xp :r $HOME/.vimxfer<CR>
-nmap <Leader>xy V:w! $HOME/.vimxfer<CR>
-vmap <Leader>xy :w! $HOME/.vimxfer<CR>
-vmap <Leader>xa :w>> $HOME/.vimxfer<CR>
+nmap \p :r $HOME/.vimxfer<CR>
+vmap \x :w! $HOME/.vimxfer<CR>
+
 nnoremap ,q <Esc>:q!<CR>
 nnoremap ,w <Esc>:w!<CR>
 
@@ -295,10 +299,16 @@ nnoremap ,cp <Esc>:cp<CR>
 "插件设置
 "---------------------------------------------------------------------------
 
-nmap \x <Plug>ToggleAutoCloseMappings
+nmap <F8> <Plug>ToggleAutoCloseMappings
 
 "a.vim {{{
 nnoremap ,a <Esc>:A<CR>
+"}}}
+
+"fuzzyfinder {{{
+nnoremap \ff :FufFile<CR>
+nnoremap \fb :FufBuffer<CR>
+nnoremap \ft :FufTag<CR>
 "}}}
 
 "unite{{{
@@ -380,15 +390,15 @@ let OmniCpp_MayCompleteScope =1
 
 " cscope setting {{{
 if has("cscope")
-set csprg=/usr/bin/cscope
-set csto=1
-set cst
-set nocsverb
-" add any database in current directory
-if filereadable("cscope.out")
-    silent cs add cscope.out
-    endif
-set csverb
+    set csprg=/usr/bin/cscope
+    set csto=1
+    set cst
+    set nocsverb
+    " add any database in current directory
+    if filereadable("cscope.out")
+        silent cs add cscope.out
+        endif
+    set csverb
 endif
 nnoremap ,s :cs find s <C-R>=expand("<cword>")<CR><CR>
 nnoremap ,cs :cs find s <C-R>=expand("<cword>")<CR><CR>
@@ -420,16 +430,14 @@ let g:DoxygenToolkit_authorName="francisco"
 let g:DoxygenToolkit_undocTag="DOXIGEN_SKIP_BLOCK"
 let g:DoxygenToolkit_briefTag_funcName = "no"
 let g:DoxygenToolkit_maxFunctionProtoLines = 30
-nnoremap \f :Dox<CR>
-nnoremap \a :DoxAuthor<CR>
-"map \b :DoxBlock<CR>
+nnoremap \d :Dox<CR>
+""nnoremap \da :DoxAuthor<CR>
 "}}}
 
 "rainbow_parenthsis_options.vimbow {{{
 let g:rainbow_active = 1
 let g:rainbow_operators = 1
-autocmd BufEnter *.cpp,*hpp,*.h*.c  call rainbow#load()
-"nnoremap <F5> :call rainbow#load()<CR>
+autocmd BufEnter *.cpp,*hpp,*.h*.c  call rainbow#activate()
 "}}}
 
 
@@ -492,6 +500,57 @@ let xml_use_xhtml = 1
 let html_use_css = 1
 let html_number_lines = 0
 let use_xhtml = 1
+"}}}
+
+"cycle.vim{{{
+let g:cycle_no_mappings = 1
+let g:cycle_max_conflict = 7
+let g:cycle_phased_search = 1
+nmap <silent> \a <Plug>CycleNext
+vmap <silent> \a <Plug>CycleNext
+
+let g:cycle_default_groups = [
+\ [['true', 'false']],
+\ [['yes', 'no']],
+\ [['on', 'off']],
+\ [['+', '-']],
+\ [['>', '<']],
+\ [['"', "'"]],
+\ [['==', '!=']],
+\ [['0', '1']],
+\ [['and', 'or']],
+\ [['in', 'out']],
+\ [['up', 'down']],
+\ [['min', 'max']],
+\ [['get', 'set']],
+\ [['add', 'remove']],
+\ [['to', 'from']],
+\ [['read', 'write']],
+\ [['save', 'load', 'restore']],
+\ [['next', 'previous', 'prev']],
+\ [['only', 'except']],
+\ [['without', 'with']],
+\ [['exclude', 'include']],
+\ [['width', 'height']],
+\ [['asc', 'desc']],
+\ [['start', 'end']],
+\ [['是', '否']],
+\ [['上', '下']],
+\ [['左', '右']],
+\ [['前', '后']],
+\ [['內', '外']],
+\ [['男', '女']],
+\ [['east', 'west']],
+\ [['south', 'north']],
+\ [['prefix', 'suffix']],
+\ [['decode', 'encode']],
+\ [['short', 'long']],
+\ [['pop', 'shift']],
+\ [['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday',
+\ 'Friday', 'Saturday'], ['hard_case', {'name': 'Days'}]],
+\ [['{:}', '[:]', '(:)'], 'sub_pairs'],
+\ [['（:）', '「:」', '『:』'], 'sub_pairs'],
+\ ]
 "}}}
 
 "----------------------------------------------------------------------------
