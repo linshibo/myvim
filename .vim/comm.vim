@@ -34,9 +34,9 @@ Bundle 'vim-scripts/Tabular'
 Bundle 'vim-scripts/snipMate'
 Bundle 'vim-scripts/AutoClose'
 Bundle 'vim-scripts/a.vim'
-Bundle 'vim-scripts/L9'
 Bundle 'vim-scripts/comments.vim'
-Bundle 'vim-scripts/FuzzyFinder'
+""Bundle 'vim-scripts/L9'
+""Bundle 'vim-scripts/FuzzyFinder'
 Bundle 'mileszs/ack.vim'
 Bundle 'Lokaltog/vim-powerline'
 Bundle 'Lokaltog/vim-easymotion'
@@ -46,7 +46,6 @@ Bundle 'yueyoum/vim-alignment'
 Bundle 'tpope/vim-surround'
 Bundle 'bootleq/LargeFile'
 Bundle 'bootleq/vim-cycle'
-Bundle 'kana/vim-smartinput'
 Bundle 'kana/vim-smartword'
 " 代码存放在 vim script 上
 "Bundle 'FuzzyFinder'
@@ -232,7 +231,7 @@ nnoremap ,w <Esc>:w!<CR>
 nnoremap ,W <Esc>:w !sudo tee % >/dev/null<CR>
 nnoremap ,e <Esc>:e 
 nnoremap ,x <Esc>:!
-nnoremap  Y  y$
+nmap  Y  y$
 
 "cmd model map
 cnoremap <C-A> <HOME>
@@ -245,8 +244,8 @@ cnoremap <C-N> <DOWN>
 
 "tabedit
 nnoremap ,t <Esc>:tabedit 
-nnoremap <C-p> <C-PageUp>
-nnoremap <C-n> <C-PageDown>
+"nnoremap <C-p> <C-PageUp>
+"nnoremap <C-n> <C-PageDown>
 
 "查找当前光标下的单词
 nnoremap ,g <Esc>:call P_grep_curword()<CR>
@@ -279,19 +278,19 @@ nnoremap ,cd <ESC>:cd %:p:h<cr>
 
 "在正常模式下的整块移动
 "大括号内向左移
-nnoremap \h <Esc><i{
+nmap <F7> <Esc><i{
 "大括号内向右移
-nnoremap \l <Esc>>i{
+nmap <F8> <Esc>>i{
 "选择区移动
-vnoremap \l <Esc>:call SET_BLOCK_MOVE_V(0) <CR>
-vnoremap \h <Esc>:call SET_BLOCK_MOVE_V(1) <CR>
+vnoremap <F7> <Esc>:call SET_BLOCK_MOVE_V(1) <CR>
+vnoremap <F8> <Esc>:call SET_BLOCK_MOVE_V(0) <CR>
 " Visual mode pressing * or # searches for the current selection
 " Super useful! From an idea by Michael Naumann
 vnoremap <silent> * :call VisualSelection('f')<CR>
 vnoremap <silent> # :call Ack('b')<CR>
 
 "quick fix toggle
-"nnoremap <F4> <Esc>:call ToggleQF()<CR>
+nnoremap <F4> <Esc>:call ToggleQF()<CR>
 nnoremap ,cn <Esc>:cn<CR>
 nnoremap ,cp <Esc>:cp<CR>
 
@@ -299,16 +298,16 @@ nnoremap ,cp <Esc>:cp<CR>
 "插件设置
 "---------------------------------------------------------------------------
 
-nmap <F8> <Plug>ToggleAutoCloseMappings
+nmap <F2> <Plug>ToggleAutoCloseMappings
 
 "a.vim {{{
 nnoremap ,a <Esc>:A<CR>
 "}}}
 
 "fuzzyfinder {{{
-nnoremap \ff :FufFile<CR>
-nnoremap \fb :FufBuffer<CR>
-nnoremap \ft :FufTag<CR>
+"nnoremap \ff :FufFile<CR>
+"nnoremap \fb :FufBuffer<CR>
+"nnoremap \ft :FufTag<CR>
 "}}}
 
 "unite{{{
@@ -322,6 +321,7 @@ nnoremap ,= :call SetAlign()<CR>
 
 "vim-easymotion{{{
 let g:EasyMotion_leader_key = '0'
+nmap \w <Esc>00w
 "}}}
 
 "FencView {{{
@@ -438,6 +438,7 @@ nnoremap \d :Dox<CR>
 let g:rainbow_active = 1
 let g:rainbow_operators = 1
 autocmd BufEnter *.cpp,*hpp,*.h*.c  call rainbow#activate()
+nnoremap <F5>  :call rainbow#load()<CR>
 "}}}
 
 
