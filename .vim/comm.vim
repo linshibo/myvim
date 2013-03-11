@@ -222,7 +222,7 @@ map  <F1> :help <C-R>=expand('<cword>')<CR><CR>
 
 " http://vim.wikia.com/wiki/Transfer_text_between_two_Vim_instances
 nmap \p :r $HOME/.vimxfer<CR>
-vmap \x :w! $HOME/.vimxfer<CR>
+vmap \c :w! $HOME/.vimxfer<CR>
 
 nnoremap ,q <Esc>:q!<CR>
 nnoremap ,w <Esc>:w!<CR>
@@ -231,7 +231,7 @@ nnoremap ,w <Esc>:w!<CR>
 nnoremap ,W <Esc>:w !sudo tee % >/dev/null<CR>
 nnoremap ,e <Esc>:e 
 nnoremap ,x <Esc>:!
-nmap  Y  y$
+map  Y  y$
 
 "cmd model map
 cnoremap <C-A> <HOME>
@@ -293,7 +293,6 @@ vnoremap <silent> # :call Ack('b')<CR>
 nnoremap <F4> <Esc>:call ToggleQF()<CR>
 nnoremap ,cn <Esc>:cn<CR>
 nnoremap ,cp <Esc>:cp<CR>
-
 "---------------------------------------------------------------------------
 "插件设置
 "---------------------------------------------------------------------------
@@ -437,7 +436,7 @@ nnoremap \d :Dox<CR>
 "rainbow_parenthsis_options.vimbow {{{
 let g:rainbow_active = 1
 let g:rainbow_operators = 1
-autocmd BufEnter *.cpp,*hpp,*.h*.c  call rainbow#activate()
+autocmd BufEnter *.cpp,*hpp,*.h,*.c  call rainbow#load()
 nnoremap <F5>  :call rainbow#load()<CR>
 "}}}
 
