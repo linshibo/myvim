@@ -431,7 +431,7 @@ let g:LargeFile_verbose   = 0
 "}}}
 
 "powerline{{{ 状态栏
-set guifont=PowerlineSymbols\ for\ Powerline
+set guifont=PowerlineSymbols\ for\ Powerline:h15
 set laststatus=2
 set t_Co=256
 ""let g:Powerline_colorscheme = 'solarized256'
