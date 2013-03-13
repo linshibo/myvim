@@ -96,7 +96,7 @@ export PS1='\[\e[01;35m\]==\[\e[01;31m\][$LOCAL_IP_4]\[\e[01;35m\]==\[\e[01;36m\
    #export PS1="\[\033[01;33m\]==[$LOCAL_IP_4]==$(~/powerline-shell.py $?)"
 #}
 #export PROMPT_COMMAND="_update_ps1"
-export PROMPT_COMMAND="echo -ne \"\033]0;==[$LOCAL_IP_4]==\007\""
+export PROMPT_COMMAND="echo -ne \"\033]0;==[$LOCAL_IP_4]==[`whoami`]\007\""
 export EDITOR="vim"
 export LANG=en_US.UTF-8
 ulimit -c 40000000

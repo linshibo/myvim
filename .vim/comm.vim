@@ -37,7 +37,7 @@ Bundle 'vim-scripts/a.vim'
 Bundle 'vim-scripts/comments.vim'
 ""Bundle 'vim-scripts/L9'
 ""Bundle 'vim-scripts/FuzzyFinder'
-Bundle 'mileszs/ack.vim'
+""Bundle 'mileszs/ack.vim'
 Bundle 'Lokaltog/vim-powerline'
 Bundle 'Lokaltog/vim-easymotion'
 Bundle 'Shougo/unite.vim'
@@ -47,6 +47,7 @@ Bundle 'tpope/vim-surround'
 Bundle 'bootleq/LargeFile'
 Bundle 'bootleq/vim-cycle'
 Bundle 'kana/vim-smartword'
+Bundle 'altercation/vim-colors-solarized'
 " 代码存放在 vim script 上
 "Bundle 'FuzzyFinder'
 " 代码存放在其他地方
@@ -128,7 +129,11 @@ set sidescrolloff=10 " 距离水平边界 n 行就开始滚动
 set fileformats=unix,mac
 
 "主题 
-colorscheme desert
+"colorscheme desert
+set background=dark
+colorscheme solarized
+let g:solarized_termcolors=256
+set cursorline
 
 "显示命令
 set showcmd
@@ -231,7 +236,7 @@ nnoremap ,w <Esc>:w!<CR>
 nnoremap ,W <Esc>:w !sudo tee % >/dev/null<CR>
 nnoremap ,e <Esc>:e 
 nnoremap ,x <Esc>:!
-map  Y  y$
+nmap  Y  y$
 
 "cmd model map
 cnoremap <C-A> <HOME>
@@ -249,7 +254,7 @@ nnoremap ,t <Esc>:tabedit
 
 "查找当前光标下的单词
 nnoremap ,g <Esc>:call P_grep_curword()<CR>
-vnoremap ,g :call VisualSelection
+vnoremap ,g :call VisualSelection('gv')
 nnoremap ,r <Esc>:call RESET_CTAG_CSCOPE()<CR>
 nnoremap ,m <Esc>:make<CR><CR>
 nnoremap ,y    <Esc>:call OPT_RANGE("ya")<CR>
@@ -287,7 +292,7 @@ vnoremap <F8> <Esc>:call SET_BLOCK_MOVE_V(0) <CR>
 " Visual mode pressing * or # searches for the current selection
 " Super useful! From an idea by Michael Naumann
 vnoremap <silent> * :call VisualSelection('f')<CR>
-vnoremap <silent> # :call Ack('b')<CR>
+vnoremap <silent> # :call VisualSelection('b')<CR>
 
 "quick fix toggle
 nnoremap <F4> <Esc>:call ToggleQF()<CR>
@@ -297,7 +302,16 @@ nnoremap ,cp <Esc>:cp<CR>
 "插件设置
 "---------------------------------------------------------------------------
 
+"vim-smartword{{{
+nmap w  <Plug>(smartword-w)
+nmap b  <Plug>(smartword-b)
+nmap e  <Plug>(smartword-e)
+nmap ge  <Plug>(smartword-ge)
+"}}}
+
+"autoclose{{{
 nmap <F2> <Plug>ToggleAutoCloseMappings
+"}}}}
 
 "a.vim {{{
 nnoremap ,a <Esc>:A<CR>
@@ -408,17 +422,17 @@ nnoremap ,cg :cs find g <C-R>=expand("<cword>")<CR><CR>
 "largefile{{{
 let g:LargeFile           = 40
 let g:LargeFile_size_unit = 1024    " KB
-let g:LargeFile_patterns  = '*.log,*.log.1,*.sql'
+let g:LargeFile_patterns  = '*.log,*.log.1,*.sql,*debug*'
 let g:LargeFile_verbose   = 0
-autocmd User LargeFileRead call s:large_file_read()
-autocmd User LargeFile call s:large_file_read()
 "}}}
 
 "powerline{{{ 状态栏
 set guifont=PowerlineSymbols\ for\ Powerline
 set laststatus=2
 set t_Co=256
-"let g:Powerline_symbols = 'fancy'
+""let g:Powerline_colorscheme = 'solarized256'
+""let g:Powerline_theme = 'solarized256'
+""let g:Powerline_symbols = 'fancy'
 "}}}
 
 "Doxygen插件{{{
@@ -618,9 +632,6 @@ autocmd BufRead *.as set filetype=actionscript
 "----------------------------------------------------------------------------
 " FUNCTIONS
 "----------------------------------------------------------------------------
-function! s:large_file_read()
-endfunction
-
 function! SetAlign()
     let ch=getline(line('.'))[col('.')-1]
     let next=getline(line('.'))[col('.')]
@@ -678,7 +689,7 @@ function! VisualSelection(direction) range
         execute "normal ?" . l:pattern . "^M"
     elseif a:direction == 'gv'
         ""call CmdLine("vimgrep " . '/'. l:pattern . '/' . ' **/*.')
-        call CmdLine("Ack " . '/'. l:pattern . '/' . ' **/*.')
+        call CmdLine("grep " . '/'. l:pattern . '/' . ' **/*.')
     elseif a:direction == 'replace'
         call CmdLine("%s" . '/'. l:pattern . '/')
     elseif a:direction == 'f'
@@ -775,7 +786,7 @@ endfunction
 "得到光标下的单词
 function! P_grep_curword() 
     let curword=expand("<cword>")
-    exec "Ack " . curword . " ./"
+    exec "grep " . curword . " ./"
 endfunction
 
 "重新生成ctag cscope
