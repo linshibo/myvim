@@ -128,9 +128,13 @@ set sidescrolloff=10 " 距离水平边界 n 行就开始滚动
 "Favorite filetypes
 set fileformats=unix,mac
 
+if has('gui_running')
+    set background=light
+else
+    set background=dark
+endif
 "主题 
 "colorscheme desert
-set background=dark
 colorscheme solarized
 let g:solarized_termcolors=256
 set cursorline
