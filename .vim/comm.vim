@@ -129,12 +129,11 @@ set sidescrolloff=10 " 距离水平边界 n 行就开始滚动
 set fileformats=unix,mac
 
 if has('gui_running')
-    set background=light
-else
-    set background=dark
+    set guifont=Menlo\ for\ Powerline\ 14
 endif
 "主题 
 "colorscheme desert
+set background="dark"
 colorscheme solarized
 let g:solarized_termcolors=256
 set cursorline
@@ -431,11 +430,11 @@ let g:LargeFile_verbose   = 0
 "}}}
 
 "powerline{{{ 状态栏
-set guifont=PowerlineSymbols\ for\ Powerline:h15
+"set guifont=PowerlineSymbols\ for\ Powerline
 set laststatus=2
 set t_Co=256
-""let g:Powerline_colorscheme = 'solarized256'
 ""let g:Powerline_theme = 'solarized256'
+let g:Powerline_colorscheme = 'solarized256'
 ""let g:Powerline_symbols = 'fancy'
 "}}}
 
