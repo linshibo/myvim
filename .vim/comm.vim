@@ -35,6 +35,7 @@ Bundle 'vim-scripts/snipMate'
 Bundle 'vim-scripts/AutoClose'
 Bundle 'vim-scripts/a.vim'
 Bundle 'vim-scripts/comments.vim'
+Bundle 'vim-scripts/netrw.vim'
 ""Bundle 'vim-scripts/L9'
 ""Bundle 'vim-scripts/FuzzyFinder'
 ""Bundle 'mileszs/ack.vim'
@@ -235,6 +236,8 @@ vmap \c :w! $HOME/.vimxfer<CR>
 nnoremap ,q <Esc>:q!<CR>
 nnoremap ,w <Esc>:w!<CR>
 
+nnoremap <F6> :nohl<CR>
+
 " sudo write this
 nnoremap ,W <Esc>:w !sudo tee % >/dev/null<CR>
 nnoremap ,e <Esc>:e 
@@ -434,7 +437,7 @@ let g:LargeFile_verbose   = 0
 set laststatus=2
 set t_Co=256
 ""let g:Powerline_theme = 'solarized256'
-let g:Powerline_colorscheme = 'solarized256'
+""let g:Powerline_colorscheme = 'solarized256'
 ""let g:Powerline_symbols = 'fancy'
 "}}}
 
