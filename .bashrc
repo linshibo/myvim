@@ -91,12 +91,16 @@ export LOCAL_IP_4=`echo $localip | awk -F. '{print $4}' `
 export LOCAL_IP_3=`echo $localip | awk -F. '{print $3}' `
 #export PS1='\[\033[01;31m\]==[$LOCAL_IP_4]==\[\e[01;37m\][\[\033[01;32m\]\u\[\033[01;33m\]@\[\033[01;35m\]\h\[\033[00m\] \[\033[01;34m\]`pwd``B=$(git branch 2>/dev/null | sed -e "/^ /d" -e "s/* \(.*\)/\1/"); if [ "$B" != "" ]; then S="git"; elif [ -e .bzr ]; then S=bzr; elif [ -e .hg ]; then S="hg"; elif [ -e .svn ]; then S="svn"; else S=""; fi; if [ "$S" != "" ]; then if [ "$B" != "" ]; then M=$S:$B; else M=$S; fi; fi; [[ "$M" != "" ]] && echo -n -e "\[\e[33;40m\]($M)\[\033[01;32m\]\[\e[00m\]"`\[\033[01;34m\]\[\e[01;37m\]]\n\[\e[01;34m\]$ \[\e[00m\]'
 export PS1='\[\e[01;35m\]==\[\e[01;31m\][$LOCAL_IP_4]\[\e[01;35m\]==\[\e[01;36m\][\[\e[01;32m\]\u\[\e[01;33m\]\[\e[00m\] \[\e[01;34m\]`pwd``B=$(git branch 2>/dev/null | sed -e "/^ /d" -e "s/* \(.*\)/\1/"); if [ "$B" != "" ]; then S="git"; elif [ -e .bzr ]; then S=bzr; elif [ -e .hg ]; then S="hg"; elif [ -e .svn ]; then S="svn"; else S=""; fi; if [ "$S" != "" ]; then if [ "$B" != "" ]; then M=$S:$B; else M=$S; fi; fi; [[ "$M" != "" ]] && echo -n -e "\[\e[33;40m\]($M)\[\e[01;32m\]\[\e[00m\]"`\[\e[01;34m\]\[\e[01;36m\]]\[\e[01;31m\]$ \[\e[00m\]'
-export TERM="xterm-256color"
+export TERM=xterm-256color
 export PROMPT_COMMAND="echo -ne \"\033]0;==[$LOCAL_IP_4]==[`whoami`]\007\""
 export EDITOR="vim"
 export LANG=en_US.UTF-8
 ulimit -c 40000000
 export PATH=$PATH:.
+
+if [ -x /usr/bin/dircolors ]; then
+    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+fi
 
 export LESS_TERMCAP_mb=$'\E[01;31m'
 export LESS_TERMCAP_md=$'\E[01;31m'
