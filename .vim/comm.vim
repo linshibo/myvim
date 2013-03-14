@@ -35,10 +35,9 @@ Bundle 'vim-scripts/snipMate'
 Bundle 'vim-scripts/AutoClose'
 Bundle 'vim-scripts/a.vim'
 Bundle 'vim-scripts/comments.vim'
-Bundle 'vim-scripts/netrw.vim'
-""Bundle 'vim-scripts/L9'
-""Bundle 'vim-scripts/FuzzyFinder'
-""Bundle 'mileszs/ack.vim'
+Bundle 'vim-scripts/ack.vim'
+"Bundle 'vim-scripts/L9'
+"Bundle 'vim-scripts/FuzzyFinder'
 Bundle 'Lokaltog/vim-powerline'
 Bundle 'Lokaltog/vim-easymotion'
 Bundle 'Shougo/unite.vim'
@@ -94,9 +93,6 @@ set foldmethod=syntax
 ""默认情况下不折叠
 set foldlevel=99
 
-" => Vim grep
-let Grep_Skip_Dirs = 'tags RCS CVS SCCS .svn generated'
-set grepprg=/bin/grep\ -nH
 
 "重新打开时自动定位到原来的位置
 autocmd BufReadPost *
@@ -129,9 +125,9 @@ set sidescrolloff=10 " 距离水平边界 n 行就开始滚动
 "Favorite filetypes
 set fileformats=unix,mac
 
-if has('gui_running')
-    set guifont=Menlo\ for\ Powerline\ 14
-endif
+"if has('gui_running')
+    "set guifont=Menlo\ for\ Powerline\ 14
+"endif
 "主题 
 "colorscheme desert
 set background="dark"
@@ -234,7 +230,7 @@ nmap \p :r $HOME/.vimxfer<CR>
 vmap \c :w! $HOME/.vimxfer<CR>
 
 nnoremap ,q <Esc>:q!<CR>
-nnoremap ,w <Esc>:w!<CR>
+nnoremap ,w :w!<CR>:nohl<CR>
 
 nnoremap <F6> :nohl<CR>
 
@@ -259,8 +255,8 @@ nnoremap ,t <Esc>:tabedit
 "nnoremap <C-n> <C-PageDown>
 
 "查找当前光标下的单词
-nnoremap ,g <Esc>:call P_grep_curword()<CR>
-vnoremap ,g :call VisualSelection('gv')
+nnoremap ,g :call P_grep_curword()<CR>
+vnoremap ,g :call VisualSelection('gv')<CR>
 nnoremap ,r <Esc>:call RESET_CTAG_CSCOPE()<CR>
 nnoremap ,m <Esc>:make<CR><CR>
 nnoremap ,y    <Esc>:call OPT_RANGE("ya")<CR>
@@ -307,7 +303,10 @@ nnoremap ,cp <Esc>:cp<CR>
 "---------------------------------------------------------------------------
 "插件设置
 "---------------------------------------------------------------------------
-
+"ack.vim{
+set grepprg=/user/bin/ack-grep
+let g:ackprg="/usr/bin/ack-grep -H --nocolor --nogroup"
+"}
 "vim-smartword{{{
 nmap w  <Plug>(smartword-w)
 nmap b  <Plug>(smartword-b)
@@ -433,12 +432,8 @@ let g:LargeFile_verbose   = 0
 "}}}
 
 "powerline{{{ 状态栏
-"set guifont=PowerlineSymbols\ for\ Powerline
 set laststatus=2
 set t_Co=256
-""let g:Powerline_theme = 'solarized256'
-""let g:Powerline_colorscheme = 'solarized256'
-""let g:Powerline_symbols = 'fancy'
 "}}}
 
 "Doxygen插件{{{
@@ -694,10 +689,9 @@ function! VisualSelection(direction) range
     if a:direction == 'b'
         execute "normal ?" . l:pattern . "^M"
     elseif a:direction == 'gv'
-        ""call CmdLine("vimgrep " . '/'. l:pattern . '/' . ' **/*.')
-        call CmdLine("grep " . '/'. l:pattern . '/' . ' **/*.')
+        exec "Ack " . l:pattern
     elseif a:direction == 'replace'
-        call CmdLine("%s" . '/'. l:pattern . '/')
+        ""call CmdLine("%s" . '/'. l:pattern . '/')
     elseif a:direction == 'f'
         execute "normal /" . l:pattern . "^M"
     endif
@@ -792,7 +786,8 @@ endfunction
 "得到光标下的单词
 function! P_grep_curword() 
     let curword=expand("<cword>")
-    exec "grep " . curword . " ./"
+    ""exec "!grep -r -s -q" . curword . " * --exclude=*tags"
+    exec "Ack " . curword
 endfunction
 
 "重新生成ctag cscope
