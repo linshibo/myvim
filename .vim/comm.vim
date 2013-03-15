@@ -125,14 +125,16 @@ set sidescrolloff=10 " 距离水平边界 n 行就开始滚动
 "Favorite filetypes
 set fileformats=unix,mac
 
-"if has('gui_running')
-    "set guifont=Menlo\ for\ Powerline\ 14
-"endif
+if has('gui_running')
+    set guifont=Menlo\ for\ Powerline\ 14
+endif
 "主题 
 "colorscheme desert
+let g:solarized_termcolors=256
+let g:solarized_termtrans=1
+let g:solarized_hitrail   =   0
 set background="dark"
 colorscheme solarized
-let g:solarized_termcolors=256
 set cursorline
 
 "显示命令
@@ -419,6 +421,7 @@ if has("cscope")
     set csverb
 endif
 nnoremap ,s :cs find s <C-R>=expand("<cword>")<CR><CR>
+vnoremap ,s :call  VisualSelection('cs')<CR>
 nnoremap ,cs :cs find s <C-R>=expand("<cword>")<CR><CR>
 nnoremap ,cc :cs find c <C-R>=expand("<cword>")<CR><CR>
 nnoremap ,cg :cs find g <C-R>=expand("<cword>")<CR><CR>
@@ -432,6 +435,7 @@ let g:LargeFile_verbose   = 0
 "}}}
 
 "powerline{{{ 状态栏
+let g:Powerline_colorscheme = 'solarized256'
 set laststatus=2
 set t_Co=256
 "}}}
@@ -694,6 +698,8 @@ function! VisualSelection(direction) range
         ""call CmdLine("%s" . '/'. l:pattern . '/')
     elseif a:direction == 'f'
         execute "normal /" . l:pattern . "^M"
+    elseif a:direction == 'cs'
+        execute "cs find s " . l:pattern 
     endif
     let @/ = l:pattern
     let @" = l:saved_reg
