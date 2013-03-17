@@ -483,6 +483,8 @@ let g:neocomplcache_min_syntax_length = 3
 let g:neocomplcache_lock_buffer_name_pattern = '\[fuf\]'
 let g:neocomplcache_enable_auto_select = 0
 " Define file-type dependent dictionaries.
+inoremap <expr><C-g>     neocomplcache#undo_completion()
+inoremap <expr><C-l>     neocomplcache#complete_common_string()
 let g:neocomplcache_dictionary_filetype_lists = {
 \ 'default' : '',
 \ 'vimshell' : $HOME.'/.vimshell_hist',
@@ -507,11 +509,14 @@ inoremap <expr><C-e>  neocomplcache#cancel_popup()
 inoremap <expr><space> pumvisible() ? neocomplcache#close_popup() . "\<SPACE>" : "\<SPACE>"
 " Enable heavy omni completion, which require computational power and may stall the vim. 
 if !exists('g:neocomplcache_omni_patterns')
-let g:neocomplcache_omni_patterns = {}
+    let g:neocomplcache_omni_patterns = {}
 endif
+let g:neocomplcache_omni_patterns.ruby = '[^. *\t]\.\h\w*\|\h\w*::'
 let g:neocomplcache_omni_patterns.php = '[^. \t]->\h\w*\|\h\w*::'
-let g:neocomplcache_omni_patterns.c = '\%(\.\|->\)\h\w*'
-let g:neocomplcache_omni_patterns.cpp = '\h\w*\%(\.\|->\)\h\w*\|\h\w*::'
+"let g:neocomplcache_omni_patterns.c = '\%(\.\|->\)\h\w*'
+"let g:neocomplcache_omni_patterns.cpp = '\h\w*\%(\.\|->\)\h\w*\|\h\w*::'
+let g:neocomplcache_omni_patterns.c = '[^.[:digit:] *\t]\%(\.\|->\)'
+let g:neocomplcache_omni_patterns.cpp = '[^.[:digit:] *\t]\%(\.\|->\)\|\h\w*::'
 "}}}
 
 "xml.vim{{{
@@ -714,6 +719,52 @@ else
     exe "silent! $,$g/$/s/$/\r\\/\\*LastModified: " .
         \ strftime("%Y-%m-%d %H:%M:%S") . "\\*\\/"
 endif
+function! Ex_space ( char )
+    if (&filetype == "cpp" || &filetype == "c" )
+        let pre_str= strpart(getline('.'),0,col('.')-1)
+        if pumvisible() != 0  
+            "in completing , complete it    
+            return "\<CR>"	
+        elseif pre_str  =~ "[.][\s\t]*$" || pre_str  =~ "->[\s\t]*$"   
+            return "\<C-X>\<C-O>"	
+        endif 
+    endif
+
+    if (&filetype == "python" ||&filetype == "html"  ||&filetype == "php"     )
+        let pre_str= strpart(getline('.'),0,col('.')-1)
+        if pumvisible() != 0  
+            "in completing , complete it    
+            return "\<CR>"	
+        elseif pre_str  =~ "[.][\s\t]*$" || pre_str  =~ "->[\s\t]*$"   
+            return "\<C-X>\<C-O>\<C-P>\<C-R>=pumvisible() ? \"\\<down>\" : \"\"\<cr>"	
+        endif 
+    
+    endif
+    "default
+    return a:char 
+endf
+
+"退格时自动补全
+function! Ex_bspace()
+    if (&filetype == "cpp" || &filetype == "c" )
+        let pre_str= strpart(getline('.'),0,col('.')-2)
+        if pre_str  =~ "[.][ \t]*$" || pre_str  =~ "->[ \t]*$"   
+            return "\<Backspace>\<C-X>\<C-O>"	
+        endif 
+    endif
+
+    if (&filetype == "python"|| &filetype == "html"  || &filetype == "python"  )
+        let pre_str= strpart(getline('.'),0,col('.')-2)
+        if pre_str  =~ "[.][ \t]*$"
+            return "\<Backspace>\<C-X>\<C-O>\<C-P>\<C-R>=pumvisible() ? \"\\<down>\" : \"\"\<cr>"	
+        endif 
+    endif
+
+    "default
+    return "\<Backspace>"	
+endf
+
+
 endfunc
 
 "获取当前路径的上一级的路径
@@ -847,3 +898,29 @@ endfunction
 function! GetCurWord()
 	return expand("<cword>")
 endfunc
+function! s:UserDefPython()
+python << PYTHONEOF
+import re
+import sys 
+import vim 
+def get_proto_key(word,stroe_name):
+	if (word.isupper()):
+		word=word.lower();
+	if  re.search ("_in$", word ): value= word[:-3] 
+	elif  re.search ("_in_header$", word ): value=word[:-10] 
+	elif  re.search ("_out_header$", word ): value=word[:-11] 
+	elif  re.search ("_out$", word ): value=word[:-4] 
+	elif  re.search ("_cmd$", word ): value=word[:-4].lower() 
+	elif  re.search ("_out_item$", word ): value=word[:-9] 
+	elif  re.search ("_in_item$", word ): value=word[:-8] 
+	else: value=word 
+	if value!= word: 
+		key="\<%s_cmd\>\|\<%s_CMD\>\|\<%s\>\|\<%s_in\>\|\<%s_in_header\>\|\<%s_out_header\>\|\<%s_out\>\|\<%s_in_item\>\|\<%s_out_item\>"%(value,value.upper(), 
+					 value,value,value,value,value,value,value)	
+	else: key=word
+	vim.command("silent let %s='%s'" % (stroe_name,key))
+PYTHONEOF
+endfunction
+if has('python')
+    call s:UserDefPython()
+endif
