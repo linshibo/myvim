@@ -48,6 +48,8 @@ Bundle 'bootleq/LargeFile'
 Bundle 'bootleq/vim-cycle'
 Bundle 'kana/vim-smartword'
 Bundle 'altercation/vim-colors-solarized'
+Bundle 'mbbill/echofunc'
+ 
 " 代码存放在 vim script 上
 "Bundle 'FuzzyFinder'
 " 代码存放在其他地方
@@ -432,6 +434,8 @@ let g:LargeFile           = 40
 let g:LargeFile_size_unit = 1024    " KB
 let g:LargeFile_patterns  = '*.log,*.log.1,*.sql,*debug*'
 let g:LargeFile_verbose   = 0
+autocmd User LargeFile NeoComplCacheDisable
+autocmd User LargeFileRead NeoComplCacheDisable
 "}}}
 
 "powerline{{{ 状态栏
@@ -451,12 +455,12 @@ let g:DoxygenToolkit_maxFunctionProtoLines = 30
 nnoremap \d :Dox<CR>
 ""nnoremap \da :DoxAuthor<CR>
 "}}}
-
 "rainbow_parenthsis_options.vimbow {{{
-let g:rainbow_active = 1
-let g:rainbow_operators = 1
-autocmd BufEnter *.cpp,*hpp,*.h,*.c  call rainbow#load()
+let g:rainbow_ctermfgs = [ 'darkgray', 'darkblue' ,'magenta','darkgreen', 'cyan', 'darkred', ]
+let g:rainbow_active = 0
+let g:rainbow_operators = 0
 nnoremap <F5>  :call rainbow#load()<CR>
+"autocmd BufEnter *.cpp,*hpp,*.h,*.c  call rainbow#load()
 "}}}
 
 
@@ -479,8 +483,7 @@ let g:neocomplcache_enable_camel_case_completion = 1
 let g:neocomplcache_enable_underbar_completion = 1
 " Sets minimum char length of syntax keyword.
 let g:neocomplcache_min_syntax_length = 3
-""let g:neocomplcache_lock_buffer_name_pattern = '\*ku\*'
-let g:neocomplcache_lock_buffer_name_pattern = '\[fuf\]'
+let g:neocomplcache_lock_buffer_name_pattern = '\*ku\*'
 let g:neocomplcache_enable_auto_select = 0
 " Define file-type dependent dictionaries.
 inoremap <expr><C-g>     neocomplcache#undo_completion()
@@ -517,6 +520,12 @@ let g:neocomplcache_omni_patterns.php = '[^. \t]->\h\w*\|\h\w*::'
 "let g:neocomplcache_omni_patterns.cpp = '\h\w*\%(\.\|->\)\h\w*\|\h\w*::'
 let g:neocomplcache_omni_patterns.c = '[^.[:digit:] *\t]\%(\.\|->\)'
 let g:neocomplcache_omni_patterns.cpp = '[^.[:digit:] *\t]\%(\.\|->\)\|\h\w*::'
+if !exists('g:neocomplcache_force_omni_patterns')
+    let g:neocomplcache_force_omni_patterns = {}
+endif
+let g:neocomplcache_force_omni_patterns.ruby = '[^. *\t]\.\w*\|\h\w*::'
+let g:neocomplcache_force_omni_patterns.c = '[^.[:digit:] *\t]\%(\.\|->\)'
+let g:neocomplcache_force_omni_patterns.cpp = '[^.[:digit:] *\t]\%(\.\|->\)\|\h\w*::'
 "}}}
 
 "xml.vim{{{
