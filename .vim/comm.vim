@@ -36,12 +36,13 @@ Bundle 'vim-scripts/AutoClose'
 Bundle 'vim-scripts/a.vim'
 Bundle 'vim-scripts/comments.vim'
 Bundle 'vim-scripts/ack.vim'
-"Bundle 'vim-scripts/L9'
-"Bundle 'vim-scripts/FuzzyFinder'
+Bundle 'vim-scripts/L9'
+Bundle 'vim-scripts/FuzzyFinder'
 Bundle 'Lokaltog/vim-powerline'
 Bundle 'Lokaltog/vim-easymotion'
 Bundle 'Shougo/unite.vim'
 Bundle 'Shougo/neocomplcache'
+Bundle 'Shougo/neosnippet'
 Bundle 'yueyoum/vim-alignment'
 Bundle 'tpope/vim-surround'
 Bundle 'bootleq/LargeFile'
@@ -327,9 +328,9 @@ nnoremap ,a <Esc>:A<CR>
 "}}}
 
 "fuzzyfinder {{{
-"nnoremap \ff :FufFile<CR>
-"nnoremap \fb :FufBuffer<CR>
-"nnoremap \ft :FufTag<CR>
+nnoremap \ff :FufFile<CR>
+nnoremap \fb :FufBuffer<CR>
+nnoremap \ft :FufTag<CR>
 "}}}
 
 "unite{{{
@@ -434,8 +435,6 @@ let g:LargeFile           = 40
 let g:LargeFile_size_unit = 1024    " KB
 let g:LargeFile_patterns  = '*.log,*.log.1,*.sql,*debug*'
 let g:LargeFile_verbose   = 0
-autocmd User LargeFile NeoComplCacheDisable
-autocmd User LargeFileRead NeoComplCacheDisable
 "}}}
 
 "powerline{{{ 状态栏
@@ -457,7 +456,7 @@ nnoremap \d :Dox<CR>
 "}}}
 "rainbow_parenthsis_options.vimbow {{{
 let g:rainbow_ctermfgs = [ 'darkgray', 'darkblue' ,'magenta','darkgreen', 'cyan', 'darkred', ]
-let g:rainbow_active = 0
+let g:rainbow_active = 1
 let g:rainbow_operators = 0
 nnoremap <F5>  :call rainbow#load()<CR>
 "autocmd BufEnter *.cpp,*hpp,*.h,*.c  call rainbow#load()
@@ -470,6 +469,16 @@ let g:tagbar_expand = 0
 let g:tagbar_autofocus = 1
 nnoremap <silent> <F3> <Esc>:TagbarToggle<cr>
 " }}}
+
+"neosnippet{{{
+" Plugin key-mappings.
+imap <C-tab>     <Plug>(neosnippet_expand_or_jump)
+smap <C-tab>     <Plug>(neosnippet_expand_or_jump)
+if has('conceal')
+  set conceallevel=2 concealcursor=i
+endif
+let g:neosnippet#snippets_directory='~/.vim/bundle/snipMate/snippets'
+"}}}
 
 "neocomplcache{{{
 let g:neocomplcache_enable_quick_match = 1
@@ -488,6 +497,7 @@ let g:neocomplcache_enable_auto_select = 0
 " Define file-type dependent dictionaries.
 inoremap <expr><C-g>     neocomplcache#undo_completion()
 inoremap <expr><C-l>     neocomplcache#complete_common_string()
+
 let g:neocomplcache_dictionary_filetype_lists = {
 \ 'default' : '',
 \ 'vimshell' : $HOME.'/.vimshell_hist',
