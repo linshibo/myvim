@@ -130,3 +130,36 @@ bind -m vi-insert '\c-x':exchange-point-and-mark
 bind -m vi-insert '\c-u':unix-line-discard
 bind -m vi-insert '\c-w':unix-word-rubout
 bind -m vi-insert '\c-k':kill-line
+
+function comm_put_ser() 
+{
+    user=$1
+    ip_fix=$2
+    port=$3
+    passwd=$4
+    sshpass -p"$passwd" scp -q -2 -P $port $6 $user@$ip_fix.$5:~/
+}
+
+function comm_get_ser() 
+{
+    user=$1
+    ip_fix=$2
+    port=$3
+    passwd=$4
+    sshpass -p"$passwd" scp -q -2 -P $port  $user@$ip_fix.$5:~/$6 . 
+}
+function alias_comm_cmd() 
+{
+    flag=$2
+    user=$3
+    ip_fix=$4
+    port=$5
+    passwd=$6
+    user_flag=$7
+    eval "alias c$flag$1$user_flag=' sshpass  -p\"$passwd\" ssh -q -2 -p$port $user@$ip_fix.$1' "
+    eval "alias put$flag$1$user_flag=' comm_put_ser $user $ip_fix $port \"$passwd\" $1 ' "
+    eval "alias get$flag$1$user_flag=' comm_get_ser $user $ip_fix $port \"$passwd\" $1 ' "
+}
+alias_comm_cmd 5 '' uman 10.1.1  22000 uman 
+
+

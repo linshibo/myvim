@@ -42,7 +42,6 @@ Bundle 'Lokaltog/vim-powerline'
 Bundle 'Lokaltog/vim-easymotion'
 Bundle 'Shougo/unite.vim'
 Bundle 'Shougo/neocomplcache'
-Bundle 'Shougo/neosnippet'
 Bundle 'yueyoum/vim-alignment'
 Bundle 'tpope/vim-surround'
 Bundle 'bootleq/LargeFile'
@@ -469,16 +468,6 @@ let g:tagbar_expand = 0
 let g:tagbar_autofocus = 1
 nnoremap <silent> <F3> <Esc>:TagbarToggle<cr>
 " }}}
-
-"neosnippet{{{
-" Plugin key-mappings.
-imap <C-tab>     <Plug>(neosnippet_expand_or_jump)
-smap <C-tab>     <Plug>(neosnippet_expand_or_jump)
-if has('conceal')
-  set conceallevel=2 concealcursor=i
-endif
-let g:neosnippet#snippets_directory='~/.vim/bundle/snipMate/snippets'
-"}}}
 
 "neocomplcache{{{
 let g:neocomplcache_enable_quick_match = 1
