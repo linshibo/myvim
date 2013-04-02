@@ -44,11 +44,11 @@ Bundle 'Shougo/unite.vim'
 Bundle 'Shougo/neocomplcache'
 Bundle 'yueyoum/vim-alignment'
 Bundle 'tpope/vim-surround'
-Bundle 'bootleq/LargeFile'
 Bundle 'bootleq/vim-cycle'
 Bundle 'kana/vim-smartword'
 Bundle 'altercation/vim-colors-solarized'
 Bundle 'mbbill/echofunc'
+ 
  
 " 代码存放在 vim script 上
 "Bundle 'FuzzyFinder'
@@ -225,10 +225,10 @@ command! -nargs=0 VIMTIPS  :tabe | :r ! w3m -dump http://zzapper.co.uk/vimtips.h
 inoremap jj <Esc>
 
 nnoremap gr gT
+
 map  <F1> :help <C-R>=expand('<cword>')<CR><CR>
 
-" }}}2   跨 Vim 剪貼    {{{2
-
+" }}} 跨 Vim 剪貼 {{{2
 " http://vim.wikia.com/wiki/Transfer_text_between_two_Vim_instances
 nmap \p :r $HOME/.vimxfer<CR>
 vmap \c :w! $HOME/.vimxfer<CR>
@@ -257,6 +257,10 @@ cnoremap <C-N> <DOWN>
 nnoremap ,t <Esc>:tabedit 
 "nnoremap <C-p> <C-PageUp>
 "nnoremap <C-n> <C-PageDown>
+
+"解析协议
+vnoremap ,i :call VisualSelection('oi')<CR>
+vnoremap ,o :call VisualSelection('oo')<CR>
 
 "查找当前光标下的单词
 nnoremap ,g :call P_grep_curword()<CR>
@@ -311,6 +315,7 @@ nnoremap ,cp <Esc>:cp<CR>
 set grepprg=/user/bin/ack-grep
 let g:ackprg="/usr/bin/ack-grep -H --nocolor --nogroup"
 "}
+
 "vim-smartword{{{
 nmap w  <Plug>(smartword-w)
 nmap b  <Plug>(smartword-b)
@@ -357,21 +362,6 @@ let g:yankring_replace_n_nkey = '<m-n>'
 let g:yankring_history_dir = '~/.vim/'
 let g:yankring_history_file='.yankring_history_file'
 "}}}
-
-" lookupfile setting{{{
-let g:LookupFile_MinPatLength = 2               "最少输入2个字符才开始查找
-let g:LookupFile_PreserveLastPattern = 0        "不保存上次查找的字符串
-let g:LookupFile_PreservePatternHistory = 1     "保存查找历史
-let g:LookupFile_AlwaysAcceptFirst = 1          "回车打开第一个匹配项目
-let g:LookupFile_AllowNewFiles = 0              "不允许创建不存在的文件
-let g:LookupFile_LookupFunc = 'LookupFile_IgnoreCaseFunc' 
-if filereadable("./tags")                "设置tag文件的名字
-let g:LookupFile_TagExpr = '"./tags"'
-endif
-"nnoremap <silent> <A-f> :LUTags<CR>
-"nnoremap <silent> <A-e> :LUWalk<cr>
-"nnoremap <silent> <A-b> :LUBufs<cr>
-" }}}
 
 " omnicppcomplete{{{
 "用于支持代码补全时，提示存在。
@@ -424,9 +414,6 @@ if has("cscope")
 endif
 nnoremap ,s :cs find s <C-R>=expand("<cword>")<CR><CR>
 vnoremap ,s :call  VisualSelection('cs')<CR>
-nnoremap ,cs :cs find s <C-R>=expand("<cword>")<CR><CR>
-nnoremap ,cc :cs find c <C-R>=expand("<cword>")<CR><CR>
-nnoremap ,cg :cs find g <C-R>=expand("<cword>")<CR><CR>
 " }}}
 
 "largefile{{{
@@ -453,6 +440,7 @@ let g:DoxygenToolkit_maxFunctionProtoLines = 30
 nnoremap \d :Dox<CR>
 ""nnoremap \da :DoxAuthor<CR>
 "}}}
+
 "rainbow_parenthsis_options.vimbow {{{
 let g:rainbow_ctermfgs = [ 'darkgray', 'darkblue' ,'magenta','darkgreen', 'cyan', 'darkred', ]
 let g:rainbow_active = 1
@@ -662,25 +650,6 @@ function! SetAlign()
     exec "Tabularize /" . ch
 endfunc
 
-" lookup file with ignore case
-function! LookupFile_IgnoreCaseFunc(pattern)
-    let _tags = &tags
-    try
-        let &tags = eval(g:LookupFile_TagExpr)
-        let newpattern = '\c' . a:pattern
-        let tags = taglist(newpattern)
-    catch
-        echohl ErrorMsg | echo "Exception: " . v:exception | echohl NONE
-        return ""
-    finally
-        let &tags = _tags
-    endtry
-    
-    " Show the matches for what is typed so far.
-    let files = map(tags, 'v:val["filename"]')
-    return files
-endfunction
-
 "quickfix 开关 
 function! ToggleQF()
 if !exists("g:fx_toggle")
@@ -713,6 +682,10 @@ function! VisualSelection(direction) range
         execute "normal /" . l:pattern . "^M"
     elseif a:direction == 'cs'
         execute "cs find s " . l:pattern 
+    elseif a:direction == 'oi'
+        execute "!onlinei " . l:pattern 
+    elseif a:direction == 'oo'
+        execute "!onlineo " . l:pattern 
     endif
     let @/ = l:pattern
     let @" = l:saved_reg
@@ -727,30 +700,6 @@ else
     exe "silent! $,$g/$/s/$/\r\\/\\*LastModified: " .
         \ strftime("%Y-%m-%d %H:%M:%S") . "\\*\\/"
 endif
-function! Ex_space ( char )
-    if (&filetype == "cpp" || &filetype == "c" )
-        let pre_str= strpart(getline('.'),0,col('.')-1)
-        if pumvisible() != 0  
-            "in completing , complete it    
-            return "\<CR>"	
-        elseif pre_str  =~ "[.][\s\t]*$" || pre_str  =~ "->[\s\t]*$"   
-            return "\<C-X>\<C-O>"	
-        endif 
-    endif
-
-    if (&filetype == "python" ||&filetype == "html"  ||&filetype == "php"     )
-        let pre_str= strpart(getline('.'),0,col('.')-1)
-        if pumvisible() != 0  
-            "in completing , complete it    
-            return "\<CR>"	
-        elseif pre_str  =~ "[.][\s\t]*$" || pre_str  =~ "->[\s\t]*$"   
-            return "\<C-X>\<C-O>\<C-P>\<C-R>=pumvisible() ? \"\\<down>\" : \"\"\<cr>"	
-        endif 
-    
-    endif
-    "default
-    return a:char 
-endf
 
 "退格时自动补全
 function! Ex_bspace()
@@ -839,15 +788,6 @@ function! SET_UAW()
     call setpos('.', save_cursor)
 endfunction
 
-"for grep cn 
-function! Do_cn() 
-    try
-        exec "cn"
-    catch /E553/
-        exec "cc 1"
-    endtry	
-endfunction
-
 "得到光标下的单词
 function! P_grep_curword() 
     let curword=expand("<cword>")
@@ -890,16 +830,6 @@ function! SET_BLOCK_MOVE_V( move_type )
     let save_cursor_begin = getpos("'<")
     call setpos('.', save_cursor_begin)
     exec  "normal! v" . linecount . "j"	
-endfunction
-
-"获取选择模式的内容
-function! s:GetVisualSelection()
-    let save_a = @a
-    silent normal! gv"ay
-    let v = @a
-    let @a = save_a
-    let var = escape(v, '\\/.$*')
-    return var
 endfunction
 
 "得到光标下的单词
