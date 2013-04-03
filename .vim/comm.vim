@@ -416,13 +416,6 @@ nnoremap ,s :cs find s <C-R>=expand("<cword>")<CR><CR>
 vnoremap ,s :call  VisualSelection('cs')<CR>
 " }}}
 
-"largefile{{{
-let g:LargeFile           = 40
-let g:LargeFile_size_unit = 1024    " KB
-let g:LargeFile_patterns  = '*.log,*.log.1,*.sql,*debug*'
-let g:LargeFile_verbose   = 0
-"}}}
-
 "powerline{{{ 状态栏
 let g:Powerline_colorscheme = 'solarized256'
 set laststatus=2
@@ -460,7 +453,7 @@ nnoremap <silent> <F3> <Esc>:TagbarToggle<cr>
 "neocomplcache{{{
 let g:neocomplcache_enable_quick_match = 1
 " Launches neocomplcache automatically on vim startup.
-let g:neocomplcache_enable_at_startup = 1
+let g:neocomplcache_enable_at_startup = 0
 " Use smartcase.
 let g:neocomplcache_enable_smart_case = 1
 " Use camel case completion.
@@ -474,7 +467,7 @@ let g:neocomplcache_enable_auto_select = 0
 " Define file-type dependent dictionaries.
 inoremap <expr><C-g>     neocomplcache#undo_completion()
 inoremap <expr><C-l>     neocomplcache#complete_common_string()
-
+nnoremap <F9> :NeoComplCacheToggle<CR>
 let g:neocomplcache_dictionary_filetype_lists = {
 \ 'default' : '',
 \ 'vimshell' : $HOME.'/.vimshell_hist',
@@ -487,7 +480,7 @@ let g:neocomplcache_omni_functions = {
       \ }
 " Define keyword, for minor languages
 if !exists('g:neocomplcache_keyword_patterns')
-let g:neocomplcache_keyword_patterns = {}
+    let g:neocomplcache_keyword_patterns = {}
 endif
 let g:neocomplcache_keyword_patterns['default'] = '\h\w*'
 inoremap <expr><C-g>     neocomplcache#undo_completion()
@@ -503,8 +496,6 @@ if !exists('g:neocomplcache_omni_patterns')
 endif
 let g:neocomplcache_omni_patterns.ruby = '[^. *\t]\.\h\w*\|\h\w*::'
 let g:neocomplcache_omni_patterns.php = '[^. \t]->\h\w*\|\h\w*::'
-"let g:neocomplcache_omni_patterns.c = '\%(\.\|->\)\h\w*'
-"let g:neocomplcache_omni_patterns.cpp = '\h\w*\%(\.\|->\)\h\w*\|\h\w*::'
 let g:neocomplcache_omni_patterns.c = '[^.[:digit:] *\t]\%(\.\|->\)'
 let g:neocomplcache_omni_patterns.cpp = '[^.[:digit:] *\t]\%(\.\|->\)\|\h\w*::'
 if !exists('g:neocomplcache_force_omni_patterns')
@@ -641,27 +632,28 @@ autocmd BufRead *.as set filetype=actionscript
 function! SetAlign()
     let ch=getline(line('.'))[col('.')-1]
     let next=getline(line('.'))[col('.')]
-    if ch == next 
+    if ch=='/' and next=='/' 
+        let ch='\/\/'
+    else if ch=='+' and next=='='
+        let ch = ch . next
+    else if ch == next
         let ch = ch . next
     endif
-    if ch == '//'
-        let ch='\/\/'
-    endif 
     exec "Tabularize /" . ch
 endfunc
 
 "quickfix 开关 
 function! ToggleQF()
-if !exists("g:fx_toggle")
-    let g:fx_toggle = 0
-endif
-if g:fx_toggle == 0
-    let g:fx_toggle = 1
-    copen
-else
-    let g:fx_toggle = 0
-    cclose
-endif
+    if !exists("g:fx_toggle")
+        let g:fx_toggle = 0
+    endif
+    if g:fx_toggle == 0
+        let g:fx_toggle = 1
+        copen
+    else
+        let g:fx_toggle = 0
+        cclose
+    endif
 endfunc
 
 " Visual mode related
@@ -791,7 +783,6 @@ endfunction
 "得到光标下的单词
 function! P_grep_curword() 
     let curword=expand("<cword>")
-    ""exec "!grep -r -s -q" . curword . " * --exclude=*tags"
     exec "Ack " . curword
 endfunction
 
@@ -836,29 +827,3 @@ endfunction
 function! GetCurWord()
 	return expand("<cword>")
 endfunc
-function! s:UserDefPython()
-python << PYTHONEOF
-import re
-import sys 
-import vim 
-def get_proto_key(word,stroe_name):
-	if (word.isupper()):
-		word=word.lower();
-	if  re.search ("_in$", word ): value= word[:-3] 
-	elif  re.search ("_in_header$", word ): value=word[:-10] 
-	elif  re.search ("_out_header$", word ): value=word[:-11] 
-	elif  re.search ("_out$", word ): value=word[:-4] 
-	elif  re.search ("_cmd$", word ): value=word[:-4].lower() 
-	elif  re.search ("_out_item$", word ): value=word[:-9] 
-	elif  re.search ("_in_item$", word ): value=word[:-8] 
-	else: value=word 
-	if value!= word: 
-		key="\<%s_cmd\>\|\<%s_CMD\>\|\<%s\>\|\<%s_in\>\|\<%s_in_header\>\|\<%s_out_header\>\|\<%s_out\>\|\<%s_in_item\>\|\<%s_out_item\>"%(value,value.upper(), 
-					 value,value,value,value,value,value,value)	
-	else: key=word
-	vim.command("silent let %s='%s'" % (stroe_name,key))
-PYTHONEOF
-endfunction
-if has('python')
-    call s:UserDefPython()
-endif

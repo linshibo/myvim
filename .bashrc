@@ -83,7 +83,7 @@ if [ -f /etc/bash_completion ]; then
 fi
 
 #设置vi模式
-set -o vi
+#set -o vi
 
 localip=`/sbin/ifconfig eth0 2>/dev/null | awk '$1=="inet"{print $2}' | awk -F: '{print $2}' `
 export LOCAL_IP=$localip
@@ -162,4 +162,5 @@ function alias_comm_cmd()
 }
 alias_comm_cmd 5 '' uman 10.1.1  22000 uman 
 
+#ssh-copy-id -i ~/.ssh/id_rsa.pub "-p 22000 francisco@10.1.1.20"
 
