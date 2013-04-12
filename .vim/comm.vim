@@ -38,6 +38,7 @@ Bundle 'vim-scripts/comments.vim'
 Bundle 'vim-scripts/ack.vim'
 Bundle 'vim-scripts/L9'
 Bundle 'vim-scripts/FuzzyFinder'
+Bundle 'vim-scripts/python.vim--Vasiliev'
 Bundle 'Lokaltog/vim-powerline'
 Bundle 'Lokaltog/vim-easymotion'
 Bundle 'Shougo/unite.vim'
@@ -48,6 +49,7 @@ Bundle 'bootleq/vim-cycle'
 Bundle 'kana/vim-smartword'
 Bundle 'altercation/vim-colors-solarized'
 Bundle 'mbbill/echofunc'
+Bundle 'mjbrownie/pythoncomplete.vim'
  
  
 " 代码存放在 vim script 上
@@ -600,6 +602,9 @@ autocmd BufEnter  *.php call s:SET_PATH("pub")
 autocmd FileType python setlocal omnifunc=pythoncomplete#Complete
 autocmd BufRead,BufNewFile *.py set ai
 autocmd BufRead *.py set smartindent cinwords=if,elif,else,for,while,try,except,finally,def,class
+autocmd FileType python setlocal et sta sw=4 sts=4
+autocmd FileType python setlocal foldmethod=indent
+autocmd FileType python set complete+=k~/.vim/syntax/python.vim isk+=.,(
 
 """"""""""""
 " HTML 

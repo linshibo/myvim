@@ -1,12 +1,12 @@
 let mapleader = ","
 map <C-q> <Nop>
 map <C-z> <Nop>
-"map <C-n> <Nop>
-"map <C-p> <Nop>
 map <C-a> <C-v><C-a>
 noremap ,a <C-a>
 noremap y Y
 noremap Y y
+noremap f F
+noremap F f
 
 "5倍速的jk滚屏
 noremap j 6j
@@ -61,11 +61,11 @@ set previouspattern=\s*上一页|上一张|上一篇|上页|前页|前一页\s*,
 autocmd LocationChange .* :js modes.passAllKeys = /mail\.google\.com/.test(buffer.URL) || /google\.com\/reader\//.test(buffer.URL)
 
 qmark g http://www.google.com
+qmark 5 http://10.1.1.5/su/
 qmark t https://www.twitter.com
 qmark w http://www.weibo.com
-qmark r https://www.google.com/reader/view/ 
+qmark r http://www.rainymood.com 
 qmark e https://www.evernote.com/Home.action#st=p&n=f2b5aefe-b613-4462-b9a2-be78b506d1fc 
 qmark s http://www.slideshare.net/?ss
+qmark y http://www.youku.com
 qmark d douban.fm 
-"nnoremap 5 frefresh<CR>
-"autocmd LocationChange www\.dabr\.co\.uk :noremap 5 frefresh<CR>
