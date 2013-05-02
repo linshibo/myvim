@@ -36,9 +36,9 @@ Bundle 'vim-scripts/AutoClose'
 Bundle 'vim-scripts/a.vim'
 Bundle 'vim-scripts/comments.vim'
 Bundle 'vim-scripts/ack.vim'
-""Bundle 'vim-scripts/L9'
-""Bundle 'vim-scripts/FuzzyFinder'
-""Bundle 'vim-scripts/python.vim--Vasiliev'
+"Bundle 'vim-scripts/L9'
+"Bundle 'vim-scripts/FuzzyFinder'
+"Bundle 'vim-scripts/python.vim--Vasiliev'
 Bundle 'Lokaltog/vim-powerline'
 Bundle 'Lokaltog/vim-easymotion'
 Bundle 'Shougo/unite.vim'
@@ -508,6 +508,7 @@ endif
 let g:neocomplcache_force_omni_patterns.ruby = '[^. *\t]\.\w*\|\h\w*::'
 let g:neocomplcache_force_omni_patterns.c = '[^.[:digit:] *\t]\%(\.\|->\)'
 let g:neocomplcache_force_omni_patterns.cpp = '[^.[:digit:] *\t]\%(\.\|->\)\|\h\w*::'
+autocmd FileType cpp NeoComplCacheEnable
 "}}}
 
 "xml.vim{{{
