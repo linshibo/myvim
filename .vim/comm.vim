@@ -28,7 +28,7 @@ Bundle 'vim-scripts/Tagbar'
 Bundle 'vim-scripts/matchit.zip'
 Bundle 'vim-scripts/python.vim'
 Bundle 'vim-scripts/xml.vim'
-Bundle 'vim-scripts/YankRing.vim'
+"Bundle 'vim-scripts/YankRing.vim'
 Bundle 'vim-scripts/auto_mkdir'
 Bundle 'vim-scripts/Tabular'
 Bundle 'vim-scripts/snipMate'
@@ -36,8 +36,8 @@ Bundle 'vim-scripts/AutoClose'
 Bundle 'vim-scripts/a.vim'
 Bundle 'vim-scripts/comments.vim'
 Bundle 'vim-scripts/ack.vim'
-Bundle 'vim-scripts/L9'
-Bundle 'vim-scripts/FuzzyFinder'
+"Bundle 'vim-scripts/L9'
+"Bundle 'vim-scripts/FuzzyFinder'
 Bundle 'Lokaltog/vim-powerline'
 Bundle 'Lokaltog/vim-easymotion'
 Bundle 'Shougo/unite.vim'
@@ -253,6 +253,9 @@ cnoremap <C-F> <RIGHT>
 cnoremap <C-P> <UP>
 cnoremap <C-N> <DOWN>
 
+vnoremap < <gv
+vnoremap > >gv
+
 "tabedit
 nnoremap ,t <Esc>:tabedit 
 "nnoremap <C-p> <C-PageUp>
@@ -297,8 +300,6 @@ nmap <F7> <Esc><i{
 "大括号内向右移
 nmap <F8> <Esc>>i{
 "选择区移动
-vnoremap <F7> <Esc>:call SET_BLOCK_MOVE_V(1) <CR>
-vnoremap <F8> <Esc>:call SET_BLOCK_MOVE_V(0) <CR>
 " Visual mode pressing * or # searches for the current selection
 " Super useful! From an idea by Michael Naumann
 vnoremap <silent> * :call VisualSelection('f')<CR>
@@ -356,11 +357,11 @@ let g:fencview_autodetect = 1
 "}}}
 
 "YankRing {{{
-nnoremap <silent> <C-Y> :YRShow<CR> 
-let g:yankring_replace_n_pkey = '<m-p>'
-let g:yankring_replace_n_nkey = '<m-n>'
-let g:yankring_history_dir = '~/.vim/'
-let g:yankring_history_file='.yankring_history_file'
+"nnoremap <silent> <C-Y> :YRShow<CR> 
+"let g:yankring_replace_n_pkey = '<m-p>'
+"let g:yankring_replace_n_nkey = '<m-n>'
+"let g:yankring_history_dir = '~/.vim/'
+"let g:yankring_history_file='.yankring_history_file'
 "}}}
 
 " omnicppcomplete{{{
@@ -454,6 +455,7 @@ nnoremap <silent> <F3> <Esc>:TagbarToggle<cr>
 let g:neocomplcache_enable_quick_match = 1
 " Launches neocomplcache automatically on vim startup.
 let g:neocomplcache_enable_at_startup = 0
+autocmd FileType cpp NeoComplCacheEnable
 " Use smartcase.
 let g:neocomplcache_enable_smart_case = 1
 " Use camel case completion.
@@ -467,7 +469,7 @@ let g:neocomplcache_enable_auto_select = 0
 " Define file-type dependent dictionaries.
 inoremap <expr><C-g>     neocomplcache#undo_completion()
 inoremap <expr><C-l>     neocomplcache#complete_common_string()
-nnoremap <F9> :NeoComplCacheToggle<CR>
+nnoremap <F9> :NeoComplCacheEnable<CR>
 let g:neocomplcache_dictionary_filetype_lists = {
 \ 'default' : '',
 \ 'vimshell' : $HOME.'/.vimshell_hist',
@@ -588,6 +590,8 @@ autocmd FileType c set omnifunc=ccomplete#Complete
 ".c  .h 文件设为 .cpp
 autocmd BufEnter *.c  set filetype=cpp
 autocmd BufEnter *.h  set filetype=cpp
+
+".c  .h 文件设为 .cpp
 
 """"""""""""
 "php
@@ -809,19 +813,6 @@ function! OPT_RANGE( opt_str )
     endif
 endfunction
 
-
-" 在视图模式下的整块移动
-function! SET_BLOCK_MOVE_V( move_type )
-    if a:move_type==0
-        exec "'<,'>s/^/    /"
-    else
-        exec "'<,'>s/^    //"
-    endif
-    let linecount = line("'>") - line("'<")
-    let save_cursor_begin = getpos("'<")
-    call setpos('.', save_cursor_begin)
-    exec  "normal! v" . linecount . "j"	
-endfunction
 
 "得到光标下的单词
 function! GetCurWord()
