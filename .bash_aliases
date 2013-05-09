@@ -21,3 +21,6 @@ alias translate="~/myvim/bin/gtrans en zh-cn"
 alias vimrc="vim ~/.vim/comm.vim"
 alias bashrc="vim ~/.bashrc"
 alias qq="exit"
+
+alias allusers="cut -d: -f1 /etc/passwd"
+alias allgroups="cut -d: -f1 /etc/group"

@@ -74,7 +74,7 @@ snippet for
 	for(${1:before}; ${2:conditon}; ${3:after}) {
 	}
 snippet loop
-	for(uint32_t ${1:loop} = ${2:0}; ${3:$1}<${4:count}; ${5:$1++}) {
+	for(uint32_t ${1:loop} = ${2:0}; ${3:$1}<${4:count}; ${5:++$1}) {
 		${5:/* code */}
 	}
 snippet switch
@@ -130,9 +130,9 @@ snippet un
 snippet log
 	DEBUG_LOG("${1:content}");
 snippet klog
-	KDEBUG_LOG(${1:uid},"${2:content}");
+	KDEBUG_LOG(${1:p->uid},"${2:content}");
 snippet elog
-	KERROR_LOG(${1:uid},"${2:content}");
+	KERROR_LOG(${1:p->uid},"${2:content}");
 snippet u64
 	uint64_t
 snippet u32
@@ -143,9 +143,13 @@ snippet u8
 	uint8_t
 snippet nu
 	NULL
-snippet pin
+snippet pi
 	p_in
-snippet pout
+snippet po
 	p_out
+snippet PI
+	P_IN
+snippet PO
+	P_OUT
 snippet todo
 	/*TODO:${1:something}*/

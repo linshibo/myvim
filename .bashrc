@@ -160,6 +160,7 @@ function alias_comm_cmd()
     eval "alias put$flag$1$user_flag=' comm_put_ser $user $ip_fix $port \"$passwd\" $1 ' "
     eval "alias get$flag$1$user_flag=' comm_get_ser $user $ip_fix $port \"$passwd\" $1 ' "
 }
+
 alias_comm_cmd 5 '' uman 10.1.1  22000 uman 
 
 #ssh-copy-id -i ~/.ssh/id_rsa.pub "-p 22000 francisco@10.1.1.20"

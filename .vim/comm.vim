@@ -269,10 +269,10 @@ nnoremap ,g :call P_grep_curword()<CR>
 vnoremap ,g :call VisualSelection('gv')<CR>
 nnoremap ,r <Esc>:call RESET_CTAG_CSCOPE()<CR>
 nnoremap ,m <Esc>:make<CR><CR>
-nnoremap ,y    <Esc>:call OPT_RANGE("ya")<CR>
-nnoremap ,Y    <Esc>:call OPT_RANGE("yi")<CR>
-nnoremap ,d    <Esc>:call OPT_RANGE("da")<CR>
-nnoremap ,D    <Esc>:call OPT_RANGE("di")<CR>
+nnoremap ,y <Esc>:call OPT_RANGE("ya")<CR>
+nnoremap ,Y <Esc>:call OPT_RANGE("yi")<CR>
+nnoremap ,d <Esc>:call OPT_RANGE("da")<CR>
+nnoremap ,D <Esc>:call OPT_RANGE("di")<CR>
 "转换单词大小写
 nnoremap ,u <Esc>:call SET_UAW()<CR>
 
@@ -299,8 +299,6 @@ nmap <F7> <Esc><i{
 "大括号内向右移
 nmap <F8> <Esc>>i{
 "选择区移动
-""vnoremap <F7> <Esc>:call SET_BLOCK_MOVE_V(1) <CR>
-""vnoremap <F8> <Esc>:call SET_BLOCK_MOVE_V(0) <CR>
 vnoremap <F7> <gv
 vnoremap <F8> >gv
 " Visual mode pressing * or # searches for the current selection
@@ -360,11 +358,11 @@ let g:fencview_autodetect = 1
 "}}}
 
 "YankRing {{{
-nnoremap <silent> <C-Y> :YRShow<CR> 
-let g:yankring_replace_n_pkey = '<m-p>'
-let g:yankring_replace_n_nkey = '<m-n>'
-let g:yankring_history_dir = '~/.vim/'
-let g:yankring_history_file='.yankring_history_file'
+"nnoremap <silent> <C-Y> :YRShow<CR> 
+"let g:yankring_replace_n_pkey = '<m-p>'
+"let g:yankring_replace_n_nkey = '<m-n>'
+"let g:yankring_history_dir = '~/.vim/'
+"let g:yankring_history_file='.yankring_history_file'
 "}}}
 
 " omnicppcomplete{{{
@@ -407,13 +405,13 @@ let OmniCpp_MayCompleteScope =1
 " cscope setting {{{
 if has("cscope")
     set csprg=/usr/bin/cscope
-    set csto=1
+    set csto=0
     set cst
     set nocsverb
     " add any database in current directory
     if filereadable("cscope.out")
         silent cs add cscope.out
-        endif
+    endif
     set csverb
 endif
 nnoremap ,s :cs find s <C-R>=expand("<cword>")<CR><CR>
@@ -440,9 +438,9 @@ nnoremap \d :Dox<CR>
 
 "rainbow_parenthsis_options.vimbow {{{
 let g:rainbow_ctermfgs = [ 'darkgray', 'darkblue' ,'magenta','darkgreen', 'cyan', 'darkred', ]
-let g:rainbow_active = 1
+let g:rainbow_active = 0
 let g:rainbow_operators = 0
-nnoremap <F5>  :call rainbow#load()<CR>
+""nnoremap <F5>  :call rainbow#load()<CR>
 "autocmd BufEnter *.cpp,*hpp,*.h,*.c  call rainbow#load()
 "}}}
 
@@ -508,7 +506,9 @@ endif
 let g:neocomplcache_force_omni_patterns.ruby = '[^. *\t]\.\w*\|\h\w*::'
 let g:neocomplcache_force_omni_patterns.c = '[^.[:digit:] *\t]\%(\.\|->\)'
 let g:neocomplcache_force_omni_patterns.cpp = '[^.[:digit:] *\t]\%(\.\|->\)\|\h\w*::'
+
 autocmd FileType cpp NeoComplCacheEnable
+autocmd FileType log NeoComplCacheDisable
 "}}}
 
 "xml.vim{{{
@@ -632,7 +632,7 @@ autocmd FileType javascript setlocal omnifunc=javascriptcomplete#CompleteJS
 autocmd FileType css set omnifunc=csscomplete#CompleteCSS
 autocmd FileType java set omnifunc=javacomplete#Complete
 autocmd BufRead *.as set filetype=actionscript
-
+autocmd FileType log \d\+-\(\w\+\)-\d\{6\}-\d\{4\} 
 
 "----------------------------------------------------------------------------
 " FUNCTIONS
