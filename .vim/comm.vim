@@ -49,7 +49,7 @@ Bundle 'bootleq/vim-cycle'
 Bundle 'kana/vim-smartword'
 Bundle 'altercation/vim-colors-solarized'
 Bundle 'mbbill/echofunc'
-""Bundle 'mjbrownie/pythoncomplete.vim'
+Bundle 'FredKSchott/CoVim'
  
  
 " 代码存放在 vim script 上
@@ -358,11 +358,15 @@ let g:fencview_autodetect = 1
 "}}}
 
 "YankRing {{{
-"nnoremap <silent> <C-Y> :YRShow<CR> 
-"let g:yankring_replace_n_pkey = '<m-p>'
-"let g:yankring_replace_n_nkey = '<m-n>'
-"let g:yankring_history_dir = '~/.vim/'
-"let g:yankring_history_file='.yankring_history_file'
+let g:yankring_max_history = 10
+let g:yankring_min_element_length = 3
+""let g:yankring_max_display = 50 
+let g:yankring_persist = 0
+nnoremap <silent> <C-Y> :YRShow<CR> 
+let g:yankring_replace_n_pkey = '<m-p>'
+let g:yankring_replace_n_nkey = '<m-n>'
+let g:yankring_history_dir = '~/.vim/'
+let g:yankring_history_file='.yankring_history_file'
 "}}}
 
 " omnicppcomplete{{{
