@@ -50,6 +50,7 @@ Bundle 'kana/vim-smartword'
 Bundle 'altercation/vim-colors-solarized'
 Bundle 'mbbill/echofunc'
 Bundle 'FredKSchott/CoVim'
+Bundle 'terryma/vim-multiple-cursors'
  
  
 " 代码存放在 vim script 上
@@ -512,7 +513,16 @@ let g:neocomplcache_force_omni_patterns.c = '[^.[:digit:] *\t]\%(\.\|->\)'
 let g:neocomplcache_force_omni_patterns.cpp = '[^.[:digit:] *\t]\%(\.\|->\)\|\h\w*::'
 
 autocmd FileType cpp NeoComplCacheEnable
-autocmd FileType log NeoComplCacheDisable
+""autocmd FileType log NeoComplCacheDisable
+"}}}
+"
+"vim_multi_cursor{{{
+let g:multi_cursor_use_default_mapping=0
+" Default mapping
+let g:multi_cursor_next_key='<C-n>'
+let g:multi_cursor_prev_key='<C-p>'
+let g:multi_cursor_skip_key='<C-z>'
+let g:multi_cursor_quit_key='<Esc>'
 "}}}
 
 "xml.vim{{{
@@ -636,8 +646,7 @@ autocmd FileType javascript setlocal omnifunc=javascriptcomplete#CompleteJS
 autocmd FileType css set omnifunc=csscomplete#CompleteCSS
 autocmd FileType java set omnifunc=javacomplete#Complete
 autocmd BufRead *.as set filetype=actionscript
-autocmd FileType log \d\+-\(\w\+\)-\d\{6\}-\d\{4\} 
-
+autocmd BufRead \d\+-\(\w\+\)-\d\{6\}-\d\{4\}  set filetype=log
 "----------------------------------------------------------------------------
 " FUNCTIONS
 "----------------------------------------------------------------------------
