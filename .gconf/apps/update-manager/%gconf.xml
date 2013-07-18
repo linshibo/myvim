@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<gconf>
+	<entry name="check_new_release_ignore" mtime="1367457547" type="string">
+		<stringvalue>quantal</stringvalue>
+	</entry>
+	<entry name="first_run" mtime="1350874280" type="bool" value="false"/>
+	<entry name="show_details" mtime="1363656277" type="bool" value="true"/>
+	<entry name="launch_time" mtime="1367459007" type="int" value="1367459007"/>
+</gconf>

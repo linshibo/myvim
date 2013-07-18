@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<gconf>
+	<entry name="height" mtime="1351152361" type="int" value="400"/>
+	<entry name="width" mtime="1351152361" type="int" value="600"/>
+	<entry name="logfile" mtime="1351152361" type="string">
+		<stringvalue>/var/log/syslog</stringvalue>
+	</entry>
+</gconf>
