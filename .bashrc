@@ -162,6 +162,7 @@ function alias_comm_cmd()
     eval "alias get$flag$1$user_flag=' comm_get_ser $user $ip_fix $port \"$passwd\" $1 ' "
 }
 
+alias_comm_cmd 7 '' jim 10.1.1  22000 xcwenxcwen
 alias_comm_cmd 5 '' jim 10.1.1  22000 xcwen142857 
 alias_comm_cmd 24 '' francisco 10.1.1  22000 pb07210339 
 alias c39=' sshpass -p"xcwen142857"  ssh  -o "StrictHostKeyChecking no"  -2 -p56000 db@192.168.1.39'

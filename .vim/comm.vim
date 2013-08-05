@@ -23,7 +23,7 @@ Bundle 'gmarik/vundle'
 Bundle 'vim-scripts/DoxygenToolkit.vim'
 Bundle 'vim-scripts/FencView.vim'
 Bundle 'vim-scripts/OmniCppComplete'
-Bundle 'vim-scripts/Rainbow-Parentheses-Improved-and2'
+""Bundle 'vim-scripts/Rainbow-Parentheses-Improved-and2'
 Bundle 'vim-scripts/Tagbar'
 Bundle 'vim-scripts/matchit.zip'
 Bundle 'vim-scripts/python.vim'
@@ -48,7 +48,7 @@ Bundle 'kana/vim-smartword'
 Bundle 'altercation/vim-colors-solarized'
 Bundle 'mbbill/echofunc'
 Bundle 'terryma/vim-multiple-cursors'
- 
+Bundle 'kien/rainbow_parentheses.vim'
  
 " 代码存放在 vim script 上
 "Bundle 'FuzzyFinder'
@@ -214,6 +214,16 @@ set tm=500
 " Highlight VCS conflict markers
 syn match ErrorMsg '^\(<\|=\|>\)\{7}\([^=].\+\)\?$'
 
+"" for error highlight，防止错误整行标红导致看不清
+highlight clear SpellBad
+highlight SpellBad term=standout ctermfg=1 term=underline cterm=underline
+highlight clear SpellCap
+highlight SpellCap term=underline cterm=underline
+highlight clear SpellRare
+highlight SpellRare term=underline cterm=underline
+highlight clear SpellLocal
+highlight SpellLocal term=underline cterm=underline"
+
 "vimtips 
 command! -nargs=0 VIMTIPS  :tabe | :r ! w3m -dump http://zzapper.co.uk/vimtips.html 
 
@@ -242,7 +252,6 @@ nnoremap <F6> :nohl<CR>
 nnoremap ,W <Esc>:w !sudo tee % >/dev/null<CR>
 nnoremap ,e <Esc>:e 
 nnoremap ,x <Esc>:!
-nmap  Y  y$
 
 "cmd model map
 cnoremap <C-A> <HOME>
@@ -252,6 +261,8 @@ cnoremap <C-B> <LEFT>
 cnoremap <C-F> <RIGHT>
 cnoremap <C-P> <UP>
 cnoremap <C-N> <DOWN>
+cnoremap <C-j> <t_kd>
+cnoremap <C-k> <t_ku>
 
 "tabedit
 nnoremap ,t <Esc>:tabedit 
@@ -273,6 +284,18 @@ nnoremap ,d <Esc>:call OPT_RANGE("da")<CR>
 nnoremap ,D <Esc>:call OPT_RANGE("di")<CR>
 "转换单词大小写
 nnoremap ,u <Esc>:call SET_UAW()<CR>
+
+"Keep search pattern at the center of the screen."
+nnoremap <silent> n nzz
+nnoremap <silent> N Nzz
+nnoremap <silent> * *zz
+nnoremap <silent> # #zz
+nnoremap <silent> g* g*zz
+
+" Go to home and end using capitalized directions
+noremap H 0
+noremap L $"
+map Y y$
 
 "支持粘贴
 inoremap kk <Esc>:set paste<CR>i
@@ -311,6 +334,37 @@ nnoremap ,cp <Esc>:cp<CR>
 "---------------------------------------------------------------------------
 "插件设置
 "---------------------------------------------------------------------------
+"括号显示增强
+let g:rbpt_colorpairs = [
+    \ ['brown', 'RoyalBlue3'],
+    \ ['Darkblue', 'SeaGreen3'],
+    \ ['darkgray', 'DarkOrchid3'],
+    \ ['darkgreen', 'firebrick3'],
+    \ ['darkcyan', 'RoyalBlue3'],
+    \ ['darkred', 'SeaGreen3'],
+    \ ['darkmagenta', 'DarkOrchid3'],
+    \ ['brown', 'firebrick3'],
+    \ ['gray', 'RoyalBlue3'],
+    \ ['black', 'SeaGreen3'],
+    \ ['darkmagenta', 'DarkOrchid3'],
+    \ ['Darkblue', 'firebrick3'],
+    \ ['darkgreen', 'RoyalBlue3'],
+    \ ['darkcyan', 'SeaGreen3'],
+    \ ['darkred', 'DarkOrchid3'],
+    \ ['red', 'firebrick3'],
+    \ ]
+let g:rbpt_max = 40
+let g:rbpt_loadcmd_toggle = 0
+" settings for kien/rainbow_parentheses.vim
+au VimEnter * RainbowParenthesesToggle
+au Syntax * RainbowParenthesesLoadRound
+au Syntax * RainbowParenthesesLoadSquare
+au Syntax * RainbowParenthesesLoadBraces
+
+"for show no user whitespaces
+"Bundle 'bronson/vim-trailing-whitespace'
+
+
 "ack.vim{
 set grepprg=/user/bin/ack-grep
 let g:ackprg="/usr/bin/ack-grep -H --nocolor --nogroup"
@@ -330,6 +384,7 @@ nmap <F2> <Plug>ToggleAutoCloseMappings
 "a.vim {{{
 nnoremap ,a <Esc>:A<CR>
 "}}}
+"
 
 "fuzzyfinder {{{
 nnoremap \ff :FufFile<CR>
@@ -439,9 +494,9 @@ nnoremap \d :Dox<CR>
 "}}}
 
 "rainbow_parenthsis_options.vimbow {{{
-let g:rainbow_ctermfgs = [ 'darkgray', 'darkblue' ,'magenta','darkgreen', 'cyan', 'darkred', ]
-let g:rainbow_active = 0
-let g:rainbow_operators = 0
+"let g:rainbow_ctermfgs = [ 'darkgray', 'darkblue' ,'magenta','darkgreen', 'cyan', 'darkred', ]
+"let g:rainbow_active = 0
+"let g:rainbow_operators = 0
 ""nnoremap <F5>  :call rainbow#load()<CR>
 "autocmd BufEnter *.cpp,*hpp,*.h,*.c  call rainbow#load()
 "}}}
