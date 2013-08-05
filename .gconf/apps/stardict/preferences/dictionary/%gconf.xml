@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<gconf>
+	<entry name="scan_modifier_key" mtime="1351910330" type="int" value="4"/>
+	<entry name="only_scan_while_modifier_key" mtime="1351909073" type="bool" value="true"/>
+	<entry name="enable_sound_event" mtime="1365400556" type="bool" value="true"/>
+	<entry name="scan_selection" mtime="1351908616" type="bool" value="true"/>
+</gconf>

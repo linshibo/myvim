@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<gconf>
+	<entry name="theme_filename" mtime="1367149390" type="string">
+		<stringvalue>/usr/share/onboard/themes/Ambiance.theme</stringvalue>
+	</entry>
+	<entry name="xembed_onboard" mtime="1363660105" type="bool" value="true"/>
+	<entry name="layout_filename" mtime="1363660105" type="string">
+		<stringvalue>Compact</stringvalue>
+	</entry>
+</gconf>

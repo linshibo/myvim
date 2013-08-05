@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<gconf>
+	<entry name="maximized" mtime="1363760996" type="bool" value="false"/>
+	<entry name="hide_list" mtime="1351823937" type="bool" value="true"/>
+	<entry name="window_height" mtime="1351823199" type="int" value="373"/>
+</gconf>

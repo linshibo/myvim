@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<gconf>
+	<entry name="toolbar_style" mtime="1360201704" type="string">
+		<stringvalue>both_horiz</stringvalue>
+	</entry>
+</gconf>

@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<gconf>
+	<entry name="toggle_fullscreen" mtime="1355383223" type="string">
+		<stringvalue>F11</stringvalue>
+	</entry>
+	<entry name="move_to_workspace_10" mtime="1351909929" type="string">
+		<stringvalue></stringvalue>
+	</entry>
+	<entry name="move_to_workspace_9" mtime="1351909929" type="string">
+		<stringvalue></stringvalue>
+	</entry>
+	<entry name="move_to_workspace_8" mtime="1351909928" type="string">
+		<stringvalue></stringvalue>
+	</entry>
+	<entry name="move_to_workspace_7" mtime="1351909927" type="string">
+		<stringvalue></stringvalue>
+	</entry>
+	<entry name="move_to_workspace_6" mtime="1351909926" type="string">
+		<stringvalue></stringvalue>
+	</entry>
+	<entry name="move_to_workspace_5" mtime="1351909926" type="string">
+		<stringvalue></stringvalue>
+	</entry>
+	<entry name="move_to_workspace_4" mtime="1351909925" type="string">
+		<stringvalue></stringvalue>
+	</entry>
+	<entry name="move_to_workspace_3" mtime="1351909924" type="string">
+		<stringvalue></stringvalue>
+	</entry>
+	<entry name="move_to_workspace_2" mtime="1351909924" type="string">
+		<stringvalue></stringvalue>
+	</entry>
+	<entry name="move_to_workspace_1" mtime="1351909922" type="string">
+		<stringvalue></stringvalue>
+	</entry>
+	<entry name="toggle_on_all_workspaces" mtime="1350959647" type="string">
+		<stringvalue>&lt;Primary&gt;&lt;Alt&gt;equal</stringvalue>
+	</entry>
+	<entry name="move_to_workspace_up" mtime="1355794722" type="string">
+		<stringvalue>&lt;Super&gt;k</stringvalue>
+	</entry>
+	<entry name="move_to_workspace_right" mtime="1355794715" type="string">
+		<stringvalue>&lt;Super&gt;l</stringvalue>
+	</entry>
+	<entry name="move_to_workspace_left" mtime="1355794713" type="string">
+		<stringvalue>&lt;Super&gt;h</stringvalue>
+	</entry>
+	<entry name="move_to_workspace_down" mtime="1355794725" type="string">
+		<stringvalue>&lt;Super&gt;j</stringvalue>
+	</entry>
+	<entry name="unmaximize" mtime="1350874211" type="string">
+		<stringvalue>&lt;Control&gt;&lt;Primary&gt;&lt;Super&gt;Down</stringvalue>
+	</entry>
+	<entry name="toggle_shaded" mtime="1350874211" type="string">
+		<stringvalue>&lt;Control&gt;&lt;Primary&gt;&lt;Alt&gt;s</stringvalue>
+	</entry>
+	<entry name="toggle_maximized" mtime="1351069363" type="string">
+		<stringvalue>&lt;Control&gt;&lt;Primary&gt;&lt;Alt&gt;KP_5</stringvalue>
+	</entry>
+	<entry name="minimize" mtime="1355383215" type="string">
+		<stringvalue>&lt;Alt&gt;n</stringvalue>
+	</entry>
+	<entry name="maximize" mtime="1355383206" type="string">
+		<stringvalue>&lt;Alt&gt;m</stringvalue>
+	</entry>
+</gconf>

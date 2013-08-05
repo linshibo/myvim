@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<gconf>
+	<entry name="enable_netdict" mtime="1351824131" type="bool" value="true"/>
+</gconf>

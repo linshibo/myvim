@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<gconf>
+	<entry name="options" mtime="1364897398" type="list" ltype="string">
+		<li type="string">
+			<stringvalue>caps	caps:escape</stringvalue>
+		</li>
+	</entry>
+</gconf>
