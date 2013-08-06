@@ -4,10 +4,12 @@ cnoremap <C-b> <Left>
 cnoremap <C-f> <Right>
 cnoremap <C-n> <Tab>
 cnoremap <C-p> <S-Tab>
+
 inoremap <C-f> <Right>
 inoremap <C-b> <Left>
 inoremap <C-p> <Up>
 inoremap <C-n> <Down>
+
 map q gT
 map w gt
 nnoremap p P
@@ -32,8 +34,10 @@ noremap <C-i> <Nop>
 noremap <C-z> <Nop>
 noremap <C-n> <Nop>
 noremap <C-p> <Nop>
+
 noremap j 6j
 noremap k 6k
+
 noremap <silent> <C-r> :restart<Return>
 noremap <silent> "\\h" :htabopen<Space>
 noremap <silent> "\\s" :source<Space>~/.vimperatorrc<Return>:echo<Space>"source<Space>completed."<Return>
@@ -50,9 +54,12 @@ source! /home/francisco/.vimperatorrc.local
 qmark d douban.fm  
 qmark e https://www.evernote.com/Home.action#st=p&n=f2b5aefe-b613-4462-b9a2-be78b506d1fc 
 qmark g http://www.google.com 
-qmark r https://www.google.com/reader/view/ 
-qmark s http://www.slideshare.net/?ss 
+qmark m https://mail.google.com 
+qmark n http://news.dbanotes.net/news
+qmark z https://www.newszeit.com/
+qmark s http://stackoverflow.com/ 
 qmark t https://www.twitter.com 
 qmark w http://www.weibo.com 
+qmark a http://www.amazon.cn/Kindle%E7%94%B5%E5%AD%90%E4%B9%A6/b/ref=sv_kinc_2?ie=UTF8&node=116169071
 
 " vim: set ft=vimperator:

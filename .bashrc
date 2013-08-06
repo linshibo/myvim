@@ -165,6 +165,9 @@ function alias_comm_cmd()
 alias_comm_cmd 7 '' jim 10.1.1  22000 xcwenxcwen
 alias_comm_cmd 5 '' jim 10.1.1  22000 xcwen142857 
 alias_comm_cmd 24 '' francisco 10.1.1  22000 pb07210339 
+alias_comm_cmd 20 '' francisco 10.1.1  22000 pb07210339 
 alias c39=' sshpass -p"xcwen142857"  ssh  -o "StrictHostKeyChecking no"  -2 -p56000 db@192.168.1.39'
+alias m20='sshfs -p22000 francisco@10.1.1.20:/home/francisco/server ~/server/'
+alias um20="fusermount -u ~/server"
 #ssh-copy-id -i ~/.ssh/id_rsa.pub "-p 22000 francisco@10.1.1.20"
 

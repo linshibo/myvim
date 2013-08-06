@@ -49,6 +49,10 @@ Bundle 'altercation/vim-colors-solarized'
 Bundle 'mbbill/echofunc'
 Bundle 'terryma/vim-multiple-cursors'
 Bundle 'kien/rainbow_parentheses.vim'
+""Bundle 'Valloric/YouCompleteMe'
+Bundle 'Rip-Rip/clang_complete'
+ 
+
  
 " 代码存放在 vim script 上
 "Bundle 'FuzzyFinder'
@@ -88,7 +92,7 @@ set nocompatible
 "disable alt
 set winaltkeys=no
 "tags 位置
-set tags=~/.vim/comm_tags,~/.vim/cpp_tags,tags,tags; 
+set tags=~/.vim/comm_tags,tags; 
 
 "折叠
 set foldmethod=syntax
@@ -128,7 +132,15 @@ set sidescrolloff=10 " 距离水平边界 n 行就开始滚动
 set fileformats=unix,mac
 
 if has('gui_running')
-    set guifont=Menlo\ for\ Powerline\ 14
+    set guifont=Monospace\ 14
+    set guioptions-=T
+    set guioptions+=e
+    set guioptions-=r
+    set guioptions-=L
+    set guitablabel=%M\ %t
+    set showtabline=1
+    set linespace=2
+    set noimd
 endif
 "主题 
 "colorscheme desert
@@ -236,7 +248,7 @@ inoremap jj <Esc>
 
 nnoremap gr gT
 
-map  <F1> :help <C-R>=expand('<cword>')<CR><CR>
+nmap  <F1> :help <C-R>=expand('<cword>')<CR><CR>
 
 " }}} 跨 Vim 剪貼 {{{2
 " http://vim.wikia.com/wiki/Transfer_text_between_two_Vim_instances
@@ -294,8 +306,8 @@ nnoremap <silent> g* g*zz
 
 " Go to home and end using capitalized directions
 noremap H 0
-noremap L $"
-map Y y$
+noremap L $
+noremap Y y$
 
 "支持粘贴
 inoremap kk <Esc>:set paste<CR>i
@@ -398,7 +410,7 @@ nnoremap ,b :Unite buffer<CR>
 "}}}
 
 "tabular{{{
-nnoremap ,= :call SetAlign()<CR>
+nnoremap \= :call SetAlign()<CR>
 "}}}
 
 "vim-easymotion{{{
@@ -455,7 +467,7 @@ let OmniCpp_SelectFirstItem = 0
 "使用本地搜索函数
 let OmniCpp_LocalSearchDecl = 1
 "::补全
-let OmniCpp_MayCompleteScope =1
+"let OmniCpp_MayCompleteScope =1
 " }}}
 
 
@@ -491,14 +503,6 @@ let g:DoxygenToolkit_briefTag_funcName = "no"
 let g:DoxygenToolkit_maxFunctionProtoLines = 30
 nnoremap \d :Dox<CR>
 ""nnoremap \da :DoxAuthor<CR>
-"}}}
-
-"rainbow_parenthsis_options.vimbow {{{
-"let g:rainbow_ctermfgs = [ 'darkgray', 'darkblue' ,'magenta','darkgreen', 'cyan', 'darkred', ]
-"let g:rainbow_active = 0
-"let g:rainbow_operators = 0
-""nnoremap <F5>  :call rainbow#load()<CR>
-"autocmd BufEnter *.cpp,*hpp,*.h,*.c  call rainbow#load()
 "}}}
 
 
@@ -563,9 +567,7 @@ endif
 let g:neocomplcache_force_omni_patterns.ruby = '[^. *\t]\.\w*\|\h\w*::'
 let g:neocomplcache_force_omni_patterns.c = '[^.[:digit:] *\t]\%(\.\|->\)'
 let g:neocomplcache_force_omni_patterns.cpp = '[^.[:digit:] *\t]\%(\.\|->\)\|\h\w*::'
-
 autocmd FileType cpp NeoComplCacheEnable
-""autocmd FileType log NeoComplCacheDisable
 "}}}
 "
 "vim_multi_cursor{{{
@@ -670,7 +672,7 @@ autocmd BufEnter  *.php call s:SET_PATH("pub")
 """"""""""""
 autocmd FileType python setlocal omnifunc=pythoncomplete#Complete
 autocmd BufRead,BufNewFile *.py set ai
-autocmd BufRead *.py set smartindent cinwords=if,elif,else,for,while,try,except,finally,def,class
+""autocmd BufRead *.py set smartindent cinwords=if,elif,else,for,while,try,except,finally,def,class
 autocmd FileType python setlocal et sta sw=4 sts=4
 autocmd FileType python setlocal foldmethod=indent
 autocmd FileType python set complete+=k~/.vim/syntax/python.vim isk+=.,(
@@ -694,22 +696,32 @@ autocmd FileType vim map <buffer> <leader><space> :w!<cr>:source %<cr>
 "others
 """"""""""""
 " Enable omni completion. (Ctrl-X Ctrl-O)
-autocmd FileType javascript setlocal omnifunc=javascriptcomplete#CompleteJS
-autocmd FileType css set omnifunc=csscomplete#CompleteCSS
-autocmd FileType java set omnifunc=javacomplete#Complete
-autocmd BufRead *.as set filetype=actionscript
+"autocmd FileType javascript setlocal omnifunc=javascriptcomplete#CompleteJS
+"autocmd FileType css set omnifunc=csscomplete#CompleteCSS
+"autocmd FileType java set omnifunc=javacomplete#Complete
+"autocmd BufRead *.as set filetype=actionscript
 autocmd BufRead \d\+-\(\w\+\)-\d\{6\}-\d\{4\}  set filetype=log
 "----------------------------------------------------------------------------
 " FUNCTIONS
 "----------------------------------------------------------------------------
+
+"删除多余空格
+" Delete trailing white space on save, useful for Python and CoffeeScript ;)
+func! DeleteTrailingWS()
+  exe "normal mz"
+  %s/\s\+$//ge
+  exe "normal `z"
+endfunc
+autocmd BufWrite *.py :call DeleteTrailingWS()
+
 function! SetAlign()
     let ch=getline(line('.'))[col('.')-1]
     let next=getline(line('.'))[col('.')]
-    if ch=='/' and next=='/' 
+    if ( ch=='/' && next=='/' )
         let ch='\/\/'
-    else if ch=='+' and next=='='
+    elseif ( ch=='+' && next=='=')
         let ch = ch . next
-    else if ch == next
+    elseif ch == next
         let ch = ch . next
     endif
     exec "Tabularize /" . ch
