@@ -46,4 +46,3 @@ ctags -f comm_tags -R --c++-kinds=+p --fields=+iaS --extra=+q \
 	/usr/include/mysql/\
 	/usr/local/include/async_serv/\
 	/usr/local/include/main_login/\
-    /usr/include/c++/

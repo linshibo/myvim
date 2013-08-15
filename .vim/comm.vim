@@ -23,21 +23,17 @@ Bundle 'gmarik/vundle'
 Bundle 'vim-scripts/DoxygenToolkit.vim'
 Bundle 'vim-scripts/FencView.vim'
 Bundle 'vim-scripts/OmniCppComplete'
-""Bundle 'vim-scripts/Rainbow-Parentheses-Improved-and2'
 Bundle 'vim-scripts/Tagbar'
-Bundle 'vim-scripts/matchit.zip'
 Bundle 'vim-scripts/python.vim'
 Bundle 'vim-scripts/xml.vim'
 Bundle 'vim-scripts/YankRing.vim'
-Bundle 'vim-scripts/auto_mkdir'
+Bundle 'vim-scripts/AutoClose'
 Bundle 'vim-scripts/Tabular'
 Bundle 'vim-scripts/snipMate'
-Bundle 'vim-scripts/AutoClose'
 Bundle 'vim-scripts/a.vim'
 Bundle 'vim-scripts/comments.vim'
 Bundle 'vim-scripts/ack.vim'
-"Bundle 'vim-scripts/L9'
-"Bundle 'vim-scripts/FuzzyFinder'
+Bundle 'vim-scripts/Pydiction'
 Bundle 'Lokaltog/vim-powerline'
 Bundle 'Lokaltog/vim-easymotion'
 Bundle 'Shougo/unite.vim'
@@ -46,11 +42,9 @@ Bundle 'tpope/vim-surround'
 Bundle 'bootleq/vim-cycle'
 Bundle 'kana/vim-smartword'
 Bundle 'altercation/vim-colors-solarized'
-Bundle 'mbbill/echofunc'
-Bundle 'terryma/vim-multiple-cursors'
 Bundle 'kien/rainbow_parentheses.vim'
-""Bundle 'Valloric/YouCompleteMe'
-Bundle 'Rip-Rip/clang_complete'
+"Bundle 'vim-scripts/L9'
+"Bundle 'vim-scripts/FuzzyFinder'
  
 
  
@@ -92,7 +86,7 @@ set nocompatible
 "disable alt
 set winaltkeys=no
 "tags 位置
-set tags=~/.vim/comm_tags,tags; 
+set tags=~/.vim/comm_tags,~/.vim/cpp_tags,tags; 
 
 "折叠
 set foldmethod=syntax
@@ -258,8 +252,6 @@ vmap \c :w! $HOME/.vimxfer<CR>
 nnoremap ,q <Esc>:q!<CR>
 nnoremap ,w :w!<CR>:nohl<CR>
 
-nnoremap <F6> :nohl<CR>
-
 " sudo write this
 nnoremap ,W <Esc>:w !sudo tee % >/dev/null<CR>
 nnoremap ,e <Esc>:e 
@@ -286,7 +278,7 @@ vnoremap ,i :call VisualSelection('oi')<CR>
 vnoremap ,o :call VisualSelection('oo')<CR>
 
 "查找当前光标下的单词
-nnoremap ,g :call P_grep_curword()<CR>
+nnoremap ,g :Ack <C-R>=expand('<cword>')<CR>
 vnoremap ,g :call VisualSelection('gv')<CR>
 nnoremap ,r <Esc>:call RESET_CTAG_CSCOPE()<CR>
 nnoremap ,m <Esc>:make<CR><CR>
@@ -312,8 +304,8 @@ noremap Y y$
 "支持粘贴
 inoremap kk <Esc>:set paste<CR>i
 
-"窗口间移动
 nnoremap \i  [I
+"窗口间移动
 nnoremap <C-H> <Esc><C-W>h
 nnoremap <C-L> <Esc><C-W>l
 nnoremap <C-J> <Esc><C-W>j
@@ -346,6 +338,12 @@ nnoremap ,cp <Esc>:cp<CR>
 "---------------------------------------------------------------------------
 "插件设置
 "---------------------------------------------------------------------------
+
+"Pydiction{{{
+let g:pydiction_location = '~/.vim/bundle/Pydiction/complete-dict'
+let g:pydiction_menu_height = 20 
+"}}}
+
 "括号显示增强
 let g:rbpt_colorpairs = [
     \ ['brown', 'RoyalBlue3'],
@@ -372,10 +370,6 @@ au VimEnter * RainbowParenthesesToggle
 au Syntax * RainbowParenthesesLoadRound
 au Syntax * RainbowParenthesesLoadSquare
 au Syntax * RainbowParenthesesLoadBraces
-
-"for show no user whitespaces
-"Bundle 'bronson/vim-trailing-whitespace'
-
 
 "ack.vim{
 set grepprg=/user/bin/ack-grep
@@ -478,13 +472,22 @@ if has("cscope")
     set cst
     set nocsverb
     " add any database in current directory
-    if filereadable("cscope.out")
-        silent cs add cscope.out
+    if filereadable("_cscope.out")
+        silent cs add _cscope.out
     endif
     set csverb
 endif
 nnoremap ,s :cs find s <C-R>=expand("<cword>")<CR><CR>
+nnoremap ,c :cs find  
 vnoremap ,s :call  VisualSelection('cs')<CR>
+"s: 查找C语言符号，即查找函数名、宏、枚举值等出现的地方
+"g: 查找函数、宏、枚举等定义的位置，类似ctags所提供的功能
+"d: 查找本函数调用的函数
+"c: 查找调用本函数的函数
+"t: 查找指定的字符串
+"e: 查找egrep模式，相当于egrep功能，但查找速度快多了
+"f: 查找并打开文件，类似vim的find功能
+"i: 查找包含本文件的文
 " }}}
 
 "powerline{{{ 状态栏
@@ -596,6 +599,7 @@ vmap <silent> \a <Plug>CycleNext
 let g:cycle_default_groups = [
 \ [['true', 'false']],
 \ [['yes', 'no']],
+\ [['||', '&&']],
 \ [['on', 'off']],
 \ [['+', '-']],
 \ [['>', '<']],
@@ -644,19 +648,20 @@ let g:cycle_default_groups = [
 """"""""""""
 "general
 """"""""""""
+
 autocmd BufEnter *  set tabstop=4 
 " use syntax complete if nothing else available
-if has("autocmd") && exists("+omnifunc")
-    autocmd Filetype *
-        \ if &omnifunc == "" |
-        \ setlocal omnifunc=syntaxcomplete#Complete |
-        \ endif
-endif
+"if has("autocmd") && exists("+omnifunc")
+    "autocmd Filetype *
+        "\ if &omnifunc == "" |
+        "\ setlocal omnifunc=syntaxcomplete#Complete |
+        "\ endif
+"endif
 
 """"""""""""
 "c c++
 """"""""""""
-autocmd BufEnter  *.cpp,*.c,*.h call s:SET_PATH("include") 
+""autocmd BufEnter  *.cpp,*.c,*.h call s:SET_PATH("include") 
 autocmd FileType c set omnifunc=ccomplete#Complete
 ".c  .h 文件设为 .cpp
 autocmd BufEnter *.c  set filetype=cpp
@@ -672,10 +677,10 @@ autocmd BufEnter  *.php call s:SET_PATH("pub")
 """"""""""""
 autocmd FileType python setlocal omnifunc=pythoncomplete#Complete
 autocmd BufRead,BufNewFile *.py set ai
-""autocmd BufRead *.py set smartindent cinwords=if,elif,else,for,while,try,except,finally,def,class
 autocmd FileType python setlocal et sta sw=4 sts=4
 autocmd FileType python setlocal foldmethod=indent
-autocmd FileType python set complete+=k~/.vim/syntax/python.vim isk+=.,(
+autocmd FileType python set complete+=k~/.vim/bundle/Pydiction isk+=.,(
+au BufNewFile,BufRead *.py,*.pyw set filetype=python
 
 """"""""""""
 " HTML 
@@ -696,7 +701,7 @@ autocmd FileType vim map <buffer> <leader><space> :w!<cr>:source %<cr>
 "others
 """"""""""""
 " Enable omni completion. (Ctrl-X Ctrl-O)
-"autocmd FileType javascript setlocal omnifunc=javascriptcomplete#CompleteJS
+autocmd FileType javascript setlocal omnifunc=javascriptcomplete#CompleteJS
 "autocmd FileType css set omnifunc=csscomplete#CompleteCSS
 "autocmd FileType java set omnifunc=javacomplete#Complete
 "autocmd BufRead *.as set filetype=actionscript
@@ -770,12 +775,12 @@ endfunction
 
 "自动更新 修改时间
 function! LastModified()
-if search("\\/\\*LastModified: \\d\\{4}-\\d\\{2}-\\d\\{2} \\d\\{2}:\\d\\{2}:\\d\\{2}\\*\\/","","")>0
-    exe "silent! $,$g/$/s/LastModified: .*/LastModified: " .
-        \ strftime("%Y-%m-%d %H:%M:%S") . "\\*\\/"
-else
-    exe "silent! $,$g/$/s/$/\r\\/\\*LastModified: " .
-        \ strftime("%Y-%m-%d %H:%M:%S") . "\\*\\/"
+    if search("\\/\\*LastModified: \\d\\{4}-\\d\\{2}-\\d\\{2} \\d\\{2}:\\d\\{2}:\\d\\{2}\\*\\/","","")>0
+        exe "silent! $,$g/$/s/LastModified: .*/LastModified: " .
+            \ strftime("%Y-%m-%d %H:%M:%S") . "\\*\\/"
+    else
+        exe "silent! $,$g/$/s/$/\r\\/\\*LastModified: " .
+            \ strftime("%Y-%m-%d %H:%M:%S") . "\\*\\/"
 endif
 
 "退格时自动补全
@@ -813,24 +818,6 @@ function! GET_UP_PATH(dir)
     return  ""  
 endfunction
 
-"设置相关tags
-function! s:SET_TAGS()
-    let dir =getcwd()  "获得源文件路径
-    set tags=
-    "在路径上递归向上查找tags文件 
-    while dir!=""
-        if findfile("tags",dir ) !=""
-            "找到了就加入到tags
-            exec "set tags+=" . dir . "/tags"
-        endif
-        "得到上级路径
-        let dir=GET_UP_PATH(dir)
-    endwhile
-    if ( &filetype =="cpp" )
-        set tags+=~/.vim/bundle/myfix/comm_tags
-    endif
-endfunction
-
 "设置相关 include , for cmd : gf 
 function! s:SET_PATH( find_dir )
     let dir = expand("%:p:h") "获得源文件路径
@@ -865,18 +852,13 @@ function! SET_UAW()
     call setpos('.', save_cursor)
 endfunction
 
-"得到光标下的单词
-function! P_grep_curword() 
-    let curword=expand("<cword>")
-    exec "Ack " . curword
-endfunction
 
 "重新生成ctag cscope
 function! RESET_CTAG_CSCOPE() 
     if(executable('cscope') && has("cscope") )
         silent! execute "!find . -name '[^.]*.h' -o -name '[^.]*.c' -o -name '[^.]*.cpp' -o -name '[^.]*.hpp' > cscope.files"
-        silent! execute "!cscope -bkq"
-        if (filereadable("cscope.out"))
+        silent! execute "!cscope -bkq -f _cscope.out -i cscope.files"
+        if (filereadable("_cscope.out"))
             execute "cs reset"
         endif
     endif
@@ -908,7 +890,3 @@ function! SET_BLOCK_MOVE_V( move_type )
     exec  "normal! v" . linecount . "j"	
 endfunction
 
-"得到光标下的单词
-function! GetCurWord()
-	return expand("<cword>")
-endfunc
