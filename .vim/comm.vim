@@ -26,6 +26,7 @@ Bundle 'vim-scripts/OmniCppComplete'
 Bundle 'vim-scripts/Tagbar'
 Bundle 'vim-scripts/python.vim'
 Bundle 'vim-scripts/xml.vim'
+Bundle 'vim-scripts/matchit.zip'
 Bundle 'vim-scripts/YankRing.vim'
 Bundle 'vim-scripts/AutoClose'
 Bundle 'vim-scripts/Tabular'
@@ -461,7 +462,7 @@ let OmniCpp_SelectFirstItem = 0
 "使用本地搜索函数
 let OmniCpp_LocalSearchDecl = 1
 "::补全
-"let OmniCpp_MayCompleteScope =1
+let OmniCpp_MayCompleteScope =1
 " }}}
 
 
