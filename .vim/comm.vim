@@ -27,7 +27,7 @@ Bundle 'vim-scripts/Tagbar'
 Bundle 'vim-scripts/python.vim'
 Bundle 'vim-scripts/xml.vim'
 Bundle 'vim-scripts/matchit.zip'
-Bundle 'vim-scripts/YankRing.vim'
+"Bundle 'vim-scripts/YankRing.vim'
 Bundle 'vim-scripts/AutoClose'
 Bundle 'vim-scripts/Tabular'
 Bundle 'vim-scripts/snipMate'
@@ -43,7 +43,7 @@ Bundle 'tpope/vim-surround'
 Bundle 'bootleq/vim-cycle'
 Bundle 'kana/vim-smartword'
 Bundle 'altercation/vim-colors-solarized'
-Bundle 'kien/rainbow_parentheses.vim'
+"Bundle 'kien/rainbow_parentheses.vim'
 "Bundle 'vim-scripts/L9'
 "Bundle 'vim-scripts/FuzzyFinder'
  
@@ -356,21 +356,21 @@ let g:rbpt_colorpairs = [
     \ ['darkmagenta', 'DarkOrchid3'],
     \ ['brown', 'firebrick3'],
     \ ['gray', 'RoyalBlue3'],
+    \ ['darkred', 'DarkOrchid3'],
     \ ['black', 'SeaGreen3'],
     \ ['darkmagenta', 'DarkOrchid3'],
     \ ['Darkblue', 'firebrick3'],
     \ ['darkgreen', 'RoyalBlue3'],
     \ ['darkcyan', 'SeaGreen3'],
-    \ ['darkred', 'DarkOrchid3'],
     \ ['red', 'firebrick3'],
     \ ]
 let g:rbpt_max = 40
 let g:rbpt_loadcmd_toggle = 0
 " settings for kien/rainbow_parentheses.vim
-au VimEnter * RainbowParenthesesToggle
-au Syntax * RainbowParenthesesLoadRound
-au Syntax * RainbowParenthesesLoadSquare
-au Syntax * RainbowParenthesesLoadBraces
+"au VimEnter * RainbowParenthesesToggle
+"au Syntax * RainbowParenthesesLoadRound
+"au Syntax * RainbowParenthesesLoadSquare
+"au Syntax * RainbowParenthesesLoadBraces
 
 "ack.vim{
 set grepprg=/user/bin/ack-grep
@@ -418,6 +418,7 @@ let g:fencview_autodetect = 1
 "}}}
 
 "YankRing {{{
+let g:yankring_enabled = 0  " Disables the yankring
 let g:yankring_max_history = 10
 let g:yankring_min_element_length = 3
 ""let g:yankring_max_display = 50 
@@ -575,13 +576,13 @@ autocmd FileType cpp NeoComplCacheEnable
 "}}}
 "
 "vim_multi_cursor{{{
-let g:multi_cursor_use_default_mapping=0
-" Default mapping
-let g:multi_cursor_next_key='<C-n>'
-let g:multi_cursor_prev_key='<C-p>'
-let g:multi_cursor_skip_key='<C-z>'
-let g:multi_cursor_quit_key='<Esc>'
-"}}}
+"let g:multi_cursor_use_default_mapping=0
+"" Default mapping
+"let g:multi_cursor_next_key='<C-n>'
+"let g:multi_cursor_prev_key='<C-p>'
+"let g:multi_cursor_skip_key='<C-z>'
+"let g:multi_cursor_quit_key='<Esc>'
+""}}}
 
 "xml.vim{{{
 let xml_use_xhtml = 1
@@ -651,13 +652,6 @@ let g:cycle_default_groups = [
 """"""""""""
 
 autocmd BufEnter *  set tabstop=4 
-" use syntax complete if nothing else available
-"if has("autocmd") && exists("+omnifunc")
-    "autocmd Filetype *
-        "\ if &omnifunc == "" |
-        "\ setlocal omnifunc=syntaxcomplete#Complete |
-        "\ endif
-"endif
 
 """"""""""""
 "c c++
@@ -706,19 +700,10 @@ autocmd FileType javascript setlocal omnifunc=javascriptcomplete#CompleteJS
 "autocmd FileType css set omnifunc=csscomplete#CompleteCSS
 "autocmd FileType java set omnifunc=javacomplete#Complete
 "autocmd BufRead *.as set filetype=actionscript
-autocmd BufRead \d\+-\(\w\+\)-\d\{6\}-\d\{4\}  set filetype=log
+"autocmd BufRead \d\+-\(\w\+\)-\d\{6\}-\d\{4\}  set filetype=log
 "----------------------------------------------------------------------------
 " FUNCTIONS
 "----------------------------------------------------------------------------
-
-"删除多余空格
-" Delete trailing white space on save, useful for Python and CoffeeScript ;)
-func! DeleteTrailingWS()
-  exe "normal mz"
-  %s/\s\+$//ge
-  exe "normal `z"
-endfunc
-autocmd BufWrite *.py :call DeleteTrailingWS()
 
 function! SetAlign()
     let ch=getline(line('.'))[col('.')-1]
@@ -857,8 +842,8 @@ endfunction
 "重新生成ctag cscope
 function! RESET_CTAG_CSCOPE() 
     if(executable('cscope') && has("cscope") )
-        silent! execute "!find . -name '[^.]*.h' -o -name '[^.]*.c' -o -name '[^.]*.cpp' -o -name '[^.]*.hpp' > cscope.files"
-        silent! execute "!cscope -bkq -f _cscope.out -i cscope.files"
+        silent! execute "!find . -name '[^.]*.h' -o -name '[^.]*.c' -o -name '[^.]*.cpp' -o -name '[^.]*.hpp' > _cscope.files"
+        silent! execute "!cscope -bkq -f _cscope.out -i _cscope.files"
         if (filereadable("_cscope.out"))
             execute "cs reset"
         endif
@@ -875,19 +860,5 @@ function! OPT_RANGE( opt_str )
     if cur_char == "(" || cur_char == "<" || cur_char == "{" || cur_char == "[" || cur_char == "\"" || cur_char == "'" || cur_char == ")" || cur_char == ">" || cur_char == "}" || cur_char == "]" 
         exec "normal! ".a:opt_str.cur_char
     endif
-endfunction
-
-
-" 在视图模式下的整块移动
-function! SET_BLOCK_MOVE_V( move_type )
-    if a:move_type==0
-        exec "'<,'>s/^/    /"
-    else
-        exec "'<,'>s/^    //"
-    endif
-    let linecount = line("'>") - line("'<")
-    let save_cursor_begin = getpos("'<")
-    call setpos('.', save_cursor_begin)
-    exec  "normal! v" . linecount . "j"	
 endfunction
 

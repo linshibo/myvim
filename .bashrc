@@ -61,9 +61,6 @@ if [ -f ~/myvim/.bash_aliases ]; then
     . ~/myvim/.bash_aliases
 fi
 
-if [ -f ~/.bash_aliases ]; then
-    . ~/.bash_aliases
-fi
 
 # enable color support of ls and also add handy aliases
 if [ -x /usr/bin/dircolors ]; then
@@ -162,6 +159,9 @@ function alias_comm_cmd()
     eval "alias get$flag$1$user_flag=' comm_get_ser $user $ip_fix $port \"$passwd\" $1 ' "
 }
 
-alias vi="vim"
+if [ -f ~/.bash_aliases ]; then
+    . ~/.bash_aliases
+fi
+
 #ssh-copy-id -i ~/.ssh/id_rsa.pub "-p 22000 francisco@10.1.1.20"
 
