@@ -22,27 +22,29 @@ Bundle 'gmarik/vundle'
 " 代码源在 github 上的
 Bundle 'vim-scripts/DoxygenToolkit.vim'
 Bundle 'vim-scripts/FencView.vim'
-Bundle 'vim-scripts/OmniCppComplete'
+"Bundle 'vim-scripts/OmniCppComplete'
 Bundle 'vim-scripts/Tagbar'
-Bundle 'vim-scripts/python.vim'
+"Bundle 'vim-scripts/python.vim'
 Bundle 'vim-scripts/xml.vim'
 Bundle 'vim-scripts/matchit.zip'
 "Bundle 'vim-scripts/YankRing.vim'
-Bundle 'vim-scripts/AutoClose'
-Bundle 'vim-scripts/Tabular'
+"Bundle 'vim-scripts/AutoClose'
+"Bundle 'vim-scripts/Tabular'
 Bundle 'vim-scripts/snipMate'
 Bundle 'vim-scripts/a.vim'
 Bundle 'vim-scripts/comments.vim'
 Bundle 'vim-scripts/ack.vim'
-Bundle 'vim-scripts/Pydiction'
 Bundle 'Lokaltog/vim-powerline'
-Bundle 'Lokaltog/vim-easymotion'
+"Bundle 'Lokaltog/vim-easymotion'
 Bundle 'Shougo/unite.vim'
-Bundle 'Shougo/neocomplcache'
-Bundle 'tpope/vim-surround'
+"Bundle 'Shougo/neocomplcache'
+"Bundle 'tpope/vim-surround'
 Bundle 'bootleq/vim-cycle'
 Bundle 'kana/vim-smartword'
 Bundle 'altercation/vim-colors-solarized'
+Bundle 'Blackrush/vim-gocode'
+Bundle 'dgryski/vim-godef'
+
 "Bundle 'kien/rainbow_parentheses.vim'
 "Bundle 'vim-scripts/L9'
 "Bundle 'vim-scripts/FuzzyFinder'
@@ -87,7 +89,7 @@ set nocompatible
 "disable alt
 set winaltkeys=no
 "tags 位置
-set tags=~/.vim/comm_tags,~/.vim/cpp_tags,tags; 
+set tags=~/.vim/comm_tags,~/.vim/cpp_tags,tags,gosource.tags; 
 
 "折叠
 set foldmethod=syntax
@@ -126,8 +128,12 @@ set sidescrolloff=10 " 距离水平边界 n 行就开始滚动
 "Favorite filetypes
 set fileformats=unix,mac
 
-if has('gui_running')
-    set guifont=Monospace\ 14
+if has('gui_running') 
+    if has('unix')
+        set guifont=Monospace\ 14
+    elseif has('osx')
+        set guifont=Monaco\ 18
+    endif
     set guioptions-=T
     set guioptions+=e
     set guioptions-=r
@@ -251,7 +257,7 @@ nmap \p :r $HOME/.vimxfer<CR>
 vmap \c :w! $HOME/.vimxfer<CR>
 
 nnoremap ,q <Esc>:q!<CR>
-nnoremap ,w :w!<CR>:nohl<CR>
+nnoremap ,w :w!<CR>
 
 " sudo write this
 nnoremap ,W <Esc>:w !sudo tee % >/dev/null<CR>
@@ -275,18 +281,20 @@ nnoremap ,t <Esc>:tabedit
 "nnoremap <C-n> <C-PageDown>
 
 "解析协议
-vnoremap ,i :call VisualSelection('oi')<CR>
-vnoremap ,o :call VisualSelection('oo')<CR>
+""vnoremap ,i :call VisualSelection('oi')<CR>
+""vnoremap ,o :call VisualSelection('oo')<CR>
 
 "查找当前光标下的单词
-nnoremap ,g :Ack <C-R>=expand('<cword>')<CR>
+nnoremap ,g :Ack <C-R>=expand('<cword>')<CR><CR>
 vnoremap ,g :call VisualSelection('gv')<CR>
-nnoremap ,r <Esc>:call RESET_CTAG_CSCOPE()<CR>
+"nnoremap ,r <Esc>:call RESET_CTAG_CSCOPE()<CR>
+nnoremap ,r <Esc>:! /usr/local/bin/ctags -f gosource.tags -R `pwd`<CR><CR>
 nnoremap ,m <Esc>:make<CR><CR>
 nnoremap ,y <Esc>:call OPT_RANGE("ya")<CR>
 nnoremap ,Y <Esc>:call OPT_RANGE("yi")<CR>
-nnoremap ,d <Esc>:call OPT_RANGE("da")<CR>
-nnoremap ,D <Esc>:call OPT_RANGE("di")<CR>
+"nnoremap ,d <Esc>:call OPT_RANGE("da")<CR>
+"nnoremap ,D <Esc>:call OPT_RANGE("di")<CR>
+nnoremap ,d <Esc>:Godoc <C-R>=expand('<cword>')<CR><CR>
 "转换单词大小写
 nnoremap ,u <Esc>:call SET_UAW()<CR>
 
@@ -312,6 +320,9 @@ nnoremap <C-L> <Esc><C-W>l
 nnoremap <C-J> <Esc><C-W>j
 nnoremap <C-K> <Esc><C-W>k
 
+
+nnoremap <C-6> <C-^>
+
 "Fast reloading of the .vimrc
 nnoremap \s <ESC>:source ~/.vim/comm.vim<cr>
 "Fast editing of .vimrc
@@ -336,36 +347,38 @@ vnoremap <silent> # :call VisualSelection('b')<CR>
 nnoremap <F4> <Esc>:call ToggleQF()<CR>
 nnoremap ,cn <Esc>:cn<CR>
 nnoremap ,cp <Esc>:cp<CR>
+
+
 "---------------------------------------------------------------------------
 "插件设置
 "---------------------------------------------------------------------------
 
 "Pydiction{{{
-let g:pydiction_location = '~/.vim/bundle/Pydiction/complete-dict'
-let g:pydiction_menu_height = 20 
+""let g:pydiction_location = '~/.vim/bundle/Pydiction/complete-dict'
+""let g:pydiction_menu_height = 20 
 "}}}
 
 "括号显示增强
-let g:rbpt_colorpairs = [
-    \ ['brown', 'RoyalBlue3'],
-    \ ['Darkblue', 'SeaGreen3'],
-    \ ['darkgray', 'DarkOrchid3'],
-    \ ['darkgreen', 'firebrick3'],
-    \ ['darkcyan', 'RoyalBlue3'],
-    \ ['darkred', 'SeaGreen3'],
-    \ ['darkmagenta', 'DarkOrchid3'],
-    \ ['brown', 'firebrick3'],
-    \ ['gray', 'RoyalBlue3'],
-    \ ['darkred', 'DarkOrchid3'],
-    \ ['black', 'SeaGreen3'],
-    \ ['darkmagenta', 'DarkOrchid3'],
-    \ ['Darkblue', 'firebrick3'],
-    \ ['darkgreen', 'RoyalBlue3'],
-    \ ['darkcyan', 'SeaGreen3'],
-    \ ['red', 'firebrick3'],
-    \ ]
-let g:rbpt_max = 40
-let g:rbpt_loadcmd_toggle = 0
+"let g:rbpt_colorpairs = [
+    "\ ['brown', 'RoyalBlue3'],
+    "\ ['Darkblue', 'SeaGreen3'],
+    "\ ['darkgray', 'DarkOrchid3'],
+    "\ ['darkgreen', 'firebrick3'],
+    "\ ['darkcyan', 'RoyalBlue3'],
+    "\ ['darkred', 'SeaGreen3'],
+    "\ ['darkmagenta', 'DarkOrchid3'],
+    "\ ['brown', 'firebrick3'],
+    "\ ['gray', 'RoyalBlue3'],
+    "\ ['darkred', 'DarkOrchid3'],
+    "\ ['black', 'SeaGreen3'],
+    "\ ['darkmagenta', 'DarkOrchid3'],
+    "\ ['Darkblue', 'firebrick3'],
+    "\ ['darkgreen', 'RoyalBlue3'],
+    "\ ['darkcyan', 'SeaGreen3'],
+    "\ ['red', 'firebrick3'],
+    "\ ]
+"let g:rbpt_max = 40
+"let g:rbpt_loadcmd_toggle = 0
 " settings for kien/rainbow_parentheses.vim
 "au VimEnter * RainbowParenthesesToggle
 "au Syntax * RainbowParenthesesLoadRound
@@ -373,8 +386,12 @@ let g:rbpt_loadcmd_toggle = 0
 "au Syntax * RainbowParenthesesLoadBraces
 
 "ack.vim{
-set grepprg=/user/bin/ack-grep
-let g:ackprg="/usr/bin/ack-grep -H --nocolor --nogroup"
+if has('unix')
+    set grepprg=/user/bin/ack-grep
+    let g:ackprg="/usr/local/bin/ack-grep -H --nocolor --nogroup --ignore-file *tags"
+elseif has('osx')
+    let g:ackprg="/usr/local/bin/ack -H --nocolor --nogroup --ignore-file *tags"
+endif
 "}
 
 "vim-smartword{{{
@@ -385,19 +402,13 @@ nmap ge  <Plug>(smartword-ge)
 "}}}
 
 "autoclose{{{
-nmap <F2> <Plug>ToggleAutoCloseMappings
+"nmap <F2> <Plug>ToggleAutoCloseMappings
 "}}}}
 
 "a.vim {{{
 nnoremap ,a <Esc>:A<CR>
 "}}}
 "
-
-"fuzzyfinder {{{
-nnoremap \ff :FufFile<CR>
-nnoremap \fb :FufBuffer<CR>
-nnoremap \ft :FufTag<CR>
-"}}}
 
 "unite{{{
 nnoremap ,f :Unite file<CR>
@@ -410,7 +421,7 @@ nnoremap \= :call SetAlign()<CR>
 
 "vim-easymotion{{{
 let g:EasyMotion_leader_key = '0'
-nmap \w <Esc>00w
+nnoremap \w <Esc>00w
 "}}}
 
 "FencView {{{
@@ -418,16 +429,16 @@ let g:fencview_autodetect = 1
 "}}}
 
 "YankRing {{{
-let g:yankring_enabled = 1  " Disables the yankring
-let g:yankring_max_history = 10
-let g:yankring_min_element_length = 3
-""let g:yankring_max_display = 50 
-let g:yankring_persist = 0
-nnoremap <silent> <C-Y> :YRShow<CR> 
-""let g:yankring_replace_n_pkey = '<m-p>'
-""let g:yankring_replace_n_nkey = '<m-n>'
-let g:yankring_history_dir = '~/.vim/'
-let g:yankring_history_file='.yankring_history_file'
+"let g:yankring_enabled = 1  " Disables the yankring
+"let g:yankring_max_history = 10
+"let g:yankring_min_element_length = 3
+"""let g:yankring_max_display = 50 
+"let g:yankring_persist = 0
+"nnoremap <silent> <C-Y> :YRShow<CR> 
+"""let g:yankring_replace_n_pkey = '<m-p>'
+"""let g:yankring_replace_n_nkey = '<m-n>'
+"let g:yankring_history_dir = '~/.vim/'
+"let g:yankring_history_file='.yankring_history_file'
 "}}}
 
 " omnicppcomplete{{{
@@ -516,73 +527,96 @@ let g:tagbar_width = 30
 let g:tagbar_expand = 0
 let g:tagbar_autofocus = 1
 nnoremap <silent> <F3> <Esc>:TagbarToggle<cr>
+let g:tagbar_type_go = {
+    \ 'ctagstype' : 'go',
+    \ 'kinds'     : [
+        \ 'p:package',
+        \ 'i:imports:1',
+        \ 'c:constants',
+        \ 'v:variables',
+        \ 't:types',
+        \ 'n:interfaces',
+        \ 'w:fields',
+        \ 'e:embedded',
+        \ 'm:methods',
+        \ 'r:constructor',
+        \ 'f:functions'
+    \ ],
+    \ 'sro' : '.',
+    \ 'kind2scope' : {
+        \ 't' : 'ctype',
+        \ 'n' : 'ntype'
+    \ },
+    \ 'scope2kind' : {
+        \ 'ctype' : 't',
+        \ 'ntype' : 'n'
+    \ },
+    \ 'ctagsbin'  : 'gotags',
+    \ 'ctagsargs' : '-sort -silent'
+    \ }
 " }}}
 
 "neocomplcache{{{
-let g:neocomplcache_enable_quick_match = 1
-" Launches neocomplcache automatically on vim startup.
-let g:neocomplcache_enable_at_startup = 0
-" Use smartcase.
-let g:neocomplcache_enable_smart_case = 1
-" Use camel case completion.
-let g:neocomplcache_enable_camel_case_completion = 1
-" Use underscore completion.
-let g:neocomplcache_enable_underbar_completion = 1
-" Sets minimum char length of syntax keyword.
-let g:neocomplcache_min_syntax_length = 3
-let g:neocomplcache_lock_buffer_name_pattern = '\*ku\*'
-let g:neocomplcache_enable_auto_select = 0
-" Define file-type dependent dictionaries.
-inoremap <expr><C-g>     neocomplcache#undo_completion()
-inoremap <expr><C-l>     neocomplcache#complete_common_string()
-nnoremap <F9> :NeoComplCacheToggle<CR>
-let g:neocomplcache_dictionary_filetype_lists = {
-\ 'default' : '',
-\ 'vimshell' : $HOME.'/.vimshell_hist',
-\ 'scheme' : $HOME.'/.gosh_completions'
-\ }
-let g:neocomplcache_omni_functions = {
-      \ 'c' : 'ccomplete#Complete',
-      \ 'python' : 'pythoncomplete#Complete',
-      \ 'ruby' : 'rubycomplete#Complete',
-      \ }
-" Define keyword, for minor languages
-if !exists('g:neocomplcache_keyword_patterns')
-    let g:neocomplcache_keyword_patterns = {}
-endif
-let g:neocomplcache_keyword_patterns['default'] = '\h\w*'
-inoremap <expr><C-g>     neocomplcache#undo_completion()
-inoremap <expr><C-l>     neocomplcache#complete_common_string()
-inoremap <expr><CR>  neocomplcache#smart_close_popup() . "\<CR>"
-inoremap <expr><C-h> neocomplcache#smart_close_popup()."\<C-h>"
-inoremap <expr><C-y>  neocomplcache#close_popup()
-inoremap <expr><C-e>  neocomplcache#cancel_popup()
-inoremap <expr><space> pumvisible() ? neocomplcache#close_popup() . "\<SPACE>" : "\<SPACE>"
-" Enable heavy omni completion, which require computational power and may stall the vim. 
-if !exists('g:neocomplcache_omni_patterns')
-    let g:neocomplcache_omni_patterns = {}
-endif
-let g:neocomplcache_omni_patterns.ruby = '[^. *\t]\.\h\w*\|\h\w*::'
-let g:neocomplcache_omni_patterns.php = '[^. \t]->\h\w*\|\h\w*::'
-let g:neocomplcache_omni_patterns.c = '[^.[:digit:] *\t]\%(\.\|->\)'
-let g:neocomplcache_omni_patterns.cpp = '[^.[:digit:] *\t]\%(\.\|->\)\|\h\w*::'
-if !exists('g:neocomplcache_force_omni_patterns')
-    let g:neocomplcache_force_omni_patterns = {}
-endif
-let g:neocomplcache_force_omni_patterns.ruby = '[^. *\t]\.\w*\|\h\w*::'
-let g:neocomplcache_force_omni_patterns.c = '[^.[:digit:] *\t]\%(\.\|->\)'
-let g:neocomplcache_force_omni_patterns.cpp = '[^.[:digit:] *\t]\%(\.\|->\)\|\h\w*::'
-autocmd FileType cpp NeoComplCacheEnable
+"let g:neocomplcache_enable_quick_match = 1
+"" Launches neocomplcache automatically on vim startup.
+"let g:neocomplcache_enable_at_startup = 0
+"" Use smartcase.
+"let g:neocomplcache_enable_smart_case = 1
+"" Use camel case completion.
+"let g:neocomplcache_enable_camel_case_completion = 1
+"" Use underscore completion.
+"let g:neocomplcache_enable_underbar_completion = 1
+"" Sets minimum char length of syntax keyword.
+"let g:neocomplcache_min_syntax_length = 3
+"let g:neocomplcache_lock_buffer_name_pattern = '\*ku\*'
+"let g:neocomplcache_enable_auto_select = 0
+"" Define file-type dependent dictionaries.
+"inoremap <expr><C-g>     neocomplcache#undo_completion()
+"inoremap <expr><C-l>     neocomplcache#complete_common_string()
+"nnoremap <F9> :NeoComplCacheToggle<CR>
+"let g:neocomplcache_dictionary_filetype_lists = {
+"\ 'default' : '',
+"\ 'vimshell' : $HOME.'/.vimshell_hist',
+"\ 'scheme' : $HOME.'/.gosh_completions'
+"\ }
+"let g:neocomplcache_omni_functions = {
+      "\ 'c' : 'ccomplete#Complete',
+      "\ 'python' : 'pythoncomplete#Complete',
+      "\ 'ruby' : 'rubycomplete#Complete',
+      "\ }
+"" Define keyword, for minor languages
+"if !exists('g:neocomplcache_keyword_patterns')
+    "let g:neocomplcache_keyword_patterns = {}
+"endif
+"if !exists('g:neocomplete#force_omni_input_patterns')
+    "let g:neocomplete#force_omni_input_patterns = {}
+"endif
+"let g:neocomplete#force_omni_input_patterns.go = '[^.[:digit:] *\t]\.'
+"let g:neocomplcache_keyword_patterns['default'] = '\h\w*'
+"inoremap <expr><C-g>     neocomplcache#undo_completion()
+"inoremap <expr><C-l>     neocomplcache#complete_common_string()
+"inoremap <expr><CR>  neocomplcache#smart_close_popup() . "\<CR>"
+"inoremap <expr><C-h> neocomplcache#smart_close_popup()."\<C-h>"
+"inoremap <expr><C-y>  neocomplcache#close_popup()
+"inoremap <expr><C-e>  neocomplcache#cancel_popup()
+"inoremap <expr><space> pumvisible() ? neocomplcache#close_popup() . "\<SPACE>" : "\<SPACE>"
+"" Enable heavy omni completion, which require computational power and may stall the vim. 
+"if !exists('g:neocomplcache_omni_patterns')
+    "let g:neocomplcache_omni_patterns = {}
+"endif
+"let g:neocomplcache_omni_patterns.ruby = '[^. *\t]\.\h\w*\|\h\w*::'
+"let g:neocomplcache_omni_patterns.php = '[^. \t]->\h\w*\|\h\w*::'
+"let g:neocomplcache_omni_patterns.c = '[^.[:digit:] *\t]\%(\.\|->\)'
+"let g:neocomplcache_omni_patterns.cpp = '[^.[:digit:] *\t]\%(\.\|->\)\|\h\w*::'
+"if !exists('g:neocomplcache_force_omni_patterns')
+    "let g:neocomplcache_force_omni_patterns = {}
+"endif
+"let g:neocomplcache_force_omni_patterns.ruby = '[^. *\t]\.\w*\|\h\w*::'
+"let g:neocomplcache_force_omni_patterns.c = '[^.[:digit:] *\t]\%(\.\|->\)'
+"let g:neocomplcache_force_omni_patterns.cpp = '[^.[:digit:] *\t]\%(\.\|->\)\|\h\w*::'
+"autocmd FileType cpp NeoComplCacheEnable
 "}}}
 "
-"vim_multi_cursor{{{
-"let g:multi_cursor_use_default_mapping=0
-"" Default mapping
-"let g:multi_cursor_next_key='<C-n>'
-"let g:multi_cursor_prev_key='<C-p>'
-"let g:multi_cursor_skip_key='<C-z>'
-"let g:multi_cursor_quit_key='<Esc>'
-""}}}
 
 "xml.vim{{{
 let xml_use_xhtml = 1
@@ -681,6 +715,17 @@ autocmd FileType python set complete+=k~/.vim/bundle/Pydiction isk+=.,(
 au BufNewFile,BufRead *.py,*.pyw set filetype=python
 
 """"""""""""
+"golang
+""""""""""""
+autocmd BufEnter *.go  set filetype=go
+let g:godef_split=0
+let g:godef_same_file_in_same_window=1
+let g:go_fmt_autofmt = 0
+"au FileType go au BufWritePre <buffer> Fmt
+au Filetype go set makeprg=go\ build\ ./...
+noremap \\f <Esc>:Fmt<CR> 
+
+""""""""""""
 " HTML 
 """"""""""""
 au FileType html set ft=xml
@@ -707,6 +752,13 @@ autocmd FileType javascript setlocal omnifunc=javascriptcomplete#CompleteJS
 "----------------------------------------------------------------------------
 " FUNCTIONS
 "----------------------------------------------------------------------------
+
+inoremap ( ()<ESC>i
+inoremap [ []<ESC>i
+inoremap " ""<ESC>i
+inoremap ' ''<ESC>i
+inoremap { {<CR>}<ESC>kk<CR>
+
 
 function! SetAlign()
     let ch=getline(line('.'))[col('.')-1]
@@ -746,7 +798,7 @@ function! VisualSelection(direction) range
     if a:direction == 'b'
         execute "normal ?" . l:pattern . "^M"
     elseif a:direction == 'gv'
-        exec "Ack " . l:pattern
+        exec "Ack " . l:pattern ." --ignore-file *tags"
     elseif a:direction == 'replace'
         ""call CmdLine("%s" . '/'. l:pattern . '/')
     elseif a:direction == 'f'
@@ -791,8 +843,6 @@ function! Ex_bspace()
     "default
     return "\<Backspace>"	
 endf
-
-
 endfunc
 
 "获取当前路径的上一级的路径
@@ -842,6 +892,14 @@ function! SET_UAW()
 endfunction
 
 
+function! GEN_TAGS() 
+    if filetype = go
+        silent! execute "! /usr/local/bin/ctags -f gosource.tags -R `pwd`"
+    else if filetype = cpp
+        call RESET_CTAG_CSCOPE()
+    endif
+endfunction
+
 "重新生成ctag cscope
 function! RESET_CTAG_CSCOPE() 
     if(executable('cscope') && has("cscope") )
@@ -865,3 +923,15 @@ function! OPT_RANGE( opt_str )
     endif
 endfunction
 
+function! GoVet()
+    cexpr system("go vet " . shellescape(expand('%')))
+    copen
+endfunction
+command! GoVet :call GoVet()
+
+
+function! GoLint()
+    cexpr system("golint " . shellescape(expand('%')))
+    copen
+endfunction
+command! GoLint :call GoLint()
