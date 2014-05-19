@@ -44,11 +44,12 @@ Bundle 'kana/vim-smartword'
 Bundle 'altercation/vim-colors-solarized'
 Bundle 'Blackrush/vim-gocode'
 Bundle 'dgryski/vim-godef'
-
-"Bundle 'kien/rainbow_parentheses.vim'
-"Bundle 'vim-scripts/L9'
-"Bundle 'vim-scripts/FuzzyFinder'
- 
+Bundle 'vim-scripts/JavaScript-Indent'
+Bundle 'pangloss/vim-javascript'
+Bundle 'vim-scripts/JavaScript-Libraries-Syntax'
+Bundle 'guileen/vim-node.git'
+Bundle 'myhere/vim-nodejs-complete.git'
+Bundle 'moll/vim-node'
 
  
 " 代码存放在 vim script 上
@@ -687,13 +688,12 @@ let g:cycle_default_groups = [
 """"""""""""
 "general
 """"""""""""
-
 autocmd BufEnter *  set tabstop=4 
 
 """"""""""""
 "c c++
 """"""""""""
-""autocmd BufEnter  *.cpp,*.c,*.h call s:SET_PATH("include") 
+"autocmd BufEnter  *.cpp,*.c,*.h call s:SET_PATH("include") 
 autocmd FileType c set omnifunc=ccomplete#Complete
 ".c  .h 文件设为 .cpp
 autocmd BufEnter *.c  set filetype=cpp
@@ -702,7 +702,7 @@ autocmd BufEnter *.h  set filetype=cpp
 """"""""""""
 "php
 """"""""""""
-autocmd BufEnter  *.php call s:SET_PATH("pub") 
+""autocmd BufEnter  *.php call s:SET_PATH("pub") 
 
 """"""""""""
 "python
@@ -733,6 +733,7 @@ au FileType html set syntax=html
 autocmd FileType html,markdown setlocal omnifunc=htmlcomplete#CompleteTags
 autocmd FileType xml setlocal omnifunc=xmlcomplete#CompleteTags
 autocmd BufRead *.mxml set filetype=mxml
+autocmd BufRead *.tmpl set filetype=html
 
 """"""""""""
 " Vim 
@@ -745,6 +746,17 @@ autocmd FileType vim map <buffer> <leader><space> :w!<cr>:source %<cr>
 """"""""""""
 " Enable omni completion. (Ctrl-X Ctrl-O)
 autocmd FileType javascript setlocal omnifunc=javascriptcomplete#CompleteJS
+let g:used_javascript_libs = 'underscore,backbone'
+autocmd BufReadPre *.js let b:javascript_lib_use_jquery = 1
+autocmd BufReadPre *.js let b:javascript_lib_use_underscore = 1
+autocmd BufReadPre *.js let b:javascript_lib_use_backbone = 1
+autocmd BufReadPre *.js let b:javascript_lib_use_prelude = 0
+autocmd BufReadPre *.js let b:javascript_lib_use_angularjs = 0
+""let Tlist_JS_Settings = 'javascript;s:string;a:array;o:object;f:function'
+""let Tlist_Ctags_Cmd = '/usr/local/bin/ctags'
+"添加字典文件
+au FileType javascript set dictionary+='~/.vim/bundle/vim-node/dict'
+
 "autocmd FileType css set omnifunc=csscomplete#CompleteCSS
 "autocmd FileType java set omnifunc=javacomplete#Complete
 "autocmd BufRead *.as set filetype=actionscript
