@@ -1,0 +1,91 @@
+package main
+
+import (
+    "sanguo/base/log"
+    //"encoding/json"
+    "fmt"
+    "io/ioutil"
+    "os"
+    "runtime"
+    "runtime/pprof"
+)
+
+const (
+    MaxOutstanding = 30
+)
+
+func main() {
+    if len(os.Args) != 2 {
+        fmt.Println("Wrong input, please input ' ./server gm.conf' ")
+        return
+    }
+
+    content, err := ioutil.ReadFile(os.Args[1])
+    if err != nil {
+        fmt.Println("Failed read configure file", os.Args[1], err)
+        return
+    }
+
+    if !config.Load(content) {
+        fmt.Println("Failed load config")
+        return
+    }
+
+    runtime.GOMAXPROCS(8)
+
+    log.SetLevel(config.Config.LogLevel)
+
+    filew := log.NewFileWriter(config.Config.LogName, true)
+    err = filew.StartLogger()
+    if err != nil {
+        fmt.Println("Failed start log", err)
+        return
+    }
+
+    if config.Config.ProfEnable {
+        f_cpu, err := os.Create(config.Config.CPUProfFile)
+        if err != nil {
+            fmt.Println("Failed open CPUProfile", err)
+            return
+        }
+
+        err = pprof.StartCPUProfile(f_cpu)
+        if err != nil {
+            fmt.Println("Failed startCPUProfile", err)
+            return
+        }
+        defer pprof.StopCPUProfile()
+
+        f_mem, err := os.Create(config.Config.MemProfFile)
+        if err != nil {
+            fmt.Println("Failed open MemProfile", err)
+            return
+        }
+        pprof.WriteHeapProfile(f_mem)
+        defer f_mem.Close()
+    }
+    for i := 0; i < MaxOutstanding; i++ {
+        var gm *GameManager = new(GameManager)
+        if !gm.Connect() {
+            fmt.Printf("gm start error.")
+            os.Exit(-1)
+        }
+        gmChan <- gm
+    }
+    listener, err := net.ListenTCP("tcp", tcpAddr)
+    if err != nil {
+        log.Error(err.Error())
+        os.Exit(-1)
+    }
+    for {
+        conn, err := listener.Accept()
+        if err != nil {
+            continue
+        }
+        log.Debug("Accept a new connection")
+        //go handleClient(conn)
+        gm <- gmChann
+        handleClient(conn)
+    }
+    gm.db_handler.Close()
+}

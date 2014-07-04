@@ -1,0 +1,119 @@
+package gameserver
+
+import (
+	"sanguo/base/log"
+	"sanguo/base/util"
+	"sanguo/db"
+	. "sanguo/systemdata"
+)
+
+var BoxReward = []int{5, 20, 200, 500, 800}
+var BoxCDTime = []int64{20 * 60, 60 * 60, 5 * 60 * 60}
+
+const MaxBoxCount = 4
+
+func (this *User) CanGetBoxReward() bool {
+	if GetCurrentTime() < this.box_get_time {
+		return false
+	}
+	return true
+}
+
+func (this *User) GetBoxLeftCDTime() int {
+	t := this.box_get_time - GetCurrentTime()
+	if t < 0 {
+		t = 0
+	}
+
+	return int(t)
+}
+
+func (this *User) InitBoxRewadInTheFirstLogin() (err error) {
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+
+	this.box_count = 0
+
+	if this.box_get_time != 0 {
+		this.box_get_time = GetCurrentTime()
+	}
+
+	_, err = dbconn.Do("HMSET", this.GetUidUsedInDB(), "box_count", this.box_count, "box_get_time", this.box_get_time)
+	if err != nil {
+		this.Error("Failed HMSET", err)
+		return err
+	}
+
+	return nil
+}
+
+func (this *User) GetBoxReward() (err error) {
+	num := util.GetRandomNum(5)
+	if num > 5 {
+		log.Warn("")
+		num = 0
+	}
+
+	value := BoxReward[num]
+	t := RewardType_Gold
+	if value <= 100 {
+		t = RewardType_Stone
+	}
+
+	if this.box_get_time == 0 {
+		t = RewardType_Gold
+		value = 500
+	}
+
+	this.Debug("The count and time and value is", this.box_count, this.box_get_time, value)
+	_, err = this.ProcessReward(t, value)
+	if err != nil {
+		this.Error("Failed ProcessReward", err)
+		return err
+	}
+
+	this.box_count++
+	if this.box_count >= MaxBoxCount {
+		this.box_get_time = SharpNextDay()
+	} else {
+		this.box_get_time = GetCurrentTime() + BoxCDTime[this.box_count-1]
+	}
+
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+
+	_, err = dbconn.Do("HMSET", this.GetUidUsedInDB(), "box_count", this.box_count, "box_get_time", this.box_get_time)
+	if err != nil {
+		this.Error("Failed HMSET", err)
+		return err
+	}
+
+	return nil
+}
+
+//opcode107
+func UserGetBoxReward(sess *Session, reader []byte) bool {
+	if !sess.user.CanGetBoxReward() {
+		sess.user.Error("Still cant get box reward")
+		return false
+	}
+
+	type DataBack struct {
+		Gold  int
+		Stone int
+		Next  int
+	}
+
+	err := sess.user.GetBoxReward()
+	if err != nil {
+		sess.user.Error("Failed GetBoxReward", err)
+		return false
+	}
+
+	var back DataBack
+	back.Gold = sess.user.GetUserGold()
+	back.Stone = sess.user.GetUserStone()
+	back.Next = sess.user.GetBoxLeftCDTime()
+
+	return sess.SendReplyBack(back, 107)
+}

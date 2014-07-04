@@ -1,0 +1,1086 @@
+package gameserver
+
+import (
+	//"errors"
+	"github.com/garyburd/redigo/redis"
+	"sanguo/base/log"
+	"sanguo/db"
+	. "sanguo/systemdata"
+	"strconv"
+    "strings"
+	"time"
+)
+
+const FullPower = 10
+
+/*func AllocateUserId(sess *Session) (string, error) {
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+	uid, err := redis.Int(dbconn.Do("INCR", "uid"))
+	if err != nil {
+		return "", err
+	}
+
+	return "user:" + strconv.Itoa(uid), nil
+}
+
+func AllocateUserName(sess *Session) (string, error) {
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+	nameid, err := redis.Int(dbconn.Do("INCR", "nameid"))
+	if err != nil {
+		return "", err
+	}
+
+	return "player" + strconv.Itoa(nameid), nil
+}*/
+
+func InitPlayerInRegister(sess *Session, id string) error {
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+
+	sess.user.gold = 100
+	sess.user.level = 1
+	//sess.user.money = 0
+	//sess.user.exp = 0
+	sess.user.power = FullPower
+	sess.user.max_power = FullPower
+	sess.user.chapter = 1
+	sess.user.stone = 200
+	sess.user.c_guanqia = ChapterInfo[1].AllCGuanQias[0]
+	sess.user.s_guanqia = ChapterGuanQiaInfo[sess.user.c_guanqia].Allsimpleguanqias[0]
+	//TODO  fix last_login
+	sess.user.last_login = 0
+	sess.user.last_power_time = 0
+	sess.user.vip = 0
+	sess.user.photo = "gui/role_portrait/k2.png"
+
+	/******card info***********/
+	//sess.user.gold_card_count = 0
+	//sess.user.money_card_count = 0
+	sess.user.card_count = 3
+	/******boss info***********/
+	//sess.user.boss_count = 0
+	//sess.user.boss_id = 0
+	//sess.user.boss_max_score = 0
+	//sess.user.boss_rank = 0
+	//sess.user.boss_tg_count = 0
+	//sess.user.boss_today_max_score = 0
+	//sess.user.last_boss_end_time = 0
+
+	/******friend info**********/
+	//sess.user.friends_max_num = 15
+
+	/****** login info *********/
+	sess.user.last_login_reward_time = 0
+	sess.user.login_arm_given = false
+	sess.user.login_arm = 0
+	sess.user.last_login_arm = 0
+	sess.user.register_time = time.Now().Unix()
+
+	sess.user.event_count = 0
+	sess.user.event_end_count = 0
+	sess.user.event_end_time = 0
+	sess.user.event_id = 0
+
+	sess.user.heroVIP = 0
+
+	_, err := dbconn.Do("HMSET", sess.user.GetUidUsedInDB(), "mid", sess.user.mid, "name", sess.user.name, "level", sess.user.level, "gold", sess.user.gold,
+		"power", sess.user.power, "max_power", sess.user.max_power, "chapter", sess.user.chapter,
+		"c_guanqia", sess.user.c_guanqia, "s_guanqia", sess.user.s_guanqia, "stone", sess.user.stone, "last_login", sess.user.last_login,
+		"last_power_time", sess.user.last_power_time, "card_count", sess.user.card_count, "lock_chapter", 0, "lock_start_time", 0,
+		//"boss_id", sess.user.boss_id, "boss_rank", sess.user.boss_rank, "boss_count", sess.user.boss_count, "last_boss_end_time", sess.user.last_boss_end_time,
+		//"boss_today_max_score", sess.user.boss_today_max_score, "boss_tg_count", sess.user.boss_tg_count, "boss_max_score", sess.user.boss_max_score,
+		"vip", 0, "photo", sess.user.photo, "last_login_reward_time", sess.user.last_login_reward_time, "stranger_time", 0,
+		"login_arm_given", sess.user.login_arm_given, "login_arm", sess.user.login_arm, "last_login_arm", sess.user.last_login_arm, "register_time", sess.user.register_time,
+		"event_count", sess.user.event_count, "event_end_count", sess.user.event_end_count, "event_end_time", sess.user.event_end_time, "event_id", sess.user.event_id,
+		"lock_chapter", 0, "lock_start_time", 0, "heroVIP", 0)
+	if err != nil {
+		log.Error("Can't insert initial user info into redis of", sess.user.uid)
+		return err
+	}
+
+	err = InitSeenHeroInfo(sess)
+	if err != nil {
+		log.Error("Failed init SeenHero info", err)
+		return err
+	}
+
+	err = InitSeenArmInfo(sess)
+	if err != nil {
+		log.Error("Failed init SeenArm info", err)
+		return err
+	}
+
+	err = InitHeroInfo(sess)
+	if err != nil {
+		log.Error("Failed init Hero info", err)
+		return err
+	}
+
+	err = InitArmInfo(sess)
+	if err != nil {
+		log.Error("Failed init Arm info", err)
+		return err
+	}
+
+	err = InitFormation(sess)
+	if err != nil {
+		log.Error("Failed init Formation info", err)
+		return err
+	}
+
+	err = InitLoginReward(sess)
+	if err != nil {
+		log.Error("Failed InitLoginReward", err)
+		return err
+	}
+
+	err = InitWizards(sess)
+	if err != nil {
+		log.Error("Failed InitWizards", err)
+		return err
+	}
+
+	err = initGetStoneFlag(sess)
+	if err != nil {
+		log.Error("Failed initGetStone", err)
+		return err
+	}
+
+	err = sess.user.purchase.Init()
+	if err != nil {
+		sess.Error("Failed purchase", err)
+		return err
+	}
+
+	return nil
+}
+
+/*
+func SetUserUid(sess *Session, id string) error {
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+	var err error
+	sess.user.uid, err = AllocateUserId(sess)
+	if err != nil {
+		return err
+	}
+
+	_, err = dbconn.Do("SET", id, sess.user.uid)
+	if err != nil {
+		log.Error("Failed set connection id and uid")
+		return err
+	}
+
+	return nil
+}
+
+func SetUserName(sess *Session) error {
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+	name, err := AllocateUserName(sess)
+	if err != nil {
+		return err
+	}
+	sess.user.name = name
+
+	_, err = dbconn.Do("SET", name, sess.user.uid)
+	if err != nil {
+		log.Error("Failed set connection name and uid")
+		return err
+	}
+
+	return nil
+}*/
+
+func InitHeroInfo(sess *Session) error {
+	return sess.user.Hero.InitHero()
+}
+
+func InitArmInfo(sess *Session) error {
+	return sess.user.Arm.InitArm()
+}
+
+func InitSeenHeroInfo(sess *Session) error {
+	/*dbconn := db.Pool.Get()
+	defer dbconn.Close()
+	for i := 0; i < HeroOidNum; i++ {
+		sess.user.allherooid[i] = InitAllHeroOid[i]
+		_, err := dbconn.Do("RPUSH", sess.user.uid+":allhero", sess.user.allherooid[i])
+		if err != nil {
+			log.Error("Failed init allarm in register", err, sess.user.uid)
+			return err
+		}
+	}*/
+
+	return nil
+}
+
+func InitSeenArmInfo(sess *Session) error {
+	/*dbconn := db.Pool.Get()
+	defer dbconn.Close()
+	for i := 0; i < ArmOidNum; i++ {
+		sess.user.allarmoid[i] = InitAllArmOid[i]
+		_, err := dbconn.Do("RPUSH", sess.user.uid+":allarm", sess.user.allarmoid[i])
+		if err != nil {
+			log.Error("Failed init allarm in register", err, sess.user.uid)
+			return err
+		}
+	}*/
+
+	return nil
+}
+
+func InitFormation(sess *Session) error {
+	/*	dbconn := db.Pool.Get()
+		defer dbconn.Close()
+		sess.user.formation = [FormationLength]int{0}
+		// RPUSH key:formation 0 0 0 0 0 0 0 0 0 0 0 0
+		// LTRIM key:formation 0 11
+		_, err := dbconn.Do("RPUSH", sess.user.uid+":formation", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+		if err != nil {
+			log.Error("Can't insert user:formation into reis", sess.user.uid)
+			return err
+		}
+
+		_, err = dbconn.Do("LTRIM", sess.user.uid+":formation", 0, FormationLength-1)
+		if err != nil {
+			log.Error("Can't trim user:formation into 12", sess.user.uid)
+			return err
+		}*/
+	return nil
+}
+
+func InitLoginReward(sess *Session) error {
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+	for i := 0; i < 3; i++ {
+		sess.user.last_login_reward[i].Type = 0
+		sess.user.last_login_reward[i].Value = 0
+		_, err := dbconn.Do("HMSET", sess.user.GetUidUsedInDB()+":last_login_reward:"+strconv.Itoa(i), "Type", 0, "Value", 0)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func InitWizards(sess *Session) error {
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+	//for i:=0; i<WizardsLength; i++ {
+	//	sess.user.wizards[]
+	//}
+	_, err := dbconn.Do("RPUSH", sess.user.GetUidUsedInDB()+":wizards", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+	return err
+}
+
+/////////////////////////////////////////////////////////////////////
+func IsUserIdExist(sess *Session, id string) (bool, error) {
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+	flag, err := redis.Int(dbconn.Do("EXISTS", id))
+	if err != nil {
+		sess.Error("Failed Exists", id, err)
+		return false, err
+	}
+
+	if flag == 0 {
+		return false, nil
+	}
+
+	return true, nil
+}
+
+func LoadUserUid(sess *Session, id string) error {
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+	var err error
+	sess.user.uid, err = redis.Int(dbconn.Do("GET", id))
+	if err != nil {
+		log.Error("Failed get uid", err)
+		return err
+	}
+	return nil
+}
+
+func LoadUserInfo(sess *Session) error {
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+
+	reply2, err := redis.Values(dbconn.Do("HMGET", sess.user.GetUidUsedInDB(), "level", "name", "gold", "power", "chapter",
+		"c_guanqia", "s_guanqia", "stone", "last_login", "last_power_time", "card_count",
+		//"boss_id", "boss_rank", "boss_count", "last_boss_end_time", "boss_today_max_score", "boss_tg_count", "boss_max_score",
+		"vip", "photo", "last_login_reward_time", "login_arm_given", "login_arm", "last_login_arm", "register_time", "stranger_time",
+		"event_count", "event_end_count", "event_end_time", "event_id", "lock_chapter", "lock_start_time", "max_power", "heroVIP"))
+	if err != nil {
+		log.Error("Can't get user from reis")
+		return err
+	}
+
+	index := 0
+	sess.user.level, err = redis.Int(reply2[index], nil)
+	if err != nil {
+		log.Error("Cant convert level to int", err, sess.user.uid)
+		return err
+	}
+	index++
+
+	sess.user.name, err = redis.String(reply2[index], nil)
+	if err != nil {
+		log.Error("Cant convert name to string ", err, sess.user.uid)
+		return err
+	}
+	index++
+
+	sess.user.gold, err = redis.Int(reply2[index], nil)
+	if err != nil {
+		log.Error("Cant convert gold to int", err, sess.user.uid)
+		return err
+	}
+	index++
+
+	sess.user.power, err = redis.Int(reply2[index], nil)
+	if err != nil {
+		log.Error("Cant convert power to int", err, sess.user.uid)
+		return err
+	}
+	index++
+
+	sess.user.chapter, err = redis.Int(reply2[index], nil)
+	if err != nil {
+		log.Error("Cant convert chapter to int", err, sess.user.uid)
+		return err
+	}
+	index++
+
+	sess.user.c_guanqia, err = redis.Int(reply2[index], nil)
+	if err != nil {
+		log.Error("Cant convert c_guanqia to int", err, sess.user.uid)
+		return err
+	}
+	index++
+
+	sess.user.s_guanqia, err = redis.Int(reply2[index], nil)
+	if err != nil {
+		log.Error("Cant convert s_guanqia to int", err, sess.user.uid)
+		return err
+	}
+	index++
+
+	sess.user.stone, err = redis.Int(reply2[index], nil)
+	if err != nil {
+		log.Error("Cant convert stone to int", err, sess.user.uid)
+		return err
+	}
+	index++
+
+	sess.user.last_login, err = redis.Int64(reply2[index], nil)
+	if err != nil {
+		log.Error("Cant convert last_login to int", err, sess.user.uid)
+		return err
+	}
+	index++
+
+	sess.user.last_power_time, err = redis.Int64(reply2[index], nil)
+	if err != nil {
+		log.Error("Cant convert last_power_time to int", err, sess.user.uid)
+		return err
+	}
+	index++
+
+	sess.user.card_count, err = redis.Int(reply2[index], nil)
+	if err != nil {
+		log.Error("Cant convert card_count to int", err, sess.user.uid)
+		return err
+	}
+	index++
+
+	//sess.user.boss_id, err = redis.Int(reply2[index], nil)
+	//if err != nil {
+	//log.Error("Cant convert boss_id to int", err, sess.user.uid)
+	//return err
+	//}
+	//index++
+
+	//sess.user.boss_rank, err = redis.Int(reply2[index], nil)
+	//if err != nil {
+	//log.Error("Cant convert boss_rank to int", err, sess.user.uid)
+	//return err
+	//}
+	//index++
+
+	//sess.user.boss_count, err = redis.Int(reply2[index], nil)
+	//if err != nil {
+	//log.Error("Cant convert boss_count to int", err, sess.user.uid)
+	//return err
+	//}
+	//index++
+
+	//sess.user.last_boss_end_time, err = redis.Int64(reply2[index], nil)
+	//if err != nil {
+	//log.Error("Cant convert last_boss_end_time to int", err, sess.user.uid)
+	//return err
+	//}
+	//index++
+
+	//sess.user.boss_today_max_score, err = redis.Int(reply2[index], nil)
+	//if err != nil {
+	//log.Error("Cant convert boss_today_max_score to int", err, sess.user.uid)
+	//return err
+	//}
+	//index++
+
+	//sess.user.boss_tg_count, err = redis.Int(reply2[index], nil)
+	//if err != nil {
+	//log.Error("Cant convert boss_tg_count to int", err, sess.user.uid)
+	//return err
+	//}
+	//index++
+
+	//sess.user.boss_max_score, err = redis.Int(reply2[index], nil)
+	//if err != nil {
+	//log.Error("Cant convert boss_max_score to int", err, sess.user.uid)
+	//return err
+	//}
+	//index++
+
+	/*sess.user.friends_max_num, err = redis.Int(reply2[index], nil)
+	if err != nil {
+		log.Error("Cant convert friends_max_num to int", err, sess.user.uid)
+		return err
+	}
+	index++*/
+
+	sess.user.vip, err = redis.Int(reply2[index], nil)
+	if err != nil {
+		log.Error("Cant convert vip to int", err, sess.user.uid)
+		return err
+	}
+	index++
+
+	sess.user.photo, err = redis.String(reply2[index], nil)
+	if err != nil {
+		log.Error("Cant convert photo to string", err, sess.user.uid)
+		return err
+	}
+	index++
+
+	sess.user.last_login_reward_time, err = redis.Int64(reply2[index], nil)
+	if err != nil {
+		log.Error("Cant convert photo to string", err, sess.user.uid)
+		return err
+	}
+	index++
+
+	sess.user.login_arm_given, err = redis.Bool(reply2[index], nil)
+	if err != nil {
+		log.Error("Cant convert photo to string", err, sess.user.uid)
+		return err
+	}
+	index++
+
+	sess.user.login_arm, err = redis.Int(reply2[index], nil)
+	if err != nil {
+		log.Error("Cant convert photo to string", err, sess.user.uid)
+		return err
+	}
+	index++
+
+	sess.user.last_login_arm, err = redis.Int(reply2[index], nil)
+	if err != nil {
+		log.Error("Cant convert photo to string", err, sess.user.uid)
+		return err
+	}
+	index++
+
+	sess.user.register_time, err = redis.Int64(reply2[index], nil)
+	if err != nil {
+		log.Error("Cant convert photo to string", err, sess.user.uid)
+		return err
+	}
+	index++
+
+	sess.user.stranger_time, err = redis.Int(reply2[index], nil)
+	if err != nil {
+		log.Error("Cant convert stanget_time to int", err, sess.user.uid)
+		return err
+	}
+	index++
+
+	sess.user.event_count, err = redis.Int(reply2[index], nil)
+	if err != nil {
+		log.Error("Cant convert event_count to int", err, sess.user.uid)
+		return err
+	}
+	index++
+
+	sess.user.event_end_count, err = redis.Int(reply2[index], nil)
+	if err != nil {
+		log.Error("Cant convert event_end_count to int", err, sess.user.uid)
+		return err
+	}
+	index++
+
+	sess.user.event_end_time, err = redis.Int64(reply2[index], nil)
+	if err != nil {
+		log.Error("Cant convert event_end_time to int", err, sess.user.uid)
+		return err
+	}
+	index++
+
+	sess.user.event_id, err = redis.Int(reply2[index], nil)
+	if err != nil {
+		log.Error("Cant convert event_id to int", err, sess.user.uid)
+		return err
+	}
+	index++
+
+	sess.user.lock_chapter, err = redis.Int(reply2[index], nil)
+	if err != nil {
+		log.Error("Cant convert lock_chapter to int", err, sess.user.uid)
+		return err
+	}
+	index++
+
+	sess.user.lock_start_time, err = redis.Int64(reply2[index], nil)
+	if err != nil {
+		log.Error("Cant convert lock_start_time to int64", err, sess.user.uid)
+		return err
+	}
+	index++
+
+	sess.user.max_power, err = redis.Int(reply2[index], nil)
+	if err != nil {
+		log.Error("Cant convert max_power to int", err, sess.user.uid)
+		return err
+	}
+	index++
+
+	sess.user.heroVIP, err = redis.Int(reply2[index], nil)
+	if err != nil {
+		log.Error("Cant convert heroVIP to int", err, sess.user.uid)
+		return err
+	}
+	index++
+
+	err = LoadPlayerHeroInfo(sess)
+	if err != nil {
+		log.Error("Failed LoadPlayerHeroInfo", err)
+		return err
+	}
+
+	err = LoadPlayerArmInfo(sess)
+	if err != nil {
+		log.Error("Failed LoadPlayerArmInfo", err)
+		return err
+	}
+
+	//err = LoadPlayerCompletedChapterGuanqia(sess)
+	//if err != nil {
+	//	log.Error("Failed LoadPlayerCompletedChapterGuanqia", err)
+	//	return err
+	//}
+	err = LoadPlayerFormation(sess)
+	if err != nil {
+		log.Error("Failed LoadPlayerFormation", err)
+		return err
+	}
+
+	err = LoadPlayerFinishedQuest(sess)
+	if err != nil {
+		log.Error("Failed LoadPlayerFinishedQuest", err)
+		return err
+	}
+
+	err = LoadAcceptRequest(sess)
+	if err != nil {
+		log.Error("Failed LoadAcceptRequest", err)
+		return err
+	}
+
+	err = LoadPlayerUnrewardQuest(sess)
+	if err != nil {
+		log.Error("Failed LoadPlayerUnrewardQuest", err)
+		return err
+	}
+	err = LoadPlayerNewGetCard(sess)
+	if err != nil {
+		log.Error("Failed LoadPlayerNewGetCard", err)
+		return err
+	}
+	err = LoadPlayerCardSeenState(sess)
+	if err != nil {
+		log.Error("Failed LoadPlayerCardSeenState", err)
+		return err
+	}
+	/*err = LoadPlayerFriends(sess)
+	if err != nil {
+		log.Error("Failed LoadPlayerFriends", err)
+		return err
+	}*/
+	err = LoadLoginReward(sess)
+	if err != nil {
+		log.Error("Failed LoadLoginReward", err)
+		return err
+	}
+
+	err = LoadWizards(sess)
+	if err != nil {
+		log.Error("Failed loadWizard", err)
+		return err
+	}
+
+	err = sess.user.E_Arm.LoadExtraArm()
+	if err != nil {
+		sess.Error("Failed LoadExtraArm", err)
+		return err
+	}
+
+	err = sess.user.LoadSimpleGuanScore()
+	if err != nil {
+		sess.Error("Failed LoadSimpleGuanScore()", err)
+		return err
+	}
+
+	err = sess.user.purchase.Load()
+	if err != nil {
+		sess.Error("Failed purchase load", err)
+		return err
+	}
+	return nil
+}
+
+//1
+func LoadPlayerHeroInfo(sess *Session) error {
+	return sess.user.Hero.Load()
+}
+
+//2
+func LoadPlayerArmInfo(sess *Session) error {
+	return sess.user.Arm.Load()
+}
+
+func (user *User) LoadArmEquip() error {
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+	reply, err := redis.Strings(dbconn.Do("HGETALL", "user:armEquip:"+strconv.Itoa(user.uid)))
+	if err != nil {
+		return err
+	}
+	for i := 0; i < len(reply)/2; i++ {
+		armid, err := redis.Int(reply[i*2], nil)
+        equips := strings.Split(reply[i*2+1],":")
+		if err != nil || len(equips)!= 3 {
+			log.Error("LoadArmEquip Cant convert to int ", err,  user.uid, len(equips))
+			continue
+		}
+        var equip [3]int
+        for j:= range equips{
+            equip[j], err = strconv.Atoi(equips[j])
+            if  err != nil {
+                log.Error(err)
+            }
+        }
+		user.Arm.armEquip[armid] = equip
+	}
+	return nil
+}
+
+func (user *User) LoadBossInfo() error {
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+	reply, err := redis.Strings(dbconn.Do("keys", "user:bossinfo:"+strconv.Itoa(user.uid)+"*"))
+	if err != nil {
+		log.Error("Can't get user:boss_info from redis", err)
+		return err
+	}
+	//log.Debug("LoadBossInfo", reply)
+	for i := range reply {
+		//bossKey:="user:bossinfo:"+strconv.Itoa(user.uid)+":"+reply[i]
+		//log.Debug(bossKey)
+		reply2, err := redis.Values(dbconn.Do("HMGET", reply[i], "boss_id", "boss_max_score",
+			"boss_today_max_score", "boss_count", "boss_rank", "boss_tg_count", "boss_pass", "last_boss_end_time" ))
+		if err != nil {
+			log.Error("Can't get from redis ", reply[i], err)
+			continue
+		}
+		index := 0
+
+		boss := new(bossInfo)
+
+		boss.boss_id, err = redis.Int(reply2[index], nil)
+		if err != nil {
+			log.Error("Cant convert bossid to int", err, user.uid)
+			continue
+		}
+		index++
+
+		boss.boss_max_score, err = redis.Int(reply2[index], nil)
+		if err != nil {
+			log.Error("Cant convert bossid to int", err, user.uid)
+			continue
+		}
+		index++
+
+		boss.boss_today_max_score, err = redis.Int(reply2[index], nil)
+		if err != nil {
+			log.Error("Cant convert bossid to int", err, user.uid)
+			continue
+		}
+		index++
+
+		boss.boss_count, err = redis.Int(reply2[index], nil)
+		if err != nil {
+			log.Error("Cant convert bossid to int", err, user.uid)
+			continue
+		}
+		index++
+
+		boss.boss_rank, err = redis.Int(reply2[index], nil)
+		if err != nil {
+			log.Error("Cant convert bossid to int", err, user.uid)
+			continue
+		}
+		index++
+
+		boss.boss_tg_count, err = redis.Int(reply2[index], nil)
+		if err != nil {
+			log.Error("Cant convert bossid to int", err, user.uid)
+			continue
+		}
+		index++
+
+		boss.boss_pass, err = redis.Int(reply2[index], nil)
+		if err != nil {
+			log.Error("Cant convert bossid to int", err, user.uid)
+			continue
+		}
+		index++
+
+		boss.last_boss_end_time, err = redis.Int64(reply2[index], nil)
+		if err != nil {
+			log.Error("Cant convert bossid to int", err, user.uid)
+			continue
+		}
+		index++
+
+		//boss.isConvened, err = redis.Int(reply2[index], nil)
+		//if err != nil {
+			//log.Error("Cant convert isConvened to int", err, user.uid)
+			//continue
+		//}
+
+		user.bossInfos[boss.boss_id] = boss
+	}
+	log.Debug("monitor", user.uid, user.bossInfos)
+	return nil
+}
+
+//4
+func LoadPlayerFormation(sess *Session) error {
+	/*	dbconn := db.Pool.Get()
+		defer dbconn.Close()
+
+		reply2, err := redis.Values(dbconn.Do("LRANGE", sess.user.uid+":formation", 0, FormationLength-1))
+		if err != nil {
+			log.Error("Can't get user:formation from reis", sess.user.uid)
+			return err
+		}
+
+		for i := 0; i < len(reply2); i++ {
+			sess.user.formation[i], err = redis.Int(reply2[i], nil)
+			if err != nil {
+				log.Error("Can't convert formation to int", sess.user.uid)
+				return err
+			}
+		}*/
+	return nil
+}
+
+//6
+/*func GetAllFinishedQuest(sess *Session) ([]int, error) {
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+	for id, _ := range sess.user.finished_quests {
+		delete(sess.user.finished_quests, id)
+	}
+
+	reply2, err := redis.Values(dbconn.Do("SMEMBERS", sess.user.uid+":finished_quests"))
+	if err != nil {
+		log.Error("Can't get user:finished_quests from redis", sess.user.uid)
+		return nil, err
+	}
+	var f_quests []int
+	num := len(reply2)
+	for i := 0; i < num; i++ {
+		id, err := redis.Int(reply2[i], nil)
+		if err != nil {
+			log.Error("Can't convert finished_quests to int", sess.user.uid)
+			return nil, err
+		}
+		sess.user.finished_quests[id] = true
+		f_quests = append(f_quests, id)
+	}
+	return f_quests, nil
+}*/
+
+func LoadPlayerFinishedQuest(sess *Session) error {
+	return nil
+}
+
+//7
+/*func GetAllAcceptRequest(sess *Session) ([]map[string]interface{}, error) {
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+	for id, _ := range sess.user.accepted_quests {
+		delete(sess.user.accepted_quests, id)
+	}
+
+	//KEYS id:accepted_quests
+	//HGET id:accepted_quests:id step
+	reply2, err := redis.Values(dbconn.Do("KEYS", sess.user.uid+":accepted_quest:*"))
+	if err != nil {
+		log.Error("Can't get user:accepted_quests from redis", sess.user.uid)
+		return nil, err
+	}
+	num := len(reply2)
+	a_quests := make([]map[string]interface{}, num)
+	for i := 0; i < num; i++ {
+		id, err := redis.String(reply2[i], nil)
+		if err != nil {
+			log.Error("Can't convert finished_quests to int", sess.user.uid)
+			return nil, err
+		}
+		reply3, err := dbconn.Do("HGET", id, "step")
+		if err != nil {
+			log.Error("Can't get step of user", sess.user.uid)
+			return nil, err
+		}
+		var quest_tmp QuestData
+		quest_tmp.step, err = redis.Int(reply3, nil)
+		if err != nil {
+			log.Error("Can't convert accepted_quest_id to int", sess.user.uid)
+			return nil, err
+		}
+
+		if len(strings.Split(id, ":")) != 4 {
+			log.Critical("The format of user data is wrong", sess.user.uid)
+			return nil, err
+		}
+
+		questid, err := strconv.Atoi(strings.Split(id, ":")[3])
+		if err != nil {
+			log.Error("Cant convert id string to int", err, sess.user.uid)
+			return nil, err
+		}
+
+		sess.user.accepted_quests[int(questid)] = quest_tmp
+
+		a_quests[i] = map[string]interface{}{"qid": questid, "step": sess.user.accepted_quests[int(questid)].step}
+	}
+	log.Debug("The accepted quest is", a_quests, sess.user.uid)
+	return a_quests, nil
+}*/
+
+func LoadAcceptRequest(sess *Session) error {
+	return sess.user.quest.Load()
+}
+
+//8  TODO
+func GetAllUnrewardQuest(sess *Session) ([]int, error) {
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+	// SMEMBERS id:unrewardquest  finished_not_reward_quests
+	reply2, err := redis.Values(dbconn.Do("SMEMBERS", sess.user.GetUidUsedInDB()+":unrewardquests"))
+	if err != nil {
+		log.Error("Can't get user:unrewardquests from redis", err)
+		return nil, err
+	}
+	num := len(reply2)
+	quests := make([]int, num)
+	var qid int
+	for i := 0; i < num; i++ {
+		qid, err = redis.Int(reply2[i], nil)
+		if err != nil {
+			log.Error("Can't convert arms to int", sess.user.uid)
+			return nil, err
+		}
+		quests[i] = qid
+	}
+	return quests, nil
+}
+
+func LoadPlayerUnrewardQuest(sess *Session) error {
+
+	return nil
+}
+
+//9
+func GetAllNewGetArm(sess *Session) ([]int, error) {
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+	reply2, err := redis.Values(dbconn.Do("SMEMBERS", sess.user.GetUidUsedInDB()+":new_arm"))
+	if err != nil {
+		log.Error("Can't get user:new_arms from redis", err)
+		return nil, err
+	}
+	num := len(reply2)
+	new_arm := make([]int, num)
+	for i := 0; i < num; i++ {
+		new_arm[i], err = redis.Int(reply2[i], nil)
+		if err != nil {
+			log.Error("Can't convert new_arm to int", sess.user.uid)
+			return nil, err
+		}
+	}
+	return new_arm, nil
+}
+
+func GetAllNewGetHero(sess *Session) ([]int, error) {
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+	reply2, err := redis.Values(dbconn.Do("SMEMBERS", sess.user.GetUidUsedInDB()+":new_hero"))
+	if err != nil {
+		log.Error("Can't get user:new_heros from redis", err)
+		return nil, err
+	}
+	num := len(reply2)
+	new_hero := make([]int, num)
+	for i := 0; i < num; i++ {
+		new_hero[i], err = redis.Int(reply2[i], nil)
+		if err != nil {
+			log.Error("Can't convert new_hero to int", sess.user.uid)
+			return nil, err
+		}
+	}
+	return new_hero, nil
+}
+
+func LoadPlayerNewGetCard(sess *Session) error {
+	return nil
+}
+
+//10
+func LoadPlayerCardSeenState(sess *Session) error {
+	/*dbconn := db.Pool.Get()
+	defer dbconn.Close()
+	reply2, err := redis.Values(dbconn.Do("LRANGE", sess.user.uid+":allarm", 0, -1))
+	if err != nil {
+		log.Error("Can't get allarm from redis", err)
+		return err
+	}
+	num := len(reply2)
+	if num > 1000 {
+		num = 1000
+	}
+	//log.Debug("The length of all arm is", num, sess.user.uid)
+	for i := 0; i < num; i++ {
+		sess.user.allarmoid[i], err = redis.Int(reply2[i], nil)
+		if err != nil {
+			log.Error("Can't convert arms to int", sess.user.uid)
+			return err
+		}
+	}
+
+	reply2, err = redis.Values(dbconn.Do("LRANGE", sess.user.uid+":allhero", 0, -1))
+	if err != nil {
+		log.Error("Can't get allarm from redis", err)
+		return err
+	}
+	num = len(reply2)
+	if num > 100 {
+		num = 100
+	}
+	//log.Debug("The length of all arm is", num, sess.user.uid)
+	for i := 0; i < num; i++ {
+		sess.user.allherooid[i], err = redis.Int(reply2[i], nil)
+		if err != nil {
+			log.Error("Can't convert heroid to int", sess.user.uid)
+			return err
+		}
+	}*/
+	return nil
+}
+
+//11
+/*func LoadPlayerFriends(sess *Session) error {
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+
+
+	reply2, err := redis.Values(dbconn.Do("SMEMBERS", sess.user.uid+":friends"))
+	if err != nil {
+		log.Error("Can't get user:friends from redis", err)
+		return err
+	}
+	num := len(reply2)
+	log.Debug("The length of friends is", num, sess.user.uid)
+	var fname string
+	for i := 0; i < num; i++ {
+		fname, err = redis.String(reply2[i], nil)
+		if err != nil {
+			log.Error("Can't convert friends to string", sess.user.uid)
+			return err
+		}
+		sess.user.friends[fname] = true
+	}
+	return nil
+}*/
+
+//12
+func LoadLoginReward(sess *Session) error {
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+
+	for i := 0; i < 3; i++ {
+		reply, err := redis.Values(dbconn.Do("HMGET", sess.user.GetUidUsedInDB()+":last_login_reward:"+strconv.Itoa(i), "Type", "Value"))
+		if err != nil {
+			return err
+		}
+		sess.user.last_login_reward[i].Type, err = redis.Int(reply[0], nil)
+		if err != nil {
+			return err
+		}
+		sess.user.last_login_reward[i].Value, err = redis.Int(reply[1], nil)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+//13
+func LoadWizards(sess *Session) error {
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+	reply2, err := redis.Values(dbconn.Do("LRANGE", sess.user.GetUidUsedInDB()+":wizards", 0, WizardsLength-1))
+	if err != nil {
+		log.Error("Can't get user:wizards from reis", sess.user.uid)
+		return err
+	}
+
+	log.Debug("The length of wizards is ", len(reply2), sess.user.uid)
+	for i := 0; i < len(reply2); i++ {
+		sess.user.wizards[i], err = redis.Int(reply2[i], nil)
+		if err != nil {
+			log.Error("Can't convert wizards to int", sess.user.uid)
+			return err
+		}
+	}
+	//log.Debug("wizards is :", sess.user.wizards, sess.user.uid)
+	return nil
+}
+
+func UpdateLastLoginTime(sess *Session) error {
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+	_, err := dbconn.Do("HSET", sess.user.uid, "last_login", time.Now().Unix())
+	if err != nil {
+		log.Error("Failed update last_login", err, sess.user.uid)
+		return err
+	}
+
+	return nil
+}

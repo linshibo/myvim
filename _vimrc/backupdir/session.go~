@@ -1,0 +1,405 @@
+package gameserver
+
+import (
+	"bytes"
+	"compress/zlib"
+	"encoding/base64"
+	"encoding/json"
+	"net"
+	"runtime"
+	"sanguo/base/log"
+	"sanguo/base/packet"
+	. "sanguo/systemdata"
+	"strings"
+	"time"
+)
+
+const (
+	//FormationLength = 16
+
+	MaxRewardArmNum  = 6
+	MaxRewardHeroNum = 6
+
+	MaxChapterGuanqiaNum = 10
+
+	// Unit of time is second
+	HeartbeatTime = 20
+
+	//2 gold and 1 power
+	LoginRewardNum = 3
+
+	WizardsLength = 20
+)
+
+type bossInfo struct {
+	boss_max_score       int
+	boss_today_max_score int
+	boss_tg_count        int
+	boss_id              int
+	boss_rank            int
+	last_boss_end_time   int64
+	boss_pass            int
+	boss_count           int
+    //isConvened           int   //是否被召唤
+}
+type User struct {
+	//base info
+	uid       int
+	mid       string
+	gid       string
+	name      string
+	photo     string
+	level     int
+	gold      int
+	power     int
+	max_power int
+	stone     int
+
+	Hero *_HeroManager
+	Arm  *_ArmManager
+	//formation [FormationLength]int
+
+	//guanqia info
+	chapter   int
+	c_guanqia int
+	s_guanqia int
+	//completed_c_guanqia []int
+
+	//cd time
+	last_login      int64
+	last_power_time int64
+
+	//random cards
+	vip          int
+	card_count   int
+	total_charge int
+	last_charge  int
+	//allarmoid       [ArmOidNum]int
+	//allherooid      [HeroOidNum]int
+	event_id        int
+	event_end_time  int64
+	event_end_count int
+	event_count     int
+
+	//boss
+
+	bossInfos map[int]*bossInfo `神兽信息`
+    convenedBossID int //召唤的bossid
+
+	//friend
+	//friends         map[string]bool
+	//friends_max_num int
+
+	Friends *FriendManger
+
+	//quest
+	//accepted_quests map[int]QuestData
+	//finished_quests map[int]bool
+	//fight_quest     [FightQuestNum]int
+
+	//Activity
+	Activity *_ActivityManager
+
+	//Login_reward
+	last_login_reward_time int64
+	last_login_reward      [LoginRewardNum]Reward
+	login_arm_given        bool
+	login_arm              int
+	last_login_arm         int
+	register_time          int64
+
+	//wizards
+	wizards [WizardsLength]int
+
+	//stone  0 is not given yet, 1 is given
+	stone_get_flag [4]int
+
+	//Extra Arm
+	E_Arm *ExtraArmManger
+
+	//stranger_time
+	stranger_time int
+
+	//lock chapter
+	lock_chapter    int
+	lock_start_time int64
+
+	//pve score record
+	// map[simple_guanqia] score
+	// only simple_guanqia can play again
+	score map[int]int
+
+	quest *_QuestManager
+
+	purchase *PurchaseManager
+
+	heroVIP int
+
+	topic_count int
+
+	unreward map[int]Unreward
+
+	sign_last_time int64
+	sign_count     int
+
+	box_count    int
+	box_get_time int64
+
+	hero_currency int
+	arm_currency  int
+
+	combat_score int
+
+	sess *Session
+}
+
+type Unreward struct {
+	Value  int
+	Type   int
+	Reason int
+}
+
+type QuestData struct {
+	step     int
+	isfinish bool // false->unfinish  true->finish
+}
+
+type ActivityData struct {
+	count int
+	score int // false->unfinish  true->finish
+}
+
+type Hero struct {
+	level int
+}
+
+type Arm struct {
+	level int
+}
+
+type SimpleGuanQias struct {
+	seq            []int
+	cur            int
+	next_c_guanqia int
+}
+
+type Session struct {
+	ip net.IP
+
+	cmd     chan []byte //data from client
+	connect net.Conn    //the tcp connection from client
+	MQ      chan IPCMsg //internet process connection message
+	user    *User
+	//dbconn  redis.Conn
+	kickout bool
+}
+
+func StartSession(cmdchan chan []byte, connection net.Conn) {
+	var client Session
+
+	client.ip = net.ParseIP(strings.Split(connection.RemoteAddr().String(), ":")[0])
+	client.cmd = cmdchan
+	client.connect = connection
+	client.MQ = make(chan IPCMsg, 1024)
+
+	/*client.user.Hero = NewHeroManager()
+	client.user.Hero.SetUser(client.user)
+	client.user.Arm = NewArmManager()
+	client.user.Arm.SetUser(client.user)
+
+	client.user.quest = NewQuestManager()
+	client.user.quest.SetUser(client.user)
+
+	client.user.purchase = NewPurchaseManager()
+	client.user.purchase.SetUser(client.user)
+
+	client.user.score = make(map[int]int)
+
+	client.user.Activity = NewActivityManager()
+	client.user.Activity.SetUser(client.user)
+
+	client.user.Friends = NewFriendManger()
+	client.user.Friends.SetUser(client.user)
+
+	client.user.E_Arm = NewExtraArmManger()
+	client.user.E_Arm.SetUser(client.user)
+
+	client.kickout = false
+
+	client.user.sess = &client*/
+	client.Start()
+}
+
+func NewUser() *User {
+	var user User
+
+	user.Hero = NewHeroManager()
+	user.Hero.SetUser(&user)
+
+	user.Arm = NewArmManager()
+	user.Arm.SetUser(&user)
+
+	user.quest = NewQuestManager()
+	user.quest.SetUser(&user)
+
+	user.purchase = NewPurchaseManager()
+	user.purchase.SetUser(&user)
+
+	user.score = make(map[int]int)
+
+	user.Activity = NewActivityManager()
+	user.Activity.SetUser(&user)
+
+	user.Friends = NewFriendManger()
+	user.Friends.SetUser(&user)
+
+	user.E_Arm = NewExtraArmManger()
+	user.E_Arm.SetUser(&user)
+
+	user.unreward = make(map[int]Unreward)
+
+	//user.guanqia_quest = make(map[int]bool)
+
+	user.bossInfos = make(map[int]*bossInfo)
+
+	//user.armEquip = make(map[int]int)
+
+	return &user
+}
+
+func (sess *Session) Start() {
+	defer func() {
+		sess.connect.Close()
+		if sess.user != nil {
+			PlayerManager.UnregisterOnline(sess.user.uid, sess)
+		}
+		close(sess.MQ)
+	}()
+
+	for {
+		select {
+		case msg, ok := <-sess.cmd:
+			if !ok {
+				// the cmd channel is closed by the handleClient goroutine, which mean connetion closed
+				sess.Debug("The cmd channel is closed by the handleClient goroutine")
+				return
+			}
+
+			if !UserRequestProxy(sess, msg) {
+				sess.Debug("Something wrong in process user msg, the connection will close")
+
+				return
+			}
+
+		case <-time.After(HeartbeatTime * time.Second):
+			sess.Debug("Timeout and will close")
+			runtime.Goexit()
+
+		case msg, ok := <-sess.MQ:
+			if !ok {
+				sess.Debug("The MQ channel is closed by the other side")
+				return
+			}
+			if !IPCRequestProxy(sess, &msg) {
+				sess.Error("Something wrong in process IPC msg, the connection will close")
+				return
+			}
+		}
+
+		if sess.kickout {
+			sess.Debug("Will be kickout")
+			back := make(map[string]interface{})
+			back["Ret"] = 1
+			sess.SendReplyBack(back, 100)
+			return
+		}
+	}
+}
+
+func (sess *Session) send(data []byte) bool {
+	_, err := sess.connect.Write(data)
+	if err != nil {
+		sess.Error("Send msg error")
+		return false
+	}
+	return true
+}
+
+func (sess *Session) SendReply(back_json []byte, op uint16) bool {
+	var base []byte
+	n := base64.StdEncoding.EncodedLen(len(back_json))
+	base = make([]byte, n)
+
+	base64.StdEncoding.Encode(base, back_json)
+
+	writer := packet.Writer()
+	// length in the head is only the length of data
+	writer.WriteU16(uint16(len(base)))
+
+	writer.WriteU16(uint16(op))
+	flag := 2
+	writer.WriteU16(uint16(flag))
+	writer.WriteRawBytes(base)
+	return sess.send(writer.Data)
+}
+
+func (sess *Session) SendReplyBack(back interface{}, op uint16) bool {
+	back_json, err := json.Marshal(back)
+	if err != nil {
+		sess.Error("Can't decode json message in UserStartFight", err)
+		return false
+	}
+	sess.Debug("The back json message is", string(back_json))
+
+	var base []byte
+	n := base64.StdEncoding.EncodedLen(len(back_json))
+	base = make([]byte, n)
+
+	base64.StdEncoding.Encode(base, back_json)
+
+	flag := 2
+	dst := base
+	if len(base) > 100 {
+		var b bytes.Buffer
+		w := zlib.NewWriter(&b)
+
+		w.Write(base)
+		w.Close()
+		dst = b.Bytes()
+		flag = 3
+	}
+
+	writer := packet.Writer()
+	// length in the head is only the length of data
+	writer.WriteU16(uint16(len(dst)))
+
+	writer.WriteU16(uint16(op))
+
+	writer.WriteU16(uint16(flag))
+	writer.WriteRawBytes(dst)
+	return sess.send(writer.Data)
+}
+
+func (sess *Session) Trace(v ...interface{}) {
+	log.Trace(sess.user.uid, v)
+}
+
+func (sess *Session) Debug(v ...interface{}) {
+	log.Debug(v)
+}
+
+func (sess *Session) Info(v ...interface{}) {
+	log.Info(sess.user.uid, v)
+}
+
+func (sess *Session) Warn(v ...interface{}) {
+	log.Warn(sess.user.uid, v)
+}
+
+func (sess *Session) Error(v ...interface{}) {
+	log.Error(v)
+}
+
+func (sess *Session) Critical(v ...interface{}) {
+	log.Critical(sess.user.uid, v)
+}

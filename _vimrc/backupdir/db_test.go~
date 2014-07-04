@@ -1,0 +1,32 @@
+package db
+
+import (
+    "testing"
+    "fmt"
+    "github.com/Unknwon/goconfig"
+)
+func TestDB(t *testing.T){
+    cfg, err := goconfig.LoadConfigFile("../bench.conf")
+    if err != nil {
+        fmt.Println("Failed load config file bench.conf", err)
+        return
+    }
+    InitDB(cfg)
+}
+func TestMysql(t *testing.T){
+    servs, err:= GetServers()
+    if err != nil {
+        return 
+    }
+    for i:=range servs{
+        t.Log(servs[i].ID,servs[i].Host)
+    }
+    t.Log("TestMysql passing")
+}
+func TestRedis(t *testing.T){
+    LoadNames()
+    for k, v:=range namesMap{
+        t.Log(k, v)
+    }
+    t.Log("TestRedis passing")
+}

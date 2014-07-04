@@ -1,0 +1,158 @@
+package gameserver
+
+import (
+	"sanguo/db"
+	"time"
+)
+
+const (
+	Power_Boss     = 3
+	Power_Fight    = 2
+	Power_Activity = 4
+	Power_CD_Time  = 15 * 60
+)
+
+func (this *User) AddPower(num int) (err error) {
+	err = this.addPowerByTime()
+	if err != nil {
+		return err
+	}
+
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+
+	if (this.power + num) >= this.max_power {
+		this.power += num
+		this.last_power_time = 0
+	}
+	this.power += num
+
+	_, err = dbconn.Do("HMSET", this.GetUidUsedInDB(), "power", this.power, "last_power_time", this.last_power_time)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (this *User) addPowerByTime() error {
+
+
+	if this.power >= this.max_power {
+		return nil
+	}
+	
+
+	nowtime := time.Now().Unix()
+	power_add := int((nowtime - this.last_power_time) / Power_CD_Time)
+
+	if power_add == 0 {
+		return nil
+	}
+
+	if (this.power + power_add) >= this.max_power {
+		this.power += power_add
+		this.last_power_time = 0
+	} else {
+		this.power += power_add
+		this.last_power_time += int64(power_add * Power_CD_Time)
+	}
+
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+	
+	_, err := dbconn.Do("HMSET", this.GetUidUsedInDB(), "power", this.power, "last_power_time", this.last_power_time)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (this *User) reducePower(num int) (err error) {
+	
+	defer func(this *User){
+        this.Trace("In reducePower is ", this.power, this)
+    }(this)
+	
+	if err = this.addPowerByTime(); err != nil {
+		this.Error("Failed addPowerByTime",err)
+		return err
+	}
+	
+	this.Trace("In reducePower the num and stary is", num, this.power)
+
+	if this.power >= this.max_power {
+		if this.power - num >= this.max_power {
+			
+			//this.last_power_time = 0
+			this.Trace("In reducePower the num and stary isdddd", num, this.power, this)
+		} else {
+			//this.power -= num
+			this.last_power_time = time.Now().Unix()
+		}
+	} else if this.power <= num {
+		//this.power = 0
+	} else {
+		
+	}
+	
+	this.power = this.power - num
+
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+this.Trace("In reducePower the num and stary dddddissssss", num, this.power, this,this.GetUidUsedInDB())
+	_, err = dbconn.Do("HMSET", this.GetUidUsedInDB(), "power", this.power, "last_power_time", this.last_power_time)
+	if err != nil {
+	this.Error("Failed HMSET",err)
+		return err
+	}
+
+	this.Trace("In reducePower the num and stary issssss", num, this.power, this,this.GetUidUsedInDB())
+	return nil
+}
+
+func (this *User) verifyPower(num int) (flag bool, err error) {
+	if err = this.addPowerByTime(); err != nil {
+		return false, err
+	}
+
+	if this.power < num {
+		return false, nil
+	}
+
+	return true, nil
+}
+
+func (this *User) GetLeftTimeToAddPower() (t int, err error) {
+	if err = this.addPowerByTime(); err != nil {
+		return 0, err
+	}
+
+	if this.power >= this.max_power {
+		return -1, nil
+	}
+
+	left := Power_CD_Time - (time.Now().Unix()-this.last_power_time)%Power_CD_Time
+	if left >= 0 {
+		return int(left), nil
+	} else {
+		return 0, nil
+	}
+
+}
+
+func (this *User) SetMaxPower(num int) (err error) {
+	this.max_power = num
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+
+	_, err = dbconn.Do("HSET", this.GetUidUsedInDB(), "max_power", this.max_power)
+	return err
+}
+
+func (this *User) GetPower() (p int, err error) {
+	if err = this.addPowerByTime(); err != nil {
+		return 0, err
+	}
+	return this.power, nil
+}

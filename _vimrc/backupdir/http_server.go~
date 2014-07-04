@@ -1,0 +1,13 @@
+package main
+
+import (
+  "github.com/go-martini/martini"
+  "github.com/martini-contrib/auth"
+)
+
+func main() {
+  m := martini.Classic()
+  // authenticate every request
+  m.Use(auth.Basic("username", "secretpassword"))
+  m.Run()
+}

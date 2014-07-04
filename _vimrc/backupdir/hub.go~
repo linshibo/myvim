@@ -1,0 +1,418 @@
+package gameserver
+
+import (
+	"encoding/binary"
+	"encoding/json"
+	"io"
+	"net"
+	//"os"
+	"sanguo/base/log"
+	"sanguo/base/packet"
+	"sanguo/config"
+	"time"
+)
+
+type _request struct {
+	data IPCMsg
+	sync chan []byte
+	op   int
+}
+
+type _transport struct {
+	data []byte
+	op   int
+	flag int
+}
+
+type HubClient struct {
+	conn   net.Conn
+	hub    chan []byte
+	listen chan _transport
+	api    chan _request
+}
+
+var Hub HubClient
+
+func NewHub() HubClient {
+	var hub HubClient
+	hub.conn = nil
+	hub.hub = make(chan []byte, 2000)
+	hub.listen = make(chan _transport, 2000)
+	hub.api = make(chan _request, 2000)
+	return hub
+}
+
+func (this *HubClient) SetTCP(conn net.Conn) {
+	this.conn = conn
+}
+
+type HubLoginOut struct {
+	ID int
+}
+
+type HubLoginIn struct {
+	ID int
+}
+
+func HubStart() {
+	Hub = NewHub()
+	go Hub.handleHub()
+
+	for {
+		log.Info("Will Dial Hub")
+		hubconn, err := net.Dial("tcp", config.Config.HubAddr)
+		if err != nil {
+			log.Error("Failed dial hub", err)
+			time.Sleep(3 * time.Second)
+			continue
+		}
+
+		Hub.SetTCP(hubconn)
+		log.Info("Dial Hub Success")
+
+		var data HubLoginOut
+		data.ID = config.Config.GSID
+		data_json, err := json.Marshal(data)
+		if err != nil {
+			log.Error("Can't decode json message in UserStartFight", err)
+			return
+		}
+
+		writer := packet.Writer()
+		// length in the head is only the length of data
+		writer.WriteU16(uint16(len(data_json)))
+
+		writer.WriteU16(1)
+
+		writer.WriteU16(uint16(0))
+		writer.WriteRawBytes(data_json)
+
+		_, err = hubconn.Write(writer.Data)
+		if err != nil {
+			log.Error("Failed send hub login info", err)
+			continue
+		}
+
+		header := make([]byte, 2)
+		for {
+			/**block until recieve len(header)**/
+			// 对方主动关闭我能够立刻知道，因为会有三次握手，发送FIN信号，但是如果网络断了则不会立刻知道
+			n, err := io.ReadFull(hubconn, header)
+			if n == 0 && err == io.EOF {
+				//Opposite socket is closed
+				log.Debug("Socket closed and read 0 and eof")
+				break
+			} else if err != nil {
+				//Sth wrong with this socket
+				log.Debug("Socket read wrong", err)
+				break
+			}
+
+			//data length is in header, and flag + opcode is 4
+			size := binary.LittleEndian.Uint16(header) + 4
+
+			data := make([]byte, size)
+			n, err = io.ReadFull(hubconn, data)
+			if n == 0 && err == io.EOF {
+				log.Debug("Socket closed")
+				break
+			} else if err != nil {
+				log.Debug("Socket wrong", err)
+				break
+			}
+			Hub.hub <- data //send data to Client to process
+		}
+	}
+
+}
+
+func (this *HubClient) Send(data []byte) (err error) {
+	_, err = this.conn.Write(data)
+	return
+}
+
+func (this *HubClient) SendAPI(data []byte, op int) (err error) {
+	writer := packet.Writer()
+	// length in the head is only the length of data
+	writer.WriteU16(uint16(len(data)))
+
+	writer.WriteU16(uint16(op))
+
+	writer.WriteU16(uint16(0))
+
+	writer.WriteRawBytes(data)
+
+	_, err = this.conn.Write(writer.Data)
+
+	return
+}
+
+func (this *HubClient) handleHub() {
+	wait_sync := make(map[int]chan []byte)
+	ack := 0
+	for {
+		select {
+		case hub_data, ok := <-this.hub: //msg from hub
+			if !ok {
+				log.Error("The hub connection break")
+				return
+			}
+
+			reader := packet.Reader(hub_data)
+			op, err := reader.ReadU16()
+			if err != nil {
+				log.Error("Can't read the opcode")
+				continue
+			}
+
+			if op&0xf000 != 0 {
+				/******************************
+					GM order
+				*******************************/
+				GMProxy(hub_data, int(op))
+			}
+
+			var ipc IPCMsg
+			err = json.Unmarshal(hub_data[4:], &ipc)
+			if err != nil {
+				log.Error("Can't decode json message of ipc", err)
+				continue
+			}
+
+			if !PlayerManager.IsUserLocal(ipc.DestID) {
+				log.Warn("The DestID is not here")
+				continue
+			}
+
+			if op%2 != 0 {
+				/***********************
+					HUB return msg
+				***********************/
+				if ipc.CastType != 0 {
+					sync, ok := wait_sync[ipc.CastType]
+					if !ok {
+						log.Debug("Wrong or Expired flag")
+						continue
+					}
+
+					//sync <- hub_data[4:]
+					sync <- ipc.Content
+					continue
+				}
+			}
+
+			/************************************
+				HUB send msg
+			*************************************/
+			_HubProxy(&ipc)
+
+		case listen_data, ok := <-this.listen: //msg from player goroutine
+			if !ok {
+				log.Error("The listen is break which should not happen")
+				return
+			}
+
+			err := this.SendAPI(listen_data.data, listen_data.op)
+			if err != nil {
+				log.Info("Send2HubErr", err)
+				this.conn.Close()
+			}
+
+		case api_data, ok := <-this.api: //msg from player call api
+			if !ok {
+				log.Error("The api channel is close which should not happen")
+				return
+			}
+			ack++
+			if ack == 0 {
+				ack++
+			}
+			wait_sync[ack] = api_data.sync
+
+			api_data.data.CastType = ack
+
+			data_json, _ := json.Marshal(api_data.data)
+
+			err := this.SendAPI(data_json, api_data.op)
+			if err != nil {
+				log.Info("API2HubErr", err)
+				this.conn.Close()
+			}
+		}
+	}
+}
+
+func CallAPIHub(data *IPCMsg, op int) []byte {
+	defer func() {
+		if x := recover(); x != nil {
+			log.Warn("CallAPIHubb Panic", x)
+		}
+	}()
+	/*data_json, err := json.Marshal(data)
+	if err != nil {
+		log.Error("Can't decode json message in UserStartFight", err)
+		return nil
+	}*/
+
+	var r _request
+	r.data = *data
+	r.op = op
+	r.sync = make(chan []byte, 1)
+
+	Hub.api <- r
+
+	select {
+	case msg := <-r.sync:
+		return msg
+	case <-time.After(time.Second * 10):
+		log.Error("The HUB is not response")
+		return nil
+	}
+	return nil
+}
+
+func SendToHub(data interface{}, op int) bool {
+	defer func() {
+		if x := recover(); x != nil {
+			log.Warn("SendToHub Panic", x)
+		}
+	}()
+
+	data_json, err := json.Marshal(data)
+	if err != nil {
+		log.Error("Can't decode json message in UserStartFight", err)
+		return false
+	}
+
+	var t _transport
+	t.data = data_json
+	t.op = op
+	t.flag = 0
+
+	select {
+	case Hub.listen <- t:
+
+	case <-time.After(10 * time.Second):
+		panic("Dead lock in SendToHub, mean hub.listen is closed")
+	}
+
+	return true
+}
+
+func _HubProxy(ipc *IPCMsg) bool {
+	log.Debug("TheRecvIPCMsgOpcodeIs", ipc.Op, string(ipc.Content))
+	handle := HubHandler[ipc.Op]
+	if handle == nil {
+		log.Error("Failed find response handle function")
+		return false
+	}
+
+	handle(ipc)
+
+	back_val := handle(ipc)
+	log.Debug("The back_val is", back_val)
+
+	if back_val == nil {
+		return true
+	}
+
+	back_json, _ := json.Marshal(back_val)
+
+	var back IPCMsg
+
+	back.SrcID = ipc.DestID
+	back.DestID = ipc.SrcID
+	back.CastType = ipc.CastType
+	back.Op = ipc.Op
+	back.Content = back_json
+	back.Time = GetCurrentTime()
+
+	log.Debug("The back of _HubProxy is", back.SrcID, back.DestID, back.Op, string(back.Content))
+	return SendToHub(back, back.Op-1)
+}
+
+func GMProxy(data []byte, op int) bool {
+	handle := GMHandler[op]
+
+	log.Debug("RecvGMMsg", op)
+	log.Trace(string(data))
+
+	if handle == nil {
+		log.Error("Failed found handle", op)
+		return false
+	}
+
+	return handle(data[4:])
+}
+
+func HubLogin(ipc *IPCMsg) interface{} {
+	var msg HubLoginIn
+	err := json.Unmarshal(ipc.Content, &msg)
+	if err != nil {
+		log.Error("Can't decode json message,", err)
+		return false
+	}
+
+	if msg.ID != config.Config.GSID {
+		log.Error("HubLogin err, recv GSID and local GSID is", msg.ID, config.Config.GSID)
+		return false
+	}
+
+	log.Info("HubLogin Success")
+	return true
+}
+
+func Deliver(ipc *IPCMsg) interface{} {
+	IPCSendLocal(ipc)
+
+	return nil
+}
+
+func HubQueryUserFormation(ipc *IPCMsg) interface{} {
+	return GetFormationArmByUID(ipc.DestID)
+}
+
+func HubGetRandomHero(ipc *IPCMsg) interface{} {
+	user := PlayerManager.GetUserByUid(ipc.DestID)
+	return user.Hero.GetRandomHero()
+}
+
+type BackPlayerInfo struct {
+	Photo string
+	Sid   int
+}
+
+func HubGetUserInfo(ipc *IPCMsg) interface{} {
+	log.Debug("Will use HubGetUserInfo")
+	user := PlayerManager.GetUserByUid(ipc.DestID)
+
+	var back BackPlayerInfo
+	back.Sid = user.s_guanqia
+	back.Photo = user.photo
+	return back
+}
+
+var HubHandler map[int]func(*IPCMsg) interface{}
+var GMHandler map[int]func([]byte) bool
+
+func init() {
+
+	HubHandler = make(map[int]func(*IPCMsg) interface{})
+	GMHandler = make(map[int]func([]byte) bool)
+	HubHandler[2] = HubLogin
+	HubHandler[4] = HubQueryUserFormation
+	HubHandler[61] = Deliver
+	HubHandler[62] = Deliver
+	HubHandler[64] = Deliver
+	HubHandler[66] = Deliver
+	//有返回值的opcode必须是奇数
+	HubHandler[111] = HubGetRandomHero
+	HubHandler[113] = HubGetUserInfo
+
+	GMHandler[0xf001] = GMPlayerOnline
+	GMHandler[0xf002] = GMUserAdd
+	GMHandler[0xf003] = GMUserGuanqia
+	GMHandler[0xf004] = GMUserAddCard
+	GMHandler[0xf005] = GMUserInfo
+	GMHandler[0xf007] = GMUserAllReward
+}

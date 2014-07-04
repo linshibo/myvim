@@ -1,0 +1,20 @@
+{
+"HostAddr":"0.0.0.0:55555",
+"LogName":"log_55555",
+"LogLevel":0,
+"RedisAddr":"172.26.72.2:6379", 
+"Database":0,
+
+"InitArm":[53,83,376,377],
+"InitHero":[5],
+
+"ProfEnable": true,
+"CPUProfFile":"apple_cpu.prof",
+"MemProfFile":"apple_mem.prof",
+
+"GMState":true
+"DBHost":"42.62.67.240:3306"
+"DBDatabase":"zone" 
+"DBUser":"root"
+"DBPasswd":"feixiongtech_mysql" 
+}

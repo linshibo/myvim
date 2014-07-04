@@ -1,0 +1,31 @@
+CC = g++
+
+FLAGS  = -Wall -DDEBUG -g -fPIC -MMD -DUSE_PROTO_READ_FROM_XMLNODE  -DUSE_TLOG
+
+ifndef RELEASE
+FLAGS += -DENABLE_TRACE_LOG 
+FLAGS += -DUSE_HEX_LOG_PROTO 
+else
+FLAGS += -DRELEASE_VER
+endif
+
+SOFLAGS = -shared
+
+INCLUDE = -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include/ -I/usr/include/libxml2
+LIBS    = -lgd -lrt -lmainlogin -ltaomee++ -ltaomee  -lxml2 -lssl
+
+BINS	= liblogin.so
+SRCS 	= dll_interface.cpp login_impl.cpp ./proto/ultraman_db.cpp  ./proto/ultraman.cpp ./proto/main_login.cpp ./proto/ultraman_login.cpp ./proto/ultraman_switch.cpp
+
+all: $(BINS)
+
+$(BINS): $(SRCS:.cpp=.o)
+	$(CC)  $(FLAGS) $(SOFLAGS) -o $@ $^ $(LIBPATH) $(LIBS)
+
+%.o: %.cpp  Makefile
+	$(CC) $(FLAGS) $(INCLUDE) -c -o $@ $<
+	@-mv -f $*.d .dep.$@
+clean:
+	@-rm -f *.o *.oxx *.po *.so *.d .dep.* $(BINS) core
+
+-include /dev/null $(wildcard .dep.*)

@@ -1,0 +1,30 @@
+package bufferManager
+import(
+    "testing"
+    "math/rand"
+    "time"
+)
+func foo(buf []byte){
+    var m int
+    count:= rand.Intn(10000)+1000
+    for i:=0; i<count;i++{
+        m+=i
+    }
+}
+func TestBM(t *testing.T){
+    x := NewBufferManager()
+    tt:=time.Now()
+    for i:=0; i<500000;i++{
+        b:=x.GetBuffer()
+        foo(b)
+        x.RecycleBuffer(b)
+    }
+    t.Log("---------------------- buffered", time.Since(tt))
+    time.Sleep(10)
+    tt=time.Now()
+    for i:=0; i<500000;i++{
+        b:=make([]byte, 1024)
+        foo(b)
+    }
+    t.Log("---------------------- unbuffered", time.Since(tt))
+}

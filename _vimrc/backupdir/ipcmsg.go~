@@ -1,0 +1,37 @@
+package gameserver
+
+import ()
+
+var IPCHandler map[uint16]func(*Session, *IPCMsg) bool
+
+func IPCLocalCast(sess *Session, msg *IPCMsg) bool {
+    return true
+}
+
+func IPCUniqueTalk(sess *Session, msg *IPCMsg) bool {
+    return true
+}
+
+/********* Opcode 19 ************/
+func IPCPushNewComment(sess *Session, msg *IPCMsg) bool {
+
+    if sess.SendReply(msg.Content, 19) {
+        return true
+    } else {
+        SaveOfflineMsg(sess, msg)
+        return false
+    }
+}
+
+func init() {
+    IPCHandler = make(map[uint16]func(*Session, *IPCMsg) bool)
+    IPCHandler[0] = IPCLocalCast
+    IPCHandler[1] = IPCUniqueTalk
+    IPCHandler[19] = IPCPushNewComment
+    IPCHandler[61] = IPCAgreeFriendApply
+    IPCHandler[62] = IPCFriendApply
+    IPCHandler[64] = IPCDeleteFriend
+    IPCHandler[66] = IPCRecvMsg
+    IPCHandler[100] = IPCBuyGold
+    IPCHandler[112] = IPCRecvArm
+}

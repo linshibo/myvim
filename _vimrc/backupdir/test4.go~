@@ -1,0 +1,91 @@
+package main
+
+import (
+    //"encoding/binary"
+    "fmt"
+    "io"
+    "net"
+    "os"
+    "time"
+)
+
+func dispatch(conn net.Conn, data []byte) {
+    //
+    fmt.Println("dispacth:", data)
+    //conn.Write([]byte("nihao33333333333333333"))
+}
+
+func handle_conn(conn net.Conn, f func(conn net.Conn, data []byte)) {
+    defer conn.Close()
+    //recvChan:=make(chan []byte)
+    header := make([]byte, 2)
+    data := make([]byte, 1024)
+    for {
+        n, err := io.ReadFull(conn, header)
+        if n == 0 && err == io.EOF {
+            //Opposite socket is closed
+            //log.Debug("Socket closed")
+            break
+        } else if err != nil {
+            //Sth wrong with this socket
+            //log.Error("Socket wrong", err)
+            break
+        }
+        _, err = conn.Read(data[0:])
+        //size := binary.LittleEndian.Uint16(header)
+        //fmt.Println("handle_conn:%d", size)
+        //n, err = io.ReadFull(conn, data[0:size])
+        //if n == 0 && err == io.EOF {
+        ////log.Debug("Socket closed")
+        //break
+        //} else if err != nil {
+        ////log.Error("Socket wrong", err)
+        //break
+        //}
+        go f(conn, data[0:])
+        //recvChan <- data //send data to Client to process
+    }
+}
+
+func message_from_server(conn net.Conn, data []byte) {
+    fmt.Println("message_from_server:", data)
+    conn.Write([]byte("nibuhao11111111111"))
+}
+
+func connect_to_server(addr string) bool {
+    switcher, err := net.Dial("tcp", "127.0.0.1:8897")
+    if err != nil {
+        fmt.Println("error switch:", err.Error())
+        return false
+    }
+    go handle_conn(switcher, message_from_server)
+    go func() {
+        for _ = range time.Tick(1e8) {
+            fmt.Println("send to switch:")
+            switcher.Write([]byte("nihao222222222222222"))
+        }
+    }()
+    return true
+}
+
+func main() {
+    if len(os.Args) != 2 {
+        fmt.Println("Wrong input, please input ' ./sanguo sanguo.conf' ")
+        return
+    }
+    listener, err := net.Listen("tcp", os.Args[1])
+    if err != nil {
+        fmt.Println("error listening:", err.Error())
+        os.Exit(1)
+    }
+    defer listener.Close()
+    go connect_to_server("")
+    fmt.Println("start listening:")
+    for {
+        conn, err := listener.Accept()
+        if err != nil {
+            continue
+        }
+        go handle_conn(conn, dispatch)
+    }
+}

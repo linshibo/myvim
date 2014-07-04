@@ -1,0 +1,39 @@
+package main
+import (
+    "bytes"
+    "fmt"
+    "math/rand"
+    "time"
+)
+
+func randInt(min int, max int) int {
+    rand.Seed(time.Now().UTC().UnixNano())
+    return min + rand.Intn(max-min)
+}
+func randomString(l int) string {
+    var result bytes.Buffer
+    var temp string
+    for i := 0; i < l; {
+        if string(randInt(65, 90)) != temp {
+            temp = string(randInt(65, 90))
+            result.WriteString(temp)
+            i++
+        }
+    }
+    return result.String()
+}
+
+func main(){
+    rand.Seed(time.Now().UTC().UnixNano())
+    m:=make(map[string]int)
+    for j := 0; j < 100000; j++ {
+        m[randomString(16)]=rand.Intn(100)
+    }
+    t1:=time.Now().UnixNano()
+    for i := 0; i < 10000; i++ {
+        fmt.Println(m[randomString(16)])
+    }
+    t2:=time.Now().UnixNano()
+    t:=(t2-t1)/10000
+    fmt.Println("randstring read mean time :",t);
+}

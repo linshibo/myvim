@@ -1,0 +1,1353 @@
+package systemdata
+
+import (
+    //"encoding/json"
+    //"github.com/garyburd/redigo/redis"
+    "sanguo/base/log"
+    "sanguo/config"
+    //"sanguo/db"
+    //"strconv"
+    //"strings"
+)
+
+//TODO
+type chapterInfo struct {
+    AllCGuanQias []int
+    // simple_guanqia can play again
+    AllSGuanQias []int
+    ChallengeSid int
+    UnlockArms   []int
+    UnlockHeroes  []int
+    Cpid         int
+}
+
+type chapterGuanQiaInfo struct {
+    Allsimpleguanqias []int
+    guanqiaTask       int
+    Cgqid             int
+}
+
+type ScoreReward struct {
+    Value      int
+    RewardType int
+    Prob       int
+    Score      int
+}
+
+type TongguanReward struct {
+    Value      int
+    RewardType int
+    Prob       int
+}
+type guanqiaInfoCfg struct {
+    AllDanboIds    []int
+    TongguanReward []TongguanReward
+    BaoxiangReward1 []ScoreReward
+    MaxScore       int
+    Guanqiaid      int
+}
+type guanqiaInfo struct {
+    AllDanboIds    []int
+    TongguanReward []TongguanReward
+    ScoreReward    []ScoreReward
+    MaxScore       int
+    Guanqiaid      int
+}
+
+type scatteredGuanqiaInfo struct {
+    AllDanboIds []int
+    ScoreReward []ScoreReward
+    MaxScore    int
+}
+
+type bossGuanQiaInfo struct {
+    ContentGuanQiaId  int
+    NextBossGuanQiaId int
+    NeedFinishTimes   int
+    BossGuanQiaId     int
+}
+
+type danboInfo struct {
+    AllUnitSeq   []int
+    AllUnitCount int
+    BoshuId      int
+}
+
+type armInfo struct {
+    OriginalId   int
+    QualityLevel int
+    Damage       int
+    Hp           int
+    DamageRatio  float64
+    StarsNeed    int
+    SellType     int
+    SellPrice    int
+    CanPick      int
+    Armid        int
+}
+type heroInfo struct {
+    OriginalId      int
+    QualityLevel    int
+    Damage          int
+    DamageRatio     float64
+    StarsNeed       int
+    SkillRoundCount int
+    SellType        int
+    SellPrice       int
+    CanPick         int
+    Heroid          int
+}
+
+type enemyUnit struct {
+    Damage int
+    Hp     int
+    Euid   int
+}
+
+type quest struct {
+    PreId          int
+    Unlocklevel    int
+    Actiontype     int
+    Value          int
+    Actionparam    int
+    Actionparam2   int
+    Refreshtype    int
+    Rewardtype     int
+    Rewardcount    int
+    Maxlevel       int
+    Needpushreward int
+    Qid            int
+}
+
+const (
+    LevelNum = 10
+    QuestNum = 200
+)
+
+var (
+    ChapterInfo        map[int]chapterInfo
+    ChapterGuanQiaInfo map[int]chapterGuanQiaInfo
+    GuanqiaInfo        map[int]guanqiaInfo
+    DanboInfo          map[int]danboInfo
+    ArmInfo            map[int]armInfo
+    HeroInfo           map[int]heroInfo
+    EnemyUnit          map[int]enemyUnit
+    Quest              map[int]quest
+    BossGuanQiaInfo    map[int]bossGuanQiaInfo
+    //ChallengeGuanqiaInfo    map[int]scatteredGuanqiaInfo
+
+    FinalChapter int
+
+    UserFightQuestIndex [LevelNum + 1][QuestNum]int
+    UserFightQuestCount [LevelNum + 1]int
+
+    //[chapter] simple_guanqia
+    ChapterBoss []int
+    //map[simple_guanqia]bool  as set
+    SimpleNeedRecord map[int]bool
+    // chapter_guanqia  response  simple_guanqia
+    C_Sguanqia map[int]int
+
+    UnlockArms map[int]bool
+
+    TrueHeroGuanqia map[int]bool
+)
+
+var (
+    ArmIndex               [ArmIdNum]int
+    ArmStarAndQualityCount [StarNum + 1][QualityNum + 1]int
+    ArmStarAndQualityBegin [StarNum + 1][QualityNum + 1]int
+    InitAllArmId           [ArmIdNum]int
+
+    ArmOriginalId [ArmOrigIdNum][QualityNum + 1]int
+
+    HeroIndex        [HeroIdNum]int
+    HeroQualityCount [QualityNum + 1]int
+    HeroQualityBegin [QualityNum + 1]int
+    InitAllHeroId    [HeroIdNum]int
+
+    HeroOriginalId [HeroOrigIdNum][QualityNum + 1]int
+)
+
+func LoadSystemDataFromConf() bool {
+	log.Info("Path is", config.Config.SystemDataPath + "/cfg")
+    /************************** Load chapterInfo *************************/
+    chapterInfoSlice := make([]chapterInfo, 0)
+    err := LoadData(config.Config.SystemDataPath + "/cfg/chapterInfo.cfg", &chapterInfoSlice)
+    if err != nil {
+        log.Error(err)
+        return false
+    }
+    for i := range chapterInfoSlice {
+		chapterInfoSlice[i].AllSGuanQias = make([]int, len(chapterInfoSlice[i].AllCGuanQias))
+        ChapterInfo[chapterInfoSlice[i].Cpid] = chapterInfoSlice[i]
+        TrueHeroGuanqia[chapterInfoSlice[i].ChallengeSid] = true
+    }
+    log.Debug("LoadSystemDataFromConf")
+    log.Debug("ChapterInfo", len(ChapterInfo), ChapterInfo)
+    /************************** Load ChapterCGuanQiaInfo *****************/
+    chapterGuanQiaInfoSlice := make([]chapterGuanQiaInfo, 0)
+    err = LoadData(config.Config.SystemDataPath + "/cfg/chapterGuanQiaInfo.cfg", &chapterGuanQiaInfoSlice)
+    if err != nil {
+        log.Error(err)
+        return false
+    }
+    for i := range chapterGuanQiaInfoSlice {
+        ChapterGuanQiaInfo[chapterGuanQiaInfoSlice[i].Cgqid] = chapterGuanQiaInfoSlice[i]
+    }
+    // Improve chapterInfo
+    {
+        ChapterBoss = make([]int, FinalChapter)
+        for i := 1; i < FinalChapter; i++ {
+            for index, cid := range ChapterInfo[i].AllCGuanQias {
+                length := len(ChapterGuanQiaInfo[cid].Allsimpleguanqias)
+                if length < 1 {
+                    log.Error("There is no simple_guanqia in chapter_guanqia")
+                    return false
+                }
+                sid := ChapterGuanQiaInfo[cid].Allsimpleguanqias[length-1]
+                log.Trace("ChapterInfo, i, index", i, index)
+                ChapterInfo[i].AllSGuanQias[index] = sid
+                SimpleNeedRecord[sid] = true
+                C_Sguanqia[cid] = sid
+            }
+            SimpleNeedRecord[ChapterInfo[i].ChallengeSid] = true
+            ChapterBoss[i] = ChapterInfo[i].AllSGuanQias[len(ChapterInfo[i].AllSGuanQias)-1]
+
+        }
+        log.Info("S", SimpleNeedRecord)
+        log.Info("ChapterBoss", ChapterBoss)
+    }
+    /************************** Load guanqiaInfo *************************/
+    guanqiaInfoSlice := make([]guanqiaInfoCfg, 0)
+    err = LoadData(config.Config.SystemDataPath + "/cfg/guanqiaInfo.cfg", &guanqiaInfoSlice)
+    if err != nil {
+        log.Error(err)
+        return false
+    }
+    for i := range guanqiaInfoSlice {
+        for _, v := range guanqiaInfoSlice[i].BaoxiangReward1{
+            if guanqiaInfoSlice[i].MaxScore < v.Score {
+                guanqiaInfoSlice[i].MaxScore = v.Score
+            } 
+        }
+        GuanqiaInfo[guanqiaInfoSlice[i].Guanqiaid] = guanqiaInfo{
+            AllDanboIds :guanqiaInfoSlice[i].AllDanboIds ,
+            TongguanReward:guanqiaInfoSlice[i].TongguanReward, 
+            ScoreReward:guanqiaInfoSlice[i].BaoxiangReward1, 
+            MaxScore:guanqiaInfoSlice[i].MaxScore,       
+            Guanqiaid:guanqiaInfoSlice[i].Guanqiaid, 
+        }
+    }
+    log.Debug("GuanqiaInfo", len(GuanqiaInfo), GuanqiaInfo)
+    /************************** Load challenge guanqiaInfo *************************/
+    scatteredGuanQiaInfoSlice := make([]guanqiaInfoCfg, 0)
+    err = LoadData(config.Config.SystemDataPath + "/cfg/scatteredGuanQiaInfo.cfg", &scatteredGuanQiaInfoSlice)
+
+    if err != nil {
+        log.Error(err)
+        return false
+    }
+    for i := range scatteredGuanQiaInfoSlice {
+        for _, v := range scatteredGuanQiaInfoSlice[i].BaoxiangReward1{
+			if scatteredGuanQiaInfoSlice[i].MaxScore < v.Score {
+				scatteredGuanQiaInfoSlice[i].MaxScore = v.Score
+			} 
+		}
+        GuanqiaInfo[scatteredGuanQiaInfoSlice[i].Guanqiaid] = guanqiaInfo{
+            AllDanboIds :scatteredGuanQiaInfoSlice[i].AllDanboIds ,
+            TongguanReward:scatteredGuanQiaInfoSlice[i].TongguanReward, 
+            ScoreReward:scatteredGuanQiaInfoSlice[i].BaoxiangReward1, 
+            MaxScore:scatteredGuanQiaInfoSlice[i].MaxScore,       
+            Guanqiaid:scatteredGuanQiaInfoSlice[i].Guanqiaid, 
+        }
+    }
+    log.Debug("GuanqiaInfo", len(GuanqiaInfo), GuanqiaInfo)
+    /************************** Load DanboInfo ***************************/
+    danboInfoSlice := make([]danboInfo, 0)
+    err = LoadData(config.Config.SystemDataPath + "/cfg/danboInfo.cfg", &danboInfoSlice)
+    if err != nil {
+        log.Error(err)
+        return false
+    }
+    for i := range danboInfoSlice {
+        DanboInfo[danboInfoSlice[i].BoshuId] = danboInfoSlice[i]
+    }
+    log.Debug("DanboInfo", len(DanboInfo), DanboInfo)
+    /************************** Load ArmInfo *****************************/
+    armInfoSlice := make([]armInfo, 0)
+    err = LoadData(config.Config.SystemDataPath + "/cfg/armInfo.cfg", &armInfoSlice)
+    if err != nil {
+        log.Error(err)
+        return false
+    }
+    for i := range armInfoSlice {
+        Arm := &armInfoSlice[i]
+        ArmInfo[armInfoSlice[i].Armid] = armInfoSlice[i]
+        if Arm.StarsNeed != 0 {
+            ArmStarAndQualityCount[Arm.StarsNeed][Arm.QualityLevel]++
+            ArmOriginalId[Arm.OriginalId][Arm.QualityLevel] = Arm.Armid
+        }
+    }
+    log.Debug("ArmInfo", len(ArmInfo), ArmInfo)
+    /************************** Load HeroInfo **********************************/
+    heroInfoSlice := make([]heroInfo, 0)
+    err = LoadData(config.Config.SystemDataPath + "/cfg/heroInfo.cfg", &heroInfoSlice)
+    if err != nil {
+        log.Error(err)
+        return false
+    }
+    for i := range heroInfoSlice {
+        HeroInfo[heroInfoSlice[i].Heroid] = heroInfoSlice[i]
+        HeroQualityCount[heroInfoSlice[i].QualityLevel]++
+        HeroOriginalId[heroInfoSlice[i].OriginalId][heroInfoSlice[i].QualityLevel] = heroInfoSlice[i].Heroid
+    }
+    log.Debug("HeroInfo", len(HeroInfo), HeroInfo[3].OriginalId)
+    /****************************** Load EnemyUnit ******************************/
+    enemyUnitInfoSlice := make([]enemyUnit, 0)
+    err = LoadData(config.Config.SystemDataPath + "/cfg/enemyUnit.cfg", &enemyUnitInfoSlice)
+    if err != nil {
+        log.Error(err)
+        return false
+    }
+    for i := range enemyUnitInfoSlice {
+        EnemyUnit[enemyUnitInfoSlice[i].Euid] = enemyUnitInfoSlice[i]
+    }
+
+    log.Debug("EnemyUnitInfo", len(EnemyUnit), EnemyUnit)
+    /******************************Load Quest***************************************************/
+    questSlice := make([]quest, 0)
+    err = LoadData(config.Config.SystemDataPath + "/cfg/quest.cfg", &questSlice)
+    if err != nil {
+        log.Error(err)
+        return false
+    }
+    for i := range questSlice {
+        Quest[questSlice[i].Qid] = questSlice[i]
+    }
+    log.Debug("Quest", len(Quest), Quest)
+    /****************************** Load BossGuanQiaInfo ******************************/
+    bossGuanQiaInfoSlice := make([]bossGuanQiaInfo, 0)
+    err = LoadData(config.Config.SystemDataPath + "/cfg/bossGuanQiaInfo.cfg", &bossGuanQiaInfoSlice)
+    if err != nil {
+        log.Error(err)
+        return false
+    }
+    for i := range bossGuanQiaInfoSlice {
+        BossGuanQiaInfo[bossGuanQiaInfoSlice[i].BossGuanQiaId] = bossGuanQiaInfoSlice[i]
+    }
+    log.Debug("BossGuanQiaInfo", len(BossGuanQiaInfo), BossGuanQiaInfo)
+    /************************* Load FightQuest Info ************************/
+    for id, v := range Quest {
+        if v.Needpushreward != 0 {
+            continue
+        }
+
+        for i := v.Unlocklevel; i <= v.Maxlevel; i++ {
+            if i == 2 {
+                UserFightQuestCount[i-1]++
+                UserFightQuestIndex[i-1][UserFightQuestCount[i-1]] = id
+            }
+            UserFightQuestCount[i]++
+            UserFightQuestIndex[i][UserFightQuestCount[i]] = id
+        }
+    }
+
+    InitRandomArmOid()
+    InitRandomHeroOid()
+
+    LoadSystemActivityEveryDayFromConf()
+    generateActivityByLevel()
+
+    return true
+}
+/*
+func LoadSystemData() bool {
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+
+	************************** Load chapterInfo *************************
+	reply, err := redis.Values(dbconn.Do("KEYS", "chapterInfo:*"))
+	if err != nil {
+		log.Error("Cant get result of keys chapterInfo*", err)
+		return false
+	}
+
+	chapterids, err := redis.Strings(reply, nil)
+	if err != nil {
+		log.Error("Cant convert keys of chapterInfo* to string", err)
+		return false
+	}
+
+	log.Info("The chapterids length is", len(chapterids))
+
+	
+	for _, chapterid_string := range chapterids {
+		var chapter chapterInfo
+		
+		reply, err = redis.Values(dbconn.Do("HMGET", chapterid_string, "allCGuanQias", "challengeSid","unlockArms","unlockHeroes"))
+		if err != nil {
+			log.Error("Cant get allCGuanQias", err)
+			return false
+		}
+
+		allCGuanQias_json, err := redis.String(reply[0], nil)
+		if err != nil {
+			log.Error("Cant convet allCGuanQias_json to string", err)
+			return false
+		}
+
+		var allCGuanQias []int
+		err = json.Unmarshal([]byte(allCGuanQias_json), &allCGuanQias)
+		if err != nil {
+			log.Error("Cant decode allCGuanQias_json", err)
+			return false
+		}
+		chapter.AllCGuanQias = allCGuanQias
+		
+
+		chapter.ChallengeSid, err = redis.Int(reply[1], nil)
+		if err != nil {
+			log.Error("Failed convert challengeSid to int",err)
+			return false
+		}
+		
+		unlockArms_json, err := redis.String(reply[2], nil)
+		if err != nil {
+			log.Error("Failed convert unlockArms to string",err)
+			return false
+		}
+		var unlockArms []int
+		err = json.Unmarshal([]byte(unlockArms_json), &unlockArms)
+		if err != nil {
+			log.Error("Cant decode unlockArms", err)
+			return false
+		}
+		chapter.UnlockArms = unlockArms
+
+		unlockHeros_json, err := redis.String(reply[3], nil)
+		if err != nil {
+			log.Error("Failed convert unlockHeros to string",err)
+			return false
+		}
+		
+		if unlockHeros_json != "" {
+		var unlockHeros []int
+		err = json.Unmarshal([]byte(unlockHeros_json), &unlockHeros)
+		if err != nil {
+			log.Error("Cant decode unlockHeros", err, unlockHeros_json, chapterid_string)
+			return false
+		}
+		chapter.UnlockHeros = unlockHeros
+		}
+		
+		log.Debug(chapterid_string,"The Unlock Arms and Heros is", chapter.UnlockArms,chapter.UnlockHeros )
+		
+		chapterid, err := strconv.Atoi(strings.Split(chapterid_string, ":")[1])
+		if err != nil {
+			log.Error("Cant convert id string to int", err)
+			return false
+		}
+
+		if FinalChapter < chapterid {
+			FinalChapter = chapterid
+		}
+		//Fix
+		FinalChapter = 8
+
+		allSGuanqias := make([]int, len(allCGuanQias))
+		chapter.AllSGuanQias = allSGuanqias
+		
+		ChapterInfo[chapterid] = chapter
+
+		TrueHeroGuanqia[chapter.ChallengeSid] = true
+	}
+
+	************************** Load ChapterCGuanQiaInfo *****************
+	reply, err = redis.Values(dbconn.Do("KEYS", "chapterGuanQiaInfo:*"))
+	if err != nil {
+		log.Error("Cant get result of keys chapterGuanQiaInfo*", err)
+		return false
+	}
+
+	chapterGuanQiaids, err := redis.Strings(reply, nil)
+	if err != nil {
+		log.Error("Cant convert keys of chapterGuanQiaInfo* to string", err)
+		return false
+	}
+
+	log.Info("The chapterGuanQiaids length is", len(chapterGuanQiaids))
+
+	for _, chapterGuanQiaid_string := range chapterGuanQiaids {
+		reply, err = redis.Values(dbconn.Do("HMGET", chapterGuanQiaid_string, "allsimpleguanqias", "guanqiaTask"))
+		if err != nil {
+			log.Error("Cant get allsimpleguanqias", err)
+			return false
+		}
+
+		allsimpleguanqias_json, err := redis.String(reply[0], nil)
+		if err != nil {
+			log.Error("Cant convet allsimpleguanqias_json to string", err)
+			return false
+		}
+
+		var allsimpleguanqias []int
+		err = json.Unmarshal([]byte(allsimpleguanqias_json), &allsimpleguanqias)
+		if err != nil {
+			log.Error("Cant decode allsimpleguanqias_json", err)
+			return false
+		}
+		//log.Debug("allsimpleguanqias_json is", allsimpleguanqias)
+
+		guanqia_quest ,err := redis.Int(reply[1], nil)
+		if err != nil {
+			log.Error("Failed convert guanqiaTask to int",err)
+			return false
+		}
+		
+		
+		chapterGuanQiaid, err := strconv.Atoi(strings.Split(chapterGuanQiaid_string, ":")[1])
+		if err != nil {
+			log.Error("Cant convert id string to int", err)
+			return false
+		}
+
+		ChapterGuanQiaInfo[chapterGuanQiaid] = chapterGuanQiaInfo{allsimpleguanqias, guanqia_quest, 0}
+	}
+
+	// Improve chapterInfo
+	{
+		ChapterBoss = make([]int, FinalChapter)
+		for i := 1; i < FinalChapter; i++ {
+			for index, cid := range ChapterInfo[i].AllCGuanQias {
+				length := len(ChapterGuanQiaInfo[cid].Allsimpleguanqias)
+				if length < 1 {
+					log.Error("There is no simple_guanqia in chapter_guanqia")
+					return false
+				}
+				sid := ChapterGuanQiaInfo[cid].Allsimpleguanqias[length-1]
+				ChapterInfo[i].AllSGuanQias[index] = sid
+				SimpleNeedRecord[sid] = true
+				C_Sguanqia[cid] = sid
+			}
+			SimpleNeedRecord[ChapterInfo[i].ChallengeSid] = true
+			ChapterBoss[i] = ChapterInfo[i].AllSGuanQias[len(ChapterInfo[i].AllSGuanQias)-1]
+			
+		}
+		log.Info("S", SimpleNeedRecord)
+	}
+	************************** Load guanqiaInfo *************************
+
+	reply, err = redis.Values(dbconn.Do("KEYS", "guanqiaInfo:*"))
+	if err != nil {
+		log.Error("Cant get result of keys guanqiaInfo*", err)
+		return false
+	}
+
+	guanqiaids, err := redis.Strings(reply, nil)
+	if err != nil {
+		log.Error("Cant convert keys of guanqiaInfo* to string", err)
+		return false
+	}
+
+	log.Info("The guanqiaids length is", len(guanqiaids))
+
+	for _, guanqiaid_string := range guanqiaids {
+		reply, err = redis.Values(dbconn.Do("HMGET", guanqiaid_string, "allDanboIds", "tongguanReward", "baoxiangReward1"))
+		if err != nil {
+			log.Error("Cant get allsimpleguanqias", err)
+			return false
+		}
+
+		var guanqia guanqiaInfo
+
+		//allDanboIds
+		allDanboIds_json, err := redis.String(reply[0], nil)
+		if err != nil {
+			log.Error("Cant convet allDanboIds_json to string", err, guanqiaid_string)
+			return false
+		}
+
+		var allDanboIds []int
+		err = json.Unmarshal([]byte(allDanboIds_json), &allDanboIds)
+		if err != nil {
+			log.Error("Cant decode allDanboIds_json", err)
+			return false
+		}
+		//log.Debug("allDanboIds_json is", allDanboIds)
+
+		guanqia.AllDanboIds = allDanboIds
+
+		//tongguanReward
+		tongguanReward_json, err := redis.String(reply[1], nil)
+		if err != nil {
+			log.Error("Cant convet tongguanReward_json to string", err)
+			return false
+		}
+
+		var tongguanReward []TongguanReward
+		err = json.Unmarshal([]byte(tongguanReward_json), &tongguanReward)
+		if err != nil {
+			log.Error("Cant decode tongguanReward_json", err)
+			return false
+		}
+		//log.Debug("tongguanReward_json is", tongguanReward)
+
+		guanqia.TongguanReward = tongguanReward
+
+		//scoreReward
+		scoreReward_json, err := redis.String(reply[2], nil)
+		if err != nil {
+			log.Error("Cant convet scoreReward_json to string", err)
+			return false
+		}
+
+		var scoreReward []ScoreReward
+		err = json.Unmarshal([]byte(scoreReward_json), &scoreReward)
+		if err != nil {
+			log.Error("Cant decode scoreReward_json", err)
+			return false
+		}
+		//log.Debug("score_json is", scoreReward)
+
+		guanqia.ScoreReward = scoreReward
+		
+		for _, v := range scoreReward {
+			if guanqia.MaxScore < v.Score {
+				guanqia.MaxScore = v.Score
+			} 
+		}
+
+		guanqiaid, err := strconv.Atoi(strings.Split(guanqiaid_string, ":")[1])
+		if err != nil {
+			log.Error("Cant convert id string to int", err)
+			return false
+		}
+
+		GuanqiaInfo[int(guanqiaid)] = guanqia
+
+	}
+	
+	************************** Load challenge guanqiaInfo *************************
+
+	reply, err = redis.Values(dbconn.Do("KEYS", "scatteredGuanqiaInfo:*"))
+	if err != nil {
+		log.Error("Cant get result of keys scatteredGuanqiaInfo*", err)
+		return false
+	}
+
+	scatteredGuanqiaInfoids, err := redis.Strings(reply, nil)
+	if err != nil {
+		log.Error("Cant convert keys of guanqiaInfo* to string", err)
+		return false
+	}
+
+	log.Info("The scatteredGuanqiaInfoids length is", len(scatteredGuanqiaInfoids))
+
+	for _, scatteredGuanqiaInfoid_string := range scatteredGuanqiaInfoids {
+		reply, err = redis.Values(dbconn.Do("HMGET", scatteredGuanqiaInfoid_string, "allDanboIds",  "baoxiangReward1"))
+		if err != nil {
+			log.Error("Cant get allsimpleguanqias", err)
+			return false
+		}
+
+		var guanqia guanqiaInfo
+
+		//allDanboIds
+		allDanboIds_json, err := redis.String(reply[0], nil)
+		if err != nil {
+			log.Error("Cant convet allDanboIds_json to string", err,allDanboIds_json)
+			return false
+		}
+
+		var allDanboIds []int
+		err = json.Unmarshal([]byte(allDanboIds_json), &allDanboIds)
+		if err != nil {
+			log.Error("Cant decode allDanboIds_json", err)
+			return false
+		}
+		//log.Debug("allDanboIds_json is", allDanboIds)
+
+		guanqia.AllDanboIds = allDanboIds
+
+		//scoreReward
+		scoreReward_json, err := redis.String(reply[1], nil)
+		if err != nil {
+			log.Error("Cant convet scoreReward_json to string", err)
+			return false
+		}
+
+		var scoreReward []ScoreReward
+		err = json.Unmarshal([]byte(scoreReward_json), &scoreReward)
+		if err != nil {
+			log.Error("Cant decode scoreReward_json", err)
+			return false
+		}
+		//log.Debug("score_json is", scoreReward)
+
+		guanqia.ScoreReward = scoreReward
+		
+		for _, v := range scoreReward {
+			if guanqia.MaxScore < v.Score {
+				guanqia.MaxScore = v.Score
+			} 
+		}
+
+		scatteredGuanqiaInfoid, err := strconv.Atoi(strings.Split(scatteredGuanqiaInfoid_string, ":")[1])
+		if err != nil {
+			log.Error("Cant convert id string to int", err)
+			return false
+		}
+
+		GuanqiaInfo[int(scatteredGuanqiaInfoid)] = guanqia
+
+	}
+
+	************************** Load DanboInfo ***************************
+	//log.Debug("Begin load danbo info")
+	reply, err = redis.Values(dbconn.Do("KEYS", "danboInfo:*"))
+	if err != nil {
+		log.Error("Cant get result of keys danboInfo*", err)
+		return false
+	}
+
+	danboids, err := redis.Strings(reply, nil)
+	if err != nil {
+		log.Error("Cant convert keys of danboInfo* to string", err)
+		return false
+	}
+
+	log.Info("The danboids length is", len(danboids))
+
+	for _, danboid_string := range danboids {
+		reply, err = redis.Values(dbconn.Do("HMGET", danboid_string, "allUnitSeq", "allUnitCount"))
+		if err != nil {
+			log.Error("Cant get allsimpledanbos", err)
+			return false
+		}
+
+		var danbo danboInfo
+		//allUnitSeq
+		allUnitSeq_json, err := redis.String(reply[0], nil)
+		if err != nil {
+			log.Error("Cant convet allUnitSeq_json to string", err)
+			return false
+		}
+		var allUnitSeq []int
+		err = json.Unmarshal([]byte(allUnitSeq_json), &allUnitSeq)
+		if err != nil {
+			log.Error("Cant decode allUnitSeq_json", err)
+			return false
+		}
+		//log.Debug("allUnitSeq_json is", allUnitSeq)
+		//log.Debug("allUnitSeq is")
+
+		danbo.AllUnitSeq = allUnitSeq
+
+		//allUnitCount
+		danbo.AllUnitCount, err = redis.Int(reply[1], nil)
+		if err != nil {
+			log.Error("Cant get covert danboInfo allUnitCount to int", err)
+			return false
+		}
+
+		danboid, err := strconv.Atoi(strings.Split(danboid_string, ":")[1])
+		if err != nil {
+			log.Error("Cant convert id string to int", err)
+			return false
+		}
+
+		DanboInfo[int(danboid)] = danbo
+	}
+	************************** Load ArmInfo *****************************
+	reply, err = redis.Values(dbconn.Do("KEYS", "armInfo:*"))
+	if err != nil {
+		log.Error("Cant get result of keys armInfo*", err)
+		return false
+	}
+
+	log.Debug("The keys is ", len(reply))
+
+	armids, err := redis.Strings(reply, nil)
+	if err != nil {
+		log.Error("Cant convert keys of armInfo* to string", err)
+		return false
+	}
+
+	log.Info("The armids length is", len(armids))
+
+	for _, armid_string := range armids {
+		reply, err = redis.Values(dbconn.Do("HMGET", armid_string, "originalId", "qualityLevel", "damage", "hp", "damageRatio", "starsNeed","sellType","sellPrice","canPick"))
+		if err != nil {
+			log.Error("Cant get originalId, qualityLevel, damage, hp from armInfo", err)
+			return false
+		}
+		//log.Debug("The armid and rely is", armid_string, reply)
+		var Arm armInfo
+		Arm.OriginalId, err = redis.Int(reply[0], nil)
+		if err != nil {
+			log.Error("Cant t covert armInfo originalId to int", err)
+			return false
+		}
+
+		Arm.QualityLevel, err = redis.Int(reply[1], nil)
+		if err != nil {
+			log.Error("Cant  covert armInfo qualityLevel  to int", err)
+			return false
+		}
+
+		Arm.Damage, err = redis.Int(reply[2], nil)
+		if err != nil {
+			log.Error("Cant  covert armInfo damage  to int", err)
+			return false
+		}
+
+		Arm.Hp, err = redis.Int(reply[3], nil)
+		if err != nil {
+			log.Error("Cant  covert armInfo hp  to int", err)
+			return false
+		}
+
+		damageRatio, err := redis.Float64(reply[4], nil)
+		if err != nil {
+			log.Error("Cant  covert armInfo damageRatio  to int", err)
+			return false
+		}
+        //Arm.DamageRatio = int(damageRatio * 100)
+		Arm.DamageRatio = (damageRatio * 100)
+
+		Arm.StarsNeed, err = redis.Int(reply[5], nil)
+		if err != nil {
+			log.Error("Cant  covert starsNeed  to int", err)
+			return false
+		}
+		
+		Arm.SellType, err = redis.Int(reply[6], nil)
+		if err != nil {
+			log.Error("Cant convert arm selltype to int",err)
+			return false
+		}
+		
+		Arm.SellPrice, err = redis.Int(reply[7], nil)
+		if err != nil {
+			log.Error("Cant convert arm sellprice to int",err)
+			return false
+		}
+
+		Arm.CanPick, err = redis.Int(reply[8], nil)
+		if err != nil {
+			log.Error("Cant convert arm CanPick to int",err)
+			return false
+		}
+						
+		armid, err := strconv.Atoi(strings.Split(armid_string, ":")[1])
+		if err != nil {
+			log.Error("Cant convert id string to int", err)
+			return false
+		}
+
+		ArmInfo[armid] = Arm
+
+		//log.Debug("Arm.StarsNeed and quality",Arm.StarsNeed,Arm.QualityLevel)
+		if Arm.StarsNeed != 0 {
+			ArmStarAndQualityCount[Arm.StarsNeed][Arm.QualityLevel]++
+			ArmOriginalId[Arm.OriginalId][Arm.QualityLevel] = armid
+		}
+	}
+	************************** Load HeroInfo **********************************
+	reply, err = redis.Values(dbconn.Do("KEYS", "heroInfo:*"))
+	if err != nil {
+		log.Error("Cant get result of keys heroInfo*", err)
+		return false
+	}
+
+	heroids, err := redis.Strings(reply, nil)
+	if err != nil {
+		log.Error("Cant convert keys of heroInfo* to string", err)
+		return false
+	}
+
+	log.Info("The heroids length is", len(heroids))
+
+	for _, heroid_string := range heroids {
+		reply, err = redis.Values(dbconn.Do("HMGET", heroid_string, "originalId", "qualityLevel", "damage", "damageRatio", "starsNeed", "skillRoundCount", "sellType", "sellPrice"))
+		if err != nil {
+			log.Error("Cant get originalId, qualityLevel, damage, hp from heroInfo", err)
+			return false
+		}
+
+		var Hero heroInfo
+
+		Hero.OriginalId, err = redis.Int(reply[0], nil)
+		if err != nil {
+			log.Error("Cant get covert heroInfo originalId to int", err)
+			return false
+		}
+
+		Hero.QualityLevel, err = redis.Int(reply[1], nil)
+		if err != nil {
+			log.Error("Cant get covert qualityLevel  to int", err)
+			return false
+		}
+
+		Hero.Damage, err = redis.Int(reply[2], nil)
+		if err != nil {
+			log.Error("Cant get covert damage  to int", err)
+			return false
+		}
+
+		damageRatio, err := redis.Float64(reply[3], nil)
+		if err != nil {
+			log.Error("Cant get covert damage damageRatio to float64", err)
+			return false
+		}
+        //Hero.DamageRatio = int(damageRatio * 100)
+        Hero.DamageRatio = (damageRatio * 100)
+		heroid, err := strconv.Atoi(strings.Split(heroid_string, ":")[1])
+		if err != nil {
+			log.Error("Cant convert id string to int", err)
+			return false
+		}
+
+		Hero.StarsNeed, err = redis.Int(reply[4], nil)
+		if err != nil {
+			log.Error("Cant get covert starsNeed to int", err)
+			return false
+		}
+
+		Hero.SkillRoundCount, err = redis.Int(reply[5], nil)
+		if err != nil {
+			log.Error("Cant get covert skillRoundCount to int", err)
+			return false
+		}
+
+		Hero.SellType, err = redis.Int(reply[6], nil)
+		if err != nil {
+			log.Error("Cant convert hero selltype to int",err)
+			return false
+		}
+		
+		Hero.SellPrice, err = redis.Int(reply[7], nil)
+		if err != nil {
+			log.Error("Cant convert hero sellprice to int",err)
+			return false
+		}
+
+		//Hero.CanPick, err = redis.Int(reply[8], nil)
+		//if err != nil {
+		//	log.Error("Cant convert hero canPick to int",err)
+		//	return false
+		//}
+		
+		HeroInfo[heroid] = Hero
+
+		HeroQualityCount[Hero.QualityLevel]++
+		HeroOriginalId[Hero.OriginalId][Hero.QualityLevel] = heroid
+	}
+
+	****************************** Load EnemyUnit ******************************
+	reply, err = redis.Values(dbconn.Do("KEYS", "enemyUnit:*"))
+	if err != nil {
+		log.Error("Cant get result of keys enemyInfo*", err)
+		return false
+	}
+
+	//log.Debug("The keys is ", len(reply))
+
+	enemyids, err := redis.Strings(reply, nil)
+	if err != nil {
+		log.Error("Cant convert keys of enemyInfo* to string", err)
+		return false
+	}
+	//log.Debug("The enemyids is", enemyids)
+	log.Info("The enemyids length is", len(enemyids))
+
+	for _, enemyid_string := range enemyids {
+		reply, err = redis.Values(dbconn.Do("HMGET", enemyid_string, "damage", "hp"))
+		if err != nil {
+			log.Error("Cant get originalId, qualityLevel, damage, hp from enemyInfo", err)
+			return false
+		}
+
+		var Enemy enemyUnit
+
+		Enemy.Damage, err = redis.Int(reply[0], nil)
+		if err != nil {
+			log.Error("Cant get covert damage originalId to int", err)
+			return false
+		}
+
+		Enemy.Hp, err = redis.Int(reply[1], nil)
+		if err != nil {
+			log.Error("Cant get covert hp originalId to int", err)
+			return false
+		}
+
+		enemyid, err := strconv.Atoi(strings.Split(enemyid_string, ":")[1])
+		if err != nil {
+			log.Error("Cant convert id string to int", err)
+			return false
+		}
+		EnemyUnit[int(enemyid)] = Enemy
+	}
+
+	******************************Load Quest***************************************************
+	reply, err = redis.Values(dbconn.Do("KEYS", "quest:*"))
+	if err != nil {
+		log.Error("Cant get result of keys quest*", err)
+		return false
+	}
+
+	//log.Debug("The keys is ", len(reply))
+
+	questids, err := redis.Strings(reply, nil)
+	if err != nil {
+		log.Error("Cant convert keys of questInfo* to string", err)
+		return false
+	}
+	//log.Debug("The questids is", questids)
+	log.Info("The questids length is", len(questids))
+
+	for _, questid_string := range questids {
+		reply, err = redis.Values(dbconn.Do("HMGET", questid_string, "preId", "unlocklevel", "actiontype", "value", "actionparam",
+			"refreshtype", "rewardtype", "rewardcount", "maxlevel", "needpushreward", "actionparam2"))
+		if err != nil {
+			log.Error("Cant get originalId, qualityLevel, damage, hp from questInfo", err)
+			return false
+		}
+
+		var Q quest
+		Q.PreId, err = redis.Int(reply[0], nil)
+		if err != nil {
+			log.Error("Cant get covert preId to int", err)
+			return false
+		}
+
+		Q.Unlocklevel, err = redis.Int(reply[1], nil)
+		if err != nil {
+			log.Error("Cant get covert unlocklevel to int", err)
+			return false
+		}
+
+		Q.Actiontype, err = redis.Int(reply[2], nil)
+		if err != nil {
+			log.Error("Cant get covert actiontype to int", err)
+			return false
+		}
+
+		Q.Value, err = redis.Int(reply[3], nil)
+		if err != nil {
+			log.Error("Cant get covert value to int", err)
+			return false
+		}
+
+		Q.Actionparam, err = redis.Int(reply[4], nil)
+		if err != nil {
+			log.Error("Cant get covert actionparam to int", err)
+			return false
+		}
+
+		Q.Refreshtype, err = redis.Int(reply[5], nil)
+		if err != nil {
+			log.Error("Cant get covert refreshtype to int", err)
+			return false
+		}
+
+		Q.Rewardtype, err = redis.Int(reply[6], nil)
+		if err != nil {
+			log.Error("Cant get covert rewardtype to int", err)
+			return false
+		}
+
+		Q.Rewardcount, err = redis.Int(reply[7], nil)
+		if err != nil {
+			log.Error("Cant get covert rewardcount to int", err)
+			return false
+		}
+
+		Q.Maxlevel, err = redis.Int(reply[8], nil)
+		if err != nil {
+			log.Error("Cant get covert maxlevel to int", err)
+			return false
+		}
+
+		Q.Needpushreward, err = redis.Int(reply[9], nil)
+		if err != nil {
+			log.Error("Cant get covert needpushreward to int", err)
+			return false
+		}
+		
+		Q.Actionparam2, err = redis.Int(reply[10], nil)
+		if err != nil {
+			log.Error("Cant get covert Actionparam2 to int", err)
+			return false
+		}
+
+		questid, err := strconv.Atoi(strings.Split(questid_string, ":")[1])
+		if err != nil {
+			log.Error("Cant convert questid string to int", err)
+			return false
+		}
+
+		Quest[int(questid)] = Q
+	}
+
+	****************************** Load BossGuanQiaInfo ******************************
+	reply, err = redis.Values(dbconn.Do("KEYS", "bossGuanQiaInfo:*"))
+	if err != nil {
+		log.Error("Cant get result of keys enemyInfo*", err)
+		return false
+	}
+
+	//log.Debug("The keys is ", len(reply))
+
+	bossids, err := redis.Strings(reply, nil)
+	if err != nil {
+		log.Error("Cant convert keys of enemyInfo* to string", err)
+		return false
+	}
+	//log.Debug("The enemyids is", enemyids)
+
+	log.Info("The bossids length is", len(bossids))
+
+	for _, bossid_string := range bossids {
+		reply, err = redis.Values(dbconn.Do("HMGET", bossid_string, "contentGuanQiaId", "nextBossGuanQiaId", "needFinishTimes"))
+		if err != nil {
+			log.Error("Cant get originalId, qualityLevel, damage, hp from enemyInfo", err)
+			return false
+		}
+
+		var boss bossGuanQiaInfo
+
+		boss.ContentGuanQiaId, err = redis.Int(reply[0], nil)
+		if err != nil {
+			log.Error("Cant get covert contentGuanQiaId to int", err)
+			return false
+		}
+
+		boss.NextBossGuanQiaId, err = redis.Int(reply[1], nil)
+		if err != nil {
+			log.Error("Cant get covert nextBossGuanQiaIdd to int", err)
+			return false
+		}
+
+		boss.NeedFinishTimes, err = redis.Int(reply[2], nil)
+		if err != nil {
+			log.Error("Cant get covert needFinishTimes to int", err)
+			return false
+		}
+
+		bossid, err := strconv.Atoi(strings.Split(bossid_string, ":")[1])
+		if err != nil {
+			log.Error("Cant convert id string to int", err)
+			return false
+		}
+
+		BossGuanQiaInfo[int(bossid)] = boss
+	}
+
+	************************* Load FightQuest Info ************************
+	for id, v := range Quest {
+		if v.Needpushreward == 1 {
+			continue
+		}
+
+		for i := v.Unlocklevel; i <= v.Maxlevel; i++ {
+			if i == 2 {
+				UserFightQuestCount[i-1]++
+				UserFightQuestIndex[i-1][UserFightQuestCount[i-1]] = id
+			}
+			UserFightQuestCount[i]++
+			UserFightQuestIndex[i][UserFightQuestCount[i]] = id
+		}
+	}
+
+	InitRandomArmOid()
+	InitRandomHeroOid()
+
+	LoadSystemActivityEveryDay()
+	generateActivityByLevel()
+
+	return true
+}*/
+
+/****************** Oid *******************/
+const (
+    HeroIdNum     = 500
+    HeroOrigIdNum = 100
+    HeroOidNum    = 100
+
+    ArmIdNum     = 1000
+    ArmOrigIdNum = 500
+    ArmOidNum    = 500
+
+    StarNum    = 4
+    QualityNum = 5
+)
+
+var (
+    ArmOidIndex               [ArmOidNum]int
+    ArmOidStarAndQualityCount [StarNum + 1][QualityNum + 1]int
+    ArmOidStarAndQualityBegin [StarNum + 1][QualityNum + 1]int
+    InitAllArmOid             [ArmOidNum]int
+    ArmMinIdOfOid             [ArmOidNum]int
+
+    HeroOidIndex        [HeroIdNum]int
+    HeroOidQualityCount [QualityNum + 1]int
+    HeroOidQualityBegin [QualityNum + 1]int
+    InitAllHeroOid      [HeroOidNum]int
+    HeroMinIdOfOid      [HeroOidNum]int
+)
+
+func InitRandomArmOid() {
+    for armid, v := range ArmInfo {
+        if v.StarsNeed != 0 {
+            ArmOriginalId[v.OriginalId][v.QualityLevel] = armid
+        }
+
+        if v.CanPick == 0 {
+            InitAllArmOid[v.OriginalId] = ArmUnGet
+        }
+    }
+
+    for oid := 0; oid < ArmOidNum; oid++ {
+        log.Debug("ArmOriginalId", oid, ArmOriginalId[oid])
+        for q := 0; q <= QualityNum; q++ {
+            if ArmOriginalId[oid][q] != 0 {
+                ArmMinIdOfOid[oid] = ArmOriginalId[oid][q]
+                log.Critical("ArmMinIdOfOid[oid]", oid, ArmMinIdOfOid[oid])
+                break
+            }
+        }
+    }
+
+    for _, id := range ArmMinIdOfOid {
+        if id == 0 {
+            continue
+        }
+
+        q := ArmInfo[id].QualityLevel
+        s := ArmInfo[id].StarsNeed
+        ArmOidStarAndQualityCount[s][q]++
+    }
+    log.Critical("ArmOidStarAndQualityCount", ArmOidStarAndQualityCount)
+
+    for star := 1; star < 5; star++ {
+        ArmOidStarAndQualityBegin[star][0] = ArmOidStarAndQualityBegin[star-1][5] + ArmOidStarAndQualityCount[star-1][5]
+        for quality := int(1); quality < 6; quality++ {
+            ArmOidStarAndQualityBegin[star][quality] = ArmOidStarAndQualityCount[star][quality-1] + ArmOidStarAndQualityBegin[star][quality-1]
+        }
+    }
+    log.Critical("ArmOidStarAndQualityBegin", ArmOidStarAndQualityBegin)
+
+    var i [5][6]int
+    for oid, id := range ArmMinIdOfOid {
+        if id == 0 {
+            continue
+        }
+        v := ArmInfo[id]
+        index := ArmOidStarAndQualityBegin[v.StarsNeed][v.QualityLevel] + i[v.StarsNeed][v.QualityLevel]
+        ArmOidIndex[index] = oid
+        i[v.StarsNeed][v.QualityLevel]++
+    }
+    log.Critical("ArmOidIndex", ArmOidIndex)
+
+    //for _, arm_oid := range InitUnGetArmOidByGold {
+    //	InitAllArmOid[arm_oid] = ArmUnGet
+    //}
+
+    for star := 1; star < 5; star++ {
+        ArmStarAndQualityBegin[star][0] = ArmStarAndQualityBegin[star-1][5] + ArmStarAndQualityCount[star-1][5]
+        for quality := int(1); quality < 6; quality++ {
+            ArmStarAndQualityBegin[star][quality] = ArmStarAndQualityCount[star][quality-1] + ArmStarAndQualityBegin[star][quality-1]
+        }
+    }
+
+    var ii [5][6]int
+    for armid, v := range ArmInfo {
+        if v.StarsNeed == 0 {
+            continue
+        }
+        ArmIndex[ArmStarAndQualityBegin[v.StarsNeed][v.QualityLevel]+ii[v.StarsNeed][v.QualityLevel]] = armid
+        ii[v.StarsNeed][v.QualityLevel]++
+    }
+    log.Debug("ArmCount", ArmStarAndQualityCount)
+    log.Debug("ArmBegin", ArmStarAndQualityBegin)
+    log.Debug("ArmIndex", ArmIndex)
+
+    log.Critical("hzz", InitAllArmOid)
+}
+
+func InitRandomHeroOid() {
+    for heroid, v := range HeroInfo {
+        HeroOriginalId[v.OriginalId][v.QualityLevel] = heroid
+        if v.CanPick == 0 {
+            //InitAllHeroOid[v.OriginalId] = HeroUnGet
+        }
+    }
+
+    for oid := 0; oid < HeroOidNum; oid++ {
+        for q := 0; q <= QualityNum; q++ {
+            if HeroOriginalId[oid][q] != 0 {
+                HeroMinIdOfOid[oid] = HeroOriginalId[oid][q]
+                log.Critical("HeroMinIdOfOid[oid]", oid, HeroMinIdOfOid[oid])
+                break
+            }
+        }
+    }
+
+    for _, id := range HeroMinIdOfOid {
+        if id == 0 {
+            continue
+        }
+        q := HeroInfo[id].QualityLevel
+        HeroOidQualityCount[q]++
+    }
+    log.Critical("HeroOidQualityCount", HeroOidQualityCount)
+
+    for quality := 1; quality < 6; quality++ {
+        HeroOidQualityBegin[quality] = HeroOidQualityCount[quality-1] + HeroOidQualityBegin[quality-1]
+    }
+    log.Critical("HeroOidQualityBegin", HeroOidQualityBegin)
+
+    var j [6]int
+    for oid, id := range HeroMinIdOfOid {
+        if id == 0 {
+            continue
+        }
+        v := HeroInfo[id]
+        HeroOidIndex[HeroOidQualityBegin[v.QualityLevel]+j[v.QualityLevel]] = oid
+        j[v.QualityLevel]++
+    }
+    log.Critical("HeroOidIndex", HeroOidIndex)
+
+    for _, hero_oid := range UnchargeInitSeenHeroOid {
+        InitAllHeroOid[hero_oid] = HeroUnchargeSeen
+    }
+
+    log.Critical("hzz", InitAllHeroOid)
+}
+
+func IsTrueHeroGuanqia(sid int) bool {
+    _, ok := TrueHeroGuanqia[sid]
+    return ok
+}
+
+func init() {
+    ChapterInfo = make(map[int]chapterInfo)
+    ChapterGuanQiaInfo = make(map[int]chapterGuanQiaInfo)
+    GuanqiaInfo = make(map[int]guanqiaInfo)
+    DanboInfo = make(map[int]danboInfo)
+    ArmInfo = make(map[int]armInfo)
+    HeroInfo = make(map[int]heroInfo)
+    EnemyUnit = make(map[int]enemyUnit)
+    Quest = make(map[int]quest)
+    BossGuanQiaInfo = make(map[int]bossGuanQiaInfo)
+    FinalChapter = 7
+    SimpleNeedRecord = make(map[int]bool)
+    C_Sguanqia = make(map[int]int)
+
+    TrueHeroGuanqia = make(map[int]bool)
+
+    //ChallengeGuanqiaInfo = make(map[int]scatteredGuanqiaInfo)
+}

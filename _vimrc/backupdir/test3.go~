@@ -1,0 +1,25 @@
+package main
+
+import "fmt"
+import "time"
+
+func foo() {
+    defer fmt.Println("World")
+    fmt.Println("Hello")
+}
+func sum(x, y int, c chan int) {
+    fmt.Println("sum start")
+    c <- x + y
+    fmt.Println("sum end")
+}
+func main() {
+    foo()
+    c := make(chan int, 2)
+    sum(24, 18, c)
+    select {
+    case d := <-c:
+        fmt.Println(d)
+    case <-time.After(3 * time.Second):
+        fmt.Println("timeout")
+    }
+}

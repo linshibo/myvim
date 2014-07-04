@@ -1,0 +1,65 @@
+package gameserver
+
+import (
+	"sanguo/base/log"
+	"sync"
+	//"os"
+)
+
+var _active map[string]*Session
+var _lock sync.RWMutex
+
+//----------------------------------------------- register a user as online user
+func RegisterOnline(sess *Session, id string) {
+	defer _lock.Unlock()
+	_lock.Lock()
+
+	log.Debug("RegisterOnline", id)
+	if _active[id] != nil && _active[id] != sess {
+		log.Critical("Will be kickout, The old and new is ", _active[id], sess)
+		//log.Critical("The trace is",os.)
+		tmp := _active[id]
+		tmp.kickout = true
+		delete(_active, id)
+	}
+	_active[id] = sess
+}
+
+//----------------------------------------------- unregister a user from online users
+func UnregisterOnline(id string, sess *Session) {
+	defer _lock.Unlock()
+	_lock.Lock()
+
+	log.Debug("UnregisterOnline", id)
+	if _active[id] == sess {
+		delete(_active, id)
+	}
+}
+
+//----------------------------------------------- query a online user
+func QueryOnline(id string) *Session {
+	defer _lock.RUnlock()
+	_lock.RLock()
+
+	log.Debug("QueryOnline", id, _active[id])
+	return _active[id]
+}
+
+//----------------------------------------------- list all online users
+func ListAllOnline() []string {
+	defer _lock.RUnlock()
+	_lock.RLock()
+
+	list := make([]string, len(_active))
+	idx := 0
+	for k := range _active {
+		list[idx] = k
+		idx++
+	}
+
+	return list
+}
+
+func init() {
+	_active = make(map[string]*Session)
+}

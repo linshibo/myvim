@@ -1,0 +1,209 @@
+package gameserver
+
+import (
+	"github.com/garyburd/redigo/redis"
+	"sanguo/base/log"
+	"sanguo/db"
+	"strconv"
+)
+
+/*
+func ReduceGold(sess *Session, num int) error {
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+	sess.user.gold -= num
+	_, err := dbconn.Do("HSET", sess.user.uid, "gold", sess.user.gold)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func AddGold(sess *Session, num int) error {
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+	sess.user.gold += num
+	_, err := dbconn.Do("HSET", sess.user.uid, "gold", sess.user.gold)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func AddStone(sess *Session, num int) error {
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+	sess.user.stone += num
+	_, err := dbconn.Do("HSET", sess.user.uid, "stone", sess.user.stone)
+	if err != nil {
+		log.Error("Failed add stone", err)
+		return err
+	}
+	return nil
+}
+
+func ReduceStone(sess *Session, num int) error {
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+	sess.user.stone -= num
+	if sess.user.stone < 0 {
+		sess.user.stone = 0
+	}
+	_, err := dbconn.Do("HSET", sess.user.uid, "stone", sess.user.stone)
+	if err != nil {
+		log.Error("Failed add stone", err)
+		return err
+	}
+	return nil
+}*/
+
+func DelLoginArm(sess *Session) error {
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+	sess.user.login_arm = 0
+	_, err := dbconn.Do("HSET", sess.user.uid, "login_arm", 0)
+	return err
+}
+
+func IsNameExist(name string) (flag bool, err error) {
+	if PlayerManager.IsNameExistLocal(name) {
+		return true, nil
+	}
+
+	dbconn := db.NamePool.Get()
+	defer dbconn.Close()
+
+	flag, err = redis.Bool(dbconn.Do("EXISTS", "name:"+name))
+	return
+}
+
+func GetNameByUid(uid string) (name string, err error) {
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+
+	reply, err := dbconn.Do("HGET", uid, "name")
+	if err != nil {
+		return
+	}
+
+	if reply == nil {
+		return "", nil
+	}
+
+	name, err = redis.String(reply, nil)
+	return
+}
+
+func GetUidByName(name string) (uid int, err error) {
+	if PlayerManager.IsNameExistLocal(name) {
+		return PlayerManager.GetUidByName(name), nil
+	}
+
+	dbconn := db.NamePool.Get()
+	defer dbconn.Close()
+
+	reply, err := dbconn.Do("GET", "name:"+name)
+	if err != nil {
+		return
+	}
+
+	if reply == nil {
+		return 0, nil
+	}
+
+	uid, err = redis.Int(reply, nil)
+	return
+}
+
+func GetUserPhotoByName(name string) (string, error) {
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+
+	uid, err := GetUidByName(name)
+	if err != nil {
+		return "", err
+	}
+
+	photo, err := redis.String(dbconn.Do("HGET", uid, "photo"))
+	if err != nil {
+		return "", err
+	}
+
+	return photo, nil
+}
+
+func GetUserSidByName(name string) (int, error) {
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+	uid, err := GetUidByName(name)
+	if err != nil {
+		return -1, err
+	}
+
+	sid, err := redis.Int(dbconn.Do("HGET", uid, "s_guanqia"))
+	if err != nil {
+		return -1, err
+	}
+
+	return sid, nil
+}
+
+func (sess *Session) GetTopTenOfTrueHero(sid int) ([]RankPlayer, error) {
+	key := "TrueHero:" + strconv.Itoa(sid)
+	log.Trace("GetTopTenOfTrueHero", key)
+	return sess.GetTopTenOfRank(key)
+}
+
+func (sess *Session) GetTopTenOfRank(key string) (back []RankPlayer, err error) {
+	rank_dbconn := db.Pool.Get()
+	defer rank_dbconn.Close()
+	defer log.Trace("GetTopTenOfRank", back, err)
+
+	length, err := redis.Int(rank_dbconn.Do("ZCARD", key))
+	if err != nil {
+		return nil, err
+	}
+
+	if length == 0 {
+		return nil, nil
+	}
+	if length > 10 {
+		length = 10
+	}
+
+	back = make([]RankPlayer, length)
+
+	reply, err := redis.Values(rank_dbconn.Do("ZREVRANGE", key, 0, length-1, "WITHSCORES"))
+	if err != nil {
+		return nil, err
+	}
+
+	var tmp RankPlayer
+	for i := 0; i < length*2; i += 2 {
+		tmp.Name, err = redis.String(reply[i], nil)
+		if err != nil {
+			return nil, err
+		}
+		tmp.Score, err = redis.Int(reply[i+1], nil)
+		if err != nil {
+			return nil, err
+		}
+		uid, err := GetUidByName(tmp.Name)
+		if err != nil {
+			log.Error("not find name ", err)
+		}
+
+		tmp.Photo = GetPlayerPhotoByUid(sess.user.uid, uid)
+
+		back[i/2] = tmp
+	}
+	return back, nil
+}
+
+func GetUidOfString(uid int) string {
+	return strconv.Itoa(uid)
+}
+
+func GetUidUseInDB(uid int) string {
+	return "user:" + strconv.Itoa(uid)
+}

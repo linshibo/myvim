@@ -1,0 +1,62 @@
+package main
+
+import (
+    //"encoding/json"
+    "encoding/json"
+    "fmt"
+    "io/ioutil"
+    "os"
+)
+
+func checkError(err error) {
+    if err != nil {
+        fmt.Fprintf(os.Stderr, "Fatal error: %s", err.Error())
+        os.Exit(1)
+    }
+}
+
+type Configure struct {
+    DbUser   string
+    DbPasswd string
+    DbHost   string
+    LogLevel int
+}
+
+var Config Configure
+
+func main() {
+    //for i := 0; i < 10000; i++ {
+    //conn, err := net.Dial("tcp", "127.0.0.1:8080")
+    //checkError(err)
+    //fmt.Println("connect succeed! ID:", i+1)
+    //go func() {
+    //conn.Write([]byte("nihao33333333333333333"))
+    //}()
+    //}
+    //time.Sleep(30 * time.Second)
+
+    //back := make(map[string]interface{})
+    //back["ret"] = true
+    //back["power"] = 100.12
+    //back["left_time"] = "nihao"
+
+    //back_json, _ := json.Marshal(back)
+    //fmt.Println("", back_json)
+
+    //now, _ := time.Parse(time.RFC3339, "2014-03-14")
+
+    //now := time.Date(2007, 1, 1, 0, 0, 0, 0, time.Local)
+    //fmt.Println("", now)
+
+    content, err := ioutil.ReadFile("bench.conf")
+    if err != nil {
+        fmt.Println("Failed read configure file:bench.conf ", err)
+        return
+    }
+    err = json.Unmarshal(content, &Config)
+    if err != nil {
+        fmt.Println("Failed decode config file to Config:bench.conf", err)
+        return
+    }
+    fmt.Println(string(Config.DbUser), Config.DbPasswd)
+}

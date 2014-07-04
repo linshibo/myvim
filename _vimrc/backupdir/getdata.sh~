@@ -1,0 +1,64 @@
+redis_user = redis-cli -h localhost
+filename = $1 + "_data.bak" 
+user_db = "user:"+$1
+getHashMap(){
+    echo "HMSET $1"+`$redis_user HGETALL "$1"`
+}
+getList(){
+    echo "LPUSH $1"+`$redis_user LRANGE "$1" 0 -1`
+}
+getSSet(){
+    echo "ZADD $1"+`$redis_user ZRANGE $1 0 -1`
+}
+getSet(){
+    echo "SADD $1"+`$redis_user ZMEMBERS $1 0 -1`
+}
+getHashMap $user_db
+last_login_reward0 = $user_db+":last_login_reward:0"
+last_login_reward1 = $user_db+":last_login_reward:1"
+last_login_reward2 = $user_db+":last_login_reward:2"
+getHashMap $last_login_reward0
+getHashMap $last_login_reward1
+getHashMap $last_login_reward2
+
+getList "$user_db:wizards"
+getList "$user_db:stone_get_flag"
+#LoadExtraArm
+getList "$user_db:extra_arm "
+
+#LoadSimpleGuanScore
+getSSet $user_db:score
+#PurchaseManager Load
+getSet "$user_db:purchases"
+$redis_user SMEMBERS "$user_db:purchase:*" | xargs -J % getHashMap % 
+#friends
+getSet "$user_db:friends"
+$redis_user keys "$user_db:friend:*" | xargs -J % getHashMap % 
+#activities
+getSet "$user_db:Activities"
+#quest
+getSet "$user_db:accepted_quests"
+$redis_user keys "$user_db:accepted_quest:*" | xargs -J % getHashMap % 
+getSet "$user_db:finished_quests"
+getSet "$user_db:unrewardquests"
+getSet "$user_db:refresh_quests"
+getSet "$user_db:guanqia_quests"
+getSet "$user_db:fight_quest"
+#arm
+getSet "$user_db:arms"
+$redis_user keys "$user_db:arm:*" | xargs -J % getHashMap % 
+getSet "$user_db:new_arm"
+getList "$user_db:allarm"
+getList "$user_db:formation"
+#hero
+getSet "$user_db:heros"
+$redis_user keys "$user_db:hero:*" | xargs -J % getHashMap % 
+getSet "$user_db:new_hero"
+getList "$user_db:allhero"
+#unreward
+getSet "$user_db:_unrewards"
+$redis_user keys "$user_db:_unreward:*" | xargs -J % getHashMap % 
+#boss
+$redis_user keys "$user_db:bossinfo:*" | xargs -J % getHashMap % 
+
+

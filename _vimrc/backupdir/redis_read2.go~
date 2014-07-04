@@ -1,0 +1,63 @@
+package main
+
+import (
+    "bytes"
+    "fmt"
+    "github.com/garyburd/redigo/redis"
+    "math/rand"
+    "os"
+    "time"
+)
+
+func randInt(min int, max int) int {
+    rand.Seed(time.Now().UTC().UnixNano())
+    return min + rand.Intn(max-min)
+}
+func randomString(l int) string {
+    var result bytes.Buffer
+    var temp string
+    for i := 0; i < l; {
+        if string(randInt(65, 90)) != temp {
+            temp = string(randInt(65, 90))
+            result.WriteString(temp)
+            i++
+        }
+    }
+    return result.String()
+}
+func main() {
+    rand.Seed(time.Now().UTC().UnixNano())
+    pool := &redis.Pool{
+        MaxIdle:     3,
+        IdleTimeout: 240 * time.Second,
+        Dial: func() (redis.Conn, error) {
+            c, err := redis.Dial("tcp", "127.0.0.1:6379")
+            if err != nil {
+                fmt.Println("Failed connect redis", err)
+                os.Exit(-1)
+            }
+            return c, err
+        },
+    }
+    t1 := time.Now().UnixNano()
+    for j := 0; j < 10000; j++ {
+        str := randomString(16)
+        _, err := pool.Get().Do("HGET", fmt.Sprintf("tmp:%d", str[0]), str)
+        if err != nil {
+            fmt.Println(err)
+        }
+    }
+    t2 := time.Now().UnixNano()
+    t := (t2 - t1) / 10000
+    fmt.Println("randstring read mean time :", t)
+    //t3:=time.Now().UnixNano()
+    //for j := 0; j < 10000; j++ {
+    //_, err := pool.Get().Do("GET", "VJGMWUIIIPPLUMYI")
+    //if err != nil {
+    //fmt.Println(err)
+    //}
+    //}
+    //t4:=time.Now().UnixNano()
+    //t:=(t4-t3)/10000
+    //fmt.Println("somestring read mean time :",t);
+}

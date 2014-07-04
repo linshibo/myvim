@@ -1,0 +1,31 @@
+package bufferManager
+
+import (
+    "fmt"
+)
+
+type BufferManager struct {
+    queue chan []byte
+}
+
+func NewBufferManager() *BufferManager{
+    return &BufferManager {
+        queue:make(chan []byte, 1024), 
+    }
+}
+
+func (s *BufferManager) GetBuffer() []byte {
+    for {
+        select {
+        case data := <- s.queue:
+            return data
+        default:
+            fmt.Println("new buffer")
+            s.queue <- make([]byte, 1024)
+        }
+    }
+}
+
+func (s *BufferManager) RecycleBuffer(buf []byte) {
+    s.queue <- buf
+}

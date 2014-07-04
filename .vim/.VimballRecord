@@ -1,3 +1,0 @@
-supertab.vmb: call delete('/home/francisco/.vim/doc/supertab.txt')|call delete('/home/francisco/.vim/plugin/supertab.vim')
-checksyntax.vba: call delete('/home/francisco/.vim/doc/checksyntax.txt')|call delete('/home/francisco/.vim/plugin/checksyntax.vim')|call delete('/home/francisco/.vim/autoload/checksyntax.vim')
-rainbow_parenthsis-4.0.vba: call delete('/home/francisco/.vim/autoload/rainbow_parenthsis.vim')|call delete('/home/francisco/.vim/doc/rainbow_parenthsis.txt')|call delete('/home/francisco/.vim/plugin/rainbow_parenthsis.vim')|call delete('/home/francisco/.vim/rainbow_parenthsis_options.vim')

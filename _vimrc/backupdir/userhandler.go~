@@ -1,0 +1,110 @@
+package gameserver
+
+import (
+	"sanguo/base/log"
+	"sanguo/base/packet"
+	"sanguo/db"
+	"strconv"
+	"time"
+	"encoding/base64"
+	"compress/zlib"
+	"io/ioutil"
+	"bytes"
+)
+
+/***************** Handle msg from client **************************/
+func UserRequestProxy(sess *Session, cmd []byte) bool {
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+	reader := packet.Reader(cmd)
+	op, err := reader.ReadU16()
+	if err != nil {
+		log.Error("Can't read the opcode") //something unkown happen
+		return false
+	}
+	if op == 0 {
+		// op is zero mean heartbeat
+		return true
+	}
+	
+	if op != 1 && op != 2 && (op&0xf000) == 0 {
+		if sess.user.sess == nil {
+			sess.user.Error("The user is not login")
+			return false
+		}
+	}
+	
+	handle := CmdHandler[op] // select handle function base on opcode
+	log.Debug("The CmdHandler[] is ", CmdHandler[op], "and opcode is ", op)
+	if handle == nil {
+		log.Error("There is no handle function of opcode ", op)
+		return false
+	}
+
+	flag, err := reader.ReadU16()
+	if err != nil {
+		log.Error("Cant read the flag of meaasge head")
+		return false
+	}
+	
+	recv := reader.Data[reader.Pos:]
+	
+	log.Debug("flag and recv is",flag,string(recv),recv )
+	
+	if flag != 0 {
+		if flag & 0x1 != 0{
+			b := bytes.NewBuffer( recv )	
+			r,err := zlib.NewReader(b)
+			if err != nil {
+				log.Error("Failed Zlib",err)
+				return false
+			}
+			
+			dd,err := ioutil.ReadAll(r)
+			if err != nil {
+				log.Error("Failed ReadAll",err)
+				return false			
+			}
+			
+			recv = dd
+			//log.Debug("After zlib recv is",recv)
+		}
+		
+		if flag & 0x2 != 0 {
+			n := base64.StdEncoding.DecodedLen(len(recv))
+			msg := make([]byte, n)
+	
+			max, err := base64.StdEncoding.Decode(msg, recv)
+			if err != nil {
+				log.Error("Failed Decode base64",err)
+				return false
+			}
+			log.Debug("The decode is",string(msg))	
+			
+			recv = msg[:max]	
+			//log.Debug("After decode recv is",string(recv))
+		}
+	}
+	
+
+
+	start_time := time.Now().UnixNano()
+	ret := handle(sess, recv) // pass reader as pointer
+	end_time := time.Now().UnixNano()
+
+	dbconn.Do("LPUSH", "opcode:"+strconv.Itoa(int(op)), end_time-start_time)
+
+	return ret
+}
+
+/******************* handle msg from client send by server ***************************/
+func IPCRequestProxy(sess *Session, p *IPCMsg) bool {
+	//	defer PrintPanicStack()
+	handle := IPCHandler[uint16(p.Op)]
+	log.Debug("The CmdHandler[] is ", IPCHandler[uint16(p.Op)], "and opcode is ", p.Op)
+	if handle == nil {
+		log.Error("There is no handle function of IPC opcode ", p.Op, sess.user.uid)
+		return false
+	}
+	return handle(sess, p)
+}

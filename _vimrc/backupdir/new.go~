@@ -1,0 +1,116 @@
+package gameserver
+
+import (
+    "encoding/json"
+    "github.com/garyburd/redigo/redis"
+    //"sanguo/base/log"
+    "sanguo/base/packet"
+    "sanguo/db"
+)
+
+//opcode 41
+func HaveSeenNewArm(sess *Session, reader *packet.Packet) bool {
+    dbconn := db.Pool.Get()
+    defer dbconn.Close()
+    sess.Debug("The data recv is ", string(reader.Data[:]), sess.user.uid)
+
+    type Data struct {
+        Star [4]int
+    }
+
+    var msg Data
+    err := json.Unmarshal(reader.Data[reader.Pos:], &msg)
+    if err != nil {
+        sess.Error("Can't decode json message,", err, sess.user.uid)
+        return false
+    }
+    sess.Debug("A data from client", msg, sess.user.uid)
+
+    if msg.Star[0] == 1 && msg.Star[1] == 1 && msg.Star[2] == 1 && msg.Star[3] == 1 {
+        _, err := dbconn.Do("DEL", sess.user.uid+":new_arm")
+        if err != nil {
+            sess.Error("Failed delete new_arm", sess.user.uid)
+            return false
+        }
+    } else {
+        reply, err := redis.Values(dbconn.Do("SMEMBERS", sess.user.uid+":new_arm"))
+        if err != nil {
+            sess.Error("Failed get new_arm", sess.user.uid)
+            return false
+        }
+        for _, v := range reply {
+            id, err := redis.Int(v, nil)
+            if err != nil {
+                sess.Error("Failed convert armid to int", sess.user.uid)
+                return false
+            }
+            if id == 0 {
+                _, err = dbconn.Do("SREM", sess.user.uid+":new_arm", id)
+                if err != nil {
+                    sess.Error("Failed delete armid which have checked", sess.user.uid)
+                    return false
+                }
+            } else if msg.Star[ArmInfo[id].starsNeed-1] == 1 {
+                _, err = dbconn.Do("SREM", sess.user.uid+":new_arm", id)
+                if err != nil {
+                    sess.Error("Failed delete armid which have checked", sess.user.uid)
+                    return false
+                }
+            }
+        }
+    }
+
+    return true
+}
+
+//opcode 42
+func HaveSeenNewHero(sess *Session, reader *packet.Packet) bool {
+    dbconn := db.Pool.Get()
+    defer dbconn.Close()
+    _, err := dbconn.Do("DEL", sess.user.uid+":new_hero")
+    if err != nil {
+        sess.Error("Failed delete new_arm", sess.user.uid)
+        return false
+    }
+    return true
+}
+
+func AddToNewArm(sess *Session, id int) error {
+    dbconn := db.Pool.Get()
+    defer dbconn.Close()
+    _, err := dbconn.Do("SADD", sess.user.uid+":new_arm", id)
+    if err != nil {
+        return err
+    }
+    return nil
+}
+
+func DelFromNewArm(sess *Session, id int) error {
+    dbconn := db.Pool.Get()
+    defer dbconn.Close()
+    _, err := dbconn.Do("SREM", sess.user.uid+":new_arm", id)
+    if err != nil {
+        return err
+    }
+    return nil
+}
+
+func AddToNewHero(sess *Session, id int) error {
+    dbconn := db.Pool.Get()
+    defer dbconn.Close()
+    _, err := dbconn.Do("SADD", sess.user.uid+":new_hero", id)
+    if err != nil {
+        return err
+    }
+    return nil
+}
+
+func DelFromNewHero(sess *Session, id int) error {
+    dbconn := db.Pool.Get()
+    defer dbconn.Close()
+    _, err := dbconn.Do("SREM", sess.user.uid+":new_hero", id)
+    if err != nil {
+        return err
+    }
+    return nil
+}

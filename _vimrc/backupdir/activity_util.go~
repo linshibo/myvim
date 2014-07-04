@@ -1,0 +1,365 @@
+package gameserver
+
+import (
+	"github.com/garyburd/redigo/redis"
+	"sanguo/base/util"
+	"sanguo/db"
+	. "sanguo/systemdata"
+)
+
+/*func GetRandomHeroOfGivenQualityInActivity(sess *Session, quality int) int {
+	index := util.GetRandomNum(HeroQualityCount[quality])
+	heroid := HeroIndex[HeroQualityBegin[quality]+index%HeroQualityCount[quality]]
+	return heroid
+}
+
+func GetRandomArmOfGivenQualityInActivity(sess *Session, quality int) int {
+	star := GetRandomArmStar()
+	index := util.GetRandomNum(ArmStarAndQualityCount[star][quality])
+	armid := ArmIndex[ArmStarAndQualityBegin[star][quality]+index%ArmStarAndQualityCount[star][quality]]
+	return armid
+}
+
+func GetRandomArmOfGivenStarInActivity(sess *Session, star int) int {
+	quality := UnchargePlayerGetRandomArmQuality(sess)
+	index := util.GetRandomNum(ArmStarAndQualityCount[star][quality])
+	armid := ArmIndex[ArmStarAndQualityBegin[star][quality]+index%ArmStarAndQualityCount[star][quality]]
+	return armid
+}*/
+
+/********************/
+
+type ActivityReward struct {
+	Reward RewardBack
+	Score  int
+}
+
+type _ActivityManager struct {
+	activity            map[int]bool
+	today_refresh_count int
+	user                *User
+}
+
+func NewActivityManager() *_ActivityManager {
+	var a _ActivityManager
+	a.activity = make(map[int]bool)
+	return &a
+}
+
+func (this *_ActivityManager) SetUser(u *User) {
+	this.user = u
+}
+
+func (this *_ActivityManager) Load() (err error) {
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+
+	reply, err := redis.Values(dbconn.Do("SMEMBERS", this.user.GetUidUsedInDB()+":Activities"))
+	if err != nil {
+		this.user.Error("Failed SMEMBER", err)
+		return err
+	}
+
+	for i := 0; i < len(reply); i++ {
+		aid, err := redis.Int(reply[i], nil)
+		if err != nil {
+			this.user.Error("Failed convert int", err)
+			return err
+		}
+		this.activity[aid] = true
+	}
+
+	this.today_refresh_count, err = redis.Int(dbconn.Do("HGET", this.user.GetUidUsedInDB(), "activity_count"))
+	if err != nil {
+		this.user.Error("Failed HGET", err)
+		return err
+	}
+
+	return nil
+}
+
+func (this *_ActivityManager) refresh() (err error) {
+	for aid, _ := range this.activity {
+		delete(this.activity, aid)
+	}
+
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+
+	_, err = dbconn.Do("DEL", this.user.GetUidUsedInDB()+":Activities")
+	if err != nil {
+		return err
+	}
+
+	aids := this.getRandomActivity()
+	for _, aid := range aids {
+		err = this.AddActivity(aid)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (this *_ActivityManager) Refresh() (err error) {
+	err = this.refresh()
+	if err != nil {
+		return err
+	}
+	err = this.addRefreshCount()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (this *_ActivityManager) addRefreshCount() (err error) {
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+
+	this.today_refresh_count++
+	_, err = dbconn.Do("HSET", this.user.GetUidUsedInDB(), "activity_count", this.today_refresh_count)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (this *_ActivityManager) GetRefreshCount() int {
+	return this.today_refresh_count
+}
+
+func (this *_ActivityManager) getRandomActivity() (aids []int) {
+	aids = make([]int, 4)
+
+	level := this.user.GetLevel()
+	allaids := make([]int, len(ActivityByLevel[level]))
+	for i := 0; i < len(allaids); i++ {
+		allaids[i] = ActivityByLevel[level][i]
+	}
+
+	this.user.Debug("allaids is", allaids)
+	num := len(allaids)
+
+	for i := 0; i < 4; i++ {
+		index := util.GetRandomNum(num)
+		aids[i] = allaids[index]
+		allaids[index] = allaids[num-1]
+		num--
+	}
+	this.user.Debug("aids is", aids)
+	return aids
+}
+
+func (this *_ActivityManager) DelActivity(aid int) (err error) {
+	delete(this.activity, aid)
+
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+
+	_, err = dbconn.Do("SREM", this.user.GetUidUsedInDB()+":Activities", aid)
+
+	return err
+}
+
+func (this *_ActivityManager) AddActivity(aid int) (err error) {
+	this.activity[aid] = true
+
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+
+	_, err = dbconn.Do("SADD", this.user.GetUidUsedInDB()+":Activities", aid)
+
+	return err
+}
+
+func (this *_ActivityManager) CanStart(aid int) (flag bool) {
+	return this.activity[aid]
+}
+
+func (this *_ActivityManager) GetOwnActivity() []int {
+	aids := make([]int, len(this.activity))
+	index := 0
+	for aid, _ := range this.activity {
+		aids[index] = aid
+		index++
+	}
+	return aids
+}
+
+func (this *_ActivityManager) InitActivityInTheFirstLogin() (err error) {
+	err = this.refresh()
+	if err != nil {
+		return err
+	}
+	this.today_refresh_count = 0
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+
+	_, err = dbconn.Do("HSET", this.user.GetUidUsedInDB(), "activity_count", this.today_refresh_count)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (this *_ActivityManager) GetActivityReward(aid int, score int) ([]ActivityReward, error) {
+	var back []ActivityReward
+
+	for _, reward := range ActivityGuanqiaInfo[ActivityInfo[aid].ContentGuanqiaId].ScoreReward {
+		if score < reward.Score {
+			continue
+		}
+
+		tmp_reward, err := this.user.ProcessReward(reward.RewardType, reward.Value)
+		if err != nil {
+			this.user.Error("Failed ProcessReward", err, reward.RewardType, reward.Value)
+			return nil, err
+		}
+
+		back = append(back, ActivityReward{Reward: tmp_reward, Score: reward.Score})
+	}
+
+	return back, nil
+}
+
+func (this *_ActivityManager) ActivityFightVerify(aid int, msg *FightDataVerify) bool {
+	//TODO login_arm
+	if msg.Login_arm != 0 {
+		//if msg.Login_arm != sess.user.login_arm {
+		//	this.user.Error("The login_arm is not match", msg.Login_arm, sess.user.last_login_arm)
+		//	return false
+		//}
+	}
+
+	ret := true
+	/*************************Verify hero id*************************************************/
+	for {
+		heros_msg := msg.Heros
+		for _, hero_id_level := range heros_msg {
+			if !this.user.Hero.Verify(hero_id_level) {
+				this.user.Error("Failed verify hero info")
+				ret = false
+				break
+			}
+		}
+		if !ret {
+			break
+		}
+
+		arms_msg := msg.Arms
+		for _, arm_id_level := range arms_msg {
+			if !this.user.Arm.Verify(arm_id_level) {
+				this.user.Error("Failed verify arm info")
+				ret = false
+				break
+			}
+		}
+
+		if !ret {
+			break
+		}
+
+		heros_random := msg.Random_heros
+
+        for _, hero := range heros_random {
+			if hero.Damage != HeroInfo[hero.Id].Damage {
+				this.user.Debug("the damage of hero is not match with database of user:", this.user.uid)
+				ret = false
+				break
+			}
+			if hero.DamageRatio != int(HeroInfo[hero.Id].DamageRatio*100) {
+				this.user.Debug("the damageRatio of hero is not match with database of user:", this.user.uid)
+				ret = false
+				break
+			}
+		}
+		if !ret {
+			break
+		}
+
+		arms_random := msg.Random_arms
+		for _, arm := range arms_random {
+			if arm.Damage != ArmInfo[arm.Id].Damage {
+				this.user.Error("the damage of arm is not match with database of user:")
+				ret = false
+				break
+			}
+			if arm.Hp != ArmInfo[arm.Id].Hp {
+				this.user.Error("the hp of arm is not match with database of user:")
+				ret = false
+				break
+			}
+			if arm.DamageRatio != int(ArmInfo[arm.Id].DamageRatio*100) {
+				this.user.Error("the damageRatio of arm is not match with database of user:recv and server", arm.Id, arm.DamageRatio, ArmInfo[arm.Id].DamageRatio)
+				ret = false
+				break
+			}
+		}
+		if !ret {
+			break
+		}
+
+		var enemynum int
+		enemyseq := make(map[int][]int)
+		for _, danboId := range ActivityGuanqiaInfo[ActivityInfo[aid].ContentGuanqiaId].AllDanboIds {
+			enemynum += DanboInfo[danboId].AllUnitCount
+			enemyseq[danboId] = DanboInfo[danboId].AllUnitSeq
+		}
+		enemynum_recv := msg.Enemy_num
+
+		if enemynum != enemynum_recv {
+			this.user.Error("The enemy num is not match")
+			ret = false
+			break
+		}
+
+		danbos := msg.Danbo
+		for _, danbo := range danbos {
+			danbo_seq := enemyseq[danbo.Id]
+			if len(danbo_seq) != len(danbo.Seq) {
+				this.user.Error("The sequence num is not match.", "recieved:", len(danbo.Seq), "server:", len(danbo_seq))
+				ret = false
+				break
+			}
+			for i := 0; i < len(danbo_seq); i++ {
+				if danbo.Seq[i] != danbo_seq[i] {
+					this.user.Error("The sequence content is not match")
+					ret = false
+					break
+				}
+			}
+		}
+
+		if !ret {
+			break
+		}
+
+		type enemy_rand struct {
+			id     int
+			damage int
+			hp     int
+		}
+
+		enemys_random := msg.Random_enemy_arms
+
+		for _, enemy := range enemys_random {
+
+			if enemy.Damage != EnemyUnit[enemy.Id].Damage {
+				this.user.Error("the damage of arm is not match with database of user:", enemy.Damage, EnemyUnit[enemy.Id].Damage)
+				ret = false
+				break
+			}
+
+			if enemy.Hp != EnemyUnit[enemy.Id].Hp {
+				this.user.Error("the hp of arm is not match with database of user:")
+				ret = false
+				break
+			}
+		}
+		break
+
+	}
+	return ret
+}

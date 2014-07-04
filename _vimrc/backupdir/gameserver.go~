@@ -1,0 +1,225 @@
+package gameserver
+
+import (
+    //"GameManager/router"
+    "bytes"
+    "compress/zlib"
+    "encoding/base64"
+    "encoding/binary"
+    "encoding/json"
+    "fmt"
+    "io"
+    "io/ioutil"
+    "net"
+    "sanguo/base/log"
+    "sanguo/base/packet"
+    "sync"
+    "time"
+)
+
+var UpdateCallback func(s *GameServer);
+
+type GameServer struct {
+    conn     net.Conn
+    recvChan chan []byte
+    lock     sync.Mutex
+    host    string
+    Name    string
+}
+
+func (s *GameServer) Close() {
+    if s.conn.Close() != nil {
+        close(s.recvChan)
+    }
+
+}
+
+func (gsHandler *GameServer)DoRequest(back interface{}, op uint16) ([]byte, bool) {
+    defer func() {
+        if x := recover(); x != nil {
+            log.Warn("Panic, the panic is", x)
+        }
+    }()
+    gsHandler.lock.Lock()
+    defer gsHandler.lock.Unlock()
+
+    back_json, err := json.Marshal(back)
+    if err != nil {
+        log.Error("Can't decode json message ", err)
+        return nil, false
+    }
+    writer := packet.Writer()
+    // length in the head is only the length of data
+    writer.WriteU16(uint16(len(back_json)))
+    writer.WriteU16(uint16(op))
+    writer.WriteU16(uint16(0))
+    writer.WriteRawBytes(back_json)
+    _, err = gsHandler.conn.Write(writer.Data)
+    if err != nil {
+        gsHandler.Close()
+        log.Error("Socket write err ", err)
+        return nil, false
+    }
+
+    select {
+    case buf := <-gsHandler.recvChan:
+        reader := packet.Reader(buf)
+        cmd, err := reader.ReadU16()
+        if err != nil {
+            log.Error("Can't read the opcode") //something unkown happen
+            return nil, false
+        }
+        flag, err := reader.ReadU16()
+        if err != nil {
+            log.Error("Cant read the flag of meaasge head")
+            return nil, false
+        }
+        recv := reader.Data[reader.Pos:]
+        log.Debug("recv", cmd, string(reader.Data[reader.Pos:]))
+        if flag != 0 {
+            if flag&0x1 != 0 {
+                b := bytes.NewBuffer(recv)
+                r, err := zlib.NewReader(b)
+                if err != nil {
+                    log.Error("Failed Zlib", err)
+                    return nil, false
+                }
+
+                dd, err := ioutil.ReadAll(r)
+                if err != nil {
+                    log.Error("Failed ReadAll", err)
+                    return nil, false
+                }
+                recv = dd
+                //log.Debug("After zlib recv is",recv)
+            }
+            if flag&0x2 != 0 {
+                n := base64.StdEncoding.DecodedLen(len(recv))
+                msg := make([]byte, n)
+                max, err := base64.StdEncoding.Decode(msg, recv)
+                if err != nil {
+                    log.Error("Failed Decode base64", err)
+                    return nil, false
+                }
+                log.Debug("The decode is", string(msg))
+                recv = msg[:max]
+                //log.Debug("After decode recv is",string(recv))
+            }
+        }
+        return recv, true
+    case <-time.After(2 * time.Second):
+        log.Debug("socket time out")
+        return nil, false
+    }
+}
+
+func (h *GameServer )reconnect() {
+    ticker := time.NewTicker(time.Second * 2)
+    for _ = range ticker.C {
+        gs := Start(h.Name, h.host)
+        if gs != nil {
+            UpdateCallback(gs)
+            break
+        }
+    }
+}
+
+func (h *GameServer )connectKeepAlive(t int) {
+    defer func() {
+        if x := recover(); x != nil {
+            log.Warn("Panic, the panic is", x)
+        }
+    }()
+    ticker := time.NewTicker(time.Second * time.Duration(t))
+    data := make([]byte, 6)
+    for _ = range ticker.C {
+        _, err := h.conn.Write(data)
+        if err != nil {
+            log.Debug(err)
+            h.Close()
+            break
+        }
+    }
+    h.reconnect()
+}
+
+func (gsHandler *GameServer )registerToGameHub() {
+    back := make(map[string]interface{})
+    back["id"] = int(10000)
+    back_json, err := json.Marshal(back)
+    if err != nil {
+        log.Error("Can't decode json message", err)
+        return
+    }
+    writer := packet.Writer()
+    writer.WriteU16(uint16(len(back_json)))
+    writer.WriteU16(uint16(1))
+    writer.WriteU16(uint16(0))
+    writer.WriteRawBytes(back_json)
+    _, err = gsHandler.conn.Write(writer.Data)
+    if err != nil {
+        log.Error(err)
+    }
+    <-gsHandler.recvChan
+}
+
+func Start(host , name string) *GameServer {
+    var gsHandler = new(GameServer)
+    gsHandler.lock.Lock()
+    defer func() {
+        gsHandler.lock.Unlock()
+        if x := recover(); x != nil {
+            log.Warn("Panic, the panic is", x)
+        }
+    }()
+
+    gsHandler.host=host
+    gsHandler.Name=name
+    log.Debug("Start dial to ", host)
+
+    var err error
+
+    gsHandler.recvChan = make(chan []byte, 10)
+    gsHandler.conn, err = net.Dial("tcp", host)
+    if err != nil {
+        fmt.Println("fail to connect gameserver:", err.Error())
+        return nil
+    }
+
+    go func() {
+        defer func() {
+            if x := recover(); x != nil {
+                log.Warn("Panic, the panic is", x)
+            }
+            gsHandler.Close()
+        }()
+        header := make([]byte, 2)
+        for {
+            n, err := io.ReadFull(gsHandler.conn, header)
+            if n == 0 && err == io.EOF {
+                //Opposite socket is closed
+                log.Error("Socket closed")
+                break
+            } else if err != nil {
+                //Sth wrong with this socket
+                log.Error("Socket wrong", err)
+                break
+            }
+            size := binary.LittleEndian.Uint16(header) + 4
+            buf := make([]byte, size)
+            n, err = io.ReadFull(gsHandler.conn, buf)
+            if n == 0 && err == io.EOF {
+                log.Debug("Socket close", err)
+                break
+            } else if err != nil {
+                log.Error("Socket wrong", err)
+                break
+            }
+            gsHandler.recvChan <- buf
+        }
+    }()
+    go gsHandler.connectKeepAlive(10)
+    gsHandler.registerToGameHub()
+    log.Debug("succ to connect gameserver")
+    return gsHandler
+}

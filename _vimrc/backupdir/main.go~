@@ -1,0 +1,90 @@
+package main
+
+import (
+    "GameManager/config"
+    "GameManager/gameserver"
+    "GameManager/router"
+    //"encoding/json"
+    "fmt"
+    "github.com/go-martini/martini"
+    //"github.com/martini-contrib/binding"
+    "github.com/martini-contrib/render"
+    "github.com/martini-contrib/sessionauth"
+    "github.com/martini-contrib/sessions"
+    //"io/ioutil"
+    "GameManager/user"
+    "net/http"
+    "os"
+    "sanguo/base/log"
+    "time"
+)
+
+func autoChangeLogFile() {
+    day := time.Now()
+    logname := fmt.Sprintf("log-%04d%02d%02d", day.Year(), day.Month(), day.Day())
+    filew := log.NewFileWriter(logname, true)
+    filew.StartLogger()
+    nextDay := time.Now().AddDate(0, 0, 1)
+    nextDay = time.Date(nextDay.Year(), nextDay.Month(), nextDay.Day(), 0, 0, 0, 0, time.Local)
+    select {
+    case <-time.After(nextDay.Sub(time.Now())):
+        go autoChangeLogFile()
+    }
+}
+
+func main() {
+    if !config.Load("bench.conf") {
+        fmt.Println("Failed load config file bench.conf")
+        return
+    }
+    //初始化log
+    log.SetLevel(config.Config.LogLevel)
+
+    go autoChangeLogFile()
+
+    gameserver.UpdateCallback=router.UpdateServer
+
+    //if !gameserver.Start() {
+        //fmt.Println("Failed connect gameserver")
+    //}
+
+    //router.RouterInit()
+
+    fmt.Println("Server Start")
+    log.Debug("Server Start")
+    go func() {
+        //start FileServer
+        _, err := os.Stat("./Crash")
+        if err != nil {
+            err = os.Mkdir("Crash", os.ModePerm)
+            if err != nil {
+                fmt.Println(err)
+            }
+        }
+        err = http.ListenAndServe(config.Config.FileAddr, http.FileServer(http.Dir("./Crash")))
+        if err != nil {
+            fmt.Println("File Server Start Fail", err)
+            return
+        }
+    }()
+    store := sessions.NewCookieStore([]byte("secret123"))
+    m := martini.Classic()
+    router.RouterInit(m)
+
+    m.Use(render.Renderer())
+    m.Use(martini.Static("./Crash"))
+    // Default our store to use Session cookies, so we don't leave logged in
+    // users roaming around
+    store.Options(sessions.Options{
+        MaxAge: 0,
+    })
+    m.Use(sessions.Sessions("my_session", store))
+    m.Use(sessionauth.SessionUser(user.GenerateAnonymousUser))
+    sessionauth.RedirectUrl = "/api/login"
+    sessionauth.RedirectParam = "new-next"
+    err := http.ListenAndServe(config.Config.BindAddr, m)
+    if err != nil {
+        fmt.Println("Http Server Start Fail", err)
+        return
+    }
+}

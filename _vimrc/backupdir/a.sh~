@@ -1,0 +1,2 @@
+#!/bin/bash
+head -n 10 /dev/urandom |strings -n 16 | xargs redis-cli set 100

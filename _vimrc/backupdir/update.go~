@@ -1,0 +1,206 @@
+package gameserver
+
+import (
+	"encoding/json"
+	"errors"
+	//"sanguo/base/packet"
+	//	. "sanguo/base/util"
+	. "sanguo/systemdata"
+)
+
+//opcode 9
+func UserCardUpdateByStone(sess *Session, reader []byte) bool {
+	type DataUpdate struct {
+		Id      int
+		Species int
+	}
+
+	var msg DataUpdate
+	err := json.Unmarshal(reader, &msg)
+	if err != nil {
+		sess.Error("Can't decode json message,", err, sess.user.uid)
+		return false
+	}
+	sess.Debug("A data from client", msg, sess.user.uid)
+
+	type DataBack struct {
+		Ret     bool
+		Id      int
+		Level   int
+		Species int
+		Prob    int
+	}
+
+	var back DataBack
+
+	back.Species = msg.Species
+
+	if msg.Species == RewardType_Arm {
+		flag := sess.user.Arm.IsOwned(msg.Id)
+		if !flag {
+			sess.Error("The update arm is not owned by the user")
+			return false
+		}
+
+		flag, back.Id, err = ArmUpdateByStone(sess, msg.Id)
+		if err != nil {
+			sess.Error("Failed ArmUpdateByStone", err, sess.user.uid)
+			return false
+		}
+
+		back.Ret = flag
+		back.Level = sess.user.Arm.GetArmLevel(back.Id)
+		back.Prob = sess.user.Arm.GetArmLevelUpProb(back.Id)
+
+		err = sess.user.quest.InspectQuest(QuestType_UpdateArm, 0, 0)
+		if err != nil {
+			sess.Error("Failed QuestType_UpdateArm", err)
+			return false
+		}
+	} else if msg.Species == RewardType_Hero {
+		flag := sess.user.Hero.IsOwned(msg.Id)
+		if !flag {
+			sess.Error("The update arm is not owned by the user")
+			return false
+		}
+
+		flag, back.Id, err = HeroUpdateByStone(sess, msg.Id)
+		if err != nil {
+			sess.Error("Failed HeroUpdateByStone", err, sess.user.uid)
+			return false
+		}
+
+		back.Ret = flag
+		back.Level = sess.user.Hero.GetHeroLevel(back.Id)
+		back.Prob = sess.user.Hero.GetHeroLevelUpProb(back.Id)
+	} else {
+		sess.Error("Wrong specise", sess.user.uid)
+		return false
+	}
+
+	return sess.SendReplyBack(back, 9)
+}
+
+func ArmUpdateByStone(sess *Session, id int) (bool, int, error) {
+	var t, value int
+	//if sess.user.Arm.CanArmEvolve(id) {
+	//	t = RewardType_ArmCurr
+	//	value = QualityCoef[ArmInfo[id].QualityLevel] * ArmInfo[id].StarsNeed * 100
+	//} else {
+	//	t = RewardType_Gold
+	//	value = QualityCoef[ArmInfo[id].QualityLevel] * ArmInfo[id].StarsNeed * (100 + (sess.user.Arm.GetArmLevel(id)-1)*25)
+	//}
+
+	t, value = sess.user.Arm.GetArmUpdatePrice(id)
+
+	if !sess.user.VerifyWealth(t, value) {
+		sess.Debug("Not enough wealth", value)
+		return false, id, errors.New("There is no enough stone for arm update")
+	}
+
+	iid, err := UpdateArm(sess, id, 1)
+	if err != nil {
+		return false, id, err
+	}
+
+	if iid == -1 {
+		return false, id, nil
+	}
+
+	err = sess.user.CostWealth(t, value)
+	if err != nil {
+		return false, id, err
+	}
+
+	return true, iid, nil
+}
+
+func HeroUpdateByStone(sess *Session, id int) (bool, int, error) {
+	var t, value int
+	//if sess.user.Hero.CanHeroEvolve(id) {
+	//	t = RewardType_HeroCurr
+	//	value = QualityCoef[HeroInfo[id].QualityLevel] * HeroInfo[id].SkillRoundCount * 100
+	//} else {
+	//	t = RewardType_Gold
+	//	value = QualityCoef[HeroInfo[id].QualityLevel] * HeroInfo[id].SkillRoundCount * (100 + (sess.user.Hero.GetHeroLevel(id)-1)*25)
+	//	sess.user.Trace("InHeroLevelUp", HeroInfo[id].StarsNeed, sess.user.Hero.GetHeroLevel(id), value)
+	//}
+
+	t, value = sess.user.Hero.GetHeroUpdatePrice(id)
+
+	if !sess.user.VerifyWealth(t, value) {
+		sess.Debug("Not enough wealth and need is ", value)
+		return false, id, errors.New("There is no enough stone for arm update")
+	}
+
+	err := sess.user.CostWealth(t, value)
+	if err != nil {
+		return false, id, err
+	}
+
+	iid, err := UpdateHero(sess, id, 1)
+	if err != nil {
+		return false, id, err
+	}
+
+	if iid == -1 {
+		return false, id, nil
+	}
+
+	return true, iid, nil
+}
+
+//TODO interface need clear
+// -1 mean prob not happen
+func UpdateArm(sess *Session, id int, up_num int) (iid int, err error) {
+	if sess.user.Arm.GetArmLevel(id) < MaxCardLevel {
+		flag, err := sess.user.Arm.UpdateArmLevel(id)
+		if err != nil {
+			return -1, err
+		}
+
+		if flag {
+			iid = id
+		} else {
+			iid = -1
+		}
+	} else {
+		//Evolve
+		//TODO
+
+		iid, err = sess.user.Arm.EvolveArm(id)
+		if err != nil {
+			return -1, err
+		}
+	}
+	return iid, nil
+}
+
+// iid-> -1 mean not happen
+func UpdateHero(sess *Session, id int, up_num int) (iid int, err error) {
+	if sess.user.Hero.GetHeroLevel(id) < MaxCardLevel {
+		flag, err := sess.user.Hero.UpdateHeroLevel(id)
+		if err != nil {
+			return -1, err
+		}
+
+		if flag {
+			iid = id
+		} else {
+			iid = -1
+		}
+	} else {
+		//quality := HeroInfo[id].QualityLevel
+
+		//prob := CardEvolvePro[quality]
+		//if !IsProbabilityHappen(prob) {
+		//	return -1, nil
+		//}
+
+		iid, err = sess.user.Hero.Evolve(id)
+		if err != nil {
+			return -1, err
+		}
+	}
+	return iid, nil
+}

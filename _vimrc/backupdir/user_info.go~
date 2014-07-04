@@ -1,0 +1,433 @@
+package gameserver
+
+import (
+	"encoding/json"
+	//"sanguo/base/log"
+	//"sanguo/base/packet"
+	"github.com/garyburd/redigo/redis"
+	"sanguo/db"
+	. "sanguo/systemdata"
+)
+
+const (
+	ExistName = 1
+)
+
+var (
+	LevelHeroNeed = []int{0, 3, 7, 11, 14, 18, 21, 25, 28, 32, 35, 100000}
+)
+
+func UserChangeUserInfo(sess *Session, reader []byte) bool {
+	//sess.Debug("The data recv of UserRegister is ", string(reader.Data[:]))
+
+	type Data struct {
+		Name  string
+		Photo string
+	}
+
+	var msg Data
+	err := json.Unmarshal(reader, &msg)
+	if err != nil {
+		sess.Error("Can't decode json message, err = %v", err, sess.user.uid)
+		return false
+	}
+
+	back := make(map[string]interface{})
+
+	if msg.Name != "" {
+		flag, err := IsNameExist(msg.Name)
+		if err != nil {
+			sess.Error("Failed determine IsNameExist", err, sess.user.uid)
+			return false
+		}
+		if flag {
+			back["Ret"] = ExistName
+			return sess.SendReplyBack(back, 81)
+		}
+
+		err = ChangeName(sess, msg.Name)
+		if err != nil {
+			sess.Error("Failed ChangeName", err, sess.user.uid)
+			return false
+		}
+	}
+
+	if msg.Photo != "" {
+		err = ChangePhoto(sess, msg.Photo)
+		if err != nil {
+			sess.Error("Failed ChangePhoto", err, sess.user.uid)
+			return false
+		}
+	}
+
+	back["Ret"] = Success
+
+	return sess.SendReplyBack(back, 81)
+}
+
+func ChangeName(sess *Session, newname string) error {
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+
+	_, err := dbconn.Do("HSET", sess.user.GetUidUsedInDB(), "name", newname)
+	if err != nil {
+		sess.user.Error("Failed HSET", err)
+		return err
+	}
+
+	PlayerManager.ChangeName(sess.user.name, newname)
+	if err != nil {
+		sess.user.Error("Failed ChangeName", err)
+	}
+
+	sess.user.name = newname
+
+	err = sess.user.RegisterName(sess.user.name)
+	if err != nil {
+		sess.user.Error("Failed RegisterName", err)
+		return err
+	}
+
+	return nil
+}
+
+func ChangePhoto(sess *Session, p string) error {
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+	_, err := dbconn.Do("HSET", sess.user.GetUidUsedInDB(), "photo", p)
+	if err != nil {
+		return err
+	}
+
+	sess.user.photo = p
+
+	return nil
+}
+
+//op 91
+func UserReduceGold(sess *Session, reader []byte) bool {
+	//	sess.Debug("The data recv of UserReduceGold is ", string(reader.Data[:]))
+
+	type Data struct {
+		Num  int
+		Type int
+	}
+
+	var msg Data
+	err := json.Unmarshal(reader, &msg)
+	if err != nil {
+		sess.Error("Can't decode json message, err = %v", err, sess.user.uid)
+		return false
+	}
+
+	if msg.Type != RewardType_Stone {
+		sess.Error("Wrong Type")
+		return false
+	}
+
+	var id int
+	for i := 0; i < 10; i++ {
+		id = GetRandomArm()
+		if ArmInfo[id].StarsNeed == 4 {
+			continue
+		}
+		break
+	}
+
+	type DataBack struct {
+		Ret   int
+		Gold  int
+		Stone int
+		Id    int
+	}
+	var back DataBack
+
+	if !sess.user.VerifyWealth(RewardType_Stone, msg.Num) {
+		back.Gold = sess.user.gold
+		back.Stone = sess.user.stone
+		back.Ret = -1
+		back.Id = id
+	} else {
+		err = sess.user.CostWealth(RewardType_Stone, msg.Num)
+		if err != nil {
+			sess.Error("Failed ReduceGold", err)
+			return false
+		}
+		GM.GMDayLog(sess.user.uid, StatIDUseItemBeforeFight, msg.Num)
+
+		back.Gold = sess.user.gold
+		back.Stone = sess.user.stone
+		back.Ret = 0
+		back.Id = id
+	}
+	return sess.SendReplyBack(back, 91)
+}
+
+//op 92
+func UserReduceGold___(sess *Session, reader []byte) bool {
+	//	sess.Debug("The data recv of UserReduceGold__ is ", string(reader.Data[:]))
+
+	type Data struct {
+		Num  int
+		Type int
+	}
+
+	var msg Data
+	err := json.Unmarshal(reader, &msg)
+	if err != nil {
+		sess.Error("Can't decode json message, err = %v", err, sess.user.uid)
+		return false
+	}
+
+	if msg.Type != RewardType_Gold {
+		sess.Error("Wrong Type")
+		return false
+	}
+
+	type DataBack struct {
+		Ret   int
+		Gold  int
+		Stone int
+	}
+	var back DataBack
+
+	if !sess.user.VerifyWealth(RewardType_Gold, msg.Num) {
+		back.Gold = sess.user.gold
+		back.Stone = sess.user.stone
+		back.Ret = -1
+	} else {
+		err = sess.user.CostWealth(RewardType_Gold, msg.Num)
+		if err != nil {
+			sess.Error("Failed ReduceGold", err)
+			return false
+		}
+
+		back.Gold = sess.user.gold
+		back.Stone = sess.user.stone
+		back.Ret = 0
+	}
+
+	return sess.SendReplyBack(back, 92)
+}
+
+//opcode82
+func UnlockChapter(sess *Session, reader []byte) bool {
+	//sess.Debug("The data recv of UserReduceGold__ is ", string(reader.Data[:]))
+	type Data struct {
+		Chapter int
+		Start   int64
+	}
+	var msg Data
+
+	err := json.Unmarshal(reader, &msg)
+	if err != nil {
+		sess.Error("Can't decode json message, err = %v", err, sess.user.uid)
+		return false
+	}
+
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+
+	sess.user.lock_chapter = msg.Chapter
+	sess.user.lock_start_time = msg.Start
+	_, err = dbconn.Do("HMSET", sess.user.GetUidUsedInDB(), "lock_chapter", msg.Chapter, "lock_start_time", msg.Start)
+	if err != nil {
+		sess.Error("Failed HMSET uid lock_chapter and lock_begin_time", err)
+		return false
+	}
+
+	return true
+	//type DataBack struct {
+	//	Ret  int
+	//}
+	//var back DataBack
+	//back.Ret = 0
+
+	//return sess.SendReplyBack(back, 82)
+}
+
+//opcode102
+func UserDiaoChaPie(sess *Session, reader []byte) bool {
+	sess.user.ProcessReward(RewardType_Stone, 1000)
+	type DataBack struct {
+		Stone int
+	}
+	var back DataBack
+	back.Stone = sess.user.stone
+
+	return sess.SendReplyBack(back, 102)
+}
+
+const (
+	CodeAlreadyUse = 1
+)
+
+//opcode103
+func UserInvitationCode(sess *Session, reader []byte) bool {
+	type Data struct {
+		key string
+	}
+	var msg Data
+
+	err := json.Unmarshal(reader, &msg)
+	if err != nil {
+		sess.Error("Can't decode json message, err = %v", err, sess.user.uid)
+		return false
+	}
+
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+
+	flag, err := redis.Int(dbconn.Do("SREM", "invitations", msg.key))
+	if err != nil {
+		sess.user.Error("Failed SREM invitation", err)
+		return false
+	}
+
+	type DataBack struct {
+		Ret int
+	}
+
+	var back DataBack
+	if flag == 0 {
+		back.Ret = CodeAlreadyUse
+		return sess.SendReplyBack(back, 120)
+	}
+
+	UserAddUnreward(sess, 100, RewardType_Stone, 1)
+
+	back.Ret = 0
+
+	return sess.SendReplyBack(back, 103)
+}
+
+var SignUpHeros = []int{123}
+
+//opcode105
+func UserSignUp(sess *Session, reader []byte) bool {
+	type Data struct {
+		Hid int
+	}
+	var msg Data
+
+	err := json.Unmarshal(reader, &msg)
+	if err != nil {
+		sess.Error("Can't decode json message, err = %v", err, sess.user.uid)
+		return false
+	}
+
+	type DataBack struct {
+		Count int
+		Hid   int
+	}
+	var back DataBack
+
+	if sess.user.GetSignUpFlag() == 1 {
+		err = sess.user.UpdateSignUp()
+		if err != nil {
+			sess.user.Error("Failed UpdateSignUp", err)
+			return false
+		}
+	}
+
+	if msg.Hid != 0 {
+		if sess.user.GetSignUpCount() < 5 {
+			sess.user.Error("The count is less than 5", sess.user.GetSignUpCount())
+			return false
+		}
+
+		flag := false
+
+		for _, id := range SignUpHeros {
+			if msg.Hid == id {
+				flag = true
+				break
+			}
+		}
+
+		if !flag {
+			sess.user.Error("The arm is not right", msg.Hid)
+			return false
+		}
+
+		err = sess.user.Hero.AddNewHero(msg.Hid, 1, false)
+		if err != nil {
+			sess.user.Error("Failed AddNewHero", err)
+			return false
+		}
+
+		err = sess.user.FinishSignUp()
+		if err != nil {
+			sess.user.Error("Failed FinishSignUp", err)
+			return false
+		}
+	}
+
+	back.Count = sess.user.GetSignUpCount()
+	back.Hid = msg.Hid
+
+	return sess.SendReplyBack(back, 105)
+}
+
+//opcode108
+func UserInitArm(sess *Session, reader []byte) bool {
+	type Data struct {
+		ArmIDs []int
+	}
+	var msg Data
+
+	err := json.Unmarshal(reader, &msg)
+	if err != nil {
+		sess.Error("Can't decode json message, err = %v", err, sess.user.uid)
+		return false
+	}
+
+	if len(msg.ArmIDs) != 2 {
+		sess.user.Error("Wrong Num")
+		return false
+	}
+
+	for _, id := range msg.ArmIDs {
+		_, err = sess.user.ProcessReward(RewardType_Arm, id)
+		if err != nil {
+			sess.user.Error("Failed ProcessReward", err)
+			return false
+		}
+	}
+
+	type DataBack struct {
+		ArmIDs []int
+	}
+	var back DataBack
+	back.ArmIDs = msg.ArmIDs
+
+	return sess.SendReplyBack(back, 108)
+}
+
+
+//opcode130
+func UserSetMainHero(sess *Session, reader []byte) bool {
+	type Data struct {
+		ID int
+	}
+	var msg Data
+
+	err := json.Unmarshal(reader, &msg)
+	if err != nil {
+		sess.Error("Can't decode json message, err = %v", err, sess.user.uid)
+		return false
+	}
+	
+	if !sess.user.Hero.CanSetMainHero() {
+		sess.user.Error("Filed CanSetMainHero")
+		return false
+	}
+	
+	err = sess.user.Hero.SetMainHero(msg.ID)
+	if err != nil {
+		sess.user.Error("Failed SetMainHero",err)
+		return false
+	}
+	
+	return sess.SendReplyBack(msg, 130)
+}

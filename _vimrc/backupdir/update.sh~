@@ -1,0 +1,2 @@
+#!/bin/bash
+scp ./* frank@42.62.67.240:~/mygo/src/sanguo

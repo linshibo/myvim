@@ -1,0 +1,156 @@
+package systemdata
+
+import (
+	"errors"
+)
+
+const (
+	ArmUnseen       = 0
+	ArmUnchargeSeen = 1
+	ArmChargeSeen   = 2
+	ArmUnGet        = 3
+
+	HeroUnseen       = 0
+	HeroUnchargeSeen = 1
+	HeroChargeSeen   = 2
+)
+
+var (
+	UnchargeInitSeenHeroOid = []int{2, 3, 6, 8, 9, 11, 12, 13, 16, 22, 26, 19, 28}
+	ChargeInitSeenHeroOid   = []int{}
+
+	InitUnGetArmOidByGold = []int{90, 24, 25, 108, 33, 92, 40, 111, 94, 70, 106, 52, 43, 57, 88, 110, 103, 100, 91, 96}
+	InitUnGetArmByGold    = []int{90, 25, 108, 33, 92, 40, 111, 94, 70, 106, 52, 43, 57, 88, 110, 103, 100, 91, 96}
+)
+
+type CardBack struct {
+	Id    int
+	Level int
+	Prob  int
+}
+
+type HeroBack struct {
+	Id    int
+	Level int
+	Prob  int
+	Flag  int
+}
+
+type RewardBack struct {
+	RewardValue int
+	RewardType  int
+	ProType     int
+	ProValue    int
+}
+
+const (
+	RewardType_Exp                 = 1
+	RewardType_Gold                = 2
+	RewardType_Arm                 = 3
+	RewardType_Hero                = 4
+	RewardType_Power               = 5
+	RewardType_Stone               = 6
+	RewardType_Money               = 7
+	RewardType_RandomHeroByQuality = 8
+	RewardType_RandomArmByStar     = 9
+	RewardType_RandomArmByQuality  = 10
+	RewardType_TrueHero            = 11
+	RewardType_ArmCurr             = 12
+	RewardType_HeroCurr            = 13	
+)
+
+const (
+	QuestType_FinishSimpleGuanqia         = 1
+	QuestType_FinishChapterGuanqia        = 2
+	QuestType_FinishChapter               = 3
+	QuestType_DragCard                    = 4
+	QuestType_FinishSimpleGuanqiaMoreTime = 5
+	QuestType_UpdateSpecLevel             = 6
+	QuestType_LoginDays                   = 9
+	QuestType_GetSpecGold                 = 10
+	QuestType_GetSpecScore                = 12
+	QuestType_RecruitSpecArm        = 20
+	QuestType_UpdateArm        = 21
+	QuestType_FinishActivity        = 22
+	QuestType_FinishBoss        = 23
+	QuestType_FriendNum        = 24
+	QuestType_SendFriendNum        = 25
+	QuestType_GetHero        = 26
+	QuestType_GetTrueHero        = 27
+	QuestType_ArmEvolveSpecQuality         =  28
+	QuestType_HeroEvolveSpecQuality        =  29
+	QuestType_WinFight        = 30
+	QuestType_FinishSpecBoss        = 31
+)
+
+const (
+	QuestMold_Fight = 0
+	QuestMold_Nomal = 1
+	QuestMold_Chengjiu = 2
+	QuestMold_Chapter = 3
+)
+
+
+const (
+	White  = 1
+	Green  = 2
+	Blue   = 3
+	Violet = 4
+	Orange = 5
+)
+
+var (
+	GoldNotEnoughErr = errors.New("The gold is not enough")
+	StoneNotEnoughErr = errors.New("The stone is not enough")
+	ArmCurrNotEnoughErr = errors.New("The arm curr is not enough")
+	HeroCurrNotEnoughErr = errors.New("The hero curr is not enough")
+	NoRightChoiceErr = errors.New("There is no corresponding type")
+	NegtiveErr = errors.New("There data should not be negtive")
+)
+
+type Reward_tmp struct {
+	RewardType  int
+	RewardValue int
+}
+
+type Reward struct {
+	Type  int
+	Value int
+}
+
+const (
+	SmashCardToGold = 1
+	SmashCardToStone   = 2
+	NewCard     = 3
+	SmashCardToArmCurr = 4
+	SmashCardToHeroCurr = 5
+)
+
+
+const (
+	MaxCardLevel = 9
+	GuanqiaQuestScore = 100000
+)
+
+var(
+	 CardUpdatePro = [10]int{0, 100, 100, 100, 80, 80, 80, 70, 70, 0}
+	 CardEvolvePro = [6]int{0, 100, 100, 100, 100, 0}
+	 QualityCoef = [6]int{0, 1, 3, 6, 10, 15}
+)
+
+var (
+	 SpecificArmId = [][]int{
+		{24},
+		{35},
+		{90},
+		{20,24,31,35,90},
+		{18,19,21,55,26,28,36},
+		{48},
+		{20,24,31,35,48,90},
+		{104,98,376,377,83},
+		{43,84,92,292}}
+)
+
+var (
+	 SmashTypeProb = []int{5, 45, 100}
+)

@@ -1,0 +1,735 @@
+package gameserver
+
+import (
+	"github.com/garyburd/redigo/redis"
+	"sanguo/db"
+	. "sanguo/systemdata"
+	"strconv"
+	"time"
+)
+
+const (
+	ArmEquipMax = 3
+)
+
+type armEquip struct {
+    DstID int
+    Equip [3]int
+}
+
+func (this *User) GetArmEquip() []armEquip{
+	a := make([]armEquip, 0)
+	for k, v := range this.Arm.armEquip {
+        a = append(a, armEquip{
+            DstID:k,
+            Equip:v,
+        })
+	}
+    this.Debug("monitor", )
+	return a
+}
+
+func (this *User) UpdateLastLoginTime() (err error) {
+	this.last_login = time.Now().Unix()
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+
+	_, err = dbconn.Do("HSET", this.GetUidUsedInDB(), "last_login", this.last_login)
+	if err != nil {
+		this.Error("Failed hset last_login", err)
+		return err
+	}
+	return nil
+}
+
+func (this *User) GetUidOfString() string {
+	return strconv.Itoa(this.uid)
+}
+
+func (this *User) GetUidOfInt() int {
+	return this.uid
+}
+
+func (this *User) IsGetThroughSimpleGuanBefore(s int) bool {
+	_, ok := this.score[s]
+	return ok
+}
+
+func (this *User) GetSimpleGuanScore(sid int) int {
+	return this.score[sid]
+}
+
+func (this *User) SetSimpleGuanScore(sid int, score int) (err error) {
+	if !SimpleNeedRecord[sid] {
+		return nil
+	}
+
+	if this.score[sid] > GuanqiaQuestScore {
+		score += GuanqiaQuestScore
+	}
+
+	this.score[sid] = score
+
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+
+	_, err = dbconn.Do("ZADD", this.GetUidUsedInDB()+":score", score, sid)
+	if err != nil {
+		return err
+	}
+
+	if IsTrueHeroGuanqia(sid) {
+		unique_dbconn := db.Pool.Get()
+		defer unique_dbconn.Close()
+
+		_, err = unique_dbconn.Do("ZADD", "TrueHero:"+strconv.Itoa(sid), score, this.name)
+		if err != nil {
+			this.Debug("Failed zadd new max score of true hero", err)
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (this *User) GetTrueHeroRank(sid int) (rank int, err error) {
+	unique_dbconn := db.Pool.Get()
+	defer unique_dbconn.Close()
+
+	rank, err = redis.Int(unique_dbconn.Do("ZREVRANK", "TrueHero:"+strconv.Itoa(sid), this.name))
+	if err != nil {
+		this.Debug("Failed get new rank of ", err)
+		return
+	}
+
+	rank++
+	return
+}
+
+func (this *User) LoadSimpleGuanScore() (err error) {
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+
+	reply, err := redis.Values(dbconn.Do("ZRANGE", this.GetUidUsedInDB()+":score", 0, -1, "WITHSCORES"))
+	if err != nil {
+		return err
+	}
+
+	for i := 0; i < len(reply); i += 2 {
+		sid, err := redis.Int(reply[i], nil)
+		if err != nil {
+			return err
+		}
+
+		score, err := redis.Int(reply[i+1], nil)
+		if err != nil {
+			return err
+		}
+
+		this.score[sid] = score
+	}
+
+	return nil
+}
+
+type GS struct {
+	Sid   int
+	Score int
+}
+
+type CBS struct {
+	Sid     int
+	Score   int
+	Chapter int
+	Type    int
+}
+
+const (
+	NormalGuanqia    = 0
+	ChallengeGuanqia = 1
+)
+
+func (this *User) GetGuanqiaScore() []GS {
+
+	//gs := make([]GS, len(ChapterInfo[this.chapter].allSGuanQias))
+	var gs []GS
+	var tmp GS
+	//var i int
+	for _, sid := range ChapterInfo[this.chapter].AllSGuanQias {
+		if this.score[sid] == 0 {
+			break
+		}
+		tmp.Score = this.score[sid]
+		tmp.Sid = sid
+		gs = append(gs, tmp)
+	}
+	return gs
+}
+
+func (this *User) GetChapterBossScore() []CBS {
+	if this.chapter == 1 {
+		return nil
+	}
+
+	gs := make([]CBS, this.chapter-1)
+	var tmp CBS
+	for i := 1; i < this.chapter; i++ {
+		sid := ChapterBoss[i]
+		tmp.Type = NormalGuanqia
+		this.Trace("The score and MaxScore is", this.score[sid], GuanqiaInfo[sid].MaxScore)
+		if this.score[sid] >= GuanqiaInfo[sid].MaxScore {
+			sid = ChapterInfo[i].ChallengeSid
+			tmp.Type = ChallengeGuanqia
+		}
+		tmp.Sid = sid
+		tmp.Score = this.score[sid]
+		tmp.Chapter = i
+		gs[i-1] = tmp
+	}
+	return gs
+}
+
+func (this *User) PlayerLevelUp() (err error) {
+	if this.Hero.GetHeroNum() < LevelHeroNeed[this.level+1] {
+		return nil
+	}
+	this.level++
+
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+
+	_, err = dbconn.Do("HSET", this.GetUidUsedInDB(), "level", this.level)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (this *User) GetSession() *Session {
+	return this.sess
+}
+
+//func (this *User) GetLatestLoginDay() int {
+//	return this.last_login
+//}
+
+func (this *User) GetChapter() int {
+	return this.chapter
+}
+
+func (this *User) LevelUp() (err error) {
+	if this.Hero.GetHeroNum() < LevelHeroNeed[this.level] {
+		return nil
+	}
+
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+
+	this.level++
+	_, err = dbconn.Do("HSET", this.GetUidUsedInDB(), "level", this.level)
+	if err != nil {
+		this.Error("Failed set level", err)
+		return err
+	}
+
+	type DataBack struct {
+		Level int
+	}
+	var back DataBack
+	back.Level = this.level
+
+	sess := this.GetSession()
+	if sess == nil {
+		this.Error("The sess is nil")
+	}
+
+	sess.SendReplyBack(back, 85)
+
+	err = sess.user.quest.InspectQuest(QuestType_UpdateSpecLevel, 0, 0)
+	if err != nil {
+		sess.Error("QuestType_UpdateSpecLevel ", err)
+		return err
+	}
+
+	return nil
+}
+
+/*************************** Reward ****************************/
+//////RewardType 2     Gold
+func (this *User) goldReward(num int) (err error) {
+	this.gold += num
+	this.Debug("The gold will add is", num, this.gold, this.GetUidUsedInDB)
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+	_, err = dbconn.Do("HSET", this.GetUidUsedInDB(), "gold", this.gold)
+	if err != nil {
+		this.Debug("Failed hset gold", err)
+		return err
+	}
+	/////////////////// need verify quest type 10 when gold increase  /////////////////////////////////////////////////
+	err = this.quest.InspectQuest(QuestType_GetSpecGold, num, 0)
+	this.Trace("Will InspectQuest QuestType_GetSpecGold")
+	if err != nil {
+		this.Error("Failed QuestType_GetSpecGold", err)
+		return err
+	}
+	return nil
+}
+
+/////////////RewardType 3   Arm  //////////////////////////
+func (this *User) armReward(id int) (Type int, Value int, err error) {
+	Type, Value, err = this.Arm.ProcessNewGetArm(id)
+	return
+}
+
+/////////////RewardType 4   Hero   ////////////////////////
+func (this *User) heroReward(id int) (Type int, Value int, err error) {
+	Type, Value, err = this.Hero.ProcessNewGetHero(id)
+	return
+}
+
+////////////RewardType 6  Stone  //////////////////////////////
+func (this *User) stoneReward(num int) (err error) {
+	this.stone += num
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+	_, err = dbconn.Do("HSET", this.GetUidUsedInDB(), "stone", this.stone)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+////////////RewardType 7  Power  //////////////////////////////
+func (this *User) powerReward(num int) (err error) {
+	err = this.AddPower(num)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+//////////RewardType 12  RewardType_ArmCurr //////////////////////////
+func (this *User) armcurrReward(num int) (err error) {
+	defer this.Error("armcurrReward", err)
+	this.arm_currency += num
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+	_, err = dbconn.Do("HSET", this.GetUidUsedInDB(), "arm_curr", this.arm_currency)
+	if err != nil {
+		this.Error("Failed HSET", err)
+		return err
+	}
+	this.Trace("WWWW")
+	return nil
+}
+
+//////////RewardType 13  RewardType_HeroCurr //////////////////////////
+func (this *User) herocurrReward(num int) (err error) {
+	this.hero_currency += num
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+	_, err = dbconn.Do("HSET", this.GetUidUsedInDB(), "hero_curr", this.hero_currency)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (this *User) ProcessReward(reward_type int, reward_value int) (reward RewardBack, err error) {
+	reward.RewardType = reward_type
+	reward.RewardValue = reward_value
+
+	if reward_type == RewardType_Gold {
+
+		if err = this.goldReward(reward_value); err != nil {
+			return
+		}
+	}
+
+	if reward_type == RewardType_Arm {
+		reward.ProType, reward.ProValue, err = this.Arm.ProcessNewGetArm(reward_value)
+		if err != nil {
+			return
+		}
+	}
+
+	if reward_type == RewardType_Hero {
+		reward.ProType, reward.ProValue, err = this.Hero.ProcessNewGetHero(reward_value)
+		if err != nil {
+			return
+		}
+
+	}
+
+	if reward_type == RewardType_Stone {
+		if err = this.stoneReward(reward_value); err != nil {
+			return
+		}
+	}
+
+	if reward_type == RewardType_Power {
+		this.Trace("HZZZ", "WillRewardPower", reward_value, this.power)
+		if err = this.powerReward(reward_value); err != nil {
+			return
+		}
+		this.Trace("HZZZ", "AfterRewardPower", this.power)
+	}
+
+	if reward_type == RewardType_RandomHeroByQuality {
+		id := this.Hero.GetHeroOfGivenQuality(reward_value)
+		reward.ProValue = id
+		reward.ProType, reward.ProValue, err = this.Hero.ProcessNewGetHero(reward_value)
+		if err != nil {
+			return
+		}
+	}
+
+	if reward_type == RewardType_RandomArmByStar {
+
+		quality := this.getRandomArmQuality()
+
+		id := this.Arm.GetAnyArmOfGivenStarAndQuality(reward_value, quality)
+		this.Debug("In RewardType_RandomArmByStar ", reward_value, quality, id)
+		reward.RewardValue = id
+		reward.ProType, reward.ProValue, err = this.Arm.ProcessNewGetArm(id)
+		if err != nil {
+			return
+		}
+	}
+
+	if reward_type == RewardType_RandomArmByQuality {
+
+		star := this.getRandomArmStar()
+		id := this.Arm.GetAnyArmOfGivenStarAndQuality(star, reward_value)
+		reward.ProValue = id
+		reward.ProType, reward.ProValue, err = this.Arm.ProcessNewGetArm(id)
+		if err != nil {
+			return
+		}
+	}
+
+	if reward_type == RewardType_TrueHero {
+		err = this.Hero.SetHeroTrue(reward_value)
+		if err != nil {
+			return
+		}
+	}
+
+	if reward_type == RewardType_ArmCurr {
+		this.Trace("Will add armCurr", reward_value)
+		err = this.armcurrReward(reward_value)
+		if err != nil {
+			this.Error("Failed armcurrReward", err)
+			return
+		}
+	}
+
+	if reward_type == RewardType_HeroCurr {
+		err = this.herocurrReward(reward_value)
+		if err != nil {
+			this.Error("Failed herocurrReward", err)
+			return
+		}
+	}
+
+	return
+}
+
+func (this *User) costGold(num int) (err error) {
+	defer this.Trace("In reducePower the num and stary is", num, this.gold)
+	if this.gold < num {
+		return GoldNotEnoughErr
+	}
+	this.Trace("In reducePower the num and stary is", num, this.gold)
+	this.gold -= num
+
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+
+	_, err = dbconn.Do("HSET", this.GetUidUsedInDB(), "gold", this.gold)
+	if err != nil {
+		return err
+	}
+	this.Trace("In reducePower the num and stary is", num, this.gold)
+	return nil
+}
+
+func (this *User) costStone(num int) (err error) {
+	if this.stone < num {
+		return StoneNotEnoughErr
+	}
+
+	this.stone -= num
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+
+	_, err = dbconn.Do("HSET", this.GetUidUsedInDB(), "stone", this.stone)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (this *User) verifyStone(num int) bool {
+	return num <= this.stone
+}
+
+func (this *User) verifyGold(num int) bool {
+	return num <= this.gold
+}
+
+func (this *User) EnableHeroVIP() (err error) {
+	this.heroVIP = 1
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+
+	_, err = dbconn.Do("HSET", this.GetUidUsedInDB(), "heroVIP", this.heroVIP)
+	return err
+}
+
+func (this *User) DisableHeroVIP() (err error) {
+	this.heroVIP = 0
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+
+	_, err = dbconn.Do("HSET", this.GetUidUsedInDB(), "heroVIP", this.heroVIP)
+	return err
+}
+
+func (this *User) ChangeGuanqia(chapter, c_guan, s_guan int) (err error) {
+	this.chapter = chapter
+	this.c_guanqia = c_guan
+	this.s_guanqia = s_guan
+
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+
+	_, err = dbconn.Do("HMSET", this.GetUidUsedInDB(), "chapter", this.chapter, "c_guanqia", this.c_guanqia, "s_guanqia", this.s_guanqia)
+	if err != nil {
+		this.Error("Failed hmset", err)
+		return err
+	}
+
+	return nil
+}
+
+func (this *User) GetUserGold() int {
+	return this.gold
+}
+
+func (this *User) GetUserStone() int {
+	return this.stone
+}
+
+const (
+	SignUpDays = 5
+)
+
+func (this *User) GetSignUpFlag() int {
+	if this.sign_count >= SignUpDays {
+		return 0
+	}
+
+	last_day := SharpDay(this.sign_last_time)
+
+	today := SharpDay(GetCurrentTime())
+
+	if last_day == today {
+		return 0
+	}
+
+	return 1
+}
+
+func (this *User) GetSignUpCount() int {
+	return this.sign_count
+}
+
+func (this *User) UpdateSignUp() (err error) {
+	if this.sign_count >= SignUpDays {
+		return nil
+	}
+
+	this.sign_count++
+	this.sign_last_time = GetCurrentTime()
+
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+
+	_, err = dbconn.Do("HMSET", this.GetUidUsedInDB(), "sign_last", this.sign_last_time, "sign_count", this.sign_count)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (this *User) FinishSignUp() (err error) {
+	this.sign_count = -1
+
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+
+	_, err = dbconn.Do("HSET", this.GetUidUsedInDB(), "sign_count", this.sign_count)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (this *User) AssignUnrewardID() (rid int, err error) {
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+
+	rid, err = redis.Int(dbconn.Do("INCR", this.GetUidUsedInDB()+":p_key"))
+	return
+}
+
+func (this *User) costArmCur(num int) (err error) {
+	if this.arm_currency < num {
+		return ArmCurrNotEnoughErr
+	}
+
+	this.arm_currency -= num
+
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+
+	_, err = dbconn.Do("HSET", this.GetUidUsedInDB(), "arm_curr", this.arm_currency)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (this *User) costHeroCur(num int) (err error) {
+	if this.hero_currency < num {
+		return HeroCurrNotEnoughErr
+	}
+
+	this.hero_currency -= num
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+
+	_, err = dbconn.Do("HSET", this.GetUidUsedInDB(), "hero_curr", this.hero_currency)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (this *User) verifyArmCurr(num int) bool {
+	return num <= this.arm_currency
+}
+
+func (this *User) verifyHeroCurr(num int) bool {
+	return num <= this.hero_currency
+}
+
+func (this *User) VerifyWealth(t, value int) (flag bool) {
+	if value < 0 {
+		return false
+	}
+
+	switch t {
+	case RewardType_Gold:
+		flag = this.verifyGold(value)
+
+	case RewardType_Power:
+		var err error
+		flag, err = this.verifyPower(value)
+		if err != nil {
+			this.Error("Failed verifyPower", err)
+			flag = false
+		}
+
+	case RewardType_Stone:
+		flag = this.verifyStone(value)
+
+	case RewardType_ArmCurr:
+		flag = this.verifyArmCurr(value)
+
+	case RewardType_HeroCurr:
+		flag = this.verifyHeroCurr(value)
+
+	default:
+		flag = false
+	}
+	return
+}
+
+func (this *User) CostWealth(t, value int) (err error) {
+	if value < 0 {
+		return NegtiveErr
+	}
+
+	switch t {
+	case RewardType_Gold:
+		return this.costGold(value)
+
+	case RewardType_Power:
+		this.Trace("HZZZ", "Will ReducePower", value, this.power)
+		err = this.reducePower(value)
+		this.Trace("HZZZ", "After ReducePower", this.power)
+		return err
+
+	case RewardType_Stone:
+		return this.costStone(value)
+
+	case RewardType_ArmCurr:
+		return this.costArmCur(value)
+
+	case RewardType_HeroCurr:
+		return this.costHeroCur(value)
+
+	default:
+		err = NoRightChoiceErr
+	}
+	return err
+}
+
+func (this *User) ChangeName(newname string) (err error) {
+	dbconn := db.NamePool.Get()
+	defer dbconn.Close()
+
+	oldname := this.name
+	this.name = newname
+
+	_, err = dbconn.Do("RENAME", "name:"+oldname, "name:"+newname)
+	if err != nil {
+		this.Error("Failed RENAME", err)
+		return
+	}
+
+	err = this.SetName(newname)
+	if err != nil {
+		this.Error("Failed SetName", err)
+		return
+	}
+
+	return
+}
+
+func (this *User) SetName(name string) (err error) {
+	this.name = name
+
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+
+	_, err = dbconn.Do("HSET", this.GetUidUsedInDB(), "name", name)
+	return err
+}
+
+func (this *User) RegisterName(name string) (err error) {
+	dbconn := db.NamePool.Get()
+	defer dbconn.Close()
+
+	_, err = dbconn.Do("SET", "name:"+name, this.uid)
+	return err
+}

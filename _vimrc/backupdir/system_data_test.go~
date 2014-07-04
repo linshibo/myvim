@@ -1,0 +1,7 @@
+package systemdata
+import(
+    "test"
+)
+func test_loadsystemt (*testing.T){
+    LoadSystemData()
+}

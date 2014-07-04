@@ -1,0 +1,1160 @@
+package router
+
+import (
+    "GameManager/config"
+    "GameManager/gameserver"
+    "GameManager/user"
+    "database/sql"
+    "encoding/json"
+    "fmt"
+    _ "github.com/Go-SQL-Driver/MySQL"
+    "github.com/garyburd/redigo/redis"
+    "github.com/go-martini/martini"
+    "github.com/martini-contrib/binding"
+    "github.com/martini-contrib/render"
+    "github.com/martini-contrib/sessionauth"
+    "github.com/martini-contrib/sessions"
+    "io/ioutil"
+    "net/http"
+    "os"
+    "sanguo/base/log"
+    "sort"
+    //"strconv"
+    "bytes"
+    "os/exec"
+    "strings"
+    "time"
+)
+
+const (
+    StatIDRegister  = 100000
+    StatIDLogin     = 100001
+    StatIDOnlineNum = 100002
+)
+
+const (
+    cmd_check_user_online = 0xf001
+    cmd_user_add          = 0xf002
+    cmd_skip_guanqia      = 0xf003
+    cmd_add_soldier       = 0xf004
+    cmd_all_user_add      = 0xf007
+    cmd_query_user_info   = 0xf005
+    cmd_which_server      = 0xf006
+)
+
+type Return struct {
+    Ret int
+}
+
+var (
+    InitArm  = []int{53, 83, 376, 377}
+    InitHero = []int{5}
+)
+
+var Pool_55556 *redis.Pool
+
+var Pool_55555 *redis.Pool
+
+const (
+    MaxConnection = 10
+)
+
+
+type Handler struct {
+    gameHandler *gameserver.GameServer 
+    mysqlHandler *sql.DB
+}
+type Platforms struct{
+    data map[string]Handler
+}
+
+var platforms Platforms
+
+func UpdateServer(s *gameserver.GameServer){
+    h , ok:=platforms.data[s.Name]
+    if ok {
+        h.gameHandler=s
+    }
+}
+func (p *Platforms)getMysqlHandler(name string)*sql.DB{
+    h , ok:=p.data[name]
+    if ok {
+        return h.mysqlHandler
+    }
+    return nil
+}
+
+func (p *Platforms)getServerHandler(name string)*gameserver.GameServer {
+    h , ok:=p.data[name]
+    if ok {
+        return h.gameHandler
+    }
+    return nil
+}
+
+//var mysqlHandler *sql.DB
+
+func init() {
+    return
+}
+
+/**
+* @brief 对ID取count(*) 操作
+ */
+func DoGetIDCount(mysqlHandler *sql.DB, id int) int {
+    sqlStr := fmt.Sprintf("select count(*) from t_gm_permenent  where id=%d", id)
+    log.Debug(sqlStr)
+    return DoQueryReturnOne(mysqlHandler, sqlStr)
+}
+
+func DoGetDayIDCount(mysqlHandler *sql.DB, id int, day time.Time) int {
+    sqlStr := fmt.Sprintf("select count(*) from t_gm_day_%4d%02d%02d where id=%d", day.Year(), day.Month(), day.Day(), id)
+    log.Debug(sqlStr)
+    return DoQueryReturnOne(mysqlHandler, sqlStr)
+
+}
+
+func DoQueryReturnTwo(mysqlHandler *sql.DB, sqlStr string) (int, int) {
+    rows, err := mysqlHandler.Query(sqlStr)
+    var result1 int = 0
+    var result2 int = 0
+    if err != nil {
+        log.Error(err.Error())
+        return result1, result2
+    }
+    for rows.Next() {
+        rerr := rows.Scan(&result1, &result2)
+        if rerr != nil {
+            return result1, result2
+        }
+    }
+    return result1, result2
+}
+
+func DoQueryReturnSlice(mysqlHandler *sql.DB, sqlStr string) []int {
+    rows, err := mysqlHandler.Query(sqlStr)
+    tmp := make([]int, 0)
+    var result int = 0
+    if err != nil {
+        log.Error(err.Error())
+        return tmp
+    }
+    for rows.Next() {
+        rerr := rows.Scan(&result)
+        if rerr != nil {
+            return tmp
+        }
+        tmp = append(tmp, result)
+    }
+    return tmp
+}
+
+func DoQueryReturnOne(mysqlHandler *sql.DB, sqlStr string) int {
+    rows, err := mysqlHandler.Query(sqlStr)
+    var result int = 0
+    if err != nil {
+        log.Error(err.Error())
+        return result
+    }
+    for rows.Next() {
+        rerr := rows.Scan(&result)
+        if rerr != nil {
+            return result
+        }
+    }
+    log.Debug("result", result)
+    return result
+}
+
+func doReply(w http.ResponseWriter, back map[string]interface{}) {
+    back_json, err := json.Marshal(back)
+    if err != nil {
+        log.Error("Failed encode json", err)
+        return
+    }
+    w.Write(back_json)
+    return
+}
+
+func RouterInit(m *martini.ClassicMartini) {
+    m.Get("/api/public", func(r render.Render) {
+        r.HTML(200, "public", nil)
+    })
+    m.Get("/api", sessionauth.LoginRequired, func(r render.Render) {
+        r.HTML(200, "index", nil)
+    })
+    m.Get("/api/login", func(r render.Render) {
+        r.HTML(200, "login", nil)
+    })
+    m.Get("/api/logout", sessionauth.LoginRequired, func(session sessions.Session, user sessionauth.User, r render.Render) {
+        sessionauth.Logout(session, user)
+        r.Redirect("/api/login")
+    })
+    m.Post("/api/login", binding.Bind(user.MyUserModel{}), func(session sessions.Session, postedUser user.MyUserModel, r render.Render, req *http.Request) {
+        // You should verify credentials against a database or some other mechanism at this point.
+        // Then you can authenticate this session.
+        user := user.MyUserModel{}
+        log.Debug("new login", postedUser.Username, postedUser.Password)
+        if postedUser.Username == config.Config.User && postedUser.Password == config.Config.Passwd {
+            log.Debug("AuthenticateSession")
+            err := sessionauth.AuthenticateSession(session, &user)
+            if err != nil {
+                log.Error("AuthenticateSession fail")
+                r.JSON(500, err)
+                return
+            }
+            params := req.URL.Query()
+            redirect := params.Get(sessionauth.RedirectParam)
+            r.Redirect(redirect)
+        } else {
+            r.HTML(200, "login err", nil)
+        }
+        return
+    })
+    m.Get("/api/private", sessionauth.LoginRequired, func(r render.Render) {
+        r.HTML(200, "private", nil)
+    })
+
+    //m.Post("/api/InitPlayer", InitPlayerInfo)
+    m.Post("/api/Whichserver", sessionauth.LoginRequired, Whichserver)
+    m.Post("/api/QueryUserInfo", sessionauth.LoginRequired, QueryUserInfo)
+    //m.Get("/crossdomain.xml", sessionauth.LoginRequired, CrossDomain)
+    m.Post("/api/SetGuanqia", sessionauth.LoginRequired, SetGuanqia)
+    //m.Post("/api/AddGold", sessionauth.LoginRequired, AddGold)
+    m.Post("/api/UserAdd", sessionauth.LoginRequired, UserAdd)
+    //m.Post("/api/AddHero", AddHero)
+    //m.Post("/api/AddPower", AddPower)
+    m.Post("/api/AddSoldier", sessionauth.LoginRequired, AddSoldier)
+    //m.Post("/api/AddStone", sessionauth.LoginRequired, AddStone)
+    m.Post("/api/AddAllThing", sessionauth.LoginRequired, AddAllThing)
+    m.Post("/api/GetRemain", sessionauth.LoginRequired, GetRemain)
+    m.Post("/api/GetGuanqiaStat", sessionauth.LoginRequired, GetGuanqiaStat)
+    //m.Post("/api/GetOnlineNum", GetOnlineNum)
+    m.Post("/api/GetDayCharge", sessionauth.LoginRequired, GetDayCharge)
+    m.Post("/api/GetMonthCharge", sessionauth.LoginRequired, GetMonthCharge)
+    m.Post("/api/GetTotalCharge", sessionauth.LoginRequired, GetTotalCharge)
+    m.Post("/api/GetTotalRegister", sessionauth.LoginRequired, GetTotalRegister)
+    m.Post("/api/GetDayStat", sessionauth.LoginRequired, GetDayStat)
+    m.Post("/api/CheckUserOnline", sessionauth.LoginRequired, CheckUserOnline)
+    m.Post("/api/GetGuanqiaTotal", sessionauth.LoginRequired, GetGuanqiaTotal)
+    m.Post("/api/SaveCrash", SaveCrash)
+    m.Post("/api/SystemCmd", SystemCmd)
+    m.Get("/api/SaveCrash", sessionauth.LoginRequired, func(r render.Render) {
+        r.HTML(200, "SaveCrash", nil)
+    })
+    //Pool_55556 = &redis.Pool{
+        //MaxIdle:     3,
+        //IdleTimeout: 240 * time.Second,
+        //Dial: func() (redis.Conn, error) {
+            //c, err := redis.Dial("tcp", "0.0.0.0:6379")
+            //if err != nil {
+                //log.Error("Failed connect redis", err)
+                ////os.Exit(-1)
+            //}
+            //return c, err
+        //},
+    //}
+
+    //Pool_55555 = &redis.Pool{
+        //MaxIdle:     3,
+        //IdleTimeout: 240 * time.Second,
+        //Dial: func() (redis.Conn, error) {
+            ////c, err := redis.Dial("tcp", "10.6.12.252:6379")
+            //c, err := redis.Dial("tcp", config.Config.RedisHost)
+            //if err != nil {
+                //log.Error("Failed connect redis", err)
+                ////os.Exit(-1)
+            //}
+            //return c, err
+        //},
+    //}
+    //说明：第一个参数"mysql"表示打开一个MYSQL链接
+    //第二个参数是一个DSN，格式是：[username[:password]@][protocol[(address)]]/dbname[?param1=value1&paramN=valueN]
+    for i := range config.Config.Platforms{
+        mysqlHandler, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8", config.Config.Platforms[i].DBUser, config.Config.Platforms[i].DBPasswd, config.Config.Platforms[i].DBHost, config.Config.Platforms[i].DBDatabase))
+        if err != nil {
+            log.Error("mysql conn error\n")
+            //return
+        }
+        err = mysqlHandler.Ping()
+        if err != nil {
+            log.Error("mysql ping error\n")
+            //return
+        }
+        gameHandler := gameserver.Start(config.Config.Platforms[i].Platform, config.Config.Platforms[i].GameServerHost) 
+        if gameHandler==nil  {
+            fmt.Println("Failed connect gameserver", config.Config.Platforms[i].Platform)
+        }
+        platforms.data[config.Config.Platforms[i].Platform]=Handler{
+            mysqlHandler:mysqlHandler, 
+            gameHandler:gameHandler, 
+        }
+    }
+}
+
+func CheckUserOnline(w http.ResponseWriter, r *http.Request) {
+    body, err := ioutil.ReadAll(r.Body)
+    if err != nil {
+        log.Error("Failed read body", err)
+        w.Write([]byte(err.Error()))
+        return
+    }
+
+    type Data struct {
+        Name string
+        Platform string
+    }
+
+    var msg Data
+    err = json.Unmarshal(body, &msg)
+    if err != nil {
+        log.Error("Failed decoding json", err)
+        w.Write([]byte(err.Error()))
+        return
+    }
+
+    log.Debug("In CheckUserOnline")
+    in := make(map[string]interface{})
+    in["name"] = msg.Name
+    h := platforms.getServerHandler(msg.Platform)
+    data, ret := h.DoRequest(in, cmd_check_user_online)
+    if !ret {
+        log.Debug(ret)
+        return
+    }
+    type ret_data struct {
+        Ret int
+    }
+    var msg2 ret_data
+    err = json.Unmarshal(data, &msg2)
+    if err != nil {
+        log.Error("Failed decoding json", err)
+        w.Write([]byte(err.Error()))
+        return
+    }
+    var m string
+    if msg2.Ret == 0 {
+        m = "玩家在线"
+    } else if msg2.Ret == 1 {
+        m = "玩家不在线"
+    }
+    w.Write([]byte(m))
+    //fmt.Println(data)
+    //back := make(map[string]interface{})
+
+    //back["ret"] = 0
+    //back["flag"] = msg2.Ret
+
+    //doReply(w, back)
+    return
+}
+
+const (
+    PurchaseType_NormalGold  = 1
+    PurchaseType_SuperGold   = 2
+    PurchaseType_NormalStone = 3
+    PurchaseType_SuperStone  = 4
+    PurchaseType_MonthPower  = 5
+    PurchaseType_MonthStone  = 6
+    PurchaseType_MonthHero   = 7
+)
+
+func SaveCrash(w http.ResponseWriter, r *http.Request) {
+
+    body, err := ioutil.ReadAll(r.Body)
+    if err != nil {
+        log.Error("Failed read body", err)
+        return
+    }
+    filename := time.Now().String()
+    filename = strings.TrimRight(filename, " +0800 CST")
+    filename = strings.Replace(filename, " ", "_", -1)
+    now := time.Now()
+    filename = "./Crash/" + fmt.Sprintf("%4d%02d%02d", now.Year(), now.Month(), now.Day()) + "/" + filename + ".crash"
+    fmt.Println("save Crash", body)
+    file, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE, 0644)
+    if err != nil {
+        log.Error(err)
+        return
+    }
+    defer file.Close()
+    file.Write(body)
+    doReply(w, nil)
+}
+
+func GetTotalRegister(w http.ResponseWriter, r *http.Request) {
+    body, err := ioutil.ReadAll(r.Body)
+    if err != nil {
+        log.Error("Failed read body", err)
+        w.Write([]byte(err.Error()))
+        return
+    }
+
+    type Data struct {
+        Platform string
+    }
+
+    var msg Data
+    err = json.Unmarshal(body, &msg)
+    if err != nil {
+        log.Error("Failed decoding json", err)
+        w.Write([]byte(err.Error()))
+        return
+    }
+
+    h:=platforms.getMysqlHandler(msg.Platform);
+
+    totalRegister := DoGetIDCount(h, StatIDRegister)
+
+    w.Write([]byte(fmt.Sprintf("总注册人数:%d", totalRegister)))
+
+    return
+}
+
+func GetTotalCharge(w http.ResponseWriter, r *http.Request) {
+    body, err := ioutil.ReadAll(r.Body)
+    if err != nil {
+        log.Error("Failed read body", err)
+        w.Write([]byte(err.Error()))
+        return
+    }
+
+    type Data struct {
+        Platform string
+    }
+
+    var msg Data
+    err = json.Unmarshal(body, &msg)
+    if err != nil {
+        log.Error("Failed decoding json", err)
+        w.Write([]byte(err.Error()))
+        return
+    }
+
+    h:=platforms.getMysqlHandler(msg.Platform);
+
+
+    log.Debug("In GetTotalCharge")
+
+    sqlStr := fmt.Sprintf("select count(distinct uid) from t_charge ;")
+    totalCount := DoQueryReturnOne(h, sqlStr)
+
+    sqlStr = fmt.Sprintf("select values from t_charge ;")
+    itemSlice := DoQueryReturnSlice(h, sqlStr)
+    var totalCharge int
+    for item := range itemSlice {
+        switch item {
+        case PurchaseType_NormalGold:
+            totalCharge += 1
+        case PurchaseType_SuperGold:
+            totalCharge += 1
+        case PurchaseType_NormalStone:
+            totalCharge += 1
+        case PurchaseType_SuperStone:
+            totalCharge += 1
+        case PurchaseType_MonthPower:
+            totalCharge += 1
+        case PurchaseType_MonthStone:
+            totalCharge += 1
+        case PurchaseType_MonthHero:
+            totalCharge += 1
+        }
+    }
+
+    totalRegister := DoGetIDCount(h, StatIDRegister)
+
+    w.Write([]byte(fmt.Sprintf("总充值人数:%d  总充值金额:%d   总注册人数:%d", totalCount, totalCharge, totalRegister)))
+    return
+}
+
+func GetMonthCharge(w http.ResponseWriter, r *http.Request) {
+    body, err := ioutil.ReadAll(r.Body)
+    if err != nil {
+        log.Error("Failed read body", err)
+        w.Write([]byte(err.Error()))
+        return
+    }
+
+    type Data struct {
+        Platform string
+        Year int
+        Mon  int
+    }
+
+    var msg Data
+    err = json.Unmarshal(body, &msg)
+    if err != nil {
+        w.Write([]byte(err.Error()))
+        log.Error("Failed decoding json", err)
+    }
+
+    h:=platforms.getMysqlHandler(msg.Platform);
+    log.Debug("In GetMonCharge")
+
+    date := time.Date(msg.Year, (time.Month)(msg.Mon), 1, 0, 0, 0, 0, time.Local)
+    nextMonDate := date.AddDate(0, 1, 0)
+
+    sqlStr := fmt.Sprintf("select count(distinct uid) from t_charge where logtime >= %d and logtime <= %d ", date.Unix(), nextMonDate.Unix())
+    monCount := DoQueryReturnOne(h, sqlStr)
+
+    sqlStr = fmt.Sprintf("select value from t_charge where logtime >= %d and logtime <= %d ", date.Unix(), nextMonDate.Unix())
+    itemSlice := DoQueryReturnSlice(h, sqlStr)
+    var monCharge int
+    for item := range itemSlice {
+        switch item {
+        case PurchaseType_NormalGold:
+            monCharge += 1
+        case PurchaseType_SuperGold:
+            monCharge += 1
+        case PurchaseType_NormalStone:
+            monCharge += 1
+        case PurchaseType_SuperStone:
+            monCharge += 1
+        case PurchaseType_MonthPower:
+            monCharge += 1
+        case PurchaseType_MonthStone:
+            monCharge += 1
+        case PurchaseType_MonthHero:
+            monCharge += 1
+        }
+    }
+    w.Write([]byte(fmt.Sprintf("月充值人数:%d  月充值金额:%d", monCount, monCharge)))
+
+    return
+}
+
+func GetDayCharge(w http.ResponseWriter, r *http.Request) {
+    body, err := ioutil.ReadAll(r.Body)
+    if err != nil {
+        log.Error("Failed read body", err)
+        w.Write([]byte(err.Error()))
+        return
+    }
+
+    type Data struct {
+        Platform string
+        Year int
+        Mon  int
+        Day  int
+    }
+
+    var msg Data
+    err = json.Unmarshal(body, &msg)
+    if err != nil {
+        log.Error("Failed decoding json", err)
+        w.Write([]byte(err.Error()))
+    }
+
+    h:=platforms.getMysqlHandler(msg.Platform);
+    log.Debug("In GetDayCharge")
+
+    date := time.Date(msg.Year, (time.Month)(msg.Mon), msg.Day, 0, 0, 0, 0, time.Local)
+    sqlStr := fmt.Sprintf("select count(distinct uid) from t_charge where logtime >= %d and logtime <= %d ", date.Unix(), date.AddDate(0, 0, 1).Unix())
+    dayCount := DoQueryReturnOne(h, sqlStr)
+
+    sqlStr = fmt.Sprintf("select value from t_charge where logtime >= %d and logtime <= %d ", date.Unix(), date.AddDate(0, 0, 1).Unix())
+    itemSlice := DoQueryReturnSlice(h, sqlStr)
+    var dayCharge int
+    for item := range itemSlice {
+        switch item {
+        case PurchaseType_NormalGold:
+            dayCharge += 1
+        case PurchaseType_SuperGold:
+            dayCharge += 1
+        case PurchaseType_NormalStone:
+            dayCharge += 1
+        case PurchaseType_SuperStone:
+            dayCharge += 1
+        case PurchaseType_MonthPower:
+            dayCharge += 1
+        case PurchaseType_MonthStone:
+            dayCharge += 1
+        case PurchaseType_MonthHero:
+            dayCharge += 1
+        }
+    }
+    w.Write([]byte(fmt.Sprintf("日充值人数:%d  日充值金额:%d", dayCount, dayCharge)))
+    return
+}
+
+func GetOnlineNum(w http.ResponseWriter, r *http.Request) {
+    body, err := ioutil.ReadAll(r.Body)
+    if err != nil {
+        log.Error("Failed read body", err)
+        return
+    }
+
+    type Data struct {
+        Platform string
+        Year int
+        Mon  int
+        Day  int
+        Hour int
+    }
+
+    var msg Data
+    err = json.Unmarshal(body, &msg)
+    if err != nil {
+        log.Error("Failed decoding json", err)
+    }
+
+    log.Debug("In GetOnlineNum")
+
+    h:=platforms.getMysqlHandler(msg.Platform);
+    day := time.Date(msg.Year, (time.Month)(msg.Mon), msg.Day, msg.Hour, 0, 0, 0, time.Local)
+    sqlStr := fmt.Sprintf("select value from t_gm_day_%4d%02d%02d where id=%d and logtime >= %d and logtime < %d order by logtime desc limit 1", day.Year(), day.Month(), day.Day(), StatIDOnlineNum, day.Unix(), day.Unix()+3600)
+    log.Debug(sqlStr)
+    value := DoQueryReturnOne(h, sqlStr)
+
+    back := make(map[string]interface{})
+    back["ret"] = 0
+    back["value"] = value
+
+    log.Debug(back)
+
+    back_json, err := json.Marshal(back)
+    if err != nil {
+        log.Error("Failed encode json", err)
+        return
+    }
+    w.Write(back_json)
+    return
+}
+
+type guanqiaStat struct {
+    Id    int
+    Count int
+}
+type guanqiaSlic []guanqiaStat
+
+func (p guanqiaSlic) Len() int {
+    return len(p)
+}
+func (p guanqiaSlic) Less(i, j int) bool {
+    return p[i].Count > p[j].Count || (p[i].Count == p[j].Count && p[i].Id < p[j].Id)
+}
+func (p guanqiaSlic) Swap(i, j int) {
+    p[i], p[j] = p[j], p[i]
+}
+func GetGuanqiaTotal(w http.ResponseWriter, r *http.Request) {
+     body, err := ioutil.ReadAll(r.Body)
+    if err != nil {
+        log.Error("Failed read body", err)
+        w.Write([]byte(err.Error()))
+        return
+    }
+    type Data struct {
+        Platform string
+    }
+
+    var msg Data
+    err = json.Unmarshal(body, &msg)
+    if err != nil {
+        w.Write([]byte(err.Error()))
+        log.Error("Failed decoding json", err)
+    }
+
+    h:=platforms.getMysqlHandler(msg.Platform);
+    
+    fmt.Println("GetGuanqiaTotal")
+    totalRegister := DoGetIDCount(h, StatIDRegister)
+    sqlStr := fmt.Sprintf("select id, Count(id) from t_gm_permenent  where id<10000 group by id")
+
+    rows, err := h.Query(sqlStr)
+    if err != nil {
+        log.Error(err.Error())
+    }
+    result := fmt.Sprintf("<br/>总注册人数:%d  <br/>", totalRegister)
+    ids := make(guanqiaSlic, 0)
+    var tmp guanqiaStat
+    for rows.Next() {
+        rerr := rows.Scan(&tmp.Id, &tmp.Count)
+        if rerr != nil {
+            break
+        }
+        ids = append(ids, tmp)
+    }
+    sort.Sort(ids)
+    for i := 0; i < len(ids); i++ {
+        var tmp float32 = 0
+        if i > 0 {
+            tmp = float32(ids[i].Count) / float32(ids[i-1].Count) * 100
+        }
+        result += fmt.Sprintf("关卡:%d 通关人数:%d 与上一关百分比:%04.2f 通关百分比:%04.2f <br/>", ids[i].Id, ids[i].Count, tmp, float32(ids[i].Count)/float32(totalRegister)*100.0)
+    }
+
+    w.Write([]byte(result))
+    return
+}
+func GetGuanqiaStat(w http.ResponseWriter, r *http.Request) {
+    fmt.Println("GetGuanqiaStat")
+    body, err := ioutil.ReadAll(r.Body)
+    if err != nil {
+        log.Error("Failed read body", err)
+        w.Write([]byte(err.Error()))
+        return
+    }
+
+    type Data struct {
+        Platform string
+        ID int
+    }
+
+    var msg Data
+    err = json.Unmarshal(body, &msg)
+    if err != nil {
+        log.Error("Failed decoding json", err)
+        w.Write([]byte(err.Error()))
+        return
+    }
+
+    h:=platforms.getMysqlHandler(msg.Platform);
+    log.Debug("In GetGuanqiaStat", msg)
+
+    count := DoGetIDCount(h, msg.ID)
+
+    w.Write([]byte(fmt.Sprintf("关卡%d 通关人数:%d", msg.ID, count)))
+
+    return
+}
+func GetDayStat(w http.ResponseWriter, r *http.Request) {
+    body, err := ioutil.ReadAll(r.Body)
+    if err != nil {
+        log.Error("Failed read body", err)
+        return
+    }
+
+    type Data struct {
+        Platform string
+        Year int
+        Mon  int
+        Day  int
+    }
+
+    var msg Data
+    err = json.Unmarshal(body, &msg)
+    if err != nil {
+        log.Error("Failed decoding json", err)
+        w.Write([]byte(err.Error()))
+        return
+    }
+
+    day := time.Date(msg.Year, (time.Month)(msg.Mon), msg.Day, 0, 0, 0, 0, time.Local)
+
+    sqlStr := fmt.Sprintf("select count(*) from (select distinct uid from t_gm_day_%4d%02d%02d where id=%d group by uid) as a", day.Year(), day.Month(), day.Day(), StatIDLogin)
+
+    h:=platforms.getMysqlHandler(msg.Platform);
+    log.Debug(sqlStr)
+    loginCount := DoQueryReturnOne(h, sqlStr)
+
+    registerCount := DoGetDayIDCount(h, StatIDRegister, day)
+
+    w.Write([]byte(fmt.Sprintf("%s 今日注册人数:%d ; 今日登录人数:%d", day.String()[0:10], registerCount, loginCount)))
+    return
+}
+
+func GetRemain(w http.ResponseWriter, r *http.Request) {
+    body, err := ioutil.ReadAll(r.Body)
+    if err != nil {
+        log.Error("Failed read body", err)
+        return
+    }
+
+    type Data struct {
+        Platform string
+        Year int
+        Mon  int
+        Day  int
+        N    int
+        M    int
+    }
+
+    var msg Data
+    err = json.Unmarshal(body, &msg)
+    if err != nil {
+        log.Error("Failed decoding json", err)
+        w.Write([]byte(err.Error()))
+        return
+    }
+
+    day := time.Date(msg.Year, (time.Month)(msg.Mon), msg.Day, 0, 0, 0, 0, time.Local)
+
+    log.Debug("In GetRemain", msg, day)
+
+    table1 := fmt.Sprintf("select distinct uid from t_gm_day_%4d%02d%02d  where id=%d", day.Year(), day.Month(), day.Day(), StatIDRegister)
+    table2 := ""
+    for i := msg.N; i <= msg.M; i++ {
+        destDay := day.AddDate(0, 0, i)
+        table2 += fmt.Sprintf("(select distinct uid from t_gm_day_%4d%02d%02d where id=%d)", destDay.Year(), destDay.Month(), destDay.Day(), StatIDLogin)
+        if i != msg.M {
+            table2 += " union "
+        }
+    }
+    sqlStr := fmt.Sprintf("select count(*) from (%s) as a join (%s) as b on a.uid=b.uid;", table1, table2)
+    log.Debug(sqlStr)
+
+    h:=platforms.getMysqlHandler(msg.Platform);
+    loginCount := DoQueryReturnOne(h, sqlStr)
+
+    registerCount := DoGetDayIDCount(h, StatIDRegister, day)
+
+    w.Write([]byte(fmt.Sprintf("%s 注册人数:%d ; %s ~ %s 登录人数:%d 留存率:%f", day.String()[0:10], registerCount,
+        day.AddDate(0, 0, msg.N).String()[5:10],
+        day.AddDate(0, 0, msg.M).String()[5:10],
+        loginCount, float32(loginCount)/float32(registerCount)*100)))
+
+    return
+}
+
+func SetGuanqia(w http.ResponseWriter, r *http.Request) {
+    body, err := ioutil.ReadAll(r.Body)
+    if err != nil {
+        log.Error("Failed read body", err)
+        w.Write([]byte(err.Error()))
+        return
+    }
+
+    type Data struct {
+        Platform string
+        Name      string
+        Chapter   int
+        C_guanqia int
+        S_guanqia int
+        DB        int
+    }
+
+    var msg Data
+    err = json.Unmarshal(body, &msg)
+    if err != nil {
+        log.Error("Failed decoding json", err)
+        w.Write([]byte(err.Error()))
+    }
+    log.Debug("In SetGuanqia", msg)
+
+    in := make(map[string]interface{})
+    in["name"] = msg.Name
+    in["chapter"] = msg.Chapter
+    in["c_guan"] = msg.C_guanqia
+    in["s_guan"] = msg.S_guanqia
+    h:=platforms.getServerHandler(msg.Platform);
+    data, ret := h.DoRequest(in, cmd_skip_guanqia)
+    if !ret {
+        log.Debug(ret)
+        return
+    }
+    type ret_data struct {
+        Ret int
+    }
+    var msg2 ret_data
+    err = json.Unmarshal(data, &msg2)
+    if err != nil {
+        log.Error("Failed decoding json", err)
+        w.Write([]byte(err.Error()))
+    }
+
+    if msg2.Ret == 0 {
+        w.Write([]byte("成功"))
+    } else if msg2.Ret == 5 {
+        w.Write([]byte("名字不存在"))
+    } else {
+        w.Write([]byte("系统错误"))
+    }
+    return
+}
+
+const (
+    RewardType_Exp                 = 1
+    RewardType_Gold                = 2
+    RewardType_Arm                 = 3
+    RewardType_Hero                = 4
+    RewardType_Power               = 5
+    RewardType_Stone               = 6
+    RewardType_Money               = 7
+    RewardType_RandomHeroByQuality = 8
+    RewardType_RandomArmByStar     = 9
+    RewardType_RandomArmByQuality  = 10
+    RewardType_TrueHero            = 11
+    RewardType_ArmCurr             = 12
+    RewardType_HeroCurr            = 13
+)
+
+func UserAdd(w http.ResponseWriter, r *http.Request) {
+    body, err := ioutil.ReadAll(r.Body)
+    if err != nil {
+        log.Error("Failed read body", err)
+        w.Write([]byte(err.Error()))
+        return
+    }
+    log.Debug("UserAdd", string(body))
+    type Data struct {
+        Platform string
+        Name  string
+        Type  int
+        Value int
+    }
+    var msg Data
+    err = json.Unmarshal(body, &msg)
+    if err != nil {
+        log.Error("Failed decoding json", err)
+    }
+
+    in := make(map[string]interface{})
+    in["Name"] = msg.Name
+    in["Type"] = msg.Type
+    in["Value"] = msg.Value
+
+    h:=platforms.getServerHandler(msg.Platform);
+    data, ret := h.DoRequest(in, cmd_user_add)
+    if !ret {
+        log.Debug(ret)
+        w.Write([]byte("出错啦"))
+        return
+    }
+    var msg2 Return
+    err = json.Unmarshal(data, &msg2)
+    if err != nil {
+        log.Error("Failed decoding json", err)
+        w.Write([]byte(err.Error()))
+    }
+
+    if msg2.Ret == 0 {
+        w.Write([]byte("成功"))
+    } else if msg2.Ret == 5 {
+        w.Write([]byte("名字不存在"))
+    } else {
+        w.Write([]byte("系统错误"))
+    }
+    return
+}
+
+func QueryUserInfo(w http.ResponseWriter, r *http.Request) {
+    log.Debug("QueryPlayerInfo will start")
+    body, err := ioutil.ReadAll(r.Body)
+    if err != nil {
+        log.Error("Failed read body", err)
+        return
+    }
+    type Data struct {
+        Platform string
+        Name string
+    }
+    var msg Data
+    err = json.Unmarshal(body, &msg)
+    if err != nil {
+        log.Error("Failed decoding json", err)
+        w.Write([]byte(err.Error()))
+        return
+    }
+    in := make(map[string]interface{})
+    in["name"] = msg.Name
+    h:=platforms.getServerHandler(msg.Platform);
+    data, ret := h.DoRequest(in, cmd_query_user_info)
+    if !ret {
+        log.Debug("DoRequest return ", ret)
+        return
+    }
+
+    type Data2 struct {
+        Ret       int
+        Gold      int
+        Power     int
+        Stone     int
+        Chapter   int
+        C_guanqia int
+        S_guanqia int
+        HeroCurr  int
+        ArmCurr   int
+    }
+    var msg2 Data2
+    err = json.Unmarshal(data, &msg2)
+    if err != nil && msg2.Ret == 0 {
+        log.Error("Failed decoding json", err)
+        w.Write([]byte(err.Error()))
+        return
+    }
+    w.Write([]byte(fmt.Sprintf("金币:%d 体力:%d 宝石:%d 兵魂:%d 将魂:%d 关卡:%d %d %d", msg2.Gold, msg2.Power, msg2.Stone, msg2.ArmCurr, msg2.HeroCurr, msg2.Chapter, msg2.C_guanqia, msg2.S_guanqia)))
+
+    return
+}
+
+func AddSoldier(w http.ResponseWriter, r *http.Request) {
+    body, err := ioutil.ReadAll(r.Body)
+    if err != nil {
+        log.Error("Failed read body", err)
+        return
+    }
+    type Data struct {
+        Platform string
+        Name  string
+        Id    int
+        Level int
+        Type  int
+    }
+    var msg Data
+    err = json.Unmarshal(body, &msg)
+    if err != nil {
+        log.Error("Failed decoding json", err)
+        w.Write([]byte(err.Error()))
+    }
+    in := make(map[string]interface{})
+    in["name"] = msg.Name
+    in["level"] = msg.Level
+    in["id"] = msg.Id
+    if msg.Type == 0 {
+        in["type"] = RewardType_Arm
+    } else {
+        in["type"] = RewardType_Hero
+    }
+    h:=platforms.getServerHandler(msg.Platform);
+    data, ret := h.DoRequest(in, cmd_add_soldier)
+    if !ret {
+        log.Debug(ret)
+        return
+    }
+    var msg2 Return
+    err = json.Unmarshal(data, &msg2)
+    if err != nil {
+        log.Error("Failed decoding json", err)
+    }
+
+    if msg2.Ret == 0 {
+        w.Write([]byte("成功"))
+    } else if msg2.Ret == 5 {
+        w.Write([]byte("名字不存在"))
+    } else {
+        w.Write([]byte("系统错误"))
+    }
+}
+
+func AddAllThing(w http.ResponseWriter, r *http.Request) {
+    body, err := ioutil.ReadAll(r.Body)
+    if err != nil {
+        log.Error("Failed read body", err)
+        return
+    }
+    type Data struct {
+        Platform string
+        Num  int
+        Type int
+    }
+
+    var msg Data
+    err = json.Unmarshal(body, &msg)
+    if err != nil {
+        log.Error("Failed decoding json", err)
+        w.Write([]byte(err.Error()))
+    }
+
+    in := make(map[string]interface{})
+    if msg.Type == 0 {
+        in["type"] = RewardType_Stone
+    } else {
+        in["type"] = RewardType_Gold
+    }
+    in["type"] = RewardType_Stone
+    in["value"] = msg.Num
+    h:=platforms.getServerHandler(msg.Platform);
+    data, ret := h.DoRequest(in, cmd_all_user_add)
+    if !ret {
+        log.Debug(ret)
+        return
+    }
+    var msg2 Return
+    err = json.Unmarshal(data, &msg2)
+    if err != nil {
+        log.Error("Failed decoding json", err)
+    }
+    if msg2.Ret == 0 {
+        w.Write([]byte("成功"))
+    } else if msg2.Ret == 5 {
+        w.Write([]byte("名字不存在"))
+    } else {
+        w.Write([]byte("系统错误"))
+    }
+    return
+}
+
+func Whichserver(w http.ResponseWriter, r *http.Request) {
+    body, err := ioutil.ReadAll(r.Body)
+    if err != nil {
+        log.Error("Failed read body", err)
+        w.Write([]byte(err.Error()))
+        return
+    }
+    log.Debug("Whichserver", string(body))
+    type Data struct {
+        Platform string
+        Name string
+    }
+
+    var msg Data
+    err = json.Unmarshal(body, &msg)
+    if err != nil {
+        log.Error("Failed decoding json", err)
+    }
+
+    in := make(map[string]interface{})
+    in["Name"] = msg.Name
+    h:=platforms.getServerHandler(msg.Platform);
+
+    data, ret := h.DoRequest(in, cmd_which_server)
+    if !ret {
+        log.Debug(ret)
+        w.Write([]byte("出错啦"))
+        return
+    }
+
+    var msg2 struct {
+        Sid int
+        Uid int
+    }
+
+    err = json.Unmarshal(data, &msg2)
+    if err != nil {
+        log.Error("Failed decoding json", err)
+        w.Write([]byte(err.Error()))
+    }
+
+    err = json.Unmarshal(data, &msg2)
+    if err != nil {
+        log.Error("Failed decoding json", err)
+        w.Write([]byte(err.Error()))
+    }
+
+    w.Write([]byte(fmt.Sprintf("sid:%v uid:%v", msg2.Sid, msg2.Uid)))
+    return
+}
+
+func system(s string) string {
+
+    cmd := exec.Command("/bin/sh", "-c", s)
+    var out bytes.Buffer
+    cmd.Stdout = &out
+    err := cmd.Run()
+    if err != nil {
+        log.Error(err)
+    }
+    log.Debug("xxxx %s", out.String())
+    return out.String()
+}
+
+func SystemCmd(w http.ResponseWriter, r *http.Request) {
+    body, err := ioutil.ReadAll(r.Body)
+    if err != nil {
+        log.Error("Failed read body", err)
+        w.Write([]byte(err.Error()))
+        return
+    }
+    log.Debug("SystemCmd", string(body))
+    type Data struct {
+        Name string
+    }
+
+    var msg Data
+    err = json.Unmarshal(body, &msg)
+    if err != nil {
+        log.Error("Failed decoding json", err)
+    }
+    w.Write([]byte(system(fmt.Sprintf("/data/sh/mysql.sh %s", msg.Name))))
+    return
+}

@@ -1,0 +1,102 @@
+package packet
+
+import (
+    "encoding/binary"
+    "errors"
+)
+
+type Packet struct {
+    Pos  uint
+    Data []byte
+}
+
+func (p *Packet) Length() int {
+    return len(p.Data)
+}
+
+func (p *Packet) Seek(n uint) {
+    p.Pos += n
+}
+
+//=============================================== Readers
+func (p *Packet) ReadBool() (ret bool, err error) {
+    b, _err := p.ReadByte()
+
+    if b != byte(1) {
+        return false, _err
+    }
+
+    return true, _err
+}
+
+func (p *Packet) ReadByte() (ret byte, err error) {
+    if p.Pos >= uint(len(p.Data)) {
+        err = errors.New("read byte failed")
+        return
+    }
+
+    ret = p.Data[p.Pos]
+    p.Pos++
+    return
+}
+
+func (p *Packet) ReadU16() (ret uint16, err error) { //big endian
+    if p.Pos+2 > uint(len(p.Data)) {
+        err = errors.New("read uint16 failed")
+        return
+    }
+
+    buf := p.Data[p.Pos : p.Pos+2]
+    ret = binary.LittleEndian.Uint16(buf)
+    p.Pos += 2
+    return
+}
+
+func (p *Packet) ReadS16() (ret int16, err error) {
+    _ret, _err := p.ReadU16()
+    ret = int16(_ret)
+    err = _err
+    return
+}
+
+//================================================ Writers
+func (p *Packet) WriteZeros(n int) {
+    zeros := make([]byte, n)
+    p.Data = append(p.Data, zeros...)
+}
+
+func (p *Packet) WriteBool(v bool) {
+    if v {
+        p.Data = append(p.Data, byte(1))
+    } else {
+        p.Data = append(p.Data, byte(0))
+    }
+}
+
+func (p *Packet) WriteByte(v byte) {
+    p.Data = append(p.Data, v)
+}
+
+func (p *Packet) WriteRawBytes(v []byte) {
+    p.Data = append(p.Data, v...)
+}
+
+func (p *Packet) WriteU16(v uint16) {
+    buf := make([]byte, 2)
+    binary.LittleEndian.PutUint16(buf, v)
+    p.Data = append(p.Data, buf...)
+}
+
+func (p *Packet) WriteS16(v int16) {
+    p.WriteU16(uint16(v))
+}
+
+func Reader(data []byte) *Packet {
+    return &Packet{Pos: 0, Data: data}
+}
+
+func Writer() *Packet {
+    pkt := &Packet{Pos: 0}
+    pkt.Data = make([]byte, 0, 128) //TODO  determine the magic number 128
+    return pkt
+}
