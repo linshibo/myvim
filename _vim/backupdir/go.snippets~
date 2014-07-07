@@ -15,4 +15,5 @@ snippet eif
 	else if ${1:/* condition */}{
 		${2:/*code*/}
 	}
-
+snippet todo
+	/*TODO:${1:something}*/

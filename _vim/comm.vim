@@ -137,7 +137,8 @@ if has('gui_running')
     set linespace=2
     set noimd
 endif
-"主题 
+
+"主题 solarized 的配置必须在 colorscheme 之前 
 let g:solarized_termcolors=256
 let g:solarized_termtrans=1
 let g:solarized_hitrail   =   0
@@ -277,7 +278,6 @@ nnoremap ,t <Esc>:tabedit
 nnoremap ,g :Ack <C-R>=expand('<cword>')<CR><CR>
 vnoremap ,g :call VisualSelection('gv')<CR>
 nnoremap ,r <Esc>:call GEN_TAGS()<CR>
-""nnoremap ,r <Esc>:! /usr/local/bin/ctags -f gosource.tags -R `pwd`<CR><CR>
 nnoremap ,m <Esc>:make<CR><CR>
 "nnoremap ,y <Esc>:call OPT_RANGE("ya")<CR>
 "nnoremap ,Y <Esc>:call OPT_RANGE("yi")<CR>
@@ -294,7 +294,7 @@ nnoremap <silent> # #zz
 nnoremap <silent> g* g*zz
 
 " Go to home and end using capitalized directions
-noremap H 0
+noremap H ^
 noremap L $
 noremap Y y$
 
@@ -338,12 +338,6 @@ nnoremap ,cp <Esc>:cp<CR>
 "插件设置
 "---------------------------------------------------------------------------
 
-"vim-colors-solarized {{{
-let g:solarized_termcolors=256
-let g:solarized_termtrans=1
-let g:solarized_hitrail   =   0
-"}}}
-
 "ack.vim{
 if has('unix')
     set grepprg=/user/bin/ack-grep
@@ -380,7 +374,7 @@ nnoremap ,b :Unite buffer<CR>
 
 "vim-easymotion{{{
 let g:EasyMotion_leader_key = '0'
-nnoremap \w <Esc>00w
+""nnoremap \w <Esc>00w
 "}}}
 
 "FencView {{{
@@ -394,8 +388,8 @@ let g:yankring_min_element_length = 3
 let g:yankring_max_display = 50 
 let g:yankring_persist = 0
 nnoremap <silent> <C-Y> :YRShow<CR> 
-""let g:yankring_replace_n_pkey = '<m-p>'
-""let g:yankring_replace_n_nkey = '<m-n>'
+"let g:yankring_replace_n_pkey = '<m-p>'
+"let g:yankring_replace_n_nkey = '<m-n>'
 let g:yankring_history_dir = '~/.vim/'
 let g:yankring_history_file='.yankring_history_file'
 "}}}
