@@ -6,6 +6,7 @@ import (
 	. "sanguo/systemdata"
 	"strconv"
 	"time"
+    "math/rand"
 )
 
 const (
@@ -25,7 +26,7 @@ func (this *User) GetArmEquip() []armEquip{
             Equip:v,
         })
 	}
-    this.Debug("monitor", )
+    this.Debug("monitor",this.Arm.armEquip )
 	return a
 }
 
@@ -371,11 +372,11 @@ func (this *User) ProcessReward(reward_type int, reward_value int) (reward Rewar
 	}
 
 	if reward_type == RewardType_Power {
-		this.Trace("HZZZ", "WillRewardPower", reward_value, this.power)
+		//this.Trace("HZZZ", "WillRewardPower", reward_value, this.power)
 		if err = this.powerReward(reward_value); err != nil {
 			return
 		}
-		this.Trace("HZZZ", "AfterRewardPower", this.power)
+		//this.Trace("HZZZ", "AfterRewardPower", this.power)
 	}
 
 	if reward_type == RewardType_RandomHeroByQuality {
@@ -434,6 +435,20 @@ func (this *User) ProcessReward(reward_type int, reward_value int) (reward Rewar
 			return
 		}
 	}
+	if reward_type == RewardType_HeroCurr {
+        vec := make([]int, 0)
+        for k, v := range this.Hero.heros{
+            if v.weaponChip < 1 {
+                /*Todo*/
+                vec = append(vec, k)
+            }
+        }
+        if len(vec)>0 {
+            idx:=rand.Intn(len(vec))
+            hero , _ := this.Hero.heros[idx]
+            this.Hero.addWeaponChipCount(vec[idx], hero, reward_value)
+        }
+    }
 
 	return
 }
@@ -674,9 +689,9 @@ func (this *User) CostWealth(t, value int) (err error) {
 		return this.costGold(value)
 
 	case RewardType_Power:
-		this.Trace("HZZZ", "Will ReducePower", value, this.power)
+		//this.Trace("HZZZ", "Will ReducePower", value, this.power)
 		err = this.reducePower(value)
-		this.Trace("HZZZ", "After ReducePower", this.power)
+		//this.Trace("HZZZ", "After ReducePower", this.power)
 		return err
 
 	case RewardType_Stone:
@@ -732,4 +747,18 @@ func (this *User) RegisterName(name string) (err error) {
 
 	_, err = dbconn.Do("SET", "name:"+name, this.uid)
 	return err
+}
+
+func (this *User) UpdateShenshouCurr(c int)(err error) {
+	this.shenshou_curr = c
+	
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+	
+	_,err = dbconn.Do("HSET", this.GetUidUsedInDB(), "shenshou_curr", this.shenshou_curr)
+	return err
+}
+
+func (this *User)GetShenshouCurr() int{
+	return this.shenshou_curr
 }

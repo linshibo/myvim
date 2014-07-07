@@ -8,7 +8,11 @@
 # Your branch is up-to-date with 'origin/master'.
 #
 # Changes to be committed:
-#	modified:   gameserver/login.go
+#	modified:   base/util/util.go
+#	modified:   gameserver/Arm.go
+#	modified:   gameserver/hero.go
+#	modified:   gameserver/user.go
+#	modified:   systemdata/types.go
 #
 # Untracked files:
 #	apple_cpu.prof

@@ -34,6 +34,8 @@ type HeroBack struct {
 	Level int
 	Prob  int
 	Flag  int
+    HeroChip int
+    WeaponChip int
 }
 
 type RewardBack struct {
@@ -56,7 +58,8 @@ const (
 	RewardType_RandomArmByQuality  = 10
 	RewardType_TrueHero            = 11
 	RewardType_ArmCurr             = 12
-	RewardType_HeroCurr            = 13	
+	RewardType_HeroCurr            = 13
+	RewardType_WeaponChip          = 14
 )
 
 const (
@@ -69,27 +72,35 @@ const (
 	QuestType_LoginDays                   = 9
 	QuestType_GetSpecGold                 = 10
 	QuestType_GetSpecScore                = 12
-	QuestType_RecruitSpecArm        = 20
-	QuestType_UpdateArm        = 21
-	QuestType_FinishActivity        = 22
-	QuestType_FinishBoss        = 23
-	QuestType_FriendNum        = 24
-	QuestType_SendFriendNum        = 25
-	QuestType_GetHero        = 26
-	QuestType_GetTrueHero        = 27
-	QuestType_ArmEvolveSpecQuality         =  28
-	QuestType_HeroEvolveSpecQuality        =  29
-	QuestType_WinFight        = 30
-	QuestType_FinishSpecBoss        = 31
+	QuestType_RecruitSpecArm              = 20
+	QuestType_UpdateArm                   = 21
+	QuestType_FinishActivity              = 22
+	QuestType_FinishBoss                  = 23
+	QuestType_FriendNum                   = 24
+	QuestType_SendFriendNum               = 25
+	QuestType_GetHero                     = 26
+	QuestType_GetTrueHero                 = 27
+	QuestType_ArmEvolveSpecQuality        = 28
+	QuestType_HeroEvolveSpecQuality       = 29
+	QuestType_WinFight                    = 30
+
+	QuestType_CollectSpecArm       = 31
+	QuestType_CollectArmWithSoul   = 32
+	QuestType_CollectArmCount      = 33
+	QuestType_CollectSpecHeroLevel = 34
+	QuestType_CollectHeroCount     = 35
+
+	//QuestType_FinishSpecBoss        = 31
 )
 
 const (
-	QuestMold_Fight = 0
-	QuestMold_Nomal = 1
-	QuestMold_Chengjiu = 2
-	QuestMold_Chapter = 3
+	QuestMold_Fight       = 0
+	QuestMold_Nomal       = 1
+	QuestMold_Chengjiu    = 2
+	QuestMold_Chapter     = 3
+	QuestMold_HeroAdvance = 4
+	QuestMold_ArmEquip    = 5
 )
-
 
 const (
 	White  = 1
@@ -100,12 +111,12 @@ const (
 )
 
 var (
-	GoldNotEnoughErr = errors.New("The gold is not enough")
-	StoneNotEnoughErr = errors.New("The stone is not enough")
-	ArmCurrNotEnoughErr = errors.New("The arm curr is not enough")
+	GoldNotEnoughErr     = errors.New("The gold is not enough")
+	StoneNotEnoughErr    = errors.New("The stone is not enough")
+	ArmCurrNotEnoughErr  = errors.New("The arm curr is not enough")
 	HeroCurrNotEnoughErr = errors.New("The hero curr is not enough")
-	NoRightChoiceErr = errors.New("There is no corresponding type")
-	NegtiveErr = errors.New("There data should not be negtive")
+	NoRightChoiceErr     = errors.New("There is no corresponding type")
+	NegtiveErr           = errors.New("There data should not be negtive")
 )
 
 type Reward_tmp struct {
@@ -119,38 +130,39 @@ type Reward struct {
 }
 
 const (
-	SmashCardToGold = 1
-	SmashCardToStone   = 2
-	NewCard     = 3
-	SmashCardToArmCurr = 4
+	SmashCardToGold     = 1
+	SmashCardToStone    = 2
+	NewCard             = 3
+	SmashCardToArmCurr  = 4
 	SmashCardToHeroCurr = 5
+	SmashCardToWeaponChip = 6//武将武器碎片
 )
 
-
 const (
-	MaxCardLevel = 9
+	MaxCardLevel      = 9
 	GuanqiaQuestScore = 100000
 )
 
-var(
-	 CardUpdatePro = [10]int{0, 100, 100, 100, 80, 80, 80, 70, 70, 0}
-	 CardEvolvePro = [6]int{0, 100, 100, 100, 100, 0}
-	 QualityCoef = [6]int{0, 1, 3, 6, 10, 15}
+var (
+	CardUpdatePro = [10]int{0, 100, 100, 100, 80, 80, 80, 70, 70, 0}
+	CardEvolvePro = [6]int{0, 100, 100, 100, 100, 0}
+	QualityCoef   = [6]int{0, 1, 3, 6, 10, 15}
 )
 
 var (
-	 SpecificArmId = [][]int{
+	SpecificArmId = [][]int{
 		{24},
 		{35},
 		{90},
-		{20,24,31,35,90},
-		{18,19,21,55,26,28,36},
+		{20, 24, 31, 35, 90},
+		{18, 19, 21, 55, 26, 28, 36},
 		{48},
-		{20,24,31,35,48,90},
-		{104,98,376,377,83},
-		{43,84,92,292}}
+		{20, 24, 31, 35, 48, 90},
+		{104, 98, 376, 377, 83},
+		{43, 84, 92, 292}}
 )
 
 var (
-	 SmashTypeProb = []int{5, 45, 100}
+	SmashTypeProb = []int{5, 45, 100}//宝石 金币 卡片
+	SmashTypeProbWithWeaponChip = []int{5, 20, 60, 100}//宝石 金币 卡片 碎片
 )

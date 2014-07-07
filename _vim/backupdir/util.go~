@@ -1,0 +1,51 @@
+package util
+
+import (
+	"time"
+	"math/rand"
+	"sanguo/base/log"
+)	
+
+func IsProbabilityHappen(prob int) bool {
+	if prob >= 100 {
+		return true
+	}
+	
+	prob = prob*100
+	t := time.Now().UnixNano()
+	r := rand.New(rand.NewSource(t))
+	
+	num := r.Intn(10000) 
+	log.Debug("The seed and rand and prob is", t, num, prob)
+	
+	return num < prob
+}
+
+func GetRandomNumOf100() int {
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	return int(r.Intn(100))
+}
+
+func GetRandomNum(num int) int {
+	if num == 0 {
+		return 0
+	}
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	return int(r.Intn(int(num)))
+}
+
+func ShuffleArray(s []int) {
+	i := len(s)
+	j := 0
+	
+	if i == 0 {
+		return 
+	}
+	
+	for i = len(s) ; i > 0; i-- {
+		j = GetRandomNumOf100() % (i+1)
+		tmp := s[j]
+		s[i] = s[j]
+		s[j] = tmp
+	}
+}

@@ -193,7 +193,7 @@ func (this *_PlayerManager) LoadPlayer(userid string) (err error) {
 		"c_guanqia", "s_guanqia", "stone", "last_login", "last_power_time", "card_count",
 		"vip", "photo", "last_login_reward_time", "login_arm_given", "login_arm", "last_login_arm", "register_time", "stranger_time",
 		"event_count", "event_end_count", "event_end_time", "event_id", "lock_chapter", "lock_start_time", "max_power", "heroVIP", "mid",
-		"gid", "sign_last", "sign_count", "box_count", "box_get_time", "arm_curr", "hero_curr", "convenedBossID"))
+		"gid", "sign_last", "sign_count", "box_count", "box_get_time", "arm_curr", "hero_curr", "convenedBossID", "shenshou_curr"))
 	if err != nil {
 		log.Error("Can't get user from redis")
 		return err
@@ -516,6 +516,13 @@ func (this *_PlayerManager) LoadPlayer(userid string) (err error) {
 	}
 	index++
 
+    user.shenshou_curr, err = redis.Int(reply2[index], nil)
+	if err != nil {
+		log.Error("Cant convert shenshou_curr to int", err, user.uid)
+		return err
+	}
+	index++
+	
 	// Load LoginReward
 	for i := 0; i < 3; i++ {
 		reply, err := redis.Values(dbconn.Do("HMGET", user.GetUidUsedInDB()+":last_login_reward:"+strconv.Itoa(i), "Type", "Value"))
@@ -751,7 +758,7 @@ func (this *_PlayerManager) AddPlayer(id string) (uid int, err error) {
 		"login_arm_given", user.login_arm_given, "login_arm", user.login_arm, "last_login_arm", user.last_login_arm, "register_time", user.register_time,
 		"event_count", user.event_count, "event_end_count", user.event_end_count, "event_end_time", user.event_end_time, "event_id", user.event_id,
 		"lock_chapter", 0, "lock_start_time", 0, "heroVIP", 0, "topic_count", 0, "sign_last", 0, "sign_count", 0, "box_count", 0, "box_get_time", 0,
-		"arm_curr", 0, "hero_curr", 0)
+		"arm_curr", 0, "hero_curr", 0, "convenedBossID",0, "shenshou_curr", 0)
 	if err != nil {
 		log.Error("Can't insert initial user info into redis of", user.uid)
 		return

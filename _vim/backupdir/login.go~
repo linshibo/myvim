@@ -154,18 +154,6 @@ func UserLogin_(sess *Session, reader []byte) bool {
 	heros := sess.user.Hero.GetAllHeros()
 	arms := sess.user.Arm.GetAllArms()
 
-	new_arm, err := GetAllNewGetArm(sess)
-	if err != nil {
-		log.Error("Failed get new arm", err, sess.user.uid)
-		return false
-	}
-
-	new_hero, err := GetAllNewGetHero(sess)
-	if err != nil {
-		log.Error("Failed get new hero", err, sess.user.uid)
-		return false
-	}
-
 	/*quests, err := GetAllUnrewardQuest(sess)
 	if err != nil {
 		log.Error("Failed get unreward quests", err, sess.user.uid)
@@ -176,9 +164,6 @@ func UserLogin_(sess *Session, reader []byte) bool {
 
 	now := time.Now().Unix()
 	back := map[string]interface{}{
-
-
-
 		"ret":              true,
 		"uid":              sess.user.uid,
 		"level":            sess.user.level,
@@ -196,8 +181,8 @@ func UserLogin_(sess *Session, reader []byte) bool {
 		"power_left_time":  power_left_time,
 		"f_quests":         sess.user.quest.GetOwnFinishedQuest(),
 		"unreward_qid":     sess.user.quest.GetUnrewardQuests(),
-		"new_arm":          new_arm,
-		"new_hero":         new_hero,
+		"new_arm":          sess.user.Arm.GetNewArm(),
+		"new_hero":         sess.user.Hero.GetNewHero(),
 		"bossInfo":         bosses,
         "ConvenedBossID":   sess.user.convenedBossID, 
 		"friends_max_num":  15,

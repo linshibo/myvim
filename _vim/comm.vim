@@ -27,12 +27,12 @@ Bundle 'vim-scripts/Tagbar'
 Bundle 'vim-scripts/python.vim'
 Bundle 'vim-scripts/xml.vim'
 Bundle 'vim-scripts/matchit.zip'
-"Bundle 'vim-scripts/YankRing.vim'
-"Bundle 'vim-scripts/AutoClose'
+Bundle 'vim-scripts/YankRing.vim'
+Bundle 'vim-scripts/AutoClose'
 "Bundle 'vim-scripts/Tabular'
 Bundle 'vim-scripts/snipMate'
 Bundle 'vim-scripts/a.vim'
-Bundle 'vim-scripts/comments.vim'
+""Bundle 'vim-scripts/comments.vim'
 Bundle 'vim-scripts/ack.vim'
 Bundle 'Lokaltog/vim-powerline'
 Bundle 'Lokaltog/vim-easymotion'
@@ -42,16 +42,10 @@ Bundle 'tpope/vim-surround'
 Bundle 'bootleq/vim-cycle'
 Bundle 'kana/vim-smartword'
 Bundle 'altercation/vim-colors-solarized'
-Bundle 'Blackrush/vim-gocode'
-Bundle 'dgryski/vim-godef'
-Bundle 'vim-scripts/JavaScript-Indent'
-Bundle 'pangloss/vim-javascript'
-Bundle 'vim-scripts/JavaScript-Libraries-Syntax'
-Bundle 'guileen/vim-node.git'
-Bundle 'myhere/vim-nodejs-complete.git'
-Bundle 'moll/vim-node'
+Bundle 'fatih/vim-go'
 Bundle 'plasticboy/vim-markdown'
- 
+
+
 " 代码存放在 vim script 上
 "Bundle 'FuzzyFinder'
 " 代码存放在其他地方
@@ -145,12 +139,11 @@ if has('gui_running')
     set noimd
 endif
 "主题 
-"colorscheme desert
 let g:solarized_termcolors=256
 let g:solarized_termtrans=1
 let g:solarized_hitrail   =   0
-set background="dark"
 colorscheme solarized
+set background="dark"
 set cursorline
 
 "显示命令
@@ -255,7 +248,7 @@ nmap  <F1> :help <C-R>=expand('<cword>')<CR><CR>
 " }}} 跨 Vim 剪貼 {{{2
 " http://vim.wikia.com/wiki/Transfer_text_between_two_Vim_instances
 nmap \p :r $HOME/.vimxfer<CR>
-vmap \c :w! $HOME/.vimxfer<CR>
+vmap \y :w! $HOME/.vimxfer<CR>
 
 nnoremap ,q <Esc>:q!<CR>
 nnoremap ,w :w!<CR>:nohl<CR>
@@ -281,21 +274,16 @@ nnoremap ,t <Esc>:tabedit
 "nnoremap <C-p> <C-PageUp>
 "nnoremap <C-n> <C-PageDown>
 
-"解析协议
-""vnoremap ,i :call VisualSelection('oi')<CR>
-""vnoremap ,o :call VisualSelection('oo')<CR>
-
 "查找当前光标下的单词
 nnoremap ,g :Ack <C-R>=expand('<cword>')<CR><CR>
 vnoremap ,g :call VisualSelection('gv')<CR>
-"nnoremap ,r <Esc>:call RESET_CTAG_CSCOPE()<CR>
-nnoremap ,r <Esc>:! /usr/local/bin/ctags -f gosource.tags -R `pwd`<CR><CR>
+nnoremap ,r <Esc>:call GEN_TAGS()<CR>
+""nnoremap ,r <Esc>:! /usr/local/bin/ctags -f gosource.tags -R `pwd`<CR><CR>
 nnoremap ,m <Esc>:make<CR><CR>
-nnoremap ,y <Esc>:call OPT_RANGE("ya")<CR>
-nnoremap ,Y <Esc>:call OPT_RANGE("yi")<CR>
+"nnoremap ,y <Esc>:call OPT_RANGE("ya")<CR>
+"nnoremap ,Y <Esc>:call OPT_RANGE("yi")<CR>
 "nnoremap ,d <Esc>:call OPT_RANGE("da")<CR>
 "nnoremap ,D <Esc>:call OPT_RANGE("di")<CR>
-nnoremap ,d <Esc>:Godoc <C-R>=expand('<cword>')<CR><CR>
 "转换单词大小写
 nnoremap ,u <Esc>:call SET_UAW()<CR>
 
@@ -320,9 +308,6 @@ nnoremap <C-H> <Esc><C-W>h
 nnoremap <C-L> <Esc><C-W>l
 nnoremap <C-J> <Esc><C-W>j
 nnoremap <C-K> <Esc><C-W>k
-
-
-nnoremap <C-6> <C-^>
 
 "Fast reloading of the .vimrc
 nnoremap \s <ESC>:source ~/.vim/comm.vim<cr>
@@ -349,43 +334,22 @@ nnoremap <F4> <Esc>:call ToggleQF()<CR>
 nnoremap ,cn <Esc>:cn<CR>
 nnoremap ,cp <Esc>:cp<CR>
 
-inoremap ( ()<ESC>i
-inoremap [ []<ESC>i
-inoremap " ""<ESC>i
-inoremap ' ''<ESC>i
-inoremap { {<CR>}<ESC>kk<CR>
+"inoremap ( ()<ESC>i
+"inoremap [ []<ESC>i
+"inoremap " ""<ESC>i
+"inoremap ' ''<ESC>i
+"inoremap { {<CR>}<ESC>kk<CR>
 
 
 "---------------------------------------------------------------------------
 "插件设置
 "---------------------------------------------------------------------------
 
-"括号显示增强
-"let g:rbpt_colorpairs = [
-    "\ ['brown', 'RoyalBlue3'],
-    "\ ['Darkblue', 'SeaGreen3'],
-    "\ ['darkgray', 'DarkOrchid3'],
-    "\ ['darkgreen', 'firebrick3'],
-    "\ ['darkcyan', 'RoyalBlue3'],
-    "\ ['darkred', 'SeaGreen3'],
-    "\ ['darkmagenta', 'DarkOrchid3'],
-    "\ ['brown', 'firebrick3'],
-    "\ ['gray', 'RoyalBlue3'],
-    "\ ['darkred', 'DarkOrchid3'],
-    "\ ['black', 'SeaGreen3'],
-    "\ ['darkmagenta', 'DarkOrchid3'],
-    "\ ['Darkblue', 'firebrick3'],
-    "\ ['darkgreen', 'RoyalBlue3'],
-    "\ ['darkcyan', 'SeaGreen3'],
-    "\ ['red', 'firebrick3'],
-    "\ ]
-"let g:rbpt_max = 40
-"let g:rbpt_loadcmd_toggle = 0
-" settings for kien/rainbow_parentheses.vim
-"au VimEnter * RainbowParenthesesToggle
-"au Syntax * RainbowParenthesesLoadRound
-"au Syntax * RainbowParenthesesLoadSquare
-"au Syntax * RainbowParenthesesLoadBraces
+"vim-colors-solarized {{{
+let g:solarized_termcolors=256
+let g:solarized_termtrans=1
+let g:solarized_hitrail   =   0
+"}}}
 
 "ack.vim{
 if has('unix')
@@ -404,7 +368,7 @@ nmap ge  <Plug>(smartword-ge)
 "}}}
 
 "autoclose{{{
-"nmap <F2> <Plug>ToggleAutoCloseMappings
+nmap <F2> <Plug>ToggleAutoCloseMappings
 "}}}}
 
 "a.vim {{{
@@ -418,7 +382,7 @@ nnoremap ,b :Unite buffer<CR>
 "}}}
 
 "tabular{{{
-nnoremap \= :call SetAlign()<CR>
+""nnoremap \= :call SetAlign()<CR>
 "}}}
 
 "vim-easymotion{{{
@@ -431,16 +395,16 @@ let g:fencview_autodetect = 1
 "}}}
 
 "YankRing {{{
-"let g:yankring_enabled = 1  " Disables the yankring
-"let g:yankring_max_history = 10
-"let g:yankring_min_element_length = 3
-"""let g:yankring_max_display = 50 
-"let g:yankring_persist = 0
-"nnoremap <silent> <C-Y> :YRShow<CR> 
-"""let g:yankring_replace_n_pkey = '<m-p>'
-"""let g:yankring_replace_n_nkey = '<m-n>'
-"let g:yankring_history_dir = '~/.vim/'
-"let g:yankring_history_file='.yankring_history_file'
+let g:yankring_enabled = 1  " Disables the yankring
+let g:yankring_max_history = 10
+let g:yankring_min_element_length = 3
+let g:yankring_max_display = 50 
+let g:yankring_persist = 0
+nnoremap <silent> <C-Y> :YRShow<CR> 
+""let g:yankring_replace_n_pkey = '<m-p>'
+""let g:yankring_replace_n_nkey = '<m-n>'
+let g:yankring_history_dir = '~/.vim/'
+let g:yankring_history_file='.yankring_history_file'
 "}}}
 
 " omnicppcomplete{{{
@@ -663,12 +627,6 @@ let g:cycle_default_groups = [
 \ [['width', 'height']],
 \ [['asc', 'desc']],
 \ [['start', 'end']],
-\ [['是', '否']],
-\ [['上', '下']],
-\ [['左', '右']],
-\ [['前', '后']],
-\ [['內', '外']],
-\ [['男', '女']],
 \ [['east', 'west']],
 \ [['south', 'north']],
 \ [['prefix', 'suffix']],
@@ -682,6 +640,19 @@ let g:cycle_default_groups = [
 \ ]
 "}}}
 
+
+"vim-go{{{
+let g:go_play_open_browser = 0
+""By default vim-go shows errors for the fmt command, to disable it:
+let g:go_fmt_fail_silently = 1
+""Disable auto fmt on save:
+let g:go_fmt_autosave = 0
+""Disable goimports and use gofmt for the fmt command:
+let g:go_fmt_command = "gofmt"
+au FileType go nmap gd <Plug>(go-def)
+au FileType go nmap <Leader>d <Plug>(go-doc)
+au FileType go nmap <Leader>i <Plug>(go-info)
+"}}}
 "----------------------------------------------------------------------------
 " FileType related
 "----------------------------------------------------------------------------
@@ -701,11 +672,6 @@ autocmd BufEnter *.c  set filetype=cpp
 autocmd BufEnter *.h  set filetype=cpp
 
 """"""""""""
-"php
-""""""""""""
-"autocmd BufEnter  *.php call s:SET_PATH("pub") 
-
-""""""""""""
 "python
 """"""""""""
 autocmd FileType python setlocal omnifunc=pythoncomplete#Complete
@@ -719,11 +685,8 @@ au BufNewFile,BufRead *.py,*.pyw set filetype=python
 "golang
 """"""""""""
 autocmd BufEnter *.go  set filetype=go
-let g:godef_split=0
-let g:godef_same_file_in_same_window=1
-let g:go_fmt_autofmt = 0
 au Filetype go set makeprg=go\ build\ ./...
-noremap \\f <Esc>:Fmt<CR> 
+noremap \\f <Esc>:GoFmt<CR> 
 
 """"""""""""
 " HTML 
@@ -747,12 +710,12 @@ autocmd FileType vim map <buffer> <leader><space> :w!<cr>:source %<cr>
 " Enable omni completion. (Ctrl-X Ctrl-O)
 autocmd FileType javascript setlocal omnifunc=javascriptcomplete#CompleteJS
 autocmd BufNewFile,BufRead *.json set ft=javascript
-let g:used_javascript_libs = 'underscore,backbone'
-autocmd BufReadPre *.js let b:javascript_lib_use_jquery = 1
-autocmd BufReadPre *.js let b:javascript_lib_use_underscore = 1
-autocmd BufReadPre *.js let b:javascript_lib_use_backbone = 1
-autocmd BufReadPre *.js let b:javascript_lib_use_prelude = 0
-autocmd BufReadPre *.js let b:javascript_lib_use_angularjs = 0
+""let g:used_javascript_libs = 'underscore,backbone'
+"autocmd BufReadPre *.js let b:javascript_lib_use_jquery = 1
+"autocmd BufReadPre *.js let b:javascript_lib_use_underscore = 1
+"autocmd BufReadPre *.js let b:javascript_lib_use_backbone = 1
+"autocmd BufReadPre *.js let b:javascript_lib_use_prelude = 0
+"autocmd BufReadPre *.js let b:javascript_lib_use_angularjs = 0
 ""let Tlist_JS_Settings = 'javascript;s:string;a:array;o:object;f:function'
 ""let Tlist_Ctags_Cmd = '/usr/local/bin/ctags'
 "添加字典文件
@@ -896,15 +859,15 @@ endfunction
 
 
 function! GEN_TAGS() 
-    if filetype = go
-        silent! execute "! /usr/local/bin/ctags -f gosource.tags -R `pwd`"
-    else if filetype = cpp
-        call RESET_CTAG_CSCOPE()
+    if &filetype == "go"
+        silent! execute "! /usr/local/bin/ctags -f gosource.tags -R `pwd`<CR><CR>"
+    else if &filetype == "cpp"
+        call GEN_C_CTAG_CSCOPE()
     endif
 endfunction
 
-"重新生成ctag cscope
-function! RESET_CTAG_CSCOPE() 
+"重新生成c语言 ctag cscope
+function! GEN_C_CTAG_CSCOPE() 
     if(executable('cscope') && has("cscope") )
         silent! execute "!find . -name '[^.]*.h' -o -name '[^.]*.c' -o -name '[^.]*.cpp' -o -name '[^.]*.hpp' > _cscope.files"
         silent! execute "!cscope -bkq -f _cscope.out -i _cscope.files"
@@ -926,15 +889,3 @@ function! OPT_RANGE( opt_str )
     endif
 endfunction
 
-function! GoVet()
-    cexpr system("go vet " . shellescape(expand('%')))
-    copen
-endfunction
-command! GoVet :call GoVet()
-
-
-function! GoLint()
-    cexpr system("golint " . shellescape(expand('%')))
-    copen
-endfunction
-command! GoLint :call GoLint()
