@@ -32,7 +32,6 @@ Bundle 'vim-scripts/AutoClose'
 "Bundle 'vim-scripts/Tabular'
 Bundle 'vim-scripts/snipMate'
 Bundle 'vim-scripts/a.vim'
-""Bundle 'vim-scripts/comments.vim'
 Bundle 'vim-scripts/ack.vim'
 Bundle 'Lokaltog/vim-powerline'
 Bundle 'Lokaltog/vim-easymotion'
@@ -333,12 +332,6 @@ vnoremap <silent> # :call VisualSelection('b')<CR>
 nnoremap <F4> <Esc>:call ToggleQF()<CR>
 nnoremap ,cn <Esc>:cn<CR>
 nnoremap ,cp <Esc>:cp<CR>
-
-"inoremap ( ()<ESC>i
-"inoremap [ []<ESC>i
-"inoremap " ""<ESC>i
-"inoremap ' ''<ESC>i
-"inoremap { {<CR>}<ESC>kk<CR>
 
 
 "---------------------------------------------------------------------------
