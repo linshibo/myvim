@@ -30,12 +30,12 @@ type CardBack struct {
 }
 
 type HeroBack struct {
-	Id    int
-	Level int
-	Prob  int
-	Flag  int
-    HeroChip int
-    WeaponChip int
+	Id         int
+	Level      int
+	Prob       int
+	Flag       int
+	HeroChip   int
+	WeaponChip int
 }
 
 type RewardBack struct {
@@ -59,7 +59,8 @@ const (
 	RewardType_TrueHero            = 11
 	RewardType_ArmCurr             = 12
 	RewardType_HeroCurr            = 13
-	RewardType_WeaponChip          = 14
+	RewardType_HeroChip            = 14
+	RewardType_WeaponChip          = 15
 )
 
 const (
@@ -130,12 +131,13 @@ type Reward struct {
 }
 
 const (
-	SmashCardToGold     = 1
-	SmashCardToStone    = 2
-	NewCard             = 3
-	SmashCardToArmCurr  = 4
-	SmashCardToHeroCurr = 5
-	SmashCardToWeaponChip = 6//武将武器碎片
+	SmashCardToGold       = 1
+	SmashCardToStone      = 2
+	NewCard               = 3
+	SmashCardToArmCurr    = 4
+	SmashCardToHeroCurr   = 5
+	SmashCardToHeroChip   = 6 //武将碎片
+	SmashCardToWeaponChip = 7 //武将武器碎片
 )
 
 const (
@@ -163,6 +165,6 @@ var (
 )
 
 var (
-	SmashTypeProb = []int{5, 45, 100}//宝石 金币 卡片
-	SmashTypeProbWithWeaponChip = []int{5, 20, 60, 100}//宝石 金币 卡片 碎片
+	SmashTypeProb               = []int{5, 45, 100}     //宝石 金币 卡片
+	SmashTypeProbWithWeaponChip = []int{5, 20, 60, 100} //宝石 金币 卡片 碎片
 )

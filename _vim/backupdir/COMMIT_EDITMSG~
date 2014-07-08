@@ -8,33 +8,17 @@
 # Your branch is up-to-date with 'origin/master'.
 #
 # Changes to be committed:
-#	modified:   backupdir/COMMIT_EDITMSG~
-#	modified:   backupdir/comm.vim~
-#	modified:   comm.vim
-#	new file:   plugin/comments.vim
-#
-# Changes not staged for commit:
-#	modified:   bundle/Tagbar (untracked content)
-#	modified:   bundle/ack.vim (untracked content)
-#	modified:   bundle/matchit.zip (untracked content)
-#	modified:   bundle/snipMate (untracked content)
-#	modified:   bundle/vim-smartword (untracked content)
-#	modified:   bundle/xml.vim (untracked content)
+#	modified:   hero.go
+#	modified:   user.go
+#	modified:   ../systemdata/types.go
 #
 # Untracked files:
-#	../.DS_Store
-#	backupdir/_bashrc~
-#	backupdir/bufferManager_test.go~
-#	backupdir/bufferedSlice.go~
-#	backupdir/cards.go~
-#	backupdir/chapterGuanQiaInfo.cfg~
-#	backupdir/chapterInfo.cfg~
-#	backupdir/cli.go~
-#	bundle/AutoClose/
-#	bundle/OmniCppComplete/
-#	bundle/YankRing.vim/
-#	bundle/python.vim/
-#	bundle/vim-easymotion/
-#	bundle/vim-go/
-#	bundle/vim-surround/
+#	../apple_cpu.prof
+#	../apple_mem.prof
+#	dump.rdb
+#	gosource.tags
+#	../gosource.tags
+#	../log_55555
+#	../sanguo
 #
+fix

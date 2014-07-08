@@ -2,20 +2,20 @@ package gameserver
 
 import (
 	"encoding/json"
-	"github.com/garyburd/redigo/redis"
 	"sanguo/base/log"
 	//"sanguo/base/packet"
 	"sanguo/config"
 	"sanguo/db"
 	. "sanguo/systemdata"
 	"time"
+	"github.com/garyburd/redigo/redis"
 )
 
 func CanRegister(id string) (flag bool, err error) {
 	dbconn := db.ZonePool.Get()
 	defer dbconn.Close()
 
-	sid, err := dbconn.Do("HGET", "gateway:gid2sid", id)
+	sid, err := redis.Int(dbconn.Do("HGET", "gateway:gid2sid", id))
 	if err != nil {
 		log.Error("Failed HGET sid", err)
 		return false, err
@@ -44,20 +44,21 @@ func UserLogin_(sess *Session, reader []byte) bool {
 
 	uid := PlayerManager.GetUidById(msg.Id)
 	if uid == 0 {
-		log.Debug("The uid is not exist, will register")
+		log.Debug("The uid is not exist (uid = 0), will register",msg.Id)
 
-		f, err := CanRegister(msg.Id)
+		register_flag, err := CanRegister(msg.Id)
 		if err != nil {
 			log.Error("Failed CanRegister", err)
 			return false
 		}
 
-		if f {
+		if !register_flag {
 			back := map[string]interface{}{
 				"ret": false,
 			}
 			return sess.SendReplyBack(back, 1)
 		}
+		
 		uid, err = PlayerManager.AddPlayer(msg.Id)
 		if err != nil {
 			log.Error("Failed AddPlayer", err)
@@ -86,7 +87,7 @@ func UserLogin_(sess *Session, reader []byte) bool {
 
 	/************************** BossInfo Update *************************************/
 	if IsFirstLoginOfToday(sess.user.last_login) {
-		sess.user.Trace("The user is first login", sess.user.uid)
+		sess.user.Trace("The user is FirstLogin")
 		// First login in the day
 		err = sess.UpdateLoginArmInTheFirstLoginOfDay()
 		if err != nil {
@@ -96,7 +97,7 @@ func UserLogin_(sess *Session, reader []byte) bool {
 
 		err = sess.UpdateBossInfoInTheFirstLoginOfDay()
 		if err != nil {
-			log.Error("Failed update boss info in the first time of login in a day", err, sess.user.uid)
+			log.Error("Failed UpdateBossInfoInTheFirstLoginOfDay", err, sess.user.uid)
 			return false
 		}
 		err = sess.user.Activity.InitActivityInTheFirstLogin()
@@ -121,7 +122,7 @@ func UserLogin_(sess *Session, reader []byte) bool {
 			sess.Error("Failed InitStrangerTimeEveryDay", err)
 			return false
 		}
-
+		
 		err = sess.user.Friends.InitFriendFirstLogin()
 		if err != nil {
 			sess.Error("Failed InitFriendFirstLogin", err)
@@ -147,18 +148,10 @@ func UserLogin_(sess *Session, reader []byte) bool {
 		}
 	}
 
-	//boss_left_time := sess.GetLeftTimeToBossFight(1)
-
 	bosses := sess.GetAllBossInfo()
 
 	heros := sess.user.Hero.GetAllHeros()
 	arms := sess.user.Arm.GetAllArms()
-
-	/*quests, err := GetAllUnrewardQuest(sess)
-	if err != nil {
-		log.Error("Failed get unreward quests", err, sess.user.uid)
-		return false
-	}*/
 
 	e := sess.user.E_Arm.ListAllExtraArm()
 
@@ -292,398 +285,7 @@ func UserLogin_(sess *Session, reader []byte) bool {
 
 	return true
 }
-
 /*
-func UserRegister(sess *Session, reader []byte) bool {
-	t_begin := time.Now().Unix()
-	defer func() {
-		log.Critical("Register:", time.Now().Unix()-t_begin)
-	}()
-
-	type Data struct {
-		Id string
-	}
-
-	var msg Data
-	err := json.Unmarshal(reader, &msg)
-	if err != nil {
-		sess.Error("Can't decode json message, err = %v", err)
-		return false
-	}
-	sess.Debug("Login: user id is ", msg.Id)
-
-	flag, err := IsUserIdExist(sess, msg.Id)
-	if err != nil {
-		sess.Error("Failed IsUserIdExist", err)
-		return false
-	}
-	if flag {
-		sess.Debug("The user is exist and will jump to login from register")
-		return UserLogin(sess, reader)
-	}
-
-	sess.user.mid = msg.Id
-
-	err = SetUserUid(sess, msg.Id)
-	if err != nil {
-		return false
-	}
-
-	err = SetUserName(sess)
-	if err != nil {
-		return false
-	}
-
-	err = InitPlayerInRegister(sess, msg.Id)
-	if err != nil {
-		sess.Error("Failed init player info", err, sess.user.uid)
-		return false
-	}
-
-	RegisterOnline(sess, sess.user.uid)
-
-	heros := sess.user.Hero.GetAllHeros()
-	arms := sess.user.Arm.GetAllArms()
-
-	if err = sess.user.quest.LoadRandomFightQuestInTheFirstLoginOfDay(); err != nil {
-		sess.Error("Failed LoadRandomFightQuestInTheFirstLoginOfDay", err)
-		return false
-	}
-
-	//GM
-	if config.Config.GMState {
-		//NewRegister(sess)
-	}
-
-	back := map[string]interface{}{
-		"ret":                  true,
-		"uid":                  sess.user.uid,
-		"level":                sess.user.level,
-		"name":                 sess.user.name,
-		"gold":                 sess.user.gold,
-		"power":                sess.user.power,
-		"chapter":              sess.user.chapter,
-		"c_guanqia":            sess.user.c_guanqia,
-		"s_guanqia":            sess.user.s_guanqia,
-		"heros":                heros,
-		"arms":                 arms,
-		"formation":            sess.user.formation,
-		"stone":                sess.user.stone,
-		"power_left_time":      -1,
-		"boss_count":           sess.user.boss_count,
-		"boss_left_time":       -1,
-		"boss_max_score":       sess.user.boss_max_score,
-		"boss_tg_count":        sess.user.boss_tg_count,
-		"boss_id":              sess.user.boss_id,
-		"boss_rank":            sess.user.boss_rank,
-		"boss_today_max_score": sess.user.boss_today_max_score,
-		"vip":             sess.user.vip,
-		"friends_max_num": 15,
-		"Photo":           sess.user.photo,
-		"card_count":      sess.user.card_count,
-		"fight_quest":     sess.user.quest.GetAllOwnFightQuest(),
-		"wizards":         sess.user.wizards,
-		"register_time":   sess.user.register_time,
-		"stone_flag":      sess.user.stone_get_flag,
-		"final_chapter":   config.Config.FinalChapter,
-		"T":               time.Now().Unix(),
-		"MaxPower":	sess.user.max_power,
-	}
-
-	if !sess.SendReplyBack(back, 1) {
-		return false
-	}
-
-	err = sess.user.quest.InspectQuest(QuestType_LoginDays, 0, 0)
-	if err != nil {
-		sess.Error("QuestType_LoginDays ", err)
-		return false
-	}
-
-	err = sess.user.Activity.InitActivityInTheFirstLogin()
-	if err != nil {
-		sess.Error("Failed InitActivityInTheFirstLogin", err, sess.user.uid)
-		return false
-	}
-
-	if !UserLoginActivity(sess, nil) {
-		return false
-	}
-
-	if !UserGetTime(sess, nil) {
-		return false
-	}
-
-	//if err = LoadRandomFightQuestInTheFirstLoginOfDay(sess); err != nil {
-	//	sess.Error("Failed LoadRandomFightQuestInTheFirstLoginOfDay", err)
-	//	return false
-	//}
-	return true
-}
-
-func UserLogin(sess *Session, reader []byte) bool {
-	t_begin := time.Now().Unix()
-	defer func() {
-		log.Critical("Login:", time.Now().Unix()-t_begin)
-	}()
-
-
-	type Data struct {
-		Id string
-	}
-
-	var msg Data
-	err := json.Unmarshal(reader, &msg)
-	if err != nil {
-		sess.Error("Can't decode json message, err = %v", err)
-		return false
-	}
-	sess.Debug("Login: user id is ", msg.Id)
-
-	flag, err := IsUserIdExist(sess, msg.Id)
-	if err != nil {
-		sess.Error("Failed get the existence of user", err)
-		return false
-	}
-
-	back := make(map[string]interface{})
-	if !flag {
-		log.Error("The user is not exist and will jump register")
-		//back["ret"] = false
-		//sess.SendReplyBack(back, 1)
-		//return false
-		return UserRegister(sess, reader)
-	}
-
-	sess.user.mid = msg.Id
-
-	err = LoadUserUid(sess, msg.Id)
-	if err != nil {
-		log.Error("Failed LoadUserUid", err, sess.user.uid)
-		return false
-	}
-
-	sess.user.Friends.LoadFriends()
-
-	err = LoadUserInfo(sess)
-	if err != nil {
-		log.Error("Failed load player info", err, sess.user.uid)
-		return false
-	}
-
-	err = UpdateLastLoginTime(sess)
-	if err != nil {
-		log.Error("Failed update last_login_time", err, sess.user.uid)
-		return false
-	}
-
-	RegisterOnline(sess, sess.user.uid)
-
-	//*************************** Power recover time ************************************************
-	power_left_time, err := sess.user.GetLeftTimeToAddPower()
-	if err != nil {
-		log.Error("Cant get left time to add power", err, sess.user.uid)
-		return false
-	}
-	log.Debug("The left time to add power is ", power_left_time, sess.user.uid)
-
-	//************************** BossInfo Update *************************************
-	if IsFirstLoginOfToday(sess.user.last_login) {
-		// First login in the day
-		err = UpdateLoginArmInTheFirstLoginOfDay(sess)
-		if err != nil {
-			log.Error("Failed UpdateLoginArmInTheFirstLoginOfDay", err, sess.user.uid)
-			return false
-		}
-
-		err = UpdateBossInfoInTheFirstLoginOfDay(sess)
-		if err != nil {
-			log.Error("Failed update boss info in the first time of login in a day", err, sess.user.uid)
-			return false
-		}
-
-		err = sess.user.Activity.InitActivityInTheFirstLogin()
-		if err != nil {
-			sess.Error("Failed InitActivityInTheFirstLogin", err, sess.user.uid)
-			return false
-		}
-
-		if err = sess.user.quest.LoadRandomFightQuestInTheFirstLoginOfDay(); err != nil {
-			sess.Error("Failed LoadRandomFightQuestInTheFirstLoginOfDay", err)
-			return false
-		}
-
-		err = UpdateGetStoneFlagEveryday(sess)
-		if err != nil {
-			sess.Error("Failed UpdateGetStoneFlagEveryday", err)
-			return false
-		}
-
-		err = sess.InitStrangerTimeEveryDay()
-		if err != nil {
-			sess.Error("Failed InitStrangerTimeEveryDay", err)
-			return false
-		}
-
-		err = sess.user.Friends.InitFriendFirstLogin()
-		if err != nil {
-			sess.Error("Failed InitFriendFirstLogin", err)
-			return false
-		}
-
-		err = sess.user.purchase.FirstLoginOfDay()
-		if err != nil {
-			sess.Error("Failed purchase FirstLoginOfDay",err)
-			return false
-		}
-	} else {
-		err = sess.user.Activity.Load()
-		if err != nil {
-			log.Error("Failed LoadActivity", err, sess.user.uid)
-			return false
-		}
-
-		err = sess.user.quest.LoadRandomFightQuest()
-		if err != nil {
-			sess.Error("Failed LoadRandomFightQuest", err)
-			return false
-		}
-
-		err = loadGetStoneFlag(sess)
-		if err != nil {
-			sess.Error("Failed loadGetStoneFlag", err)
-			return false
-		}
-	}
-
-	boss_left_time := GetLeftTimeToBossFight(sess)
-
-	heros := sess.user.Hero.GetAllHeros()
-	arms := sess.user.Arm.GetAllArms()
-
-	new_arm, err := GetAllNewGetArm(sess)
-	if err != nil {
-		log.Error("Failed get new arm", err, sess.user.uid)
-		return false
-	}
-
-	new_hero, err := GetAllNewGetHero(sess)
-	if err != nil {
-		log.Error("Failed get new hero", err, sess.user.uid)
-		return false
-	}
-
-	quests, err := GetAllUnrewardQuest(sess)
-	if err != nil {
-		log.Error("Failed get unreward quests", err, sess.user.uid)
-		return false
-	}
-
-	e := sess.user.E_Arm.ListAllExtraArm()
-
-	now := time.Now().Unix()
-	back = map[string]interface{}{
-		"ret":             true,
-		"uid":             sess.user.uid,
-		"level":           sess.user.level,
-		"name":            sess.user.name,
-		"gold":            sess.user.gold,
-		"power":           sess.user.power,
-		"chapter":         sess.user.chapter,
-		"c_guanqia":       sess.user.c_guanqia,
-		"s_guanqia":       sess.user.s_guanqia,
-		"heros":           heros,
-		"arms":            arms,
-		"formation":       sess.user.formation,
-		"stone":           sess.user.stone,
-		"accepted_quests": sess.user.quest.GetOwnAcceptedQuest(),
-		"power_left_time": power_left_time,
-		"f_quests":        sess.user.quest.GetOwnFinishedQuest(),
-		"unreward_qid":    quests,
-		"new_arm":         new_arm,
-		"new_hero":        new_hero,
-		"boss_left_time":  boss_left_time,
-		"boss_id":         sess.user.boss_id,
-		"boss_rank":       sess.user.boss_rank,
-		"boss_count":      sess.user.boss_count,
-		"boss_tg_count":   sess.user.boss_tg_count,
-		"friends_max_num": 15,
-		"vip":             sess.user.vip,
-		"Photo":           sess.user.photo,
-		"card_count":      sess.user.card_count,
-		"login_arm":       sess.user.login_arm,
-		"fight_quest":     sess.user.quest.GetAllOwnFightQuest(),
-		"wizards":         sess.user.wizards,
-		"register_time":   sess.user.register_time,
-		"stone_flag":      sess.user.stone_get_flag,
-		"final_chapter":   config.Config.FinalChapter,
-		"extra_arm":       e,
-		"EventId":         sess.user.event_id,
-		"EventCount":      sess.user.GetEventLeftCount(),
-		"EventTime":       sess.user.GetEventLeftTime(),
-		"LockChapter":     sess.user.lock_chapter,
-		"LockBegin":       sess.user.lock_start_time,
-		"GS":              sess.user.GetGuanqiaScore(),
-		"CBS":             sess.user.GetChapterBossScore(),
-		"T":               now,
-		"FriendRd":        sess.user.Friends.GetUnRecvRewardCount(),
-		"MaxPower":	sess.user.max_power,
-		"HeroVIP":  sess.user.heroVIP,
-		"Purchases": sess.user.purchase.GetAllPurchaseState(),
-		"PArm":  PresentArm,
-		"AEndTime": ArmEnd - now,
-		"OArms": HistoryArms,
-		"PHero": PresentHero,
-		"HEndTime": HeroEnd - now,
-		"OHeros" : HistoryHeros,
-	}
-
-	if !sess.SendReplyBack(back, 1) {
-		log.Error("Send opcode1 error")
-		return false
-	}
-
-	if !UserGetFriendList(sess, nil) {
-		return false
-	}
-	////////////////////////////// Quest type 9 ////////////////////////////////////////////////////////////////////
-	if IsFirstLoginOfToday(sess.user.last_login) {
-		err = sess.user.quest.InspectQuest(QuestType_LoginDays, 0, 0)
-		if err != nil {
-			sess.Error("QuestType_LoginDays ", err)
-			return false
-		}
-	}
-
-	if !UserLoginActivity(sess, nil) {
-		return false
-	}
-
-	if !UserGetTime(sess, nil) {
-		return false
-	}
-
-	if !UserLoginReward(sess) {
-		return false
-	}
-
-	if !UserLoginArm(sess) {
-		return false
-	}
-
-	if !UserSendUnreward(sess, nil){
-		sess.Error("Failed UserSendUnreward")
-		return false
-	}
-
-	err = HandlerOfflineMsg(sess)
-	if err != nil {
-		log.Error("Failed handle offline msg", err, sess.user.uid)
-		return false
-	}
-	return true
-}*/
-
 func UserMerge(sess *Session, reader []byte) bool {
 	dbconn := db.Pool.Get()
 	defer dbconn.Close()
@@ -784,4 +386,4 @@ func UserIsGidExist(sess *Session, reader []byte) bool {
 	sess.Debug("The back json message is", string(back_json), sess.user.uid)
 
 	return sess.SendReply(back_json, 8)
-}
+}*/

@@ -296,8 +296,6 @@ func (this *_ArmManager) DelFromNewArm(star int) error {
 	dbconn := db.Pool.Get()
 	defer dbconn.Close()
 
-	//dbconn.Send("MULTI")
-
 	for id, _ := range this.n_arms {
 		if ArmInfo[id].StarsNeed != star {
 			continue
@@ -305,10 +303,7 @@ func (this *_ArmManager) DelFromNewArm(star int) error {
 		delete(this.n_arms, id)
 		dbconn.Do("SREM", this.user.GetUidUsedInDB()+":new_arm", id)
 	}
-	//_, err := dbconn.Do("EXEC")
-	//if err != nil {
-	//	return err
-	//}
+	
 	return nil
 }
 
@@ -588,7 +583,7 @@ func (this *_ArmManager) getSmashType() int {
 	num := util.GetRandomNumOf100()
 
     var vec []int
-    if this.user.Hero.IsWeaponChipLackOf(){
+    if this.user.Hero.IsAnyWeaponChipLackOf(){
         vec =  SmashTypeProbWithWeaponChip
     }else{
         vec =  SmashTypeProb

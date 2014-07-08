@@ -292,55 +292,6 @@ func (this *_PlayerManager) LoadPlayer(userid string) (err error) {
 	}
 	index++
 
-	//user.boss_id, err = redis.Int(reply2[index], nil)
-	//if err != nil {
-	//log.Error("Cant convert boss_id to int", err, user.uid)
-	//return err
-	//}
-	//index++
-
-	//user.boss_rank, err = redis.Int(reply2[index], nil)
-	//if err != nil {
-	//log.Error("Cant convert boss_rank to int", err, user.uid)
-	//return err
-	//}
-	//index++
-
-	//user.boss_count, err = redis.Int(reply2[index], nil)
-	//if err != nil {
-	//log.Error("Cant convert boss_count to int", err, user.uid)
-	//return err
-	//}
-	//index++
-
-	//user.last_boss_end_time, err = redis.Int64(reply2[index], nil)
-	//if err != nil {
-	//log.Error("Cant convert last_boss_end_time to int", err, user.uid)
-	//return err
-	//}
-	//index++
-
-	//user.boss_today_max_score, err = redis.Int(reply2[index], nil)
-	//if err != nil {
-	//log.Error("Cant convert boss_today_max_score to int", err, user.uid)
-	//return err
-	//}
-	//index++
-
-	//user.boss_tg_count, err = redis.Int(reply2[index], nil)
-	//if err != nil {
-	//log.Error("Cant convert boss_tg_count to int", err, user.uid)
-	//return err
-	//}
-	//index++
-
-	//user.boss_max_score, err = redis.Int(reply2[index], nil)
-	//if err != nil {
-	//log.Error("Cant convert boss_max_score to int", err, user.uid)
-	//return err
-	//}
-	//index++
-
 	user.vip, err = redis.Int(reply2[index], nil)
 	if err != nil {
 		log.Error("Cant convert vip to int", err, user.uid)

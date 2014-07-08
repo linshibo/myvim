@@ -328,7 +328,7 @@ func (this *User) armcurrReward(num int) (err error) {
 }
 
 //////////RewardType 13  RewardType_HeroCurr //////////////////////////
-func (this *User) herocurrReward(num int) (err error) {
+func (this *User)herocurrReward(num int) (err error) {
 	this.hero_currency += num
 	dbconn := db.Pool.Get()
 	defer dbconn.Close()
@@ -435,11 +435,18 @@ func (this *User) ProcessReward(reward_type int, reward_value int) (reward Rewar
 			return
 		}
 	}
-	if reward_type == RewardType_HeroCurr {
+	if reward_type == RewardType_HeroChip {
+		err = this.herocurrReward(reward_value)
+		if err != nil {
+			this.Error("Failed heroChipReward", err)
+			return
+		}
+	}
+	if reward_type == RewardType_WeaponChip {
         vec := make([]int, 0)
         for k, v := range this.Hero.heros{
-            if v.weaponChip < 1 {
-                /*Todo*/
+			conf, ok := HeroInfo[k]
+            if ok && v.weaponChip < conf.Weapon.UnlockFragmentCount {
                 vec = append(vec, k)
             }
         }
@@ -671,6 +678,8 @@ func (this *User) VerifyWealth(t, value int) (flag bool) {
 		flag = this.verifyArmCurr(value)
 
 	case RewardType_HeroCurr:
+		flag = this.verifyHeroCurr(value)
+	case RewardType_HeroChip:
 		flag = this.verifyHeroCurr(value)
 
 	default:

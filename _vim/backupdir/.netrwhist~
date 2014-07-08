@@ -1,7 +1,8 @@
 let g:netrw_dirhistmax  =10
-let g:netrw_dirhist_cnt =5
+let g:netrw_dirhist_cnt =6
 let g:netrw_dirhist_1='/Users/frank/test/shared'
 let g:netrw_dirhist_2='/Users/frank/work/src/GameHub/asynserver'
 let g:netrw_dirhist_3='/Users/frank/lordofpomelo/game-server/app/servers/connector/handler'
 let g:netrw_dirhist_4='/Users/frank/work/src/sanguo/cfg'
 let g:netrw_dirhist_5='/Users/frank/socket.io/node_modules/socket.io-client/lib'
+let g:netrw_dirhist_6='/Users/frank/work/src/sanguo/gameserver'

@@ -114,7 +114,7 @@ func (this *_HeroManager) Load() (err error) {
 			return err
 		}
 
-		r, err := redis.Values(dbconn.Do("HMGET", this.user.GetUidUsedInDB()+":hero:"+strconv.Itoa(id), "level", "prob", "flag", "heroChip", "weapon"))
+		r, err := redis.Values(dbconn.Do("HMGET", this.user.GetUidUsedInDB()+":hero:"+strconv.Itoa(id), "level", "prob", "flag", "heroChip", "weaponChip"))
 		if err != nil {
 			return err
 		}
@@ -302,7 +302,7 @@ func (this *_HeroManager) AddNewHero(id int, level int, true_flag bool) (err err
 		return err
 	}
 
-	_, err = dbconn.Do("HMSET", this.user.GetUidUsedInDB()+":hero:"+strconv.Itoa(id), "level", level, "prob", prob, "flag", 0, "heroChip", 1)
+	_, err = dbconn.Do("HMSET", this.user.GetUidUsedInDB()+":hero:"+strconv.Itoa(id), "level", level, "prob", prob, "flag", 0, "heroChip", 1, "weaponChip", 0)
 	if err != nil {
 		return err
 	}
@@ -366,25 +366,6 @@ func (this *_HeroManager) addHeroToSeen(id int) error {
 		return err
 	}
 
-	return nil
-}
-
-func (this *_HeroManager) DelFromNewHero() error {
-	if len(this.n_heros) == 0 {
-		return nil
-	}
-
-	for id, _ := range this.n_heros {
-		delete(this.n_heros, id)
-	}
-
-	dbconn := db.Pool.Get()
-	defer dbconn.Close()
-
-	_, err := dbconn.Do("DEL", this.user.GetUidUsedInDB()+":new_hero")
-	if err != nil {
-		return err
-	}
 	return nil
 }
 
@@ -512,9 +493,9 @@ func (this *_HeroManager) IsKindOwnedByOid(oid int) bool {
 
 //IsWeaponChipLackOf 判断武器碎片是否缺少
 func (this *_HeroManager) IsAnyWeaponChipLackOf() bool {
-	for _, v := range this.heros {
-		if v.weaponChip < 1 {
-			/*Todo*/
+	for k, v := range this.heros {
+		conf, ok := HeroInfo[k]
+		if ok && v.weaponChip < conf.Weapon.UnlockFragmentCount {
 			return true
 		}
 	}
@@ -525,8 +506,8 @@ func (this *_HeroManager) IsAnyWeaponChipLackOf() bool {
 func (this *_HeroManager) IsHeroChipLackOf(id int) bool {
 	hero, ok := this.heros[id]
 	if ok {
-		if hero.heroChip >= 1 {
-			/*Todo*/
+		conf, ok := HeroInfo[id]
+		if ok && hero.heroChip >=  conf.FragmentCount {
 			return false
 		}
 	}
@@ -631,7 +612,7 @@ func (this *_HeroManager) getSmashType() int {
 		case 1:
 			return SmashCardToGold
 		case 2:
-			return SmashCardToHeroCurr
+			return SmashCardToHeroChip
 		case 3:
 			return SmashCardToWeaponChip
 		}
@@ -655,6 +636,10 @@ func (this *_HeroManager) smashHeroCard(id int) (smash_type, num int, err error)
 
 	case SmashCardToHeroCurr:
 		reward_type = RewardType_HeroCurr
+		num = HeroInfo[id].QualityLevel * 100
+
+	case SmashCardToHeroChip:
+		reward_type = RewardType_HeroChip
 		num = HeroInfo[id].QualityLevel * 100
 
 	case SmashCardToWeaponChip:
@@ -688,6 +673,7 @@ func (this *_HeroManager) smashHeroCard(id int) (smash_type, num int, err error)
 func (this *_HeroManager) GetAllHeros() []HeroBack {
 	hero := make([]HeroBack, len(this.heros))
 	index := 0
+	this.user.Debug("GetAllHeros", this.heros)
 	for id, v := range this.heros {
 		hero[index].Id = id
 		hero[index].Level = v.level
@@ -885,4 +871,20 @@ func (this *_HeroManager) GetNewHero() []int {
 		index++
 	}
 	return back
+}
+
+func (this *_HeroManager) DelNewHero() (err error) {
+	for id,_ := range this.n_heros {
+		delete(this.n_heros, id)
+	}
+	
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+	
+	_, err = dbconn.Do("DEL", this.user.GetUidUsedInDB()+":new_hero")
+	if err != nil {
+		this.user.Error("Failed delete new_arm")
+		return err
+	}
+	return err
 }

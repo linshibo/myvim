@@ -1,3 +1,4 @@
-source ~/myvim/.bashrc
+source ~/myvim/_bashrc
 alias c240="ssh frank@42.62.67.240"
 export PATH=$PATH:$HOME/work/bin/
+alias vi="/usr/loca/bin/vim"
