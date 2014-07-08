@@ -5,20 +5,53 @@
 # Committer: frank <frank@frankMac.local>
 #
 # On branch master
-# Your branch is up-to-date with 'origin/master'.
+# Your branch is ahead of 'origin/master' by 2 commits.
+#   (use "git push" to publish your local commits)
 #
 # Changes to be committed:
-#	modified:   hero.go
-#	modified:   user.go
-#	modified:   ../systemdata/types.go
+#	modified:   ../_bash_aliases
+#	modified:   ../_bashrc
+#	modified:   backupdir/.bashrc~
+#	modified:   backupdir/.netrwhist~
+#	modified:   backupdir/Arm.go~
+#	modified:   backupdir/COMMIT_EDITMSG~
+#	modified:   backupdir/comm.vim~
+#	modified:   backupdir/hero.go~
+#	modified:   backupdir/login.go~
+#	modified:   backupdir/pool.go~
+#	modified:   backupdir/system.go~
+#	modified:   backupdir/types.go~
+#	modified:   backupdir/user.go~
+#	deleted:    bundle/neocomplcache
+#	modified:   comm.vim
+#
+# Changes not staged for commit:
+#	modified:   bundle/Tagbar (untracked content)
+#	modified:   bundle/ack.vim (untracked content)
+#	modified:   bundle/matchit.zip (untracked content)
+#	modified:   bundle/snipMate (untracked content)
+#	modified:   bundle/vim-smartword (untracked content)
+#	modified:   bundle/xml.vim (untracked content)
 #
 # Untracked files:
-#	../apple_cpu.prof
-#	../apple_mem.prof
-#	dump.rdb
-#	gosource.tags
-#	../gosource.tags
-#	../log_55555
-#	../sanguo
+#	../.DS_Store
+#	backupdir/_bash_aliases~
+#	backupdir/_bashrc~
+#	backupdir/bufferManager_test.go~
+#	backupdir/bufferedSlice.go~
+#	backupdir/cards.go~
+#	backupdir/chapterGuanQiaInfo.cfg~
+#	backupdir/chapterInfo.cfg~
+#	backupdir/cli.go~
+#	backupdir/complete.vim~
+#	backupdir/os_unix.c~
+#	bundle/AutoClose/
+#	bundle/OmniCppComplete/
+#	bundle/YankRing.vim/
+#	bundle/neocomplete/
+#	bundle/python.vim/
+#	bundle/vim-easymotion/
+#	bundle/vim-go/
+#	bundle/vim-surround/
 #
 fix

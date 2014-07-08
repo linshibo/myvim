@@ -45,6 +45,7 @@ Bundle 'tpope/vim-surround'
 Bundle 'bootleq/vim-cycle'
 Bundle 'kana/vim-smartword'
 Bundle 'altercation/vim-colors-solarized'
+Bundle 'terryma/vim-multiple-cursors'
 Bundle 'fatih/vim-go'
 Bundle 'plasticboy/vim-markdown'
 
@@ -275,8 +276,6 @@ cnoremap <C-k> <t_ku>
 
 "tabedit
 nnoremap ,t <Esc>:tabedit 
-"nnoremap <C-p> <C-PageUp>
-"nnoremap <C-n> <C-PageDown>
 
 "查找当前光标下的单词
 nnoremap ,g :Ack <C-R>=expand('<cword>')<CR><CR>
@@ -338,6 +337,30 @@ nnoremap <F4> <Esc>:call ToggleQF()<CR>
 nnoremap ,cn <Esc>:cn<CR>
 nnoremap ,cp <Esc>:cp<CR>
 
+"根据标签补全
+inoremap <C-]> <C-X><C-]> 
+"补全文件名
+inoremap <C-F> <C-X><C-F> 
+"补全宏定义
+inoremap <C-D> <C-X><C-D>
+"整行补全
+inoremap <C-L> <C-X><C-L>
+"根据头文件内关键字补全
+inoremap <C-I> <C-X><C-I> 
+"用户自定义补全方式   
+inoremap <C-U> <C-X><C-U> 
+"全能补全
+inoremap <C-O> <C-X><C-O>
+" 用于支持 退格后 . -> 代码补全
+"inoremap   <expr> <Backspace>  Ex_bspace() 
+"用于支持代码补全时，提示存在。
+set complete=.,w,b,u,t
+set completeopt=longest,menuone
+"当离开INSERT模式时，Preview窗口会自动关闭
+"autocmd CursorMovedI * if pumvisible() == 0|pclose|endif
+"autocmd InsertLeave * if pumvisible() == 0|pclose|endif
+inoremap <expr><CR> pumvisible() ?"\<C-Y>" : "\<c-g>u\<cr>"
+inoremap <expr><C-U>  pumvisible()?"\<C-E>":"\<C-U>"
 
 "---------------------------------------------------------------------------
 "插件设置
@@ -393,37 +416,11 @@ let g:yankring_min_element_length = 3
 let g:yankring_max_display = 50 
 let g:yankring_persist = 0
 nnoremap <silent> <C-Y> :YRShow<CR> 
-"let g:yankring_replace_n_pkey = '<m-p>'
-"let g:yankring_replace_n_nkey = '<m-n>'
 let g:yankring_history_dir = '~/.vim/'
 let g:yankring_history_file='.yankring_history_file'
 "}}}
 
 " omnicppcomplete{{{
-"用于支持代码补全时，提示存在。
-set complete=.,w,b,u,t
-set completeopt=longest,menuone
-"当离开INSERT模式时，Preview窗口会自动关闭
-"autocmd CursorMovedI * if pumvisible() == 0|pclose|endif
-"autocmd InsertLeave * if pumvisible() == 0|pclose|endif
-inoremap <expr><CR> pumvisible() ?"\<C-Y>" : "\<c-g>u\<cr>"
-inoremap <expr><C-U>  pumvisible()?"\<C-E>":"\<C-U>"
-"根据标签补全
-inoremap <C-]> <C-X><C-]> 
-"补全文件名
-inoremap <C-F> <C-X><C-F> 
-"补全宏定义
-inoremap <C-D> <C-X><C-D>
-"整行补全
-inoremap <C-L> <C-X><C-L>
-"根据头文件内关键字补全
-inoremap <C-I> <C-X><C-I> 
-"用户自定义补全方式   
-inoremap <C-U> <C-X><C-U> 
-"全能补全
-inoremap <C-O> <C-X><C-O>
-" 用于支持 退格后 . -> 代码补全
-"inoremap   <expr> <Backspace>  Ex_bspace() 
 let OmniCpp_ShowScopeInAbbr = 1
 "支持STL模板
 let OmniCpp_DefaultNamespaces   = ["std", "_GLIBCXX_STD"]
@@ -448,9 +445,8 @@ if has("cscope")
     endif
     set csverb
 endif
-nnoremap ,s :cs find s <C-R>=expand("<cword>")<CR><CR>
-""nnoremap ,c :cs find  
-vnoremap ,s :call  VisualSelection('cs')<CR>
+au filetype cpp nnoremap ,s :cs find s <C-R>=expand("<cword>")<CR><CR>
+au filetype cpp vnoremap ,s :call  VisualSelection('cs')<CR>
 "s: 查找C语言符号，即查找函数名、宏、枚举值等出现的地方
 "g: 查找函数、宏、枚举等定义的位置，类似ctags所提供的功能
 "d: 查找本函数调用的函数
@@ -660,11 +656,11 @@ let g:cycle_default_groups = [
 \ [['||', '&&']],
 \ [['on', 'off']],
 \ [['+', '-']],
+\ [['++', '--']],
 \ [['>', '<']],
 \ [['.', '->']],
 \ [['"', "'"]],
 \ [['==', '!=']],
-\ [['0', '1']],
 \ [['and', 'or']],
 \ [['p_in', 'p_out']],
 \ [['P_IN', 'P_OUT']],
@@ -768,16 +764,6 @@ autocmd FileType vim map <buffer> <leader><space> :w!<cr>:source %<cr>
 " Enable omni completion. (Ctrl-X Ctrl-O)
 autocmd FileType javascript setlocal omnifunc=javascriptcomplete#CompleteJS
 autocmd BufNewFile,BufRead *.json set ft=javascript
-""let g:used_javascript_libs = 'underscore,backbone'
-"autocmd BufReadPre *.js let b:javascript_lib_use_jquery = 1
-"autocmd BufReadPre *.js let b:javascript_lib_use_underscore = 1
-"autocmd BufReadPre *.js let b:javascript_lib_use_backbone = 1
-"autocmd BufReadPre *.js let b:javascript_lib_use_prelude = 0
-"autocmd BufReadPre *.js let b:javascript_lib_use_angularjs = 0
-""let Tlist_JS_Settings = 'javascript;s:string;a:array;o:object;f:function'
-""let Tlist_Ctags_Cmd = '/usr/local/bin/ctags'
-"添加字典文件
-au FileType javascript set dictionary+='~/.vim/bundle/vim-node/dict'
 
 "----------------------------------------------------------------------------
 " FUNCTIONS
