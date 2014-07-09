@@ -85,13 +85,16 @@ func (this *FriendManger) InitFriend() (err error) {
 }
 
 func (this *FriendManger) InitFriendFirstLogin() (err error) {
+	this.user.Trace("Will InitFriendFirstLogin", this.Friends)
+
 	dbconn := db.Pool.Get()
 	defer dbconn.Close()
 
 	for _, v := range this.Friends {
+		this.user.Trace("InitFriendFirstLogin, The value of Friends is", v.uid)
 		if v.borrow_flag != 0 {
 			v.borrow_flag = 0
-			_, err = dbconn.Do("HSET", this.user.GetUidUsedInDB()+":friend:"+strconv.Itoa(v.uid), "borrow", 0)
+			_, err = dbconn.Do("HSET", this.user.GetUidUsedInDB()+":friend:"+GetUidUseInDB(v.uid), "borrow", 0)
 			if err != nil {
 				return err
 			}
@@ -99,7 +102,7 @@ func (this *FriendManger) InitFriendFirstLogin() (err error) {
 
 		if v.send_flag != 0 {
 			v.send_flag = 0
-			_, err = dbconn.Do("HSET", this.user.GetUidUsedInDB()+":friend:"+strconv.Itoa(v.uid), "send", 0)
+			_, err = dbconn.Do("HSET", this.user.GetUidUsedInDB()+":friend:"+GetUidUseInDB(v.uid), "send", 0)
 			if err != nil {
 				return err
 			}

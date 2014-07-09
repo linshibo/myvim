@@ -10,8 +10,8 @@ import (
 )
 
 type IPCMsg struct {
-	SrcID    string
-	DestID   string
+	SrcID    int
+	DestID   int
 	Op       int
 	CastType int
 	Content  []byte
@@ -22,7 +22,7 @@ const (
 	UNICAST = 1
 )
 
-func IPCSendByUid(src_id, dest_id string, casttype int, op int, content interface{}) (ret bool) {
+func IPCSendByUid(src_id, dest_id int, casttype int, op int, content interface{}) (ret bool) {
 	val, err := json.Marshal(content)
 	if err != nil {
 		log.Error("cannot marshal content to json", err)
@@ -37,17 +37,27 @@ func IPCSendByUid(src_id, dest_id string, casttype int, op int, content interfac
 		Content:  val,
 		Time:     time.Now().Unix(),
 	}
-	peer := PlayerManager.QueryOnlineString(dest_id)
+
+	if !PlayerManager.IsUserLocal(dest_id) {
+		log.Trace("The dest_id is not local and will send to hub", dest_id, req)
+		SendToHub(req, 5)
+	}
+	log.Trace("The dest_id is local and will send to hub", dest_id, req)
+
+	peer := PlayerManager.QueryOnline(dest_id)
 	if peer != nil {
 		defer func() {
 			if x := recover(); x != nil {
+				log.Warn("IPCPanic, the panic is", x)
+
 				ret = false
 				SaveOfflineMsgImprove(req)
 			}
 		}()
 
 		select {
-		case peer.MQ <- *req:
+		case peer.MQ <- *req: //if peer close MQ, will throw panic
+
 		case <-time.After(time.Second):
 			panic("deadlock") // 防止对方goroutine没有close channel
 		}
@@ -60,7 +70,34 @@ func IPCSendByUid(src_id, dest_id string, casttype int, op int, content interfac
 	return false
 }
 
-func IPCSendByName(src_id string, dest_name string, casttype int, op int, content interface{}) (ret bool) {
+func IPCSendLocal(req *IPCMsg) (ret bool) {
+	peer := PlayerManager.QueryOnline(req.DestID)
+	if peer != nil {
+		defer func() {
+			if x := recover(); x != nil {
+				log.Warn("IPCPanic, the panic is", x)
+
+				ret = false
+				SaveOfflineMsgImprove(req)
+			}
+		}()
+
+		select {
+		case peer.MQ <- *req: //if peer close MQ, will throw panic
+
+		case <-time.After(time.Second):
+			panic("deadlock") // 防止对方goroutine没有close channel
+		}
+		return true
+	} else {
+		SaveOfflineMsgImprove(req)
+		return true
+	}
+
+	return false
+}
+
+/*func IPCSendByName(src_id int, dest_name string, casttype int, op int, content interface{}) (ret bool) {
 	dest_id, err := GetUidByName(dest_name)
 	if err != nil {
 		log.Error("Failed get id through name", err)
@@ -68,10 +105,9 @@ func IPCSendByName(src_id string, dest_name string, casttype int, op int, conten
 	}
 
 	return IPCSendByUid(src_id, dest_id, casttype, op, content)
-}
+}*/
 
 func SaveOfflineMsgImprove(req *IPCMsg) (err error) {
-	log.Critical("Wried")
 	data, err := json.Marshal(*req)
 	if err != nil {
 		log.Error("Failed decode IPCMsg in SaveOfflineMsg", *req)
@@ -82,7 +118,7 @@ func SaveOfflineMsgImprove(req *IPCMsg) (err error) {
 	defer dbconn.Close()
 
 	log.Critical("jj", req.DestID, data)
-	_, err = dbconn.Do("RPUSH", req.DestID+":offline", data)
+	_, err = dbconn.Do("RPUSH", GetUidUseInDB(req.DestID)+":offline", data)
 	if err != nil {
 		log.Error("Failed rpush offline msg", err)
 		return err
@@ -90,77 +126,7 @@ func SaveOfflineMsgImprove(req *IPCMsg) (err error) {
 	return nil
 }
 
-/*func IPCSendByName(sess *Session, dest_name string, casttype int, op int, content interface{}) (ret bool) {
-	dbconn := db.Pool.Get()
-	defer dbconn.Close()
-	dest_id, err := redis.String(dbconn.Do("GET", dest_name))
-	if err != nil {
-		log.Error("Failed get id through name", err)
-		return false
-	}
-
-	val, err := json.Marshal(content)
-	if err != nil {
-		log.Error("cannot marshal content to json", err)
-		return false
-	}
-
-	req := &IPCMsg{
-		SrcID:    sess.user.uid,
-		DestID:   dest_id,
-		CastType: casttype,
-		Op:       op,
-		Content:  val,
-		Time:     time.Now().Unix(),
-	}
-
-	switch casttype {
-	/*case MULTICAST:
-		return hub_client.Forward(req)
-	case GLOBAL_BROADCAST:
-		hub_client.Forward(req)
-		fallthrough
-	case LOCAL_BROADCAST:
-		users := gsdb.ListAll()
-		defer func() {
-			recover()
-		}()
-
-		for _, v := range users {
-			if v != src_id {
-				peer := gsdb.PlayerManager.QueryOnline(v)
-				if peer != nil {
-					peer.MQ <- *req
-				}
-			}
-		}
-		return true*
-
-	case UNICAST:
-		//
-		peer := PlayerManager.QueryOnline(dest_id)
-		if peer != nil {
-			defer func() {
-				if x := recover(); x != nil {
-					ret = false
-					SaveOfflineMsg(sess, req)
-				}
-			}()
-
-			select {
-			case peer.MQ <- *req:
-			case <-time.After(time.Second):
-				panic("deadlock") // 防止对方goroutine没有close channel
-			}
-			return true
-		} else {
-			SaveOfflineMsg(sess, req)
-			return true
-		}
-	}
-
-	return false
-}*/
+/*
 
 func IPCSendById(sess *Session, dest_id string, casttype int, content interface{}) (ret bool) {
 	// convert the OBJECT to json, LEVEL-1 encapsulation
@@ -199,7 +165,7 @@ func IPCSendById(sess *Session, dest_id string, casttype int, content interface{
 			}
 		}
 		return true*/
-
+/*
 	case UNICAST:
 		//
 		peer := PlayerManager.QueryOnlineString(dest_id)
@@ -211,7 +177,7 @@ func IPCSendById(sess *Session, dest_id string, casttype int, content interface{
 	}
 
 	return false
-}
+}*/
 
 func SendByChannel(sess *Session, req *IPCMsg) (ret bool) {
 	defer func() {
@@ -238,7 +204,7 @@ func SaveOfflineMsg(sess *Session, req *IPCMsg) error {
 		log.Error("Failed decode IPCMsg in SaveOfflineMsg", sess.user.uid)
 		return err
 	}
-	_, err = dbconn.Do("RPUSH", req.DestID+":offline", data)
+	_, err = dbconn.Do("RPUSH", GetUidUseInDB(req.DestID)+":offline", data)
 	if err != nil {
 		return err
 	}
@@ -272,14 +238,14 @@ func UserByGoldWithCash(id string) bool {
 		return false
 	}
 
-	uid, err := redis.String(dbconn.Do("GET", id))
+	uid, err := redis.Int(dbconn.Do("GET", id))
 	if err != nil {
 		log.Error(err)
 		return false
 	}
 
 	req := &IPCMsg{
-		SrcID:    "pp",
+		SrcID:    0,
 		DestID:   uid,
 		CastType: 0,
 		Op:       100, //110 mean money
@@ -287,7 +253,7 @@ func UserByGoldWithCash(id string) bool {
 		Time:     time.Now().Unix(),
 	}
 
-	peer := PlayerManager.QueryOnlineString(uid)
+	peer := PlayerManager.QueryOnline(uid)
 	if peer != nil {
 		return SendByChannel(peer, req)
 	} else {
@@ -322,7 +288,7 @@ func GetUnreadMsg(sess *Session) ([]byte, error) {
 	dbconn := db.Pool.Get()
 	defer dbconn.Close()
 
-	msg_raw, err := dbconn.Do("LPOP", sess.user.uid+":offline")
+	msg_raw, err := dbconn.Do("LPOP", sess.user.GetUidUsedInDB()+":offline")
 	if err != nil {
 		return nil, err
 	}

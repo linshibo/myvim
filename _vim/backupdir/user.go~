@@ -2,11 +2,11 @@ package gameserver
 
 import (
 	"github.com/garyburd/redigo/redis"
+	"math/rand"
 	"sanguo/db"
 	. "sanguo/systemdata"
 	"strconv"
 	"time"
-    "math/rand"
 )
 
 const (
@@ -14,19 +14,19 @@ const (
 )
 
 type armEquip struct {
-    DstID int
-    Equip [3]int
+	DstID int
+	Equip [3]int
 }
 
-func (this *User) GetArmEquip() []armEquip{
+func (this *User) GetArmEquip() []armEquip {
 	a := make([]armEquip, 0)
 	for k, v := range this.Arm.armEquip {
-        a = append(a, armEquip{
-            DstID:k,
-            Equip:v,
-        })
+		a = append(a, armEquip{
+			DstID: k,
+			Equip: v,
+		})
 	}
-    this.Debug("monitor",this.Arm.armEquip )
+	this.Debug("monitor", this.Arm.armEquip)
 	return a
 }
 
@@ -280,13 +280,13 @@ func (this *User) goldReward(num int) (err error) {
 
 /////////////RewardType 3   Arm  //////////////////////////
 func (this *User) armReward(id int) (Type int, Value int, err error) {
-	Type, Value, err = this.Arm.ProcessNewGetArm(id)
+	Type, Value,_, err = this.Arm.ProcessNewGetArm(id)
 	return
 }
 
 /////////////RewardType 4   Hero   ////////////////////////
 func (this *User) heroReward(id int) (Type int, Value int, err error) {
-	Type, Value, err = this.Hero.ProcessNewGetHero(id)
+	Type, Value,_, err = this.Hero.ProcessNewGetHero(id)
 	return
 }
 
@@ -328,7 +328,7 @@ func (this *User) armcurrReward(num int) (err error) {
 }
 
 //////////RewardType 13  RewardType_HeroCurr //////////////////////////
-func (this *User)herocurrReward(num int) (err error) {
+func (this *User) herocurrReward(num int) (err error) {
 	this.hero_currency += num
 	dbconn := db.Pool.Get()
 	defer dbconn.Close()
@@ -339,7 +339,7 @@ func (this *User)herocurrReward(num int) (err error) {
 	return nil
 }
 
-func (this *User) ProcessReward(reward_type int, reward_value int) (reward RewardBack, err error) {
+func (this *User) ProcessReward(reward_type int, reward_value int) (reward RewardBack,Extra int,  err error) {
 	reward.RewardType = reward_type
 	reward.RewardValue = reward_value
 
@@ -351,14 +351,14 @@ func (this *User) ProcessReward(reward_type int, reward_value int) (reward Rewar
 	}
 
 	if reward_type == RewardType_Arm {
-		reward.ProType, reward.ProValue, err = this.Arm.ProcessNewGetArm(reward_value)
+		reward.ProType, reward.ProValue,Extra, err = this.Arm.ProcessNewGetArm(reward_value)
 		if err != nil {
 			return
 		}
 	}
 
 	if reward_type == RewardType_Hero {
-		reward.ProType, reward.ProValue, err = this.Hero.ProcessNewGetHero(reward_value)
+		reward.ProType, reward.ProValue,Extra, err = this.Hero.ProcessNewGetHero(reward_value)
 		if err != nil {
 			return
 		}
@@ -382,7 +382,7 @@ func (this *User) ProcessReward(reward_type int, reward_value int) (reward Rewar
 	if reward_type == RewardType_RandomHeroByQuality {
 		id := this.Hero.GetHeroOfGivenQuality(reward_value)
 		reward.ProValue = id
-		reward.ProType, reward.ProValue, err = this.Hero.ProcessNewGetHero(reward_value)
+		reward.ProType, reward.ProValue,Extra,  err = this.Hero.ProcessNewGetHero(reward_value)
 		if err != nil {
 			return
 		}
@@ -395,7 +395,7 @@ func (this *User) ProcessReward(reward_type int, reward_value int) (reward Rewar
 		id := this.Arm.GetAnyArmOfGivenStarAndQuality(reward_value, quality)
 		this.Debug("In RewardType_RandomArmByStar ", reward_value, quality, id)
 		reward.RewardValue = id
-		reward.ProType, reward.ProValue, err = this.Arm.ProcessNewGetArm(id)
+		reward.ProType, reward.ProValue,Extra,  err = this.Arm.ProcessNewGetArm(id)
 		if err != nil {
 			return
 		}
@@ -406,7 +406,7 @@ func (this *User) ProcessReward(reward_type int, reward_value int) (reward Rewar
 		star := this.getRandomArmStar()
 		id := this.Arm.GetAnyArmOfGivenStarAndQuality(star, reward_value)
 		reward.ProValue = id
-		reward.ProType, reward.ProValue, err = this.Arm.ProcessNewGetArm(id)
+		reward.ProType, reward.ProValue,Extra,  err = this.Arm.ProcessNewGetArm(id)
 		if err != nil {
 			return
 		}
@@ -436,26 +436,28 @@ func (this *User) ProcessReward(reward_type int, reward_value int) (reward Rewar
 		}
 	}
 	if reward_type == RewardType_HeroChip {
-		err = this.herocurrReward(reward_value)
+		_, _, err = this.Hero.ProcessNewGetHero(reward_value)
 		if err != nil {
 			this.Error("Failed heroChipReward", err)
 			return
 		}
 	}
 	if reward_type == RewardType_WeaponChip {
-        vec := make([]int, 0)
-        for k, v := range this.Hero.heros{
+		//随机一个武器碎片
+		vec := make([]int, 0)
+		for k, v := range this.Hero.heros {
 			conf, ok := HeroInfo[k]
-            if ok && v.weaponChip < conf.Weapon.UnlockFragmentCount {
-                vec = append(vec, k)
-            }
-        }
-        if len(vec)>0 {
-            idx:=rand.Intn(len(vec))
-            hero , _ := this.Hero.heros[idx]
-            this.Hero.addWeaponChipCount(vec[idx], hero, reward_value)
-        }
-    }
+			if ok && v.weaponChip < conf.Weapon.UnlockFragmentCount {
+				vec = append(vec, k)
+			}
+		}
+		if len(vec) > 0 {
+			idx := rand.Intn(len(vec))
+			hero, _ := this.Hero.heros[idx]
+			err = this.Hero.addWeaponChipCount(vec[idx], hero, reward_value)
+			Extra =vec[idx]
+		}
+	}
 
 	return
 }
@@ -758,16 +760,16 @@ func (this *User) RegisterName(name string) (err error) {
 	return err
 }
 
-func (this *User) UpdateShenshouCurr(c int)(err error) {
+func (this *User) UpdateShenshouCurr(c int) (err error) {
 	this.shenshou_curr = c
-	
+
 	dbconn := db.Pool.Get()
 	defer dbconn.Close()
-	
-	_,err = dbconn.Do("HSET", this.GetUidUsedInDB(), "shenshou_curr", this.shenshou_curr)
+
+	_, err = dbconn.Do("HSET", this.GetUidUsedInDB(), "shenshou_curr", this.shenshou_curr)
 	return err
 }
 
-func (this *User)GetShenshouCurr() int{
+func (this *User) GetShenshouCurr() int {
 	return this.shenshou_curr
 }

@@ -4,11 +4,11 @@ import (
 	"encoding/json"
 	"sanguo/base/log"
 	//"sanguo/base/packet"
+	"github.com/garyburd/redigo/redis"
 	"sanguo/config"
 	"sanguo/db"
 	. "sanguo/systemdata"
 	"time"
-	"github.com/garyburd/redigo/redis"
 )
 
 func CanRegister(id string) (flag bool, err error) {
@@ -44,7 +44,7 @@ func UserLogin_(sess *Session, reader []byte) bool {
 
 	uid := PlayerManager.GetUidById(msg.Id)
 	if uid == 0 {
-		log.Debug("The uid is not exist (uid = 0), will register",msg.Id)
+		log.Debug("The uid is not exist (uid = 0), will register", msg.Id)
 
 		register_flag, err := CanRegister(msg.Id)
 		if err != nil {
@@ -58,7 +58,7 @@ func UserLogin_(sess *Session, reader []byte) bool {
 			}
 			return sess.SendReplyBack(back, 1)
 		}
-		
+
 		uid, err = PlayerManager.AddPlayer(msg.Id)
 		if err != nil {
 			log.Error("Failed AddPlayer", err)
@@ -122,7 +122,7 @@ func UserLogin_(sess *Session, reader []byte) bool {
 			sess.Error("Failed InitStrangerTimeEveryDay", err)
 			return false
 		}
-		
+
 		err = sess.user.Friends.InitFriendFirstLogin()
 		if err != nil {
 			sess.Error("Failed InitFriendFirstLogin", err)
@@ -151,6 +151,7 @@ func UserLogin_(sess *Session, reader []byte) bool {
 	bosses := sess.GetAllBossInfo()
 
 	heros := sess.user.Hero.GetAllHeros()
+
 	arms := sess.user.Arm.GetAllArms()
 
 	e := sess.user.E_Arm.ListAllExtraArm()
@@ -177,7 +178,7 @@ func UserLogin_(sess *Session, reader []byte) bool {
 		"new_arm":          sess.user.Arm.GetNewArm(),
 		"new_hero":         sess.user.Hero.GetNewHero(),
 		"bossInfo":         bosses,
-        "ConvenedBossID":   sess.user.convenedBossID, 
+		"ConvenedBossID":   sess.user.convenedBossID,
 		"friends_max_num":  15,
 		"vip":              sess.user.vip,
 		"Photo":            sess.user.photo,
@@ -216,7 +217,8 @@ func UserLogin_(sess *Session, reader []byte) bool {
 		"ArmEquip":         sess.user.GetArmEquip(),
 		"ArmEquipQuests":   sess.user.quest.GetFinishedArmEquip(),
 		"HeroEvolveQuests": sess.user.quest.GetFinishedHeroEvolve(),
-		"MHeroID": sess.user.Hero.GetMainHero(),
+		"MHeroID":          sess.user.Hero.GetMainHero(),
+		"HeroChip":         sess.user.Hero.GetAllHeroChip(),
 	}
 
 	if !sess.SendReplyBack(back, 1) {
@@ -285,6 +287,7 @@ func UserLogin_(sess *Session, reader []byte) bool {
 
 	return true
 }
+
 /*
 func UserMerge(sess *Session, reader []byte) bool {
 	dbconn := db.Pool.Get()

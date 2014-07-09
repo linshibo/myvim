@@ -158,6 +158,25 @@ function alias_comm_cmd()
     eval "alias put$flag$1$user_flag=' comm_put_ser $user $ip_fix $port \"$passwd\" $1 ' "
     eval "alias get$flag$1$user_flag=' comm_get_ser $user $ip_fix $port \"$passwd\" $1 ' "
 }
+
+function getdate()
+{
+    if [ "`uname`" == "Darwin" ]; then
+        date -r $1
+    elif [ "`uname`" == "Linux" ]; then
+        date -d @$1
+        #date +"%F %T" -d "1970-01-01 UTC $1 seconds"
+    fi
+}
+
+function gettime()
+{
+    if [ "`uname`" == "Darwin" ]; then
+        date -j -f "%Y-%m-%d %H:%M:%S" "$1" "+%s"
+    elif [ "`uname`" == "Linux" ]; then
+        date -d "$1" +%s
+    fi
+}
 # Easy extract
 extract () {
   if [ -f $1 ] ; then
@@ -184,8 +203,8 @@ extract () {
 # You may want to put all your additions into a separate file like
 # ~/.bash_aliases, instead of adding them here directly.
 # See /usr/share/doc/bash-doc/examples in the bash-doc package.
-if [ -f ~/myvim/_bash_aliases ]; then
-    . ~/myvim/_bash_aliases
+if [ -f ~/myvim/bash_aliases ]; then
+    . ~/myvim/bash_aliases
 fi
 
 

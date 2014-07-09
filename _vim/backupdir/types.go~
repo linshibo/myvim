@@ -13,6 +13,9 @@ const (
 	HeroUnseen       = 0
 	HeroUnchargeSeen = 1
 	HeroChargeSeen   = 2
+
+	ArmEquipHpAdd   =0.25
+	ArmEquipDamageAdd   =0.25
 )
 
 var (
@@ -136,8 +139,7 @@ const (
 	NewCard               = 3
 	SmashCardToArmCurr    = 4
 	SmashCardToHeroCurr   = 5
-	SmashCardToHeroChip   = 6 //武将碎片
-	SmashCardToWeaponChip = 7 //武将武器碎片
+	SmashCardToWeaponChip = 6 //武将武器碎片
 )
 
 const (

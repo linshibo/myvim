@@ -3,6 +3,7 @@ package gameserver
 import (
 	"github.com/garyburd/redigo/redis"
 	"sanguo/base/util"
+	"sanguo/config"
 	"sanguo/db"
 	. "sanguo/systemdata"
 )
@@ -139,8 +140,9 @@ func (this *_ActivityManager) getRandomActivity() (aids []int) {
 		allaids[i] = ActivityByLevel[level][i]
 	}
 
-	this.user.Debug("allaids is", allaids)
+	this.user.Debug("allaids is", allaids, level)
 	num := len(allaids)
+	this.user.Critical("XJ", num)
 
 	for i := 0; i < 4; i++ {
 		index := util.GetRandomNum(num)
@@ -225,6 +227,10 @@ func (this *_ActivityManager) GetActivityReward(aid int, score int) ([]ActivityR
 }
 
 func (this *_ActivityManager) ActivityFightVerify(aid int, msg *FightDataVerify) bool {
+	if !config.Config.FightVerify {
+		return true
+	}
+
 	//TODO login_arm
 	if msg.Login_arm != 0 {
 		//if msg.Login_arm != sess.user.login_arm {
@@ -263,7 +269,7 @@ func (this *_ActivityManager) ActivityFightVerify(aid int, msg *FightDataVerify)
 
 		heros_random := msg.Random_heros
 
-        for _, hero := range heros_random {
+		for _, hero := range heros_random {
 			if hero.Damage != HeroInfo[hero.Id].Damage {
 				this.user.Debug("the damage of hero is not match with database of user:", this.user.uid)
 				ret = false
@@ -309,8 +315,9 @@ func (this *_ActivityManager) ActivityFightVerify(aid int, msg *FightDataVerify)
 		}
 		enemynum_recv := msg.Enemy_num
 
+		this.user.Trace("The ActivityGuanqiaInfo is", ActivityInfo[aid].ContentGuanqiaId, ActivityGuanqiaInfo[ActivityInfo[aid].ContentGuanqiaId].AllDanboIds)
 		if enemynum != enemynum_recv {
-			this.user.Error("The enemy num is not match")
+			this.user.Error("The enemy num is not match", enemynum, enemynum_recv, aid)
 			ret = false
 			break
 		}

@@ -1,7 +1,6 @@
 package gameserver
 
 import (
-	"sanguo/base/log"
 	"sanguo/base/util"
 	"sanguo/db"
 	. "sanguo/systemdata"
@@ -50,7 +49,6 @@ func (this *User) InitBoxRewadInTheFirstLogin() (err error) {
 func (this *User) GetBoxReward() (err error) {
 	num := util.GetRandomNum(5)
 	if num > 5 {
-		log.Warn("")
 		num = 0
 	}
 

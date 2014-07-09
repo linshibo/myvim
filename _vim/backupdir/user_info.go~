@@ -388,7 +388,7 @@ func UserInitArm(sess *Session, reader []byte) bool {
 	}
 
 	for _, id := range msg.ArmIDs {
-		_, err = sess.user.ProcessReward(RewardType_Arm, id)
+		_, _, err = sess.user.ProcessReward(RewardType_Arm, id)
 		if err != nil {
 			sess.user.Error("Failed ProcessReward", err)
 			return false
@@ -404,7 +404,6 @@ func UserInitArm(sess *Session, reader []byte) bool {
 	return sess.SendReplyBack(back, 108)
 }
 
-
 //opcode130
 func UserSetMainHero(sess *Session, reader []byte) bool {
 	type Data struct {
@@ -417,17 +416,17 @@ func UserSetMainHero(sess *Session, reader []byte) bool {
 		sess.Error("Can't decode json message, err = %v", err, sess.user.uid)
 		return false
 	}
-	
+
 	if !sess.user.Hero.CanSetMainHero() {
 		sess.user.Error("Filed CanSetMainHero")
 		return false
 	}
-	
+
 	err = sess.user.Hero.SetMainHero(msg.ID)
 	if err != nil {
-		sess.user.Error("Failed SetMainHero",err)
+		sess.user.Error("Failed SetMainHero", err)
 		return false
 	}
-	
+
 	return sess.SendReplyBack(msg, 130)
 }

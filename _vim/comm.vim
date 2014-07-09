@@ -281,7 +281,7 @@ nnoremap ,t <Esc>:tabedit
 nnoremap ,g :Ack <C-R>=expand('<cword>')<CR><CR>
 vnoremap ,g :call VisualSelection('gv')<CR>
 nnoremap ,r <Esc>:call GEN_TAGS()<CR>
-nnoremap ,m <Esc>:make<CR><CR>
+nnoremap ,m <Esc>:lmake<CR>
 "nnoremap ,y <Esc>:call OPT_RANGE("ya")<CR>
 "nnoremap ,Y <Esc>:call OPT_RANGE("yi")<CR>
 "nnoremap ,d <Esc>:call OPT_RANGE("da")<CR>
@@ -553,7 +553,7 @@ if has('lua') && version >= 703
     inoremap <expr><C-y>  neocomplete#close_popup()
     inoremap <expr><C-e>  neocomplete#cancel_popup()
     " Close popup by <Space>.
-    inoremap <expr><Space> pumvisible() ? neocomplete#close_popup() : "\<Space>"
+    ""inoremap <expr><Space> pumvisible() ? neocomplete#close_popup() : "\<Space>"
     " AutoComplPop like behavior.
     let g:neocomplete#enable_auto_select = 0
 
@@ -615,7 +615,7 @@ else
     inoremap <expr><C-l>  neocomplcache#complete_common_string()
     inoremap <expr><C-y>  neocomplcache#close_popup()
     inoremap <expr><C-e>  neocomplcache#cancel_popup()
-    inoremap <expr><space> pumvisible() ? neocomplcache#close_popup() . "\<SPACE>" : "\<SPACE>"
+    ""inoremap <expr><space> pumvisible() ? neocomplcache#close_popup() . "\<SPACE>" : "\<SPACE>"
     " Enable heavy omni completion, which require computational power and may stall the vim. 
     if !exists('g:neocomplcache_omni_patterns')
         let g:neocomplcache_omni_patterns = {}
@@ -706,6 +706,7 @@ let g:go_fmt_command = "gofmt"
 au FileType go nmap gd <Plug>(go-def)
 au FileType go nmap <Leader>d <Plug>(go-doc)
 au FileType go nmap <Leader>i <Plug>(go-info)
+noremap \\f <Esc>:GoFmt<CR> 
 "}}}
 "----------------------------------------------------------------------------
 " FileType related
@@ -740,7 +741,6 @@ au BufNewFile,BufRead *.py,*.pyw set filetype=python
 """"""""""""
 autocmd BufEnter *.go  set filetype=go
 au Filetype go set makeprg=go\ build\ ./...
-noremap \\f <Esc>:GoFmt<CR> 
 
 """"""""""""
 " HTML 
@@ -905,7 +905,7 @@ endfunction
 function! GEN_TAGS() 
     echo "GEN_TAGS" 
     if ( &filetype == "go")
-        silent! execute "! /usr/local/bin/ctags -f gosource.tags -R `pwd`<CR><CR>"
+        silent! execute "! /usr/local/bin/ctags -f gosource.tags -R `pwd`"<CR>
     endif
     if ( &filetype == "cpp" || &filetype == "c")
         call GEN_C_CTAG_CSCOPE()

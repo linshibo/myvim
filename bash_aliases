@@ -3,6 +3,9 @@ alias l.='ls -d .* --color=tty'
 alias ll='ls -lh --color=tty'
 alias telnet="telnet -8 -e^e"
 alias grep="grep --color=auto"
+alias egrep='egrep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias mkdir='mkdir -pv'
 alias rm="rm -i"
 alias df="df -h"
 alias du='du -h -c'
@@ -14,18 +17,19 @@ alias cp="cp -i -rf "
 alias ..="cd .."
 alias ...="cd ../../"
 alias ....="cd ../../../"
-
-#alias my='mysql -uroot -p123456 -A --prompt="\\u@\\h : \\d \\r:\\m:\\s>"'
+alias .....="cd ../../../../"
+alias .4='cd ../../../../'
+alias .5='cd ../../../../..'
+alias tt="date +%s"
+ 
+alias debugvi="vi -V9vimlog"
 
 alias dstat="dstat -cdlmnpsy"
-alias getdate='~/myvim/bin/getdate'
-alias goagent="~/myvim/bin/goagent.sh"
-alias translate="~/myvim/bin/gtrans en zh-cn"
-alias vimrc="vim ~/.vim/comm.vim"
-alias bashrc="vim ~/.bashrc"
-alias qq="exit"
-
-
+#alias translate="~/myvim/bin/gtrans en zh-cn"
+alias vimrc="vi ~/.vim/comm.vim"
+alias bashrc="vi ~/.bashrc"
 
 alias allusers="cut -d: -f1 /etc/passwd"
 alias allgroups="cut -d: -f1 /etc/group"
+
+#alias my='mysql -uroot -p123456 -A --prompt="\\u@\\h : \\d \\r:\\m:\\s>"'

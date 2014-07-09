@@ -22,11 +22,11 @@ const (
 )
 
 type _ArmManager struct {
-    arms      map[int]_Arm
+	arms      map[int]_Arm
 	n_arms    map[int]bool
 	allarmoid [ArmOidNum]int
 	formation [FormationLength]int
-    armEquip map [int][3]int //小兵装备的格子  id->equipIDs
+	armEquip  map[int][3]int //小兵装备的格子  id->equipIDs
 	user      *User
 }
 
@@ -39,8 +39,28 @@ func NewArmManager() *_ArmManager {
 	var h _ArmManager
 	h.arms = make(map[int]_Arm)
 	h.n_arms = make(map[int]bool)
-    h.armEquip = make(map[int][3]int)
+	h.armEquip = make(map[int][3]int)
 	return &h
+}
+
+func (this *_ArmManager)GetArmHpDamage(id int)(hp, damage int){
+	conf, ok := ArmInfo[id]
+	if ok {
+		//原始值
+		hp += conf.Hp
+		damage += conf.Damage
+	}
+	equip , ok := this.armEquip[id]
+	if ok {
+		//装备加成
+		if add ,ok := ArmInfo[equip[0]]; ok {
+			hp += int(float32(add.Hp)*ArmEquipHpAdd)
+		}
+		if add ,ok := ArmInfo[equip[1]]; ok {
+			damage += int(float32(add.Damage)*ArmEquipDamageAdd)
+		}
+	}
+	return 
 }
 
 func (this *_ArmManager) SetUser(u *User) {
@@ -210,7 +230,7 @@ func (this *_ArmManager) AddNewArm(id int, level int) error {
 		return err
 	}
 	//if !flag {
-		//return errors.New("Failed add the same arm id and level")
+	//return errors.New("Failed add the same arm id and level")
 	//}
 
 	_, err = dbconn.Do("HMSET", this.user.GetUidUsedInDB()+":arm:"+strconv.Itoa(id), "level", level, "prob", prob)
@@ -237,24 +257,23 @@ func (this *_ArmManager) AddNewArm(id int, level int) error {
 		return err
 	}
 
-
-	err = this.user.quest.InspectQuest(QuestType_CollectSpecArm , HeroInfo[id].OriginalId, 0)
+	err = this.user.quest.InspectQuest(QuestType_CollectSpecArm, HeroInfo[id].OriginalId, 0)
 	if err != nil {
 		this.user.Error("Failed QuestType_CollectSpecArm", err)
-		return  err
+		return err
 	}
-	
-	err = this.user.quest.InspectQuest(QuestType_CollectArmWithSoul , HeroInfo[id].OriginalId, 0)
+
+	err = this.user.quest.InspectQuest(QuestType_CollectArmWithSoul, HeroInfo[id].OriginalId, 0)
 	if err != nil {
 		this.user.Error("QuestType_CollectArmWithSoul", err)
-		return  err
+		return err
 	}
-	
-	err = this.user.quest.InspectQuest(QuestType_CollectArmCount , HeroInfo[id].OriginalId, 0)
+
+	err = this.user.quest.InspectQuest(QuestType_CollectArmCount, HeroInfo[id].OriginalId, 0)
 	if err != nil {
 		this.user.Error("Failed QuestType_CollectArmCount", err)
-		return  err
-	}	
+		return err
+	}
 	return nil
 }
 
@@ -303,7 +322,7 @@ func (this *_ArmManager) DelFromNewArm(star int) error {
 		delete(this.n_arms, id)
 		dbconn.Do("SREM", this.user.GetUidUsedInDB()+":new_arm", id)
 	}
-	
+
 	return nil
 }
 
@@ -534,7 +553,7 @@ func (this *_ArmManager) Verify(id_level int) bool {
 	return true
 }
 
-func (this *_ArmManager) IsKindOwned(id int) bool{
+func (this *_ArmManager) IsKindOwned(id int) bool {
 	oid := ArmInfo[id].OriginalId
 	for _, id_tmp := range ArmOriginalId[oid] {
 		if id_tmp == 0 {
@@ -547,21 +566,21 @@ func (this *_ArmManager) IsKindOwned(id int) bool{
 	return false
 }
 
-func (this *_ArmManager) ProcessNewGetArm(id int) (Type int, Value int, err error) {
+func (this *_ArmManager) ProcessNewGetArm(id int) (Type int, Value int, Extra int, err error) {
 	if id == 0 {
-		return 0, 0, nil
+		return 0, 0,0, nil
 	}
 
 	flag := this.IsKindOwned(id)
 	if !flag {
-        //not exist
+		//not exist
 		Type = NewCard
 		Value = 0
 		err = this.AddNewArm(id, 1)
 		return
 	} else {
-        //exist
-		Type, Value, err = this.smashArmCard(id)
+		//exist
+		Type, Value, Extra, err = this.smashArmCard(id)
 		return
 	}
 
@@ -582,12 +601,12 @@ func (this *_ArmManager) getSmashType() int {
 
 	num := util.GetRandomNumOf100()
 
-    var vec []int
-    if this.user.Hero.IsAnyWeaponChipLackOf(){
-        vec =  SmashTypeProbWithWeaponChip
-    }else{
-        vec =  SmashTypeProb
-    }
+	var vec []int
+	if this.user.Hero.IsAnyWeaponChipLackOf() {
+		vec = SmashTypeProbWithWeaponChip
+	} else {
+		vec = SmashTypeProb
+	}
 
 	for index, v := range vec {
 		if num > v {
@@ -607,7 +626,7 @@ func (this *_ArmManager) getSmashType() int {
 	return SmashCardToGold
 }
 
-func (this *_ArmManager) smashArmCard(id int) (smash_type, num int, err error) {
+func (this *_ArmManager) smashArmCard(id int) (smash_type, num , Extra int , err error) {
 	smash_type = this.getSmashType()
 	var reward_type int
 
@@ -626,7 +645,7 @@ func (this *_ArmManager) smashArmCard(id int) (smash_type, num int, err error) {
 
 	case SmashCardToWeaponChip:
 		reward_type = RewardType_WeaponChip
-		num = 1 
+		num = 1
 	}
 
 	var event_flag bool
@@ -638,7 +657,7 @@ func (this *_ArmManager) smashArmCard(id int) (smash_type, num int, err error) {
 		event_flag = true
 	}
 
-	_, err = this.user.ProcessReward(reward_type, num)
+	_, Extra, err = this.user.ProcessReward(reward_type, num)
 	if err != nil {
 		return
 	}
@@ -667,9 +686,9 @@ func (this *_ArmManager) GetAllArms() []CardBack {
 func (this *_ArmManager) GetNewArm() []int {
 	arm := make([]int, len(this.n_arms))
 	index := 0
-	for id,_ := range this.n_arms {
-		arm[index] =id
-		index ++
+	for id, _ := range this.n_arms {
+		arm[index] = id
+		index++
 	}
 	return arm
 }
@@ -750,7 +769,7 @@ func (this *_ArmManager) GetArmLevel(id int) int {
 
 var (
 	FixedArmStarCoef = []int{0, 1, 2, 4, 6}
-	ArmLevelBaseCoef = []int{0, 100,125,150,200,250,300,450,525,0}
+	ArmLevelBaseCoef = []int{0, 100, 125, 150, 200, 250, 300, 450, 525, 0}
 )
 
 func (this *_ArmManager) GetArmUpdatePrice(id int) (Type, Value int) {
@@ -769,10 +788,10 @@ func (this *_ArmManager) GetArmUpdatePrice(id int) (Type, Value int) {
 //UserSetArmEquip 设置小兵装备 op 131
 func UserSetArmEquip(sess *Session, reader []byte) bool {
 	type Data struct {
-        Lists []struct{
-            DstID int
-            Equip []int
-        }
+		Lists []struct {
+			DstID int
+			Equip []int
+		}
 	}
 	var msg Data
 	err := json.Unmarshal(reader, &msg)
@@ -780,88 +799,88 @@ func UserSetArmEquip(sess *Session, reader []byte) bool {
 		sess.Error("Can't decode json message,", err, sess.user.uid)
 		return false
 	}
-    sess.Debug("UserSetArmEquip", msg)
-    fails := make(map[int]bool)
-	for i := range msg.Lists{
-        _, ok := sess.user.Arm.arms[msg.Lists[i].DstID] 
+	sess.Debug("UserSetArmEquip", msg)
+	fails := make(map[int]bool)
+	for i := range msg.Lists {
+		_, ok := sess.user.Arm.arms[msg.Lists[i].DstID]
 		if !ok {
 			sess.Error("not find arm id", msg.Lists[i].DstID)
-            fails[msg.Lists[i].DstID]=true
-            continue
+			fails[msg.Lists[i].DstID] = true
+			continue
 		}
-        if len(msg.Lists[i].Equip) != 3 {
-            fails[msg.Lists[i].DstID]=true
-            continue
-        }
-        for j:=0; j<3; j++ {
-            if msg.Lists[i].Equip[j] > 0 {
-                _, ok := sess.user.Arm.arms[msg.Lists[i].Equip[j]] 
-                if !ok {
-                    sess.Error("not find arm id in systemdata", msg.Lists[i].Equip[j])
-                    fails[msg.Lists[i].DstID]=true
-                    continue
-                }
-            }
-        }
-        conf, ok := ArmInfo[msg.Lists[i].DstID]
-        //if conf.QualityLevel < 2{
-            ////绿色品质才可以装备 need >= 2
-            //sess.Error("arm qualify not valid", conf.QualityLevel, msg.Lists[i].DstID)
-            //fails[msg.Lists[i].DstID]=true
-            //continue
-        //}
-        if msg.Lists[i].Equip[0]>0 {
-            for j:= range conf.EGrid1UnlockQuests{
-                if !sess.user.quest.IsQuestFinished(msg.Lists[i].Equip[0], conf.EGrid1UnlockQuests[j]) {
-                    sess.Error("arm equip quest not finish", msg.Lists[i].Equip[0] , conf.EGrid1UnlockQuests[j])
-                    fails[msg.Lists[i].DstID]=true
-                    continue
-                }
-            }
-        }
-        if msg.Lists[i].Equip[1]>0 {
-            for j:= range conf.EGrid2UnlockQuests{
-                if !sess.user.quest.IsQuestFinished(msg.Lists[i].Equip[1], conf.EGrid2UnlockQuests[j]) {
-                    sess.Error("arm equip quest not finish", msg.Lists[i].Equip[1] , conf.EGrid2UnlockQuests[j])
-                    fails[msg.Lists[i].DstID]=true
-                    continue
-                }
-            }
-        }
-        if msg.Lists[i].Equip[1]>0 {
-            for j:= range conf.EGrid3UnlockQuests{
-                if !sess.user.quest.IsQuestFinished(msg.Lists[i].Equip[2], conf.EGrid3UnlockQuests[j]) {
-                    sess.Error("arm equip quest not finish", msg.Lists[i].Equip[2] , conf.EGrid3UnlockQuests[j])
-                    fails[msg.Lists[i].DstID]=true
-                    continue
-                }
-            }
-        }
+		if len(msg.Lists[i].Equip) != 3 {
+			fails[msg.Lists[i].DstID] = true
+			continue
+		}
+		for j := 0; j < 3; j++ {
+			if msg.Lists[i].Equip[j] > 0 {
+				_, ok := sess.user.Arm.arms[msg.Lists[i].Equip[j]]
+				if !ok {
+					sess.Error("not find arm id in systemdata", msg.Lists[i].Equip[j])
+					fails[msg.Lists[i].DstID] = true
+					continue
+				}
+			}
+		}
+		conf, ok := ArmInfo[msg.Lists[i].DstID]
+		//if conf.QualityLevel < 2{
+		////绿色品质才可以装备 need >= 2
+		//sess.Error("arm qualify not valid", conf.QualityLevel, msg.Lists[i].DstID)
+		//fails[msg.Lists[i].DstID]=true
+		//continue
+		//}
+		if msg.Lists[i].Equip[0] > 0 {
+			for j := range conf.EGrid1UnlockQuests {
+				if !sess.user.quest.IsQuestFinished(msg.Lists[i].Equip[0], conf.EGrid1UnlockQuests[j]) {
+					sess.Error("arm equip quest not finish", msg.Lists[i].Equip[0], conf.EGrid1UnlockQuests[j])
+					fails[msg.Lists[i].DstID] = true
+					continue
+				}
+			}
+		}
+		if msg.Lists[i].Equip[1] > 0 {
+			for j := range conf.EGrid2UnlockQuests {
+				if !sess.user.quest.IsQuestFinished(msg.Lists[i].Equip[1], conf.EGrid2UnlockQuests[j]) {
+					sess.Error("arm equip quest not finish", msg.Lists[i].Equip[1], conf.EGrid2UnlockQuests[j])
+					fails[msg.Lists[i].DstID] = true
+					continue
+				}
+			}
+		}
+		if msg.Lists[i].Equip[1] > 0 {
+			for j := range conf.EGrid3UnlockQuests {
+				if !sess.user.quest.IsQuestFinished(msg.Lists[i].Equip[2], conf.EGrid3UnlockQuests[j]) {
+					sess.Error("arm equip quest not finish", msg.Lists[i].Equip[2], conf.EGrid3UnlockQuests[j])
+					fails[msg.Lists[i].DstID] = true
+					continue
+				}
+			}
+		}
 	}
 	dbconn := db.Pool.Get()
 	defer dbconn.Close()
 
 	back := make(map[string]interface{})
 
-    sess.user.Arm.armEquip = make(map[int][3]int)
-	for i := range msg.Lists{
-        if _, fail :=fails[msg.Lists[i].DstID]; !fail {
-            var tmp [3]int = [3]int{
-                msg.Lists[i].Equip[0], msg.Lists[i].Equip[1], msg.Lists[i].Equip[2],
-            }
-            sess.user.Arm.armEquip[msg.Lists[i].DstID]=tmp
-            _, err = dbconn.Do("HSET", fmt.Sprintf("user:armEquip:%d", sess.user.uid),msg.Lists[i].DstID, fmt.Sprintf("%v:%v:%v", msg.Lists[i].Equip[0], msg.Lists[i].Equip[1], msg.Lists[i].Equip[2]))
-            if err != nil {
-                fails[msg.Lists[i].DstID]=true
-                sess.Error("db error ", err)
-            }
-            sess.Debug("set arm equip", sess.user.Arm.armEquip)
-        }
+	sess.user.Arm.armEquip = make(map[int][3]int)
+	for i := range msg.Lists {
+		if _, fail := fails[msg.Lists[i].DstID]; !fail {
+			var tmp [3]int = [3]int{
+				msg.Lists[i].Equip[0], msg.Lists[i].Equip[1], msg.Lists[i].Equip[2],
+			}
+			sess.user.Arm.armEquip[msg.Lists[i].DstID] = tmp
+			_, err = dbconn.Do("HSET", fmt.Sprintf("user:armEquip:%d", sess.user.uid), msg.Lists[i].DstID, fmt.Sprintf("%v:%v:%v", msg.Lists[i].Equip[0], msg.Lists[i].Equip[1], msg.Lists[i].Equip[2]))
+			if err != nil {
+				fails[msg.Lists[i].DstID] = true
+				sess.Error("db error ", err)
+			}
+			sess.Debug("set arm equip", sess.user.Arm.armEquip)
+		}
 	}
-    v:=make([]int,0)
-    for k, _:= range fails{
-        v = append(v, k)
-    }
-    back["Lists"]=v
+	v := make([]int, 0)
+	for k, _ := range fails {
+		v = append(v, k)
+	}
+	back["Lists"] = v
 	return sess.SendReplyBack(back, 131)
 }

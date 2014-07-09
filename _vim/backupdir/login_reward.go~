@@ -380,7 +380,7 @@ func AddLoginArm(sess *Session, aid int) error {
 	return err
 }
 
-func (sess *Session)UpdateLoginArmInTheFirstLoginOfDay() error {
+func (sess *Session) UpdateLoginArmInTheFirstLoginOfDay() error {
 	dbconn := db.Pool.Get()
 	defer dbconn.Close()
 	sess.user.login_arm_given = false

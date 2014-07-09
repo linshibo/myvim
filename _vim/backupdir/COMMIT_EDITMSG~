@@ -5,41 +5,37 @@
 # Committer: frank <frank@frankMac.local>
 #
 # On branch master
-# Your branch is up-to-date with 'origin/master'.
+# Your branch is ahead of 'origin/master' by 1 commit.
+#   (use "git push" to publish your local commits)
 #
 # Changes to be committed:
-#	modified:   backupdir/COMMIT_EDITMSG~
-#	modified:   backupdir/comm.vim~
-#	modified:   comm.vim
-#
-# Changes not staged for commit:
-#	modified:   bundle/Tagbar (untracked content)
-#	modified:   bundle/ack.vim (untracked content)
-#	modified:   bundle/matchit.zip (untracked content)
-#	modified:   bundle/snipMate (untracked content)
-#	modified:   bundle/vim-smartword (untracked content)
-#	modified:   bundle/xml.vim (untracked content)
+#	modified:   gameserver/Arm.go
+#	modified:   gameserver/activity.go
+#	modified:   gameserver/activity_util.go
+#	modified:   gameserver/boss.go
+#	modified:   gameserver/boss_util.go
+#	modified:   gameserver/box.go
+#	modified:   gameserver/buy.go
+#	modified:   gameserver/cards.go
+#	modified:   gameserver/fight.go
+#	modified:   gameserver/friends.go
+#	modified:   gameserver/gm.go
+#	modified:   gameserver/hero.go
+#	modified:   gameserver/ipc_util.go
+#	modified:   gameserver/login_reward.go
+#	modified:   gameserver/quest_uitl.go
+#	modified:   gameserver/reward.go
+#	modified:   gameserver/stone.go
+#	modified:   gameserver/user.go
+#	modified:   gameserver/user_info.go
+#	modified:   systemdata/types.go
 #
 # Untracked files:
-#	../.DS_Store
-#	backupdir/_bash_aliases~
-#	backupdir/_bashrc~
-#	backupdir/bufferManager_test.go~
-#	backupdir/bufferedSlice.go~
-#	backupdir/cards.go~
-#	backupdir/chapterGuanQiaInfo.cfg~
-#	backupdir/chapterInfo.cfg~
-#	backupdir/cli.go~
-#	backupdir/complete.vim~
-#	backupdir/os_unix.c~
-#	bundle/AutoClose/
-#	bundle/OmniCppComplete/
-#	bundle/YankRing.vim/
-#	bundle/neocomplete/
-#	bundle/python.vim/
-#	bundle/vim-easymotion/
-#	bundle/vim-go/
-#	bundle/vim-multiple-cursors/
-#	bundle/vim-surround/
+#	apple_cpu.prof
+#	apple_mem.prof
+#	gameserver/dump.rdb
+#	gameserver/gosource.tags
+#	gosource.tags
+#	log_55555
+#	sanguo
 #
-fix

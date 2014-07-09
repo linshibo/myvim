@@ -50,7 +50,7 @@ func UserBuyPower(sess *Session, reader []byte) bool {
 
 	n := msg.Num / PowerPrice
 	log.Debug("The power will add is ", n, msg.Num)
-	_, err = sess.user.ProcessReward(RewardType_Power, n)
+	_,_, err = sess.user.ProcessReward(RewardType_Power, n)
 	if err != nil {
 		log.Error("Failed Add power of buy", err, sess.user.uid)
 		return false
@@ -67,7 +67,7 @@ func UserBuyPower(sess *Session, reader []byte) bool {
 		log.Error("Failed ReduceGold", err, sess.user.uid)
 		return false
 	}
-    GM.GMDayLog(sess.user.uid, StatIDBuyPower, n*PowerPrice)
+	GM.GMDayLog(sess.user.uid, StatIDBuyPower, n*PowerPrice)
 
 	type DataBack struct {
 		Gold          int
@@ -211,7 +211,7 @@ func UserBuyCard(sess *Session, reader []byte) bool {
 		return false
 	}
 
-    GM.GMDayLog(sess.user.uid,StatIDBuyArmHero, price)
+	GM.GMDayLog(sess.user.uid, StatIDBuyArmHero, price)
 
 	type DataBack struct {
 		Id    int
@@ -490,7 +490,7 @@ func (this *PurchaseManager) GetReward(pid int) (err error) {
 		return nil
 	}
 
-	_, err = this.user.ProcessReward(v.RewardType, v.RewardValue)
+	_,_, err = this.user.ProcessReward(v.RewardType, v.RewardValue)
 	if err != nil {
 		return err
 	}
@@ -555,7 +555,7 @@ func (this *PurchaseManager) addUnreward(r PurchaseReward) (err error) {
 }
 
 func (this *PurchaseManager) purchaseNormalGold() (lt int, err error) {
-	_, err = this.user.ProcessReward(RewardType_Gold, 3000)
+	_,_, err = this.user.ProcessReward(RewardType_Gold, 3000)
 	if err != nil {
 		return -1, err
 	}
@@ -572,7 +572,7 @@ func (this *PurchaseManager) purchaseNormalGold() (lt int, err error) {
 }
 
 func (this *PurchaseManager) purchaseSuperGold() (lt int, err error) {
-	_, err = this.user.ProcessReward(RewardType_Gold, 30000)
+	_,_, err = this.user.ProcessReward(RewardType_Gold, 30000)
 	if err != nil {
 		return -1, err
 	}
@@ -589,7 +589,7 @@ func (this *PurchaseManager) purchaseSuperGold() (lt int, err error) {
 }
 
 func (this *PurchaseManager) purchaseSuperStone() (lt int, err error) {
-	_, err = this.user.ProcessReward(RewardType_Stone, 4500)
+	_,_, err = this.user.ProcessReward(RewardType_Stone, 4500)
 	if err != nil {
 		return 0, err
 	}
@@ -615,7 +615,7 @@ func (this *PurchaseManager) purchaseSuperStone() (lt int, err error) {
 }
 
 func (this *PurchaseManager) purchaseNormalStone() (lt int, err error) {
-	_, err = this.user.ProcessReward(RewardType_Stone, 600)
+	_,_, err = this.user.ProcessReward(RewardType_Stone, 600)
 	if err != nil {
 		return -1, err
 	}

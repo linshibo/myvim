@@ -2,7 +2,7 @@ package gameserver
 
 import (
 	"encoding/json"
-    "sanguo/db"
+	"sanguo/db"
 	. "sanguo/systemdata"
 )
 
@@ -155,15 +155,15 @@ func UserWinBossFight(sess *Session, reader []byte) bool {
 
 			sess.Critical("The max_score_flag is:", max_score_flag)
 			if max_score_flag || boss.boss_tg_count == BossGuanQiaInfo[msg.BossId].NeedFinishTimes {
-                //解锁
+				//解锁
 				back["bid"], err = sess.UnlockNextBoss(msg.BossId)
 				if err != nil {
 					sess.Error("Failed unlock next boss", err, sess.user.uid)
 					return false
 				}
-                //back["bid"] = boss.boss_id
+				//back["bid"] = boss.boss_id
 			} else {
-                back["bid"] = boss.boss_id
+				back["bid"] = boss.boss_id
 			}
 		}
 		back["rank"] = boss.boss_rank
@@ -260,43 +260,43 @@ func UserGetBossRank(sess *Session, reader []byte) bool {
 
 //UserSetConveneBoss [opcode 132]  设置召唤的神兽
 func UserSetConveneBoss(sess *Session, reader []byte) bool {
-    type Data struct {
-        BossId int
-    }
-    var msg Data
-    err := json.Unmarshal(reader, &msg)
-    if err != nil {
-        sess.Error("Can't decode json message,", err, sess.user.uid)
-        return false
-    }
-    boss, ok := sess.user.bossInfos[msg.BossId]
-    if !ok {
-        sess.Error("not find boss id", msg.BossId)
-        return false
-    }
-    sess.user.convenedBossID = msg.BossId 
-    MaxScoreFlag:=true 
-    for _, v := range GuanqiaInfo[BossGuanQiaInfo[msg.BossId].ContentGuanQiaId].ScoreReward {
-        if boss.boss_max_score < v.Score {
-           MaxScoreFlag = false
-            break
-        }
-    }
-    if !MaxScoreFlag  {
-        sess.Error("not unlock boss", msg.BossId)
-        return false
-    }
+	type Data struct {
+		BossId int
+	}
+	var msg Data
+	err := json.Unmarshal(reader, &msg)
+	if err != nil {
+		sess.Error("Can't decode json message,", err, sess.user.uid)
+		return false
+	}
+	boss, ok := sess.user.bossInfos[msg.BossId]
+	if !ok {
+		sess.Error("not find boss id", msg.BossId)
+		return false
+	}
+	sess.user.convenedBossID = msg.BossId
+	MaxScoreFlag := true
+	for _, v := range GuanqiaInfo[BossGuanQiaInfo[msg.BossId].ContentGuanQiaId].ScoreReward {
+		if boss.boss_max_score < v.Score {
+			MaxScoreFlag = false
+			break
+		}
+	}
+	if !MaxScoreFlag {
+		sess.Error("not unlock boss", msg.BossId)
+		return false
+	}
 
-    dbconn := db.Pool.Get()
-    defer dbconn.Close()
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
 
-    _, err = dbconn.Do("HSET", sess.user.GetUidUsedInDB(), "convenedBossID", sess.user.convenedBossID)
+	_, err = dbconn.Do("HSET", sess.user.GetUidUsedInDB(), "convenedBossID", sess.user.convenedBossID)
 	if err != nil {
 		sess.user.Error("Failed HSET", err)
 		return false
 	}
 
-    back := make(map[string]interface{})
-    back["ret"] = 0 
-    return sess.SendReplyBack(back, 132)
-} 
+	back := make(map[string]interface{})
+	back["ret"] = 0
+	return sess.SendReplyBack(back, 132)
+}

@@ -32,11 +32,6 @@ type _QuestManager struct {
 	user                        *User
 }
 
-var (
-	AllHeroEvolveQuest  []int
-	AllArmEquipQuest []int
-)
-
 func NewQuestManager() *_QuestManager {
 	var q _QuestManager
 	q.accepted_quests = make(map[int]_QuestData)
@@ -295,7 +290,7 @@ func (this *_QuestManager) InspectQuest(t int, s int, v int) (err error) {
 		}
 	}
 
-	for qid, _ := range AllArmEquipQuests {
+	for _, qid := range AllArmEquipQuests {
 		if Quest[qid].Actiontype == t {
 			if !this.finished_arm_equip_quests[qid] {
 				err = f(qid, s, v)
@@ -307,7 +302,7 @@ func (this *_QuestManager) InspectQuest(t int, s int, v int) (err error) {
 		}
 	}
 
-	for qid, _ := range AllHeroEvolveQuests {
+	for _, qid := range AllHeroEvolveQuests {
 		if Quest[qid].Actiontype == t {
 			if !this.finished_hero_evolve_quests[qid] {
 				err = f(qid, s, v)
@@ -344,7 +339,7 @@ func (this *_QuestManager) DelRefreshQuest(qid int) (err error) {
 func (this *_QuestManager) SubmitQuest(qid int) (err error) {
 	dbconn := db.Pool.Get()
 	defer dbconn.Close()
-
+	this.user.Trace("InSubmitQuest", qid)
 	if Quest[qid].Needpushreward == QuestMold_HeroAdvance {
 		this.finished_hero_evolve_quests[qid] = true
 		_, err = dbconn.Do("SADD", this.user.GetUidUsedInDB()+":finished_hero_evolve_quests", qid)
@@ -448,7 +443,7 @@ func (this *_QuestManager) CanNewQuestAccept(qid int) bool {
 		}
 	}
 
-	if Quest[qid].Needpushreward == QuestMold_Chapter || Quest[qid].Needpushreward == QuestMold_Fight {
+	if Quest[qid].Needpushreward != QuestMold_Nomal || Quest[qid].Needpushreward != QuestMold_Chengjiu {
 		this.user.Error("The type is wrong", Quest[qid].Needpushreward)
 		return false
 	}
@@ -495,7 +490,7 @@ func (this *_QuestManager) GetQuestReward(qid int) (err error) {
 		return errors.New("The qid is not in unreward_quests")
 	}
 
-	_, err = this.user.ProcessReward(Quest[qid].Rewardtype, Quest[qid].Rewardcount)
+	_,_, err = this.user.ProcessReward(Quest[qid].Rewardtype, Quest[qid].Rewardcount)
 	if err != nil {
 		this.user.Error("Failed ProcessReward", qid)
 		return err
@@ -519,6 +514,16 @@ func (this *_QuestManager) GetOwnFinishedQuest() []int {
 	q := make([]int, len(this.finished_quests))
 	index := 0
 	for id, _ := range this.finished_quests {
+		q[index] = id
+		index++
+	}
+	return q
+}
+
+func (this *_QuestManager) GetUnrewardQuests() []int {
+	q := make([]int, len(this.unreward_quests))
+	index := 0
+	for id, _ := range this.unreward_quests {
 		q[index] = id
 		index++
 	}

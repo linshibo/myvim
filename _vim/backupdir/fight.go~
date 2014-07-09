@@ -36,19 +36,20 @@ type DanboEnemy struct {
 }
 
 type FightDataVerify struct {
-	Heros             []int
-	Arms              []int
-	Point             int
-	Enemy_num         int
-	Random_heros      []HeroRecv
-	Random_arms       []ArmRecv
-	Score             int
-	Random_enemy_arms []ArmRecv
-	Danbo             []DanboEnemy
-	Login_arm         int
-	CoinsGot          int
-	FinishedQuest     int
-	Wizards           []int
+	Heros                []int
+	Arms                 []int
+	Point                int
+	Enemy_num            int
+	Random_heros         []HeroRecv
+	Random_arms          []ArmRecv
+	Score                int
+	Random_enemy_arms    []ArmRecv
+	Danbo                []DanboEnemy
+	Login_arm            int
+	CoinsGot             int
+	FinishedQuest        int
+	Wizards              []int
+	CurShenshouAccuValue int
 }
 
 func UserStartFight(sess *Session, reader []byte) bool {
@@ -74,15 +75,14 @@ func UserStartFight(sess *Session, reader []byte) bool {
 	}
 	back["power"] = sess.user.power
 	back["left_time"] = left_time
+	back["CurShenshouAccuValue"] = sess.user.GetShenshouCurr()
 
 	return sess.SendReplyBack(back, 5)
 }
 
 //opcode6
 func UserEndFight(sess *Session, reader []byte) bool {
-	sess.user.Debug("Daxiang   Start")
-	defer sess.user.Debug("Daxiang   End")
-	
+	sess.user.Trace("In UserEndFight", string(reader))
 	type Data struct {
 		Ret       bool
 		Guanqiaid int
@@ -235,17 +235,24 @@ func UserEndFight(sess *Session, reader []byte) bool {
 			return false
 		}
 	}
+
+	/****************************** Update shenshou ***************************************************/
+	err = sess.user.UpdateShenshouCurr(msg.Fight.CurShenshouAccuValue)
+	if err != nil {
+		sess.user.Error("Failed UpdateShenshouCurr", err)
+		return false
+	}
+
+	back["CurShenshouAccuValue"] = sess.user.GetShenshouCurr()
 	/****************************** Finsh Process and send msg ****************************************/
 
 	back["gold"] = sess.user.gold
-
-	sess.user.Debug("Daxiang   WillSendBack")
 
 	if !sess.SendReplyBack(back, 6) {
 		sess.Error("Send opcode6 error")
 		return false
 	}
-sess.user.Debug("Daxiang   Strange")
+
 	/****************************** Random Stranger **********************************************/
 	if sess.user.wizards[4] == 1 {
 		if sess.user.Friends.FriendNum() < 15 {
@@ -286,7 +293,7 @@ sess.user.Debug("Daxiang   Strange")
 	}
 
 	/****************************** Quest type 1,2,3,5,12 ****************************************/
-sess.user.Debug("Daxiang   QuestStart")
+	sess.user.Debug("Daxiang   QuestStart")
 	err = sess.user.quest.InspectQuest(QuestType_FinishSimpleGuanqia, 0, 0)
 	if err != nil {
 		sess.Error("Failed QuestType_FinishSimpleGuanqia ", err)
@@ -322,7 +329,7 @@ sess.user.Debug("Daxiang   QuestStart")
 		sess.Error("Failed QuestType_WinFight", err)
 		return false
 	}*/
-sess.user.Debug("Daxiang   QuestEnd")
+	sess.user.Debug("Daxiang   QuestEnd")
 	return true
 }
 
@@ -526,8 +533,15 @@ func (this *User) VerifyFightData(gid int, msg *FightDataVerify, t int) bool {
 	enemynum_recv := msg.Enemy_num
 
 	if enemynum != enemynum_recv {
-		this.Info("The enemy num is not match")
+		this.Info("The enemy num is not match", enemynum, msg.Enemy_num)
 		return false
+	}
+
+	if this.GetShenshouCurr() < msg.CurShenshouAccuValue {
+		if (msg.CurShenshouAccuValue - this.GetShenshouCurr()) > (enemynum * 11 / 10) {
+			this.Error("The shenshou_curr increase too much", enemynum, (msg.CurShenshouAccuValue - this.GetShenshouCurr()))
+			return false
+		}
 	}
 
 	for _, danbo := range msg.Danbo {

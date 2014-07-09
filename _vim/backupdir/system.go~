@@ -82,6 +82,7 @@ type armInfo struct {
 	StarsNeed          int
 	SellType           int
 	SellPrice          int
+	;
 	CanPick            int
 	Armid              int
 	EGrid1UnlockQuests []int

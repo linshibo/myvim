@@ -14,6 +14,7 @@ import (
 )
 
 const CD_Time = 30 * 60
+
 type bossData struct {
 	Boss_tg_count  int
 	Boss_id        int
@@ -21,7 +22,7 @@ type bossData struct {
 	Boss_left_time int
 	Boss_pass      int
 	Boss_count     int
-	Boss_max_score  int
+	Boss_max_score int
 }
 
 func (sess *Session) GetAllBossInfo() []bossData {
@@ -35,7 +36,7 @@ func (sess *Session) GetAllBossInfo() []bossData {
 		d.Boss_left_time = sess.GetLeftTimeToBossFight(v.boss_id)
 		d.Boss_pass = v.boss_pass
 		d.Boss_count = v.boss_count
-        d.Boss_max_score=v.boss_max_score
+		d.Boss_max_score = v.boss_max_score
 		bossInfoSlice = append(bossInfoSlice, d)
 	}
 	sess.Debug(bossInfoSlice)

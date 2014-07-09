@@ -346,7 +346,7 @@ func GMUserAddCard(reader []byte) bool {
 	}
 
 	if err != nil {
-        log.Error(err)
+		log.Error(err)
 		back.Ret = ErrorOperationTrouble
 		return SendToHub(back, 0xf004)
 	}
