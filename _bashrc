@@ -52,7 +52,6 @@ fi
 
 unset color_prompt force_color_prompt
 
-
 # enable color support of ls and also add handy aliases
 if [ -x /usr/bin/dircolors ]; then
 	eval "`dircolors -b`"
@@ -61,7 +60,6 @@ if [ -x /usr/bin/dircolors ]; then
     alias fgrep='fgrep --color=auto'
     alias egrep='egrep --color=auto'
 fi
-
 
 # enable programmable completion features (you don't need to enable
 # this, if it's already enabled in /etc/bash.bashrc and /etc/profile
@@ -73,20 +71,29 @@ fi
 #设置vi模式
 #set -o vi
 
-localip=`/sbin/ifconfig eth0 2>/dev/null | awk '$1=="inet"{print $2}' | awk -F: '{print $2}' `
+
+if [[ $(type -P brew) ]]; then
+    [[ -f `brew --prefix`/etc/bash_completion ]] && source `brew --prefix`/etc/bash_completion
+    [[ -f `brew --prefix`/etc/autojump.bash ]] && source `brew --prefix`/etc/autojump.bash
+fi
+
+if [ "`uname`" == "Darwin" ]; then
+    localip=`/sbin/ifconfig en0 2>/dev/null | awk '$1=="inet"{print $2}'`
+elif [ "`uname`" == "Linux" ]; then
+    localip=`/sbin/ifconfig eth0 2>/dev/null | awk '$1=="inet"{print $2}' | awk -F: '{print $2}' `
+fi
+
 export LOCAL_IP=$localip
 export LOCAL_IP_4=`echo $localip | awk -F. '{print $4}' `
 export LOCAL_IP_3=`echo $localip | awk -F. '{print $3}' `
-#linux
-#export PS1='\[\e[01;35m\]==\[\e[01;31m\][$LOCAL_IP_4]\[\e[01;35m\]==\[\e[01;36m\][\[\e[01;37m\]\u\[\e[01;36m\]\[\e[00m\] \[\e[01;34m\]`pwd``B=$(git branch 2>/dev/null | sed -e "/^ /d" -e "s/* \(.*\)/\1/"); if [ "$B" != "" ]; then S="git"; elif [ -e .bzr ]; then S=bzr; elif [ -e .hg ]; then S="hg"; elif [ -e .svn ]; then S="svn"; else S=""; fi; if [ "$S" != "" ]; then if [ "$B" != "" ]; then M=$S:$B; else M=$S; fi; fi; [[ "$M" != "" ]] && echo -n -e "\[\e[33;40m\]($M)\[\e[01;32m\]\[\e[00m\]"`\[\e[01;34m\]\[\e[01;36m\]]\[\e[01;31m\]$ \[\e[00m\]'
-#osx
-export PS1='\[\e[01;36m\][\[\e[01;37m\]\u\[\e[01;36m\]\[\e[00m\] \[\e[01;34m\]`pwd``B=$(git branch 2>/dev/null | sed -e "/^ /d" -e "s/* \(.*\)/\1/"); if [ "$B" != "" ]; then S="git"; elif [ -e .bzr ]; then S=bzr; elif [ -e .hg ]; then S="hg"; elif [ -e .svn ]; then S="svn"; else S=""; fi; if [ "$S" != "" ]; then if [ "$B" != "" ]; then M=$S:$B; else M=$S; fi; fi; [[ "$M" != "" ]] && echo -n -e "\[\e[33;40m\]($M)\[\e[01;32m\]\[\e[00m\]"`\[\e[01;34m\]\[\e[01;36m\]]\[\e[01;31m\]$ \[\e[00m\]'
+export PS1='\[\e[01;35m\]==\[\e[01;31m\][$LOCAL_IP_4]\[\e[01;35m\]==\[\e[01;36m\][\[\e[01;37m\]\u\[\e[01;36m\]\[\e[00m\] \[\e[01;34m\]`pwd``B=$(git branch 2>/dev/null | sed -e "/^ /d" -e "s/* \(.*\)/\1/"); if [ "$B" != "" ]; then S="git"; elif [ -e .bzr ]; then S=bzr; elif [ -e .hg ]; then S="hg"; elif [ -e .svn ]; then S="svn"; else S=""; fi; if [ "$S" != "" ]; then if [ "$B" != "" ]; then M=$S:$B; else M=$S; fi; fi; [[ "$M" != "" ]] && echo -n -e "\[\e[33;40m\]($M)\[\e[01;32m\]\[\e[00m\]"`\[\e[01;34m\]\[\e[01;36m\]]\[\e[01;31m\]$ \[\e[00m\]'
 export TERM=xterm-256color
-#export PROMPT_COMMAND="echo -ne \"\033]0;==[$LOCAL_IP_4]==[`whoami`]\007\""
+export PROMPT_COMMAND="echo -ne \"\033]0;==[$LOCAL_IP_4]==[`whoami`]\007\""
 export EDITOR="vim"
 export LANG=en_US.UTF-8
 ulimit -c 40000000
 export PATH=$PATH:.
+export CLICOLOR=1
 
 if [ -x /usr/bin/dircolors ]; then
     test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
@@ -147,9 +154,30 @@ function alias_comm_cmd()
     port=$5
     passwd=$6
     user_flag=$7
-    eval "alias c$flag$1$user_flag=' sshpass  -p\"$passwd\" ssh -q -2 -p$port $user@$ip_fix.$1' "
+    eval "alias c$flag$1$user_flag='sshpass  -p\"$passwd\" ssh -q -2 -p$port $user@$ip_fix.$1' "
     eval "alias put$flag$1$user_flag=' comm_put_ser $user $ip_fix $port \"$passwd\" $1 ' "
     eval "alias get$flag$1$user_flag=' comm_get_ser $user $ip_fix $port \"$passwd\" $1 ' "
+}
+# Easy extract
+extract () {
+  if [ -f $1 ] ; then
+      case $1 in
+          *.tar.bz2)   tar xvjf $1    ;;
+          *.tar.gz)    tar xvzf $1    ;;
+          *.bz2)       bunzip2 $1     ;;
+          *.rar)       rar x $1       ;;
+          *.gz)        gunzip $1      ;;
+          *.tar)       tar xvf $1     ;;
+          *.tbz2)      tar xvjf $1    ;;
+          *.tgz)       tar xvzf $1    ;;
+          *.zip)       unzip $1       ;;
+          *.Z)         uncompress $1  ;;
+          *.7z)        7z x $1        ;;
+          *)           echo "don't know how to extract '$1'..." ;;
+      esac
+  else
+      echo "'$1' is not a valid file!"
+  fi
 }
 
 # Alias definitions.
@@ -165,7 +193,6 @@ if [ -f ~/.bash_aliases ]; then
     . ~/.bash_aliases
 fi
 
-export CLICOLOR=1
 
 #example alias_comm_cmd 24 '' francisco 10.1.1  22000 pb07210339 
 

@@ -5,24 +5,11 @@
 # Committer: frank <frank@frankMac.local>
 #
 # On branch master
-# Your branch is ahead of 'origin/master' by 2 commits.
-#   (use "git push" to publish your local commits)
+# Your branch is up-to-date with 'origin/master'.
 #
 # Changes to be committed:
-#	modified:   ../_bash_aliases
-#	modified:   ../_bashrc
-#	modified:   backupdir/.bashrc~
-#	modified:   backupdir/.netrwhist~
-#	modified:   backupdir/Arm.go~
 #	modified:   backupdir/COMMIT_EDITMSG~
 #	modified:   backupdir/comm.vim~
-#	modified:   backupdir/hero.go~
-#	modified:   backupdir/login.go~
-#	modified:   backupdir/pool.go~
-#	modified:   backupdir/system.go~
-#	modified:   backupdir/types.go~
-#	modified:   backupdir/user.go~
-#	deleted:    bundle/neocomplcache
 #	modified:   comm.vim
 #
 # Changes not staged for commit:
@@ -52,6 +39,7 @@
 #	bundle/python.vim/
 #	bundle/vim-easymotion/
 #	bundle/vim-go/
+#	bundle/vim-multiple-cursors/
 #	bundle/vim-surround/
 #
 fix

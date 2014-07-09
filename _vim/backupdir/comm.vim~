@@ -126,11 +126,11 @@ set sidescrolloff=10 " 距离水平边界 n 行就开始滚动
 
 "Favorite filetypes
 set fileformats=unix,mac
-
+let g:os=substitute(system('uname'), '\n', '', '')
 if has('gui_running') 
-    if has('unix')
+    if g:os == 'Linux' 
         set guifont=Monospace\ 14
-    elseif has('osx')
+    elseif g:os == 'Darwin' || g:os == 'Mac'
         set guifont=Monaco\ 18
     endif
     set guioptions-=T
@@ -367,10 +367,10 @@ inoremap <expr><C-U>  pumvisible()?"\<C-E>":"\<C-U>"
 "---------------------------------------------------------------------------
 
 "ack.vim{
-if has('unix')
+if g:os == 'Linux' 
     set grepprg=/user/bin/ack-grep
     let g:ackprg="/usr/local/bin/ack-grep -H --nocolor --nogroup --ignore-file *tags"
-elseif has('osx')
+elseif g:os == 'Darwin' || g:os == 'Mac'
     let g:ackprg="/usr/local/bin/ack -H --nocolor --nogroup --ignore-file *tags"
 endif
 "}
@@ -903,9 +903,11 @@ endfunction
 
 
 function! GEN_TAGS() 
-    if &filetype == "go"
+    echo "GEN_TAGS" 
+    if ( &filetype == "go")
         silent! execute "! /usr/local/bin/ctags -f gosource.tags -R `pwd`<CR><CR>"
-    else if &filetype == "cpp"
+    endif
+    if ( &filetype == "cpp" || &filetype == "c")
         call GEN_C_CTAG_CSCOPE()
     endif
 endfunction
@@ -920,8 +922,13 @@ function! GEN_C_CTAG_CSCOPE()
         endif
     endif
     if(executable('ctags'))
-        silent! execute "!rm -f tags"
-        silent! execute "!ctags -R  --languages=c,c++ --c++-kinds=+p --fields=+iaS --extra=+q ."
+        silent! execute "!rm -f ./tags"
+        if g:os== 'Linux' 
+            silent! execute "!ctags -R  --languages=c,c++ --c++-kinds=+p --fields=+iaS --extra=+q ."
+        elseif g:os == 'Darwin' || g:os == 'Mac'
+            echomsg "2222"
+            silent! execute "!/usr/local/bin/ctags -R  --languages=c,c++ --c++-kinds=+p --fields=+iaS --extra=+q ."
+        endif
     endif
     exec "redraw!"
 endfunction
