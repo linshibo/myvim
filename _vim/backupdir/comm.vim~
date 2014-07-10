@@ -281,7 +281,7 @@ nnoremap ,t <Esc>:tabedit
 nnoremap ,g :Ack <C-R>=expand('<cword>')<CR><CR>
 vnoremap ,g :call VisualSelection('gv')<CR>
 nnoremap ,r <Esc>:call GEN_TAGS()<CR>
-nnoremap ,m <Esc>:lmake<CR>
+nnoremap ,m <Esc>:make<CR>
 "nnoremap ,y <Esc>:call OPT_RANGE("ya")<CR>
 "nnoremap ,Y <Esc>:call OPT_RANGE("yi")<CR>
 "nnoremap ,d <Esc>:call OPT_RANGE("da")<CR>
@@ -902,18 +902,21 @@ function! SET_UAW()
 endfunction
 
 
+"go get -u github.com/jstemmer/gotags
 function! GEN_TAGS() 
-    echo "GEN_TAGS" 
     if ( &filetype == "go")
-        silent! execute "! /usr/local/bin/ctags -f gosource.tags -R `pwd`"<CR>
+        "silent! execute "! /usr/local/bin/ctags -f gosource.tags -R `pwd`"<CR>
+        silent! execute "!gotags  -R=true `pwd`  >gosource.tags"
+        exec "redraw!"
     endif
     if ( &filetype == "cpp" || &filetype == "c")
-        call GEN_C_CTAG_CSCOPE()
+        call GEN_C_TAGS()
     endif
 endfunction
 
+    
 "重新生成c语言 ctag cscope
-function! GEN_C_CTAG_CSCOPE() 
+function! GEN_C_TAGS() 
     if(executable('cscope') && has("cscope") )
         silent! execute "!find . -name '[^.]*.h' -o -name '[^.]*.c' -o -name '[^.]*.cpp' -o -name '[^.]*.hpp' > _cscope.files"
         silent! execute "!cscope -bkq -f _cscope.out -i _cscope.files"
@@ -926,7 +929,6 @@ function! GEN_C_CTAG_CSCOPE()
         if g:os== 'Linux' 
             silent! execute "!ctags -R  --languages=c,c++ --c++-kinds=+p --fields=+iaS --extra=+q ."
         elseif g:os == 'Darwin' || g:os == 'Mac'
-            echomsg "2222"
             silent! execute "!/usr/local/bin/ctags -R  --languages=c,c++ --c++-kinds=+p --fields=+iaS --extra=+q ."
         endif
     endif

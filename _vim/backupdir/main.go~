@@ -67,7 +67,7 @@ func main() {
 		log.Error("Failed Init Redis",err)
 		return 
 	}
-	
+
 	//go GM.Start()
 	
 	err = gameserver.PlayerManager.LoadAllPlayerInTheServerStart()

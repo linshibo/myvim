@@ -45,6 +45,7 @@ func NewHeroManager() *_HeroManager {
 	var h _HeroManager
 	h.heros = make(map[int]_Hero)
 	h.n_heros = make(map[int]bool)
+	h.heroChip = make(map[int]int)
 	return &h
 }
 
@@ -137,8 +138,7 @@ func (this *_HeroManager) Load() (err error) {
 			}
 			flag = 0
 		}
-
-		weaponChip, err := redis.Int(r[4], nil)
+		weaponChip, err := redis.Int(r[3], nil)
 		if err != nil {
 			return err
 		}
@@ -185,6 +185,7 @@ func (this *_HeroManager) Load() (err error) {
 			return err
 		}
 	}
+	this.user.Trace("HeroOid",this.user.uid, this.allherooid)
 
 	return nil
 }
@@ -528,10 +529,8 @@ func (this *_HeroManager) addHeroChipCount(id int) (err error) {
 	dbconn := db.Pool.Get()
 	defer dbconn.Close()
 
-	now, ok := this.heroChip[id]
-	if !ok {
-		return errors.New("not exist key heroChip")
-	}
+	now, _:= this.heroChip[id]
+
 	_, err = dbconn.Do("HSET", this.user.GetUidUsedInDB()+":heroChip:"+strconv.Itoa(id), id, now+1)
 
 	if err != nil {
@@ -553,6 +552,7 @@ func (this *_HeroManager) ProcessNewGetHero(id int) (Type int, Value int, Extra 
 		if err != nil {
 			return
 		}
+		Type = NewCard
 	} else {
 		flag := this.IsKindOwnedByID(id)
 		if !flag {
