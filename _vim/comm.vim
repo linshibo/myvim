@@ -88,7 +88,7 @@ set nocompatible
 "disable alt
 set winaltkeys=no
 "tags 位置
-set tags=~/.vim/comm_tags,~/.vim/cpp_tags,tags,gosource.tags; 
+set tags=~/.vim/comm_tags,~/.vim/cpp_tags,.tags,.gosource.tags; 
 
 "折叠
 set foldmethod=syntax
@@ -281,7 +281,7 @@ nnoremap ,t <Esc>:tabedit
 nnoremap ,g :Ack <C-R>=expand('<cword>')<CR><CR>
 vnoremap ,g :call VisualSelection('gv')<CR>
 nnoremap ,r <Esc>:call GEN_TAGS()<CR>
-nnoremap ,m <Esc>:make<CR>
+nnoremap ,m <Esc>:make<CR>:cc<CR>
 "nnoremap ,y <Esc>:call OPT_RANGE("ya")<CR>
 "nnoremap ,Y <Esc>:call OPT_RANGE("yi")<CR>
 "nnoremap ,d <Esc>:call OPT_RANGE("da")<CR>
@@ -872,7 +872,6 @@ function! s:SET_PATH( find_dir )
     let dir = expand("%:p:h") "获得源文件路径
     let dir_relative=''
     let g:alternateSearchPath = ''
-    "let g:alternateSearchPath = 'sfr:../source,sfr:../src,sfr:../include,sfr:../inc,sfr:.'
     "在路径上递归向上查找tags文件 
     while dir!=""
         if finddir(a:find_dir ,dir ) !=""
@@ -906,7 +905,7 @@ endfunction
 function! GEN_TAGS() 
     if ( &filetype == "go")
         "silent! execute "! /usr/local/bin/ctags -f gosource.tags -R `pwd`"<CR>
-        silent! execute "!gotags  -R=true `pwd`  >gosource.tags"
+        silent! execute "!gotags  -R=true `pwd`  >.gosource.tags"
         exec "redraw!"
     endif
     if ( &filetype == "cpp" || &filetype == "c")
@@ -918,18 +917,18 @@ endfunction
 "重新生成c语言 ctag cscope
 function! GEN_C_TAGS() 
     if(executable('cscope') && has("cscope") )
-        silent! execute "!find . -name '[^.]*.h' -o -name '[^.]*.c' -o -name '[^.]*.cpp' -o -name '[^.]*.hpp' > _cscope.files"
+        silent! execute "!find . -name '[^.]*.h' -o -name '[^.]*.c' -o -name '[^.]*.cpp' -o -name '[^.]*.hpp' > cscope.files"
         silent! execute "!cscope -bkq -f _cscope.out -i _cscope.files"
         if (filereadable("_cscope.out"))
             execute "cs reset"
         endif
     endif
     if(executable('ctags'))
-        silent! execute "!rm -f ./tags"
+        silent! execute "!rm -f ./.tags"
         if g:os== 'Linux' 
-            silent! execute "!ctags -R  --languages=c,c++ --c++-kinds=+p --fields=+iaS --extra=+q ."
+            silent! execute "!ctags -R -f .ctags  --languages=c,c++ --c++-kinds=+p --fields=+iaS --extra=+q ."
         elseif g:os == 'Darwin' || g:os == 'Mac'
-            silent! execute "!/usr/local/bin/ctags -R  --languages=c,c++ --c++-kinds=+p --fields=+iaS --extra=+q ."
+            silent! execute "!/usr/local/bin/ctags -R -f .ctags --languages=c,c++ --c++-kinds=+p --fields=+iaS --extra=+q ."
         endif
     endif
     exec "redraw!"

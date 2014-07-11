@@ -21,9 +21,9 @@ var (
 )
 
 type _Hero struct {
-	level int
-	prob  int
-	flag  int
+	level      int
+	prob       int
+	flag       int
 	weaponChip int //武将武器碎片个数
 }
 
@@ -146,6 +146,22 @@ func (this *_HeroManager) Load() (err error) {
 		this.heros[id] = _Hero{level: level, prob: prob, flag: flag, weaponChip: weaponChip}
 	}
 
+	reply2, err := redis.Strings(dbconn.Do("HGETALL", this.user.GetUidUsedInDB()+":heroChip"))
+	if err != nil {
+		this.user.Error("Failed get heroChip", err)
+		return err
+	}
+	for i := 0; i < len(reply2)/2; i++ {
+		heroid, err1 := strconv.Atoi(reply2[i*2])
+		chip, err2 := strconv.Atoi(reply2[i*2+1])
+		if err1 != nil || err2 != nil {
+			this.user.Error("Failed strconv to int ", err)
+			continue
+		}
+		this.heroChip[heroid] = chip
+	}
+	this.user.Debug("heroChip", this.heroChip)
+
 	this.main_hero, err = redis.Int(dbconn.Do("HGET", this.user.GetUidUsedInDB(), "main_hero"))
 	if err != nil {
 		this.user.Error("Failed get main_hero", err)
@@ -185,7 +201,7 @@ func (this *_HeroManager) Load() (err error) {
 			return err
 		}
 	}
-	this.user.Trace("HeroOid",this.user.uid, this.allherooid)
+	this.user.Trace("HeroOid", this.user.uid, this.allherooid)
 
 	return nil
 }
@@ -509,7 +525,7 @@ func (this *_HeroManager) IsHeroChipLackOf(id int) bool {
 	return true
 }
 
-func (this *_HeroManager) addWeaponChipCount(id int, hero _Hero, count int) (err error) {
+func (this *_HeroManager) addWeaponChip(id int, hero _Hero, count int) (err error) {
 
 	dbconn := db.Pool.Get()
 	defer dbconn.Close()
@@ -520,18 +536,32 @@ func (this *_HeroManager) addWeaponChipCount(id int, hero _Hero, count int) (err
 		return err
 	}
 	hero.weaponChip += count
-	this.heros[id]=hero
+	this.heros[id] = hero
 	return nil
 }
 
-func (this *_HeroManager) addHeroChipCount(id int) (err error) {
+func (this *_HeroManager) DelHeroChip(id int) (err error) {
 
 	dbconn := db.Pool.Get()
 	defer dbconn.Close()
 
-	now, _:= this.heroChip[id]
+	_, err = dbconn.Do("HDEL", this.user.GetUidUsedInDB()+":heroChip", id)
 
-	_, err = dbconn.Do("HSET", this.user.GetUidUsedInDB()+":heroChip:"+strconv.Itoa(id), id, now+1)
+	if err != nil {
+		return err
+	}
+	delete(this.heroChip, id)
+	return nil
+}
+
+func (this *_HeroManager) addHeroChip(id int) (err error) {
+
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+
+	now, _ := this.heroChip[id]
+
+	_, err = dbconn.Do("HSET", this.user.GetUidUsedInDB()+":heroChip:", id, now+1)
 
 	if err != nil {
 		return err
@@ -541,35 +571,39 @@ func (this *_HeroManager) addHeroChipCount(id int) (err error) {
 	return nil
 }
 
-func (this *_HeroManager) ProcessNewGetHero(id int) (Type int, Value int, Extra int,  err error) {
+func (this *_HeroManager) ProcessNewGetHero(id int) (Type int, Value int, Extra int, err error) {
 	if id == 0 {
 		return 0, 0, 0, nil
 	}
 
-	if this.IsHeroChipLackOf(id) {
-		//武将碎片不够
-		err = this.addHeroChipCount(id)
-		if err != nil {
-			return
-		}
-		Type = NewCard
-	} else {
-		flag := this.IsKindOwnedByID(id)
-		if !flag {
-			//not exist
+	flag := this.IsKindOwnedByID(id)
+	if !flag {
+		//not exist
+		if this.IsHeroChipLackOf(id) {
+			//武将碎片不够
+			err = this.addHeroChip(id)
+			if err != nil {
+				return
+			}
+			Type = NewCard
+		} else {
 			Type = NewCard
 			Value = 0
 			err = this.AddNewHero(id, 1, false)
 			if err != nil {
 				return
 			}
-		} else {
-			//exist
-			//已经足够则分解
-			Type, Value, Extra, err = this.smashHeroCard(id)
+			err = this.DelHeroChip(id)
 			if err != nil {
 				return
 			}
+		}
+	} else {
+		//exist
+		//已经足够则分解
+		Type, Value, Extra, err = this.smashHeroCard(id)
+		if err != nil {
+			return
 		}
 	}
 
@@ -619,7 +653,7 @@ func (this *_HeroManager) getSmashType() int {
 	return SmashCardToGold
 }
 
-func (this *_HeroManager) smashHeroCard(id int) (smash_type, num int,Extra int,  err error) {
+func (this *_HeroManager) smashHeroCard(id int) (smash_type, num int, Extra int, err error) {
 	smash_type = this.getSmashType()
 	var reward_type int
 
@@ -651,7 +685,7 @@ func (this *_HeroManager) smashHeroCard(id int) (smash_type, num int,Extra int, 
 		event_flag = true
 	}
 
-	_, Extra,  err = this.user.ProcessReward(reward_type, num)
+	_, Extra, err = this.user.ProcessReward(reward_type, num)
 	if err != nil {
 		return
 	}
@@ -665,7 +699,7 @@ func (this *_HeroManager) smashHeroCard(id int) (smash_type, num int,Extra int, 
 	return
 }
 
-type HeroChipBack struct{
+type HeroChipBack struct {
 	HeroID, ChipCount int
 }
 

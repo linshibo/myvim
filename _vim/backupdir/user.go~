@@ -436,7 +436,7 @@ func (this *User) ProcessReward(reward_type int, reward_value int) (reward Rewar
 		}
 	}
 	if reward_type == RewardType_HeroChip {
-		_, _, err = this.Hero.ProcessNewGetHero(reward_value)
+		_, _, _, err = this.Hero.ProcessNewGetHero(reward_value)
 		if err != nil {
 			this.Error("Failed heroChipReward", err)
 			return
@@ -454,7 +454,7 @@ func (this *User) ProcessReward(reward_type int, reward_value int) (reward Rewar
 		if len(vec) > 0 {
 			idx := rand.Intn(len(vec))
 			hero, _ := this.Hero.heros[idx]
-			err = this.Hero.addWeaponChipCount(vec[idx], hero, reward_value)
+			err = this.Hero.addWeaponChip(vec[idx], hero, reward_value)
 			Extra =vec[idx]
 		}
 	}

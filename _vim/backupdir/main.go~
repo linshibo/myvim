@@ -77,6 +77,7 @@ func main() {
 	}else {
 		fmt.Println("Load OK")
 	}
+
 	//go pp.Start()
 	
 	//if !gameserver.StartGameManage() {

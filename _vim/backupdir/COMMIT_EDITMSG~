@@ -9,9 +9,9 @@
 #
 # Changes to be committed:
 #	modified:   gameserver/hero.go
-#	modified:   main.go
 #
 # Untracked files:
+#	.gosource.tags
 #	apple_cpu.prof
 #	apple_mem.prof
 #	f
