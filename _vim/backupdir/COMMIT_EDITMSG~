@@ -5,60 +5,65 @@
 # Committer: frank <frank@frankMac.local>
 #
 # On branch master
-# Your branch is ahead of 'origin/master' by 1 commit.
-#   (use "git push" to publish your local commits)
+# Your branch is up-to-date with 'origin/master'.
 #
 # Changes to be committed:
-#	modified:   backupdir/COMMIT_EDITMSG~
+#	modified:   _vim/backupdir/.netrwhist~
+#	modified:   _vim/backupdir/COMMIT_EDITMSG~
+#	modified:   bash_aliases
+#	modified:   bashrc
 #
 # Changes not staged for commit:
-#	modified:   bundle/Tagbar (untracked content)
-#	modified:   bundle/ack.vim (untracked content)
-#	modified:   bundle/matchit.zip (untracked content)
-#	modified:   bundle/snipMate (modified content, untracked content)
-#	modified:   bundle/vim-smartword (untracked content)
-#	modified:   bundle/xml.vim (untracked content)
+#	modified:   _vim/bundle/Tagbar (untracked content)
+#	modified:   _vim/bundle/ack.vim (untracked content)
+#	modified:   _vim/bundle/matchit.zip (untracked content)
+#	modified:   _vim/bundle/snipMate (modified content, untracked content)
+#	modified:   _vim/bundle/vim-smartword (untracked content)
+#	modified:   _vim/bundle/xml.vim (untracked content)
 #
 # Untracked files:
-#	../.DS_Store
-#	backupdir/.zshrc~
-#	backupdir/_bash_aliases~
-#	backupdir/_bashrc~
-#	backupdir/a.js~
-#	backupdir/a.lua~
-#	backupdir/bash_aliases~
-#	backupdir/bashrc~
-#	backupdir/bufferManager_test.go~
-#	backupdir/bufferedSlice.go~
-#	backupdir/cards.go~
-#	backupdir/cards_util.go~
-#	backupdir/chapterGuanQiaInfo.cfg~
-#	backupdir/chapterInfo.cfg~
-#	backupdir/cli.go~
-#	backupdir/complete.vim~
-#	backupdir/error.go~
-#	backupdir/loader.lua~
-#	backupdir/os_unix.c~
-#	backupdir/pprof.go~
-#	backupdir/quest.go~
-#	backupdir/reward.go~
-#	backupdir/service_snlua.c~
-#	backupdir/skynet_main.c~
-#	backupdir/skynet_module.c~
-#	backupdir/skynet_server.c~
-#	backupdir/skynet_start.c~
-#	backupdir/socket_server.c~
-#	backupdir/stone.go~
-#	backupdir/zshrc.bak~
-#	bundle/AutoClose/
-#	bundle/OmniCppComplete/
-#	bundle/YankRing.vim/
-#	bundle/neocomplete/
-#	bundle/python.vim/
-#	bundle/vim-easymotion/
-#	bundle/vim-go/
-#	bundle/vim-multiple-cursors/
-#	bundle/vim-surround/
-#	myVimLog
-#	x
+#	.DS_Store
+#	_vim/backupdir/.zshrc~
+#	_vim/backupdir/_bash_aliases~
+#	_vim/backupdir/_bashrc~
+#	_vim/backupdir/a.js~
+#	_vim/backupdir/a.lua~
+#	_vim/backupdir/bash_aliases~
+#	_vim/backupdir/bashrc~
+#	_vim/backupdir/bufferManager_test.go~
+#	_vim/backupdir/bufferedSlice.go~
+#	_vim/backupdir/cards.go~
+#	_vim/backupdir/cards_util.go~
+#	_vim/backupdir/chapterGuanQiaInfo.cfg~
+#	_vim/backupdir/chapterInfo.cfg~
+#	_vim/backupdir/cli.go~
+#	_vim/backupdir/complete.vim~
+#	_vim/backupdir/error.go~
+#	_vim/backupdir/install.sh~
+#	_vim/backupdir/loader.lua~
+#	_vim/backupdir/os_unix.c~
+#	_vim/backupdir/pprof.go~
+#	_vim/backupdir/quest.go~
+#	_vim/backupdir/reward.go~
+#	_vim/backupdir/service_snlua.c~
+#	_vim/backupdir/skynet_main.c~
+#	_vim/backupdir/skynet_module.c~
+#	_vim/backupdir/skynet_server.c~
+#	_vim/backupdir/skynet_start.c~
+#	_vim/backupdir/socket_server.c~
+#	_vim/backupdir/stone.go~
+#	_vim/backupdir/zshrc.bak~
+#	_vim/bundle/AutoClose/
+#	_vim/bundle/OmniCppComplete/
+#	_vim/bundle/YankRing.vim/
+#	_vim/bundle/neocomplete/
+#	_vim/bundle/python.vim/
+#	_vim/bundle/vim-easymotion/
+#	_vim/bundle/vim-go/
+#	_vim/bundle/vim-multiple-cursors/
+#	_vim/bundle/vim-surround/
+#	_vim/myVimLog
+#	_vim/x
+#	install.sh
 #
+gix
