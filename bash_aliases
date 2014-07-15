@@ -22,8 +22,8 @@ alias .....="cd ../../../../"
 alias .4='cd ../../../../'
 alias .5='cd ../../../../..'
 alias tt="date +%s"
-alias psmem='ps -e -o '%C : %p : %z : %a'|sort -k5 -nr'
-alias pscpu='ps -e -o '%C : %p : %z : %a'|sort -nr'
+alias psmem='ps -e -o "%C : %p : %z : %a"|sort -k5 -nr'
+alias pscpu='ps -e -o "%C : %p : %z : %a"|sort -nr'
  
 alias debugvi="vi -V9vimlog"
 

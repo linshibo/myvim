@@ -83,10 +83,28 @@ elif [ "`uname`" == "Linux" ]; then
     localip=`/sbin/ifconfig eth0 2>/dev/null | awk '$1=="inet"{print $2}' | awk -F: '{print $2}' `
 fi
 
+#colors
+BLK='\e[01;30m'
+RED='\e[1;31m'
+GRN='\e[1;32m';
+YEL='\e[1;33m'
+BLU='\e[1;34m'
+MAG='\e[1;35m'
+CYN='\e[1;36m'
+WHI='\e[1;37m'
+DRED='\e[0;31m'
+DGRN='\e[0;32m'
+DYEL='\e[0;33m'
+DBLU='\e[0;34m'
+DMAG='\e[0;35m'
+DCYN='\e[0;36m'
+DWHI='\e[0;37m'
+RES='\e[0m'
+
 export LOCAL_IP=$localip
 export LOCAL_IP_4=`echo $localip | awk -F. '{print $4}' `
 export LOCAL_IP_3=`echo $localip | awk -F. '{print $3}' `
-export PS1='\[\e[01;35m\]==\[\e[01;31m\][$LOCAL_IP_4]\[\e[01;35m\]==\[\e[01;36m\][\[\e[01;37m\]\u\[\e[01;36m\]\[\e[00m\] \[\e[01;34m\]`pwd``B=$(git branch 2>/dev/null | sed -e "/^ /d" -e "s/* \(.*\)/\1/"); if [ "$B" != "" ]; then S="git"; elif [ -e .bzr ]; then S=bzr; elif [ -e .hg ]; then S="hg"; elif [ -e .svn ]; then S="svn"; else S=""; fi; if [ "$S" != "" ]; then if [ "$B" != "" ]; then M=$S:$B; else M=$S; fi; fi; [[ "$M" != "" ]] && echo -n -e "\[\e[33;40m\]($M)\[\e[01;32m\]\[\e[00m\]"`\[\e[01;34m\]\[\e[01;36m\]]\[\e[01;31m\]$ \[\e[00m\]'
+export PS1='\e[01;32m ➜ \e[01;35m=\e[01;31m$LOCAL_IP_4\e[01;35m=\[\e[01;36m\][\[\e[00;32m\]\u\[\e[01;36m\]\[\e[00m\] \[\e[00;34m\]`pwd``B=$(git branch 2>/dev/null | sed -e "/^ /d" -e "s/* \(.*\)/\1/"); if [ "$B" != "" ]; then S="git"; elif [ -e .bzr ]; then S=bzr; elif [ -e .hg ]; then S="hg"; elif [ -e .svn ]; then S="svn"; else S=""; fi; if [ "$S" != "" ]; then if [ "$B" != "" ]; then M=$S:$B; else M=$S; fi; fi; [[ "$M" != "" ]] && echo -n -e "\[\e[33;40m\]($M)\[\e[01;32m\]\[\e[00m\]"`\[\e[01;34m\]\[\e[01;36m\]]\[\e[01;31m\]$ \[\e[00m\]'
 export TERM=xterm-256color
 export PROMPT_COMMAND="echo -ne \"\033]0;==[$LOCAL_IP_4]==[`whoami`]\007\""
 export EDITOR="vim"
@@ -98,14 +116,6 @@ export CLICOLOR=1
 if [ -x /usr/bin/dircolors ]; then
     test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
 fi
-
-export LESS_TERMCAP_mb=$'\E[01;31m'
-export LESS_TERMCAP_md=$'\E[01;31m'
-export LESS_TERMCAP_me=$'\E[0m'
-export LESS_TERMCAP_se=$'\E[0m'
-export LESS_TERMCAP_so=$'\E[01;44;33m'
-export LESS_TERMCAP_ue=$'\E[0m'
-export LESS_TERMCAP_us=$'\E[01;32m'
 
 #绑定bash快捷键 绑定的函数见man readline
 #清屏
