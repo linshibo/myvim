@@ -8,11 +8,70 @@
 # Your branch is up-to-date with 'origin/master'.
 #
 # Changes to be committed:
-#	modified:   gameserver/hero.go
+#	deleted:    .gitmodules
+#	modified:   _vim/backupdir/Arm.go~
+#	modified:   _vim/backupdir/COMMIT_EDITMSG~
+#	modified:   _vim/backupdir/gm.go~
+#	modified:   _vim/backupdir/hero.go~
+#	modified:   _vim/backupdir/hub.go~
+#	modified:   _vim/backupdir/hub_handler.go~
+#	modified:   _vim/backupdir/log.go~
+#	modified:   _vim/backupdir/main.go~
+#	modified:   _vim/backupdir/system.go~
+#	modified:   _vim/backupdir/types.go~
+#	modified:   _vim/backupdir/user.go~
+#	modified:   bash_aliases
+#	renamed:    _vimperatorrc -> vimperatorrc
+#
+# Changes not staged for commit:
+#	modified:   _vim/bundle/Tagbar (untracked content)
+#	modified:   _vim/bundle/ack.vim (untracked content)
+#	modified:   _vim/bundle/matchit.zip (untracked content)
+#	modified:   _vim/bundle/snipMate (modified content, untracked content)
+#	modified:   _vim/bundle/vim-smartword (untracked content)
+#	modified:   _vim/bundle/xml.vim (untracked content)
 #
 # Untracked files:
-#	.gosource.tags
-#	gameserver/dump.rdb
-#	gameserver/gosource.tags
-#	sanguo
+#	.DS_Store
+#	_vim/backupdir/.zshrc~
+#	_vim/backupdir/_bash_aliases~
+#	_vim/backupdir/_bashrc~
+#	_vim/backupdir/a.js~
+#	_vim/backupdir/a.lua~
+#	_vim/backupdir/bash_aliases~
+#	_vim/backupdir/bashrc~
+#	_vim/backupdir/bufferManager_test.go~
+#	_vim/backupdir/bufferedSlice.go~
+#	_vim/backupdir/cards.go~
+#	_vim/backupdir/cards_util.go~
+#	_vim/backupdir/chapterGuanQiaInfo.cfg~
+#	_vim/backupdir/chapterInfo.cfg~
+#	_vim/backupdir/cli.go~
+#	_vim/backupdir/complete.vim~
+#	_vim/backupdir/error.go~
+#	_vim/backupdir/loader.lua~
+#	_vim/backupdir/os_unix.c~
+#	_vim/backupdir/pprof.go~
+#	_vim/backupdir/quest.go~
+#	_vim/backupdir/reward.go~
+#	_vim/backupdir/service_snlua.c~
+#	_vim/backupdir/skynet_main.c~
+#	_vim/backupdir/skynet_module.c~
+#	_vim/backupdir/skynet_server.c~
+#	_vim/backupdir/skynet_start.c~
+#	_vim/backupdir/socket_server.c~
+#	_vim/backupdir/stone.go~
+#	_vim/backupdir/zshrc.bak~
+#	_vim/bundle/AutoClose/
+#	_vim/bundle/OmniCppComplete/
+#	_vim/bundle/YankRing.vim/
+#	_vim/bundle/neocomplete/
+#	_vim/bundle/python.vim/
+#	_vim/bundle/vim-easymotion/
+#	_vim/bundle/vim-go/
+#	_vim/bundle/vim-multiple-cursors/
+#	_vim/bundle/vim-surround/
+#	_vim/myVimLog
+#	_vim/x
 #
+fix
