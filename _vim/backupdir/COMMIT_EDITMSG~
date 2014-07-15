@@ -5,13 +5,12 @@
 # Committer: frank <frank@frankMac.local>
 #
 # On branch master
-# Your branch is up-to-date with 'origin/master'.
+# Your branch is ahead of 'origin/master' by 1 commit.
+#   (use "git push" to publish your local commits)
 #
 # Changes to be committed:
-#	modified:   _vim/backupdir/.netrwhist~
 #	modified:   _vim/backupdir/COMMIT_EDITMSG~
-#	modified:   bash_aliases
-#	modified:   bashrc
+#	new file:   install.sh
 #
 # Changes not staged for commit:
 #	modified:   _vim/bundle/Tagbar (untracked content)
@@ -64,6 +63,4 @@
 #	_vim/bundle/vim-surround/
 #	_vim/myVimLog
 #	_vim/x
-#	install.sh
 #
-gix
