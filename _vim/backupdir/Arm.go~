@@ -43,6 +43,7 @@ func NewArmManager() *_ArmManager {
 	return &h
 }
 
+//GetArmHpDamage 获取小兵当前血量和伤害值
 func (this *_ArmManager)GetArmHpDamage(id int)(hp, damage int){
 	conf, ok := ArmInfo[id]
 	if ok {
@@ -608,6 +609,7 @@ func (this *_ArmManager) getSmashType() int {
 		vec = SmashTypeProb
 	}
 
+	this.user.Debug("arm getSmashType weaponChip", this.user.Hero.IsAnyWeaponChipLackOf())
 	for index, v := range vec {
 		if num > v {
 			continue
@@ -657,6 +659,7 @@ func (this *_ArmManager) smashArmCard(id int) (smash_type, num , Extra int , err
 		event_flag = true
 	}
 
+	this.user.Debug("smashArmCard", reward_type, num)
 	_, Extra, err = this.user.ProcessReward(reward_type, num)
 	if err != nil {
 		return

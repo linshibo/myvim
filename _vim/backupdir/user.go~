@@ -446,19 +446,22 @@ func (this *User) ProcessReward(reward_type int, reward_value int) (reward Rewar
 		//随机一个武器碎片
 		vec := make([]int, 0)
 		for k, v := range this.Hero.heros {
-			conf, ok := HeroInfo[k]
-			if ok && v.weaponChip < conf.Weapon.UnlockFragmentCount {
-				vec = append(vec, k)
+			if conf, ok := HeroInfo[k];ok{
+				if weapon,ok:=WeaponInfo[conf.Weapon]; ok &&  v.weaponChip < weapon.UnlockFragmentCount{
+					vec = append(vec, k)
+				}
 			}
 		}
 		if len(vec) > 0 {
 			idx := rand.Intn(len(vec))
-			hero, _ := this.Hero.heros[idx]
-			err = this.Hero.addWeaponChip(vec[idx], hero, reward_value)
+			err = this.Hero.addWeaponChip(vec[idx], reward_value)
+			if err != nil {
+				this.Error("Failed weaponChipReward", err)
+				return
+			}
 			Extra =vec[idx]
 		}
 	}
-
 	return
 }
 

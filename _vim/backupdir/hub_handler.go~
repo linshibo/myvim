@@ -1,209 +1,200 @@
 package hub
 
 import (
-    "encoding/binary"
-    //"fmt"
-    "GameHub/asynserver"
-    "GameHub/db"
-    "sanguo/base/log"
-    "sanguo/base/packet"
-    "sync"
+	"encoding/binary"
+	//"fmt"
+	"GameHub/asynserver"
+	"GameHub/db"
+	"sanguo/base/log"
+	"sanguo/base/packet"
+	"sync"
 )
 
 const (
-    HeadLen    = 4
-    GMServerID = 10000
+	HeadLen    = 4
+	GMServerID = 10000
 )
 
 const (
-    ServerRegisterCmd  = 1
-    CheckUserOnlineCmd = 0xf001
-    UserAddCmd         = 0xf002
-    SkipGuanqiaCmd     = 0xf003
-    AddSoldierCmd      = 0xf004
-    AllUserAddCmd      = 0xf007
+	ServerRegisterCmd           = 1
+	GetPlayerBattleInfoCmd      = 3
+	ReplyGetPlayerBattleInfoCmd = 4
+	CheckUserOnlineCmd          = 0xf001
+	UserAddCmd                  = 0xf002
+	SkipGuanqiaCmd              = 0xf003
+	AddSoldierCmd               = 0xf004
+	QueryUserInfoCmd            = 0xf005
+	UserGetServerIdCmd          = 0xf006
+	AllUserAddCmd               = 0xf007
+	DoPProfCmd                  = 0xf008
 )
 
 //ConnInfo 连接信息
 type ConnInfo struct {
-    ID   int
-    Host string
-    sess *asynserver.Session
+	ID   int
+	Host string
+	sess *asynserver.Session
 }
 
 //ConnManager 连接的管理
 type ConnManager struct {
-    connSlice []*ConnInfo
-    lock      sync.Mutex
+	connSlice []*ConnInfo
+	lock      sync.Mutex
 }
 
 func (cm *ConnManager) Init(servs []db.ServerID) {
-    for i := range servs {
-        tmp := new(ConnInfo)
-        tmp.ID = servs[i].ID
-        tmp.Host = servs[i].Host
-        tmp.sess = nil
-        cm.connSlice = append(cm.connSlice, tmp)
-    }
-    tmp := new(ConnInfo)
-    tmp.ID = GMServerID
-    tmp.Host = ""
-    tmp.sess = nil
-    cm.connSlice = append(cm.connSlice, tmp)
+	log.Debug("Init ", len(servs))
+	for i := range servs {
+		tmp := new(ConnInfo)
+		tmp.ID = servs[i].ID
+		tmp.Host = servs[i].Host
+		tmp.sess = nil
+		log.Debug("monitor servers", tmp.ID, tmp.Host)
+		cm.connSlice = append(cm.connSlice, tmp)
+	}
+	tmp := new(ConnInfo)
+	tmp.ID = GMServerID
+	tmp.Host = ""
+	tmp.sess = nil
+	cm.connSlice = append(cm.connSlice, tmp)
 }
 
 func UidToID(uid int) int {
-    id := uid/10000 + 1
-    return id
+	id := uid/10000 + 1
+	return id
 }
 
 //GetConn 通过服务器id获取连接session
 func (cm *ConnManager) GetConn(id int) *asynserver.Session {
-    //uid 转换 服务器id
+	//uid 转换 服务器id
 
-    for i := range cm.connSlice {
-        if id == cm.connSlice[i].ID {
-            return cm.connSlice[i].sess
-        }
-    }
-    return nil
+	for i := range cm.connSlice {
+		if id == cm.connSlice[i].ID {
+			return cm.connSlice[i].sess
+		}
+	}
+	return nil
 }
-
 
 //RegisterConn 注册连接信息
 func (cm *ConnManager) RegisterConn(id int, sess *asynserver.Session) {
-    cm.lock.Lock()
-    defer cm.lock.Unlock()
-    var host string = "nothing"
-    for i := range cm.connSlice {
-        if id == cm.connSlice[i].ID || host == cm.connSlice[i].Host {
-            host = cm.connSlice[i].Host
-            cm.connSlice[i].sess = sess
-            log.Info("RegisterConn ", sess.Conn.RemoteAddr().String())
-        }
-    }
+	cm.lock.Lock()
+	defer cm.lock.Unlock()
+	log.Debug("tryRegisterConn ", id, sess.Conn.RemoteAddr())
+	var host string = "nothing"
+	for i := range cm.connSlice {
+		if id == cm.connSlice[i].ID || host == cm.connSlice[i].Host {
+			host = cm.connSlice[i].Host
+			cm.connSlice[i].sess = sess
+			log.Info("RegisterConn ", id, sess.Conn.RemoteAddr().String())
+		}
+	}
 }
 
 //UnRegisterConn 注销连接 连接关闭时调用
 func (cm *ConnManager) UnRegisterConn(sess *asynserver.Session) {
-    cm.lock.Lock()
-    defer cm.lock.Unlock()
-    for i := range cm.connSlice {
-        if cm.connSlice[i].sess == sess {
-            cm.connSlice[i].sess = nil
-        }
-    }
+	cm.lock.Lock()
+	defer cm.lock.Unlock()
+	for i := range cm.connSlice {
+		if cm.connSlice[i].sess == sess {
+			cm.connSlice[i].sess = nil
+		}
+	}
 }
 
 var CM ConnManager
 
-var CmdHandler map[uint16]func(*asynserver.Session, *packet.Packet) bool
+var CmdHandler map[uint16]func(*asynserver.Session, *packet.Packet, uint16) bool
 
 func init() {
-    CM.connSlice = make([]*ConnInfo, 0)
-    CmdHandler = make(map[uint16]func(*asynserver.Session, *packet.Packet) bool)
-    CmdHandler[61] = UserTransmit
-    CmdHandler[62] = UserTransmit
-    CmdHandler[64] = UserTransmit
-    CmdHandler[66] = UserTransmit
-    CmdHandler[ServerRegisterCmd] = ServerRegister
-    CmdHandler[CheckUserOnlineCmd] = CheckUserOnline
-    CmdHandler[SkipGuanqiaCmd] = SkipGuanqia
-    CmdHandler[AddSoldierCmd] = AddSoldier
-    CmdHandler[UserAddCmd] = UserAdd
-    CmdHandler[AllUserAddCmd] = AllUserAdd
+	CM.connSlice = make([]*ConnInfo, 0)
+	CmdHandler = make(map[uint16]func(*asynserver.Session, *packet.Packet, uint16) bool)
+	//CmdHandler[61] = UserTransmit
+	//CmdHandler[62] = UserTransmit
+	//CmdHandler[64] = UserTransmit
+	//CmdHandler[66] = UserTransmit
+	//CmdHandler[ServerRegisterCmd] = ServerRegister
+	//CmdHandler[GetPlayerBattleInfoCmd] = GetPlayerBattleInfo
+	//CmdHandler[ReplyGetPlayerBattleInfoCmd] = ReplyGetPlayerBattleInfo
+	CmdHandler[ServerRegisterCmd] = ServerRegister
+	CmdHandler[CheckUserOnlineCmd] = CheckUserOnline
+	CmdHandler[SkipGuanqiaCmd] = SkipGuanqia
+	CmdHandler[AddSoldierCmd] = AddSoldier
+	CmdHandler[UserAddCmd] = UserAdd
+	CmdHandler[AllUserAddCmd] = AllUserAdd
+	CmdHandler[QueryUserInfoCmd] = QueryUserInfo
+	CmdHandler[UserGetServerIdCmd] = UserGetServerId
+	CmdHandler[DoPProfCmd] = DoPProf
 }
 
 //MessageCallback 收到包回调
 func MessageCallback(sess *asynserver.Session, data []byte) bool {
-    //fmt.Println("messageCallback", len(data), data)
-    //log.Info("messageCallback", len(data), data)
-    reader := packet.Reader(data)
+	reader := packet.Reader(data)
 
-    op, err := reader.ReadU16()
-    if err != nil {
-        log.Error("Can't read the opcode") //something unkown happen
-        return false
-    }
-    if op == 0 {
-        // op is zero mean heartbeat
-        return true
-    }
-    handle := CmdHandler[op] // select handle function base on opcode
-    log.Info("The CmdHandler[] is ", CmdHandler[op], "and opcode is ", op)
-    if handle == nil {
-        log.Error("There is no handle function of opcode ", op)
-        return false
-    }
+	op, err := reader.ReadU16()
+	if err != nil {
+		log.Error("Can't read the opcode") //something unkown happen
+		return false
+	}
+	if op == 0 {
+		// op is zero mean heartbeat
+		return true
+	}
+	handle := CmdHandler[op] // select handle function base on opcode
+	log.Info("IN:", op, "From", sess.Conn.LocalAddr())
+	if handle == nil {
+		//log.Error("There is no handle function of opcode ", op)
+		//return false
+		handle = UserTransmit
+	}
 
-    flag, err := reader.ReadU16()
-    if err != nil {
-        log.Error("Cant read the flag of meaasge head")
-        return false
-    }
-    if flag != 0 {
-        //TODO  handle compress and encrypt
-    }
+	flag, err := reader.ReadU16()
+	if err != nil {
+		log.Error("Cant read the flag of meaasge head")
+		return false
+	}
+	if flag != 0 {
+		//TODO  handle compress and encrypt
+	}
 
-    ret := handle(sess, reader) // pass reader as pointer
+	ret := handle(sess, reader, op) // pass reader as pointer
 
-    return ret
-
+	return ret
 }
 
 //CloseCallback 连接关闭回调
 func CloseCallback(sess *asynserver.Session) {
-    CM.UnRegisterConn(sess)
-    log.Debug("close fd", sess.Conn.RemoteAddr())
+	CM.UnRegisterConn(sess)
+	log.Debug("close fd", sess.Conn.RemoteAddr())
 }
 
 //GetSizeCallback 调用者根据头部信息返回包体长度
 func GetSizeCallback(header []byte) int {
-    size := binary.LittleEndian.Uint16(header) + HeadLen
-    return int(size)
+	size := binary.LittleEndian.Uint16(header) + HeadLen
+	return int(size)
 }
 
 //SendToSession   发送到某个session的发送队列  有相应session负责发送
 func SendToSession(sess *asynserver.Session, op uint16, back_json []byte) bool {
-    writer := packet.Writer()
-    writer.WriteU16(uint16(len(back_json)))
-    writer.WriteU16(uint16(op))
-    writer.WriteU16(uint16(0))
-    writer.WriteRawBytes(back_json)
-    sess.SendChan <- writer.Data
-    return true
+	writer := packet.Writer()
+	writer.WriteU16(uint16(len(back_json)))
+	writer.WriteU16(uint16(op))
+	writer.WriteU16(uint16(0))
+	writer.WriteRawBytes(back_json)
+	sess.SendChan <- writer.Data
+	log.Debug("send cmd", op, string(back_json), "to", sess.Conn.RemoteAddr())
+	return true
 }
 
 //SendToIPC  发送到相应session IPC队列 由相应session处理
 func SendToIPC(sess *asynserver.Session, op uint16, back_json []byte) bool {
-    //back_json, err := json.Marshal(data)
-    //if err != nil {
-    //log.Error("Can't decode json message in UserStartFight, err = %v", err, op)
-    //return false
-    //}
-    writer := packet.Writer()
-    writer.WriteU16(uint16(len(back_json)))
-    // length in the head is only the length of data
-    writer.WriteU16(uint16(op))
-    writer.WriteU16(uint16(0))
-    writer.WriteRawBytes(back_json)
-    sess.IPCChan <- writer.Data
-    return true
+	writer := packet.Writer()
+	writer.WriteU16(uint16(len(back_json)))
+	// length in the head is only the length of data
+	writer.WriteU16(uint16(op))
+	writer.WriteU16(uint16(0))
+	writer.WriteRawBytes(back_json)
+	sess.IPCChan <- writer.Data
+	log.Debug("send cmd ", op, " to ", sess.Conn.RemoteAddr())
+	return true
 }
-
-//SendToClient  发送某个session
-//func SendToClient(sess *asynserver.Session, op uint16, back_json []byte) bool {
-    //writer := packet.Writer()
-    //// length in the head is only the length of data
-    //writer.WriteU16(uint16(len(back_json)))
-    //writer.WriteU16(uint16(op))
-    ////flag := 0
-    //writer.WriteU16(uint16(0))
-    //writer.WriteRawBytes(back_json)
-    //_, err := sess.Conn.Write(writer.Data)
-    //if err != nil {
-        //log.Error("Send msg error")
-        //return false
-    //}
-    //return true
-//}

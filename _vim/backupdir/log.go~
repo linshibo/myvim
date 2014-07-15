@@ -10,6 +10,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"runtime"
 )
 
 type FileLogWriter struct {
@@ -264,6 +265,24 @@ func SetLogger(l *log.Logger) {
 	BeeLogger = l
 }
 
+func getCallerDetails()string{
+	pc, file, line, ok := runtime.Caller(4)
+	if !ok {
+		file = "?"
+		line = 0
+	}
+
+	fn := runtime.FuncForPC(pc)
+	var fnName string
+	if fn == nil {
+		fnName = "?()"
+	} else {
+		dotName := filepath.Ext(fn.Name())
+		fnName = strings.TrimLeft(dotName, ".") + "()"
+	}
+	return fmt.Sprintf("%s:%d %s: ", filepath.Base(file), line, fnName)
+}
+
 // Trace logs a message at trace level.
 func Trace(v ...interface{}) {
 	if level <= LevelTrace {
@@ -295,13 +314,13 @@ func Warn(v ...interface{}) {
 // Error logs a message at error level.
 func Error(v ...interface{}) {
 	if level <= LevelError {
-		BeeLogger.Printf("[EE] %v\n", v)
+		BeeLogger.Printf("[EE] %s %v\n",getCallerDetails(), v)
 	}
 }
 
 // Critical logs a message at critical level.
 func Critical(v ...interface{}) {
 	if level <= LevelCritical {
-		BeeLogger.Printf("[CC] %v\n", v)
+		BeeLogger.Printf("[CC] %s %v\n",getCallerDetails(), v)
 	}
 }

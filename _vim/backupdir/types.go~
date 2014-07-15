@@ -37,7 +37,6 @@ type HeroBack struct {
 	Level      int
 	Prob       int
 	Flag       int
-	HeroChip   int
 	WeaponChip int
 }
 
@@ -168,6 +167,5 @@ var (
 
 var (
 	SmashTypeProb               = []int{5, 45, 100}     //宝石 金币 卡片
-	//SmashTypeProbWithWeaponChip = []int{5, 20, 60, 100} //宝石 金币 卡片 碎片
-	SmashTypeProbWithWeaponChip = []int{5, 2, 6, 100} //宝石 金币 卡片 碎片
+	SmashTypeProbWithWeaponChip = []int{5, 20, 60, 100} //宝石 金币 卡片 碎片
 )

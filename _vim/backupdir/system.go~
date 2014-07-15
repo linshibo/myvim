@@ -82,7 +82,6 @@ type armInfo struct {
 	StarsNeed          int
 	SellType           int
 	SellPrice          int
-	;
 	CanPick            int
 	Armid              int
 	EGrid1UnlockQuests []int
@@ -110,7 +109,7 @@ type heroInfo struct {
 	CanPick             int
 	Heroid              int
 	FragmentCount       int
-	Weapon              weaponInfo
+	Weapon              int 
 	BlueAdvanceQuests   []int
 	PurpleAdvanceQuests []int
 	OrangeAdvanceQuests []int
@@ -169,6 +168,7 @@ var (
 	UnlockArms map[int]bool
 
 	TrueHeroGuanqia map[int]bool
+	WeaponInfo map[int]weaponInfo
 )
 
 var (
@@ -187,8 +187,67 @@ var (
 	HeroOriginalId [HeroOrigIdNum][QualityNum + 1]int
 )
 
+type SystemLineNode struct {
+	GloabalNodexIndex int
+	MainBuffs         [][2]float64
+	SubBuffs          [][2]float64
+}
+
+type buffer struct {
+	BufferID    int
+	BufferValue int
+}
+
+type LineNode struct {
+	NodeID int
+	Buffer []buffer
+}
+
+var Nodes map[int]LineNode
+
+func LoadSystemLineNode() (err error) {
+	Nodes = make(map[int]LineNode)
+
+	SystemLineNodeSlice := make([]SystemLineNode, 0)
+	err = LoadData(config.Config.SystemDataPath+"/cfg/levelNodeInfo.cfg", &SystemLineNodeSlice)
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+
+	log.Trace("HHH_LineNode", SystemLineNodeSlice)
+
+	//var buffer_tmp buffer
+	for _, v := range SystemLineNodeSlice {
+		var node_tmp LineNode
+		node_tmp.NodeID = v.GloabalNodexIndex
+		for _, bv := range v.MainBuffs {
+			var buffer_tmp buffer
+			buffer_tmp.BufferID = int(bv[0])
+			buffer_tmp.BufferValue = int(bv[1] * 100)
+			node_tmp.Buffer = append(node_tmp.Buffer, buffer_tmp)
+		}
+
+		if v.GloabalNodexIndex%10 != 0 {
+			for _, bv := range v.SubBuffs {
+				var buffer_tmp buffer
+				buffer_tmp.BufferID = int(bv[0])
+				buffer_tmp.BufferValue = int(bv[1] * 100)
+				node_tmp.Buffer = append(node_tmp.Buffer, buffer_tmp)
+			}
+		}
+		Nodes[node_tmp.NodeID] = node_tmp
+	}
+
+	log.Trace("HHH_Nodes", Nodes)
+	return nil
+}
+
 func LoadSystemDataFromConf() bool {
 	log.Info("Path is", config.Config.SystemDataPath+"/cfg")
+
+	LoadSystemLineNode()
+
 	/************************** Load chapterInfo *************************/
 	chapterInfoSlice := make([]chapterInfo, 0)
 	err := LoadData(config.Config.SystemDataPath+"/cfg/chapterInfo.cfg", &chapterInfoSlice)
@@ -370,6 +429,18 @@ func LoadSystemDataFromConf() bool {
 			UserFightQuestIndex[i][UserFightQuestCount[i]] = id
 		}
 	}
+
+	/****************************** Load WeaponInfo ******************************/
+	weaponInfoSlice := make([]weaponInfo, 0)
+	err = LoadData(config.Config.SystemDataPath+"/cfg/weapon.cfg", &weaponInfoSlice)
+	if err != nil {
+		log.Error(err)
+		return false
+	}
+	for i := range weaponInfoSlice {
+		WeaponInfo[weaponInfoSlice[i].Wid] = weaponInfoSlice[i]
+	}
+	log.Debug("WeaponInfo", len(WeaponInfo), WeaponInfo)
 
 	InitRandomArmOid()
 	InitRandomHeroOid()
@@ -1345,7 +1416,7 @@ func InitRandomHeroOid() {
 		InitAllHeroOid[hero_oid] = HeroUnchargeSeen
 	}
 
-	log.Critical("hzz", InitAllHeroOid)
+	log.Critical("hzz_InitALLHeroOid", InitAllHeroOid)
 }
 
 func IsTrueHeroGuanqia(sid int) bool {
@@ -1388,6 +1459,7 @@ func init() {
 	C_Sguanqia = make(map[int]int)
 
 	TrueHeroGuanqia = make(map[int]bool)
+	WeaponInfo	= make(map[int]weaponInfo)
 
 	//ChallengeGuanqiaInfo = make(map[int]scatteredGuanqiaInfo)
 }

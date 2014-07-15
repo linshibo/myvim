@@ -8,6 +8,7 @@ import (
 	"github.com/garyburd/redigo/redis"
 	"sanguo/base/log"
 	"sanguo/db"
+	"sanguo/pprof"
 	. "sanguo/systemdata"
 	"strconv"
 	"sync"
@@ -230,6 +231,21 @@ func GMUserAdd(reader []byte) bool {
 	back.Ret = Success
 
 	return SendToHub(back, 0xf002)
+}
+
+//opcode 0xf008
+func GMDoPProf(reader []byte) bool {
+	type Data struct {
+		Type  string
+	}
+	var msg Data
+	err := json.Unmarshal(reader, &msg)
+	if err != nil {
+		log.Error("Can't decode json message, err = %v", err)
+		return false
+	}
+	pprof.LookUp(msg.Type)
+	return true
 }
 
 //opcode 0xf007
@@ -514,7 +530,7 @@ func (this *User) GetUnreward(rid int) (err error) {
 
 	this.Debug("unreward is", v)
 
-	_, err = this.ProcessReward(v.Type, v.Value)
+	_,_, err = this.ProcessReward(v.Type, v.Value)
 	if err != nil {
 		this.Error("Failed ProcessReward", err)
 		return err
