@@ -926,9 +926,9 @@ function! GEN_C_TAGS()
     if(executable('ctags'))
         silent! execute "!rm -f ./.tags"
         if g:os== 'Linux' 
-            silent! execute "!ctags -R -f .ctags  --languages=c,c++ --c++-kinds=+p --fields=+iaS --extra=+q ."
+            silent! execute "!ctags -R -f .tags  --languages=c,c++ --c++-kinds=+p --fields=+iaS --extra=+q ."
         elseif g:os == 'Darwin' || g:os == 'Mac'
-            silent! execute "!/usr/local/bin/ctags -R -f .ctags --languages=c,c++ --c++-kinds=+p --fields=+iaS --extra=+q ."
+            silent! execute "!/usr/local/bin/ctags -R -f .tags --languages=c,c++ --c++-kinds=+p --fields=+iaS --extra=+q ."
         endif
     endif
     exec "redraw!"
