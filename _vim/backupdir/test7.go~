@@ -1,9 +1,0 @@
-package main
-
-//#cgo LDFLAGS:-L . -ltest
-//#include "test.h"
-import "C"
-
-func main() {
-    C.foo()
-}

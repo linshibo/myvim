@@ -1,3 +1,0 @@
-BindAddr=0.0.0.0:8891
-LogLevel=0
-RedisHost=127.0.0.1:6379
