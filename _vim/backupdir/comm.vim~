@@ -517,7 +517,7 @@ if has('lua') && version >= 703
     " Disable AutoComplPop.
     let g:acp_enableAtStartup = 0
     " Use neocomplete.
-    let g:neocomplete#enable_at_startup = 1
+    let g:neocomplete#enable_at_startup = 0
     " Use smartcase.
     let g:neocomplete#enable_smart_case = 1
     " Set minimum syntax keyword length.
@@ -579,7 +579,7 @@ else
     "neocomplcache{{{
     let g:neocomplcache_enable_quick_match = 1
     " Launches neocomplcache automatically on vim startup.
-    let g:neocomplcache_enable_at_startup = 1
+    let g:neocomplcache_enable_at_startup = 0
     " Use smartcase.
     let g:neocomplcache_enable_smart_case = 1
     " Use camel case completion.
@@ -740,7 +740,7 @@ au BufNewFile,BufRead *.py,*.pyw set filetype=python
 "golang
 """"""""""""
 autocmd BufEnter *.go  set filetype=go
-au Filetype go set makeprg=go\ build\ ./...
+au Filetype go set makeprg=go\ build\ -race\ ./...
 
 """"""""""""
 " HTML 

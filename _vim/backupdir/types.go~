@@ -16,6 +16,8 @@ const (
 
 	ArmEquipHpAdd   =0.25
 	ArmEquipDamageAdd   =0.25
+
+	MaxUserLevel = 11
 )
 
 var (
@@ -45,6 +47,19 @@ type RewardBack struct {
 	RewardType  int
 	ProType     int
 	ProValue    int
+}
+type ArmFormationBack struct{
+	Armid int
+	Hp    int
+	Damage int
+}
+type HeroFormationBack struct{
+	Heroid int
+	Damage int
+}
+type FormationBack struct{
+	Arms []ArmFormationBack 
+	Heros []HeroFormationBack 
 }
 
 const (
@@ -167,5 +182,18 @@ var (
 
 var (
 	SmashTypeProb               = []int{5, 45, 100}     //宝石 金币 卡片
-	SmashTypeProbWithWeaponChip = []int{5, 20, 60, 100} //宝石 金币 卡片 碎片
+	SmashTypeProbWithWeaponChip = []int{5, 10, 50, 100} //宝石 金币 卡片 碎片
+)
+
+var(
+	PKShopRewardType = []int{RewardType_Gold, RewardType_Stone, RewardType_ArmCurr, RewardType_HeroCurr, RewardType_HeroChip,  RewardType_WeaponChip}
+	PKShopRateWithoutWeaponChip = []int{42, 15, 21, 14, 8}//金币、宝石、兵魂、将魂、武将碎片概率
+	PKShopRateWithWeaponChip = []int{22, 15, 21, 14, 8, 20}//金币、宝石、兵魂、将魂、武将碎片、装备碎片概率
+	PKShopCost = []int{5, 10, 15, 15, 15, 20}//金币、宝石、兵魂、将魂、武将碎片、装备碎片花费
+	PKShopReward = [][]int{
+		{150,280,400},{7,12,25}, {10,25,50},{10,25,50},{1,1,1},{1,1,1},
+	}
+)
+var (
+	LevelHeroNeed = []int{0, 10, 30, 60, 90, 130, 170, 100000}
 )

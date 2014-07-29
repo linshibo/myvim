@@ -48,20 +48,36 @@ func (this *_PlayerManager) GetUidById(id string) int {
 	return this.ids[id]
 }
 
-//func ()
-
 func (this *_PlayerManager) GetUserByUid(uid int) *User {
-	/*if this.all[uid] == nil {
-		userid := "user:" + strconv.Itoa(uid)
-		err := this.LoadPlayer(userid)
-		if err != nil {
-			log.Error("Failed __LoadPlayer", err)
-			return nil
-		}
-	}*/
 
 	return this.all[uid]
 }
+
+/*func (this *_PlayerManager) GetUserInfoByUid(uid int)(back *BackUserInfo) {
+	defer func() {
+		if x := recover(); x != nil {
+			log.Warn("CallAPIHubb Panic", x)
+		}
+	}()
+
+	user := this.GetUserByUid(uid)
+	 
+	var r _request
+	r.data = *data
+	r.op = op
+	r.sync = make(chan []byte, 1)
+
+	user. <- r
+
+	select {
+	case msg := <-r.sync:
+		return msg
+	case <-time.After(time.Second * 10):
+		log.Error("The HUB is not response")
+		return nil
+	}
+	return nil	
+}*/
 
 func (this *_PlayerManager) ChangeName(o, n string) {
 	uid := this.name[o]
@@ -74,8 +90,8 @@ func (this *_PlayerManager) ChangeName(o, n string) {
 }
 
 func (this *_PlayerManager) GetUidByName(n string) int {
-	log.Debug("name and n is", this.name, n)
-	log.Debug("return is", this.name[n])
+	//log.Debug("name and n is", this.name, n)
+	//log.Debug("return is", this.name[n])
 	return this.name[n]
 }
 
@@ -146,6 +162,11 @@ func (this *_PlayerManager) UnregisterOnline(uid int, sess *Session) {
 
 	if this.online[uid] == sess {
 		delete(this.online, uid)
+		if now := time.Now().Unix(); sess.user.loginTime > 0 && now > sess.user.loginTime {
+			//记录登录时间
+			GM.GMDayLog(sess.user.uid, StatIDOnlineTime, int(now-sess.user.loginTime))
+			sess.user.loginTime = 0
+		}
 		//delete(this.all, uid)
 		//this.online[uid] = nil
 		//this.all[uid].sess = nil
@@ -193,7 +214,8 @@ func (this *_PlayerManager) LoadPlayer(userid string) (err error) {
 		"c_guanqia", "s_guanqia", "stone", "last_login", "last_power_time", "card_count",
 		"vip", "photo", "last_login_reward_time", "login_arm_given", "login_arm", "last_login_arm", "register_time", "stranger_time",
 		"event_count", "event_end_count", "event_end_time", "event_id", "lock_chapter", "lock_start_time", "max_power", "heroVIP", "mid",
-		"gid", "sign_last", "sign_count", "box_count", "box_get_time", "arm_curr", "hero_curr", "convenedBossID", "shenshou_curr"))
+		"gid", "sign_last", "sign_count", "box_count", "box_get_time", "arm_curr", "hero_curr", "convenedBossID", "shenshou_curr", "pkWin", 
+		"pkFail", "pkScore","pkCount"))
 	if err != nil {
 		log.Error("Can't get user from redis")
 		return err
@@ -204,7 +226,7 @@ func (this *_PlayerManager) LoadPlayer(userid string) (err error) {
 	user.mid, _ = redis.String(reply2[index], nil)
 	if err != nil {
 		log.Error("Cant convert mid to string", err, user.uid)
-		//return err
+		return err
 	}
 	index++
 
@@ -460,20 +482,55 @@ func (this *_PlayerManager) LoadPlayer(userid string) (err error) {
 	}
 	index++
 
-    user.convenedBossID, err = redis.Int(reply2[index], nil)
+	user.convenedBossID, err = redis.Int(reply2[index], nil)
 	if err != nil {
 		log.Error("Cant convert convenedBossID to int", err, user.uid)
 		return err
 	}
 	index++
 
-    user.shenshou_curr, err = redis.Int(reply2[index], nil)
+	user.shenshou_curr, err = redis.Int(reply2[index], nil)
 	if err != nil {
 		log.Error("Cant convert shenshou_curr to int", err, user.uid)
 		return err
 	}
 	index++
-	
+
+	user.pkWin, err = redis.Int(reply2[index], nil)
+	if err != nil && err != redis.ErrNil {
+		log.Error("Cant convert pkWin to int", err, user.uid)
+		//return err
+	}
+	index++
+
+	user.pkFail, err = redis.Int(reply2[index], nil)
+	if err != nil && err != redis.ErrNil {
+		log.Error("Cant convert pkFail to int", err, user.uid)
+		//return err
+	}
+	index++
+
+	user.pkScore, err = redis.Int(reply2[index], nil)
+	if err != nil && err != redis.ErrNil {
+		log.Error("Cant convert pkScore to int", err, user.uid)
+		//return err
+	}
+	index++
+
+	user.pkCount, err = redis.Int(reply2[index], nil)
+	if err != nil && err != redis.ErrNil {
+		log.Error("Cant convert pkCount to int", err, user.uid)
+		//return err
+	}
+	index++
+	//user.pKShopRefreshTime, err = redis.Int64(reply2[index], nil)
+	//if err != nil && err != redis.ErrNil {
+		//log.Error("Cant convert pKShopRefreshTime to int", err, user.uid)
+		////return err
+	//}
+	//index++
+
+
 	// Load LoginReward
 	for i := 0; i < 3; i++ {
 		reply, err := redis.Values(dbconn.Do("HMGET", user.GetUidUsedInDB()+":last_login_reward:"+strconv.Itoa(i), "Type", "Value"))
@@ -575,7 +632,7 @@ func (this *_PlayerManager) LoadPlayer(userid string) (err error) {
 	err = user.Hero.Load()
 	if err != nil {
 		log.Error("Failed LoadPlayerHeroInfo", err)
-		return err
+		//return err
 	}
 
 	err = user.LoadUnreward()
@@ -590,9 +647,15 @@ func (this *_PlayerManager) LoadPlayer(userid string) (err error) {
 		return err
 	}
 
-	err = user.LoadArmEquip()
+	err = user.Arm.LoadArmEquip()
 	if err != nil {
 		log.Error("Failed LoadBossInfo", err)
+		return err
+	}
+
+	err = user.time_line.Load()
+	if err != nil && err != redis.ErrNil{
+		log.Error("Failed LoadTimeLine", err)
 		return err
 	}
 
@@ -620,11 +683,16 @@ func (this *_PlayerManager) AssignUid(id string) (uid int, err error) {
 		return
 	}
 	return
+
+	/*dbconn := db.Pool.Get()
+	defer dbconn.Close()
+
+	uid,err = redis.Int(dbconn.Do("INCR", "UserID"))
+	return*/
 }
 
 func (this *_PlayerManager) AddPlayer(id string) (uid int, err error) {
-	dbconn := db.Pool.Get()
-	defer dbconn.Close()
+	log.Debug("Will AddPlayer", id)
 
 	user := NewUser()
 
@@ -632,6 +700,17 @@ func (this *_PlayerManager) AddPlayer(id string) (uid int, err error) {
 	if err != nil {
 		log.Error("Failed AssignUid", err)
 		return
+	}
+
+	log.Trace("After AssignedUid", uid)
+
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+
+	exist_flag, err := redis.Bool(dbconn.Do("EXISTS", "user:"+strconv.Itoa(uid)))
+	if exist_flag {
+		log.Warn("TheUserOfRegisterIsExist", uid, id)
+		return uid, this.LoadPlayer("user:" + strconv.Itoa(uid))
 	}
 
 	user.uid = uid
@@ -656,7 +735,7 @@ func (this *_PlayerManager) AddPlayer(id string) (uid int, err error) {
 	}
 
 	user.gold = 100
-	user.level = 1
+	user.level = 0
 
 	user.power = FullPower + 8
 	user.max_power = FullPower
@@ -670,15 +749,7 @@ func (this *_PlayerManager) AddPlayer(id string) (uid int, err error) {
 	user.vip = 0
 	user.photo = "gui/role_portrait/k2.png"
 
-	user.card_count = 3
-	/******boss info***********/
-	//user.boss_count = 0
-	//user.boss_id = 0
-	//user.boss_max_score = 0
-	//user.boss_rank = 0
-	//user.boss_tg_count = 0
-	//user.boss_today_max_score = 0
-	//user.last_boss_end_time = 0
+	user.card_count = 2
 
 	/****** login info *********/
 	user.last_login_reward_time = 0
@@ -703,13 +774,11 @@ func (this *_PlayerManager) AddPlayer(id string) (uid int, err error) {
 		"power", user.power, "max_power", user.max_power, "chapter", user.chapter,
 		"c_guanqia", user.c_guanqia, "s_guanqia", user.s_guanqia, "stone", user.stone, "last_login", user.last_login,
 		"last_power_time", user.last_power_time, "card_count", user.card_count, "lock_chapter", 0, "lock_start_time", 0,
-		//"boss_id", user.boss_id, "boss_rank", user.boss_rank, "boss_count", user.boss_count, "last_boss_end_time", user.last_boss_end_time,
-		//"boss_today_max_score", user.boss_today_max_score, "boss_tg_count", user.boss_tg_count, "boss_max_score", user.boss_max_score,
 		"vip", 0, "photo", user.photo, "last_login_reward_time", user.last_login_reward_time, "stranger_time", 0,
 		"login_arm_given", user.login_arm_given, "login_arm", user.login_arm, "last_login_arm", user.last_login_arm, "register_time", user.register_time,
 		"event_count", user.event_count, "event_end_count", user.event_end_count, "event_end_time", user.event_end_time, "event_id", user.event_id,
 		"lock_chapter", 0, "lock_start_time", 0, "heroVIP", 0, "topic_count", 0, "sign_last", 0, "sign_count", 0, "box_count", 0, "box_get_time", 0,
-		"arm_curr", 0, "hero_curr", 0, "convenedBossID",0, "shenshou_curr", 0)
+		"arm_curr", 0, "hero_curr", 0, "convenedBossID", 0, "shenshou_curr", 0)
 	if err != nil {
 		log.Error("Can't insert initial user info into redis of", user.uid)
 		return
@@ -761,6 +830,12 @@ func (this *_PlayerManager) AddPlayer(id string) (uid int, err error) {
 	err = user.Friends.InitFriend()
 	if err != nil {
 		log.Error("Failed InitFriend", err)
+		return
+	}
+
+	err = user.time_line.RegisterInit()
+	if err != nil {
+		log.Error("Failed time_line init", err)
 		return
 	}
 

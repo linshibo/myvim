@@ -2,7 +2,7 @@ package gameserver
 
 import (
 	"github.com/garyburd/redigo/redis"
-	"math/rand"
+	//"math/rand"
 	"sanguo/db"
 	. "sanguo/systemdata"
 	"strconv"
@@ -190,23 +190,6 @@ func (this *User) GetChapterBossScore() []CBS {
 	return gs
 }
 
-func (this *User) PlayerLevelUp() (err error) {
-	if this.Hero.GetHeroNum() < LevelHeroNeed[this.level+1] {
-		return nil
-	}
-	this.level++
-
-	dbconn := db.Pool.Get()
-	defer dbconn.Close()
-
-	_, err = dbconn.Do("HSET", this.GetUidUsedInDB(), "level", this.level)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (this *User) GetSession() *Session {
 	return this.sess
 }
@@ -220,7 +203,7 @@ func (this *User) GetChapter() int {
 }
 
 func (this *User) LevelUp() (err error) {
-	if this.Hero.GetHeroNum() < LevelHeroNeed[this.level] {
+	if !this.time_line.IsHeroIn(LevelHeroNeed[this.level+1]) {
 		return nil
 	}
 
@@ -234,18 +217,18 @@ func (this *User) LevelUp() (err error) {
 		return err
 	}
 
-	type DataBack struct {
-		Level int
-	}
-	var back DataBack
-	back.Level = this.level
+	//type DataBack struct {
+	//	Level int
+	//}
+	//var back DataBack
+	//back.Level = this.level
 
 	sess := this.GetSession()
 	if sess == nil {
 		this.Error("The sess is nil")
 	}
 
-	sess.SendReplyBack(back, 85)
+	//sess.SendReplyBack(back, 85)
 
 	err = sess.user.quest.InspectQuest(QuestType_UpdateSpecLevel, 0, 0)
 	if err != nil {
@@ -280,13 +263,13 @@ func (this *User) goldReward(num int) (err error) {
 
 /////////////RewardType 3   Arm  //////////////////////////
 func (this *User) armReward(id int) (Type int, Value int, err error) {
-	Type, Value,_, err = this.Arm.ProcessNewGetArm(id)
+	Type, Value, _, err = this.Arm.ProcessNewGetArm(id)
 	return
 }
 
 /////////////RewardType 4   Hero   ////////////////////////
 func (this *User) heroReward(id int) (Type int, Value int, err error) {
-	Type, Value,_, err = this.Hero.ProcessNewGetHero(id)
+	Type, Value, _, err = this.Hero.ProcessNewGetHero(id)
 	return
 }
 
@@ -314,7 +297,7 @@ func (this *User) powerReward(num int) (err error) {
 
 //////////RewardType 12  RewardType_ArmCurr //////////////////////////
 func (this *User) armcurrReward(num int) (err error) {
-	defer this.Error("armcurrReward", err)
+	//defer this.Error("armcurrReward", err)
 	this.arm_currency += num
 	dbconn := db.Pool.Get()
 	defer dbconn.Close()
@@ -323,7 +306,6 @@ func (this *User) armcurrReward(num int) (err error) {
 		this.Error("Failed HSET", err)
 		return err
 	}
-	this.Trace("WWWW")
 	return nil
 }
 
@@ -339,7 +321,7 @@ func (this *User) herocurrReward(num int) (err error) {
 	return nil
 }
 
-func (this *User) ProcessReward(reward_type int, reward_value int) (reward RewardBack,Extra int,  err error) {
+func (this *User) ProcessReward(reward_type int, reward_value int, reward_extra ...int ) (reward RewardBack, Extra int, err error) {
 	reward.RewardType = reward_type
 	reward.RewardValue = reward_value
 
@@ -351,14 +333,14 @@ func (this *User) ProcessReward(reward_type int, reward_value int) (reward Rewar
 	}
 
 	if reward_type == RewardType_Arm {
-		reward.ProType, reward.ProValue,Extra, err = this.Arm.ProcessNewGetArm(reward_value)
+		reward.ProType, reward.ProValue, Extra, err = this.Arm.ProcessNewGetArm(reward_value)
 		if err != nil {
 			return
 		}
 	}
 
 	if reward_type == RewardType_Hero {
-		reward.ProType, reward.ProValue,Extra, err = this.Hero.ProcessNewGetHero(reward_value)
+		reward.ProType, reward.ProValue, Extra, err = this.Hero.ProcessNewGetHero(reward_value)
 		if err != nil {
 			return
 		}
@@ -382,7 +364,7 @@ func (this *User) ProcessReward(reward_type int, reward_value int) (reward Rewar
 	if reward_type == RewardType_RandomHeroByQuality {
 		id := this.Hero.GetHeroOfGivenQuality(reward_value)
 		reward.ProValue = id
-		reward.ProType, reward.ProValue,Extra,  err = this.Hero.ProcessNewGetHero(reward_value)
+		reward.ProType, reward.ProValue, Extra, err = this.Hero.ProcessNewGetHero(reward_value)
 		if err != nil {
 			return
 		}
@@ -395,7 +377,7 @@ func (this *User) ProcessReward(reward_type int, reward_value int) (reward Rewar
 		id := this.Arm.GetAnyArmOfGivenStarAndQuality(reward_value, quality)
 		this.Debug("In RewardType_RandomArmByStar ", reward_value, quality, id)
 		reward.RewardValue = id
-		reward.ProType, reward.ProValue,Extra,  err = this.Arm.ProcessNewGetArm(id)
+		reward.ProType, reward.ProValue, Extra, err = this.Arm.ProcessNewGetArm(id)
 		if err != nil {
 			return
 		}
@@ -406,7 +388,7 @@ func (this *User) ProcessReward(reward_type int, reward_value int) (reward Rewar
 		star := this.getRandomArmStar()
 		id := this.Arm.GetAnyArmOfGivenStarAndQuality(star, reward_value)
 		reward.ProValue = id
-		reward.ProType, reward.ProValue,Extra,  err = this.Arm.ProcessNewGetArm(id)
+		reward.ProType, reward.ProValue, Extra, err = this.Arm.ProcessNewGetArm(id)
 		if err != nil {
 			return
 		}
@@ -443,24 +425,20 @@ func (this *User) ProcessReward(reward_type int, reward_value int) (reward Rewar
 		}
 	}
 	if reward_type == RewardType_WeaponChip {
-		//随机一个武器碎片
-		vec := make([]int, 0)
-		for k, v := range this.Hero.heros {
-			if conf, ok := HeroInfo[k];ok{
-				if weapon,ok:=WeaponInfo[conf.Weapon]; ok &&  v.weaponChip < weapon.UnlockFragmentCount{
-					vec = append(vec, k)
-				}
-			}
+		var heroid int 
+		if len(reward_extra) == 1 && reward_extra[0]>0 && this.Hero.IsWeaponChipLackOf(reward_extra[0]) {
+			// 指定heroid
+			heroid = reward_extra[0]
+		} else {
+			//随机一个heroid
+			heroid = this.Hero.GetRandHeroWithWeaponChip()
 		}
-		if len(vec) > 0 {
-			idx := rand.Intn(len(vec))
-			err = this.Hero.addWeaponChip(vec[idx], reward_value)
-			if err != nil {
-				this.Error("Failed weaponChipReward", err)
-				return
-			}
-			Extra =vec[idx]
+		err = this.Hero.addWeaponChip(heroid, reward_value)
+		if err != nil {
+			this.Error("Failed weaponChipReward", err)
+			return
 		}
+		Extra = heroid 
 	}
 	return
 }

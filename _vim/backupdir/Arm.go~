@@ -10,6 +10,7 @@ import (
 	"sanguo/db"
 	. "sanguo/systemdata"
 	"strconv"
+	"strings"
 )
 
 type _Arm struct {
@@ -42,26 +43,64 @@ func NewArmManager() *_ArmManager {
 	h.armEquip = make(map[int][3]int)
 	return &h
 }
+func (this *_ArmManager) LoadArmEquip() error {
+	this.user.Debug("LoadArmEquip")
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+	reply, err := redis.Strings(dbconn.Do("HGETALL", this.user.GetUidUsedInDB()+":armEquip"))
+	if err != nil {
+		return err
+	}
+	for i := 0; i < len(reply)/2; i++ {
+		armid, err := strconv.Atoi(reply[i*2])
+		equips := strings.Split(reply[i*2+1], ":")
+		if err != nil || len(equips) != 3 {
+			this.user.Error("LoadArmEquip Cant convert to int ", err, len(equips))
+			continue
+		}
+		var equip [3]int
+		for j := range equips {
+			equip[j], err = strconv.Atoi(equips[j])
+			if err != nil {
+				this.user.Error(err)
+			}
+		}
+		this.armEquip[armid] = equip
+	}
+	return nil
+}
+
+
+func (this *_ArmManager)GetFormation()[]ArmFormationBack{
+	v := make([]ArmFormationBack, 0)
+	for k, _ := range this.arms{
+		var tmp ArmFormationBack
+		tmp.Armid = k
+		tmp.Hp, tmp.Damage = this.GetArmHpDamage(k)
+		v = append(v, tmp)
+	}
+	return v
+}
 
 //GetArmHpDamage 获取小兵当前血量和伤害值
-func (this *_ArmManager)GetArmHpDamage(id int)(hp, damage int){
+func (this *_ArmManager) GetArmHpDamage(id int) (hp, damage int) {
 	conf, ok := ArmInfo[id]
 	if ok {
 		//原始值
 		hp += conf.Hp
 		damage += conf.Damage
 	}
-	equip , ok := this.armEquip[id]
+	equip, ok := this.armEquip[id]
 	if ok {
 		//装备加成
-		if add ,ok := ArmInfo[equip[0]]; ok {
-			hp += int(float32(add.Hp)*ArmEquipHpAdd)
+		if add, ok := ArmInfo[equip[0]]; ok {
+			hp += int(float32(add.Hp) * ArmEquipHpAdd)
 		}
-		if add ,ok := ArmInfo[equip[1]]; ok {
-			damage += int(float32(add.Damage)*ArmEquipDamageAdd)
+		if add, ok := ArmInfo[equip[1]]; ok {
+			damage += int(float32(add.Damage) * ArmEquipDamageAdd)
 		}
 	}
-	return 
+	return
 }
 
 func (this *_ArmManager) SetUser(u *User) {
@@ -279,6 +318,7 @@ func (this *_ArmManager) AddNewArm(id int, level int) error {
 }
 
 func (this *_ArmManager) addToNewArm(id int) error {
+	this.n_arms[id] = true
 	dbconn := db.Pool.Get()
 	defer dbconn.Close()
 	_, err := dbconn.Do("SADD", this.user.GetUidUsedInDB()+":new_arm", id)
@@ -569,7 +609,7 @@ func (this *_ArmManager) IsKindOwned(id int) bool {
 
 func (this *_ArmManager) ProcessNewGetArm(id int) (Type int, Value int, Extra int, err error) {
 	if id == 0 {
-		return 0, 0,0, nil
+		return 0, 0, 0, nil
 	}
 
 	flag := this.IsKindOwned(id)
@@ -590,14 +630,17 @@ func (this *_ArmManager) ProcessNewGetArm(id int) (Type int, Value int, Extra in
 
 func (this *_ArmManager) getSmashType() int {
 	count := this.user.GetCardCount()
-	if count == 4 {
+	if count == 3 {
 		return SmashCardToGold
+	}
+
+	if count == 4 {
+		return SmashCardToWeaponChip
 	}
 
 	if count == 5 {
 		return SmashCardToArmCurr
 	}
-
 	//var SmashTypeProb = []int{7, 79, 100}
 
 	num := util.GetRandomNumOf100()
@@ -628,7 +671,7 @@ func (this *_ArmManager) getSmashType() int {
 	return SmashCardToGold
 }
 
-func (this *_ArmManager) smashArmCard(id int) (smash_type, num , Extra int , err error) {
+func (this *_ArmManager) smashArmCard(id int) (smash_type, num, Extra int, err error) {
 	smash_type = this.getSmashType()
 	var reward_type int
 
@@ -772,7 +815,7 @@ func (this *_ArmManager) GetArmLevel(id int) int {
 
 var (
 	FixedArmStarCoef = []int{0, 1, 2, 4, 6}
-	ArmLevelBaseCoef = []int{0, 100, 125, 150, 200, 250, 300, 450, 525, 0}
+	ArmLevelBaseCoef = []int{0, 100, 125, 150, 200, 250, 300, 375, 450, 0}
 )
 
 func (this *_ArmManager) GetArmUpdatePrice(id int) (Type, Value int) {
@@ -826,12 +869,12 @@ func UserSetArmEquip(sess *Session, reader []byte) bool {
 			}
 		}
 		conf, ok := ArmInfo[msg.Lists[i].DstID]
-		//if conf.QualityLevel < 2{
-		////绿色品质才可以装备 need >= 2
-		//sess.Error("arm qualify not valid", conf.QualityLevel, msg.Lists[i].DstID)
-		//fails[msg.Lists[i].DstID]=true
-		//continue
-		//}
+		if conf.QualityLevel < 2{
+			//绿色品质才可以装备 need >= 2
+			sess.Error("arm qualify not valid", conf.QualityLevel, msg.Lists[i].DstID)
+			fails[msg.Lists[i].DstID]=true
+			continue
+		}
 		if msg.Lists[i].Equip[0] > 0 {
 			for j := range conf.EGrid1UnlockQuests {
 				if !sess.user.quest.IsQuestFinished(msg.Lists[i].Equip[0], conf.EGrid1UnlockQuests[j]) {
@@ -850,7 +893,7 @@ func UserSetArmEquip(sess *Session, reader []byte) bool {
 				}
 			}
 		}
-		if msg.Lists[i].Equip[1] > 0 {
+		if msg.Lists[i].Equip[2] > 0 {
 			for j := range conf.EGrid3UnlockQuests {
 				if !sess.user.quest.IsQuestFinished(msg.Lists[i].Equip[2], conf.EGrid3UnlockQuests[j]) {
 					sess.Error("arm equip quest not finish", msg.Lists[i].Equip[2], conf.EGrid3UnlockQuests[j])
@@ -864,7 +907,12 @@ func UserSetArmEquip(sess *Session, reader []byte) bool {
 	defer dbconn.Close()
 
 	back := make(map[string]interface{})
-
+	table := sess.user.GetUidUsedInDB() + ":armEquip"
+	_, err = dbconn.Do("DEL", table)
+	if err != nil {
+		sess.Error("del user:armEquip error ", err)
+		return false
+	}
 	sess.user.Arm.armEquip = make(map[int][3]int)
 	for i := range msg.Lists {
 		if _, fail := fails[msg.Lists[i].DstID]; !fail {
@@ -872,7 +920,7 @@ func UserSetArmEquip(sess *Session, reader []byte) bool {
 				msg.Lists[i].Equip[0], msg.Lists[i].Equip[1], msg.Lists[i].Equip[2],
 			}
 			sess.user.Arm.armEquip[msg.Lists[i].DstID] = tmp
-			_, err = dbconn.Do("HSET", fmt.Sprintf("user:armEquip:%d", sess.user.uid), msg.Lists[i].DstID, fmt.Sprintf("%v:%v:%v", msg.Lists[i].Equip[0], msg.Lists[i].Equip[1], msg.Lists[i].Equip[2]))
+			_, err = dbconn.Do("HSET", table, msg.Lists[i].DstID, fmt.Sprintf("%v:%v:%v", msg.Lists[i].Equip[0], msg.Lists[i].Equip[1], msg.Lists[i].Equip[2]))
 			if err != nil {
 				fails[msg.Lists[i].DstID] = true
 				sess.Error("db error ", err)

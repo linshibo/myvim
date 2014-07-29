@@ -3,11 +3,14 @@ package gameserver
 import (
 	"errors"
 	"github.com/garyburd/redigo/redis"
+	"math/rand"
 	"sanguo/base/util"
 	"sanguo/config"
 	"sanguo/db"
 	. "sanguo/systemdata"
+	"sort"
 	"strconv"
+	//"sync"
 )
 
 const (
@@ -206,6 +209,67 @@ func (this *_HeroManager) Load() (err error) {
 	return nil
 }
 
+type FormationSortSlice []FormationSortData
+
+type FormationSortData struct {
+	heroid  int
+	level   int
+	quality int
+}
+
+func (s FormationSortSlice) Len() int {
+	return len(s)
+}
+
+func (s FormationSortSlice) Less(i, j int) bool {
+	if s[i].quality < s[j].quality || (s[i].quality == s[j].quality && s[i].level < s[i].level) {
+		return true
+	}
+	return false
+}
+
+func (s FormationSortSlice) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
+}
+
+func (this *_HeroManager) GetFormation() []HeroFormationBack {
+	this.user.Debug("GetFormation", this.heros)
+	vec := make(FormationSortSlice, len(this.heros))
+	index := 0
+	for k, v := range this.heros {
+		vec[index].heroid = k
+		vec[index].level = v.level
+		hero, _ := HeroInfo[k]
+		vec[index].quality = hero.QualityLevel
+		index++
+	}
+	backlen:=0
+	if len(vec) > 4 {
+		sort.Sort(vec)
+		backlen = 4
+	} else {
+		backlen = len(vec)
+	}
+	this.user.Debug(vec)
+	back := make([]HeroFormationBack, backlen)
+	for i := range back {
+		back[i].Heroid = vec[len(vec)-1-i].heroid
+		back[i].Damage = this.GetHeroDamage(vec[len(vec)-1-i].heroid)
+	}
+	return back
+}
+
+func (this *_HeroManager) GetHeroDamage(id int) int {
+	_, ok := this.heros[id]
+	if ok {
+		if conf, ok := HeroInfo[id]; ok {
+			if weapon, ok := WeaponInfo[conf.Weapon]; ok {
+				return conf.Damage + weapon.AtkIncrease
+			}
+		}
+	}
+	return 0
+}
 func (this *_HeroManager) CanSetMainHero() bool {
 	if this.GetHeroCount() < 6 {
 		return false
@@ -333,11 +397,6 @@ func (this *_HeroManager) AddNewHero(id int, level int, true_flag bool) (err err
 	}
 
 	err = this.addHeroToSeen(id)
-	if err != nil {
-		return err
-	}
-
-	err = this.user.LevelUp()
 	if err != nil {
 		return err
 	}
@@ -490,7 +549,7 @@ func (this *_HeroManager) IsKindOwnedByID(id int) bool {
 }
 
 func (this *_HeroManager) IsKindOwnedByOid(oid int) bool {
-	this.user.Trace("IsKindOwnedByOid", HeroOriginalId[oid])
+	this.user.Trace("IsKindOwnedByOid", oid, HeroOriginalId[oid])
 	for _, id_tmp := range HeroOriginalId[oid] {
 		if id_tmp == 0 {
 			continue
@@ -502,11 +561,39 @@ func (this *_HeroManager) IsKindOwnedByOid(oid int) bool {
 	return false
 }
 
+func (this *_HeroManager) GetRandHeroWithWeaponChip() int {
+	vec := make([]int, 0)
+	for k, v := range this.heros {
+		if conf, ok := HeroInfo[k]; ok {
+			if weapon, ok := WeaponInfo[conf.Weapon]; ok && v.weaponChip < weapon.UnlockFragmentCount {
+				vec = append(vec, k)
+			}
+		}
+	}
+	if len(vec) > 0 {
+		idx := rand.Intn(len(vec))
+		return vec[idx]
+	}
+	return 0
+}
+
+func (this *_HeroManager) IsWeaponChipLackOf(id int) bool {
+	hero, ok := this.heros[id]
+	if ok {
+		if conf, ok := HeroInfo[id]; ok {
+			if weapon, ok := WeaponInfo[conf.Weapon]; ok && hero.weaponChip < weapon.UnlockFragmentCount {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 //IsWeaponChipLackOf 判断武器碎片是否缺少
 func (this *_HeroManager) IsAnyWeaponChipLackOf() bool {
 	for k, v := range this.heros {
-		if conf, ok := HeroInfo[k];ok{
-			if weapon,ok:=WeaponInfo[conf.Weapon]; ok &&  v.weaponChip < weapon.UnlockFragmentCount{
+		if conf, ok := HeroInfo[k]; ok {
+			if weapon, ok := WeaponInfo[conf.Weapon]; ok && v.weaponChip < weapon.UnlockFragmentCount {
 				return true
 			}
 		}
@@ -526,12 +613,12 @@ func (this *_HeroManager) IsHeroChipEnough(id int) bool {
 	return false
 }
 
-func (this *_HeroManager) addWeaponChip(id int,  count int) (err error) {
+func (this *_HeroManager) addWeaponChip(id int, count int) (err error) {
 
 	dbconn := db.Pool.Get()
 	defer dbconn.Close()
 
-	hero,ok := this.heros[id]
+	hero, ok := this.heros[id]
 	if !ok {
 		return errors.New("not find hero")
 	}
@@ -582,6 +669,11 @@ func (this *_HeroManager) addHeroChip(id int) (err error) {
 func (this *_HeroManager) ProcessNewGetHero(id int) (Type int, Value int, Extra int, err error) {
 	if id == 0 {
 		return 0, 0, 0, nil
+	}
+
+	this.user.Debug("ProcessNewGetHero", id)
+	if id > HeroPrefixNum {
+		id -= HeroPrefixNum
 	}
 
 	flag := this.IsKindOwnedByID(id)
@@ -690,7 +782,7 @@ func (this *_HeroManager) smashHeroCard(id int) (smash_type, num int, Extra int,
 		event_flag = true
 	}
 
-	this.user.Debug("smashHeroCard", smash_type,num )
+	this.user.Debug("smashHeroCard", smash_type, num)
 	_, Extra, err = this.user.ProcessReward(reward_type, num)
 	if err != nil {
 		return
@@ -893,7 +985,7 @@ func (this *_HeroManager) CanHeroUpdate(id int) bool {
 }
 
 var (
-	HeroUpdateBaseCoef = []int{0, 100, 125, 150, 200, 250, 300, 450, 525, 0}
+	HeroUpdateBaseCoef = []int{0, 100, 125, 150, 200, 250, 300, 375, 450, 0}
 )
 
 func (this *_HeroManager) GetHeroUpdatePrice(id int) (Type, Value int) {

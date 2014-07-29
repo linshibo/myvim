@@ -1,84 +1,94 @@
 package main
 
 import (
-    "GameHub/asynserver"
-    "GameHub/db"
-    "GameHub/hub"
-	//"GameHub/pprof"
-    "fmt"
-    "github.com/Unknwon/goconfig"
-    "net"
-    "os"
-    "sanguo/base/log"
-    "time"
+	"sanguo/base/log"
+	"sanguo/gameserver"
+	"io/ioutil"
+	"os"
+	"sanguo/config"
+	"fmt"
+	"sanguo/db"
+	"runtime/pprof"
+	"runtime"
 )
 
-func autoChangeLogFile() {
-    day := time.Now()
-    logname := fmt.Sprintf("log-%04d%02d%02d", day.Year(), day.Month(), day.Day())
-    filew := log.NewFileWriter(logname, true)
-    filew.StartLogger()
-    nextDay := time.Now().AddDate(0, 0, 1)
-    nextDayBegin := time.Date(nextDay.Year(), nextDay.Month(), nextDay.Day(), 0, 0, 0, 0, time.Local)
-    select {
-    case <-time.After(nextDayBegin.Sub(time.Now())):
-        go autoChangeLogFile()
-    }
-}
-
 func main() {
-    cfg, err := goconfig.LoadConfigFile("bench.conf")
-    if err != nil {
-        fmt.Println("Failed load config file bench.conf", err)
-        return
-    }
-    host, err := cfg.GetValue("", "BindAddr")
-    if err != nil {
-        fmt.Println(err)
-        return
-    }
+	if len(os.Args) != 2 {
+		fmt.Println("Wrong input, please input ' ./sanguo sanguo.conf' ")
+		return
+	}
 
-    //初始化log
-    logLevel := cfg.MustInt("", "LogLevel", 0)
-    log.SetLevel(logLevel)
-    go autoChangeLogFile()
-    go func() {
-        //for {
-            //select {
-            //case <-time.After(10*time.Second):
-                //pprof.LookUp("start cpuprof")
-                //time.Sleep(5*time.Second)
-                ////pprof.LookUp("lookup heap")
-                ////pprof.LookUp("lookup threadcreate")
-                ////pprof.LookUp("lookup block")
-                ////pprof.LookUp("lookup memprof")
-                //pprof.LookUp("stop cpuprof")
-            //}
-        //}
-    }()
+	content, err := ioutil.ReadFile(os.Args[1])
+	if err != nil {
+		fmt.Println("Failed read configure file",os.Args[1], err)
+		return 
+	}
+	
+	if !config.Load(content) {
+		fmt.Println("Failed load config")
+		return 
+	}
+	
+	runtime.GOMAXPROCS(8)
 
-    db.InitDB(cfg)
+	log.SetLevel(config.Config.LogLevel)
+	
+	filew := log.NewFileWriter(config.Config.LogName, true)
+	err = filew.StartLogger()
+	if err != nil {
+		fmt.Println("Failed start log",err)
+		return
+	}
 
-    //初始化服务器列表
-    servs, err := db.GetServers()
-    if err != nil {
-        log.Error(err.Error())
-    }
-    hub.CM.Init(servs)
+	if config.Config.ProfEnable {
+		f_cpu, err := os.Create(config.Config.CPUProfFile)
+		if err != nil {
+			fmt.Println("Failed open CPUProfile",err)
+			return
+		}
+		
+		err = pprof.StartCPUProfile(f_cpu)
+		if err != nil {
+			fmt.Println("Failed startCPUProfile",err)
+			return
+		}
+		defer pprof.StopCPUProfile()
+		
+		f_mem, err := os.Create(config.Config.MemProfFile)
+		if err != nil {
+			fmt.Println("Failed open MemProfile",err)
+			return
+		}
+		pprof.WriteHeapProfile(f_mem)
+		defer f_mem.Close()		
+	}
+	
+	if !db.Init(){
+		log.Error("Failed Init Redis",err)
+		return 
+	}
 
-    tcpAddr, err := net.ResolveTCPAddr("tcp4", host)
-    if err != nil {
-        log.Error(err.Error())
-        os.Exit(-1)
-    }
-    fmt.Println("Server Start")
+	//go GM.Start()
+	
+	err = gameserver.PlayerManager.LoadAllPlayerInTheServerStart()
+	if err != nil {
+		fmt.Println("Failed LoadAllPlayer",err)
+		os.Exit(-1)
+	}else {
+		fmt.Println("Load OK")
+	}
 
-    log.Debug("\n/-----------------------------------/\n        Server Start\n/-----------------------------------/\n")
-    var callback asynserver.Callback
-    callback.GetSizeCallback = hub.GetSizeCallback
-    callback.MessageCallback = hub.MessageCallback
-    callback.IPCMessageCallback = hub.MessageCallback
-    callback.CloseCallback = hub.CloseCallback
-    callback.Host = tcpAddr.String()
-    asynserver.StartServer(callback)
+	//go pp.Start()
+	
+	//if !gameserver.StartGameManage() {
+	//	log.Error("Failed StartGameManage")
+	//	return
+	//}
+
+	go gameserver.HubStart()
+	
+	var server gameserver.GameServer
+	server.Host = config.Config.HostAddr
+	server.Start()
 }
+

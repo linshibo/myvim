@@ -20,9 +20,10 @@ const (
 	GMLength = 5000
 )
 const (
-	StatIDRegister  = 100000
-	StatIDLogin     = 100001
-	StatIDOnlineNum = 100002
+	StatIDRegister   = 100000
+	StatIDLogin      = 100001
+	StatIDOnlineNum  = 100002
+	StatIDOnlineTime = 100003
 	//宝石消耗
 	StatIDDrawCard           = 100100
 	StatIDBuyPower           = 100101
@@ -236,7 +237,7 @@ func GMUserAdd(reader []byte) bool {
 //opcode 0xf008
 func GMDoPProf(reader []byte) bool {
 	type Data struct {
-		Type  string
+		Type string
 	}
 	var msg Data
 	err := json.Unmarshal(reader, &msg)
@@ -376,6 +377,7 @@ func GMUserAddCard(reader []byte) bool {
 func GMUserInfo(reader []byte) bool {
 	type Data struct {
 		UID int
+		SID int
 	}
 
 	var msg Data
@@ -387,6 +389,8 @@ func GMUserInfo(reader []byte) bool {
 
 	type DataBack struct {
 		Ret          int
+		Uid          int
+		Sid          int
 		Gold         int
 		Power        int
 		Stone        int
@@ -405,6 +409,8 @@ func GMUserInfo(reader []byte) bool {
 		log.Error("Failed GetUserByUid", msg.UID)
 		return false
 	}
+	back.Uid =msg.UID
+	back.Sid =msg.SID
 	back.ArmCurr = user.arm_currency
 	back.C_guanqia = user.c_guanqia
 	back.Chapter = user.chapter
@@ -530,7 +536,7 @@ func (this *User) GetUnreward(rid int) (err error) {
 
 	this.Debug("unreward is", v)
 
-	_,_, err = this.ProcessReward(v.Type, v.Value)
+	_, _, err = this.ProcessReward(v.Type, v.Value)
 	if err != nil {
 		this.Error("Failed ProcessReward", err)
 		return err

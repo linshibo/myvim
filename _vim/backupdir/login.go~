@@ -146,6 +146,12 @@ func UserLogin_(sess *Session, reader []byte) bool {
 			sess.Error("Failed InitBoxRewadInTheFirstLogin", err)
 			return false
 		}
+
+		err = sess.user.setPKCount(0)
+		if err != nil {
+			sess.Error("Failed setPKCount", err)
+			return false
+		}
 	}
 
 	bosses := sess.GetAllBossInfo()
@@ -157,6 +163,7 @@ func UserLogin_(sess *Session, reader []byte) bool {
 	e := sess.user.E_Arm.ListAllExtraArm()
 
 	now := time.Now().Unix()
+	sess.user.loginTime = now
 	back := map[string]interface{}{
 		"ret":              true,
 		"uid":              sess.user.uid,
@@ -219,6 +226,7 @@ func UserLogin_(sess *Session, reader []byte) bool {
 		"HeroEvolveQuests": sess.user.quest.GetFinishedHeroEvolve(),
 		"MHeroID":          sess.user.Hero.GetMainHero(),
 		"HeroChip":         sess.user.Hero.GetAllHeroChip(),
+		"Line":             sess.user.time_line.GetAllNode(),
 	}
 
 	if !sess.SendReplyBack(back, 1) {
@@ -240,7 +248,7 @@ func UserLogin_(sess *Session, reader []byte) bool {
 
 	////////////////////////////// Quest type 9 ////////////////////////////////////////////////////////////////////
 	if IsFirstLoginOfToday(sess.user.last_login) {
-		sess.user.Trace("This is the first login of today")
+		sess.user.Trace("XJ_This is the first login of today")
 		err = sess.user.quest.InspectQuest(QuestType_LoginDays, 0, 0)
 		if err != nil {
 			sess.Error("QuestType_LoginDays ", err)

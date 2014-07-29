@@ -40,7 +40,7 @@ type bossInfo struct {
 	last_boss_end_time   int64
 	boss_pass            int
 	boss_count           int
-    //isConvened           int   //是否被召唤
+	//isConvened           int   //是否被召唤
 }
 type User struct {
 	//base info
@@ -65,9 +65,20 @@ type User struct {
 	s_guanqia int
 	//completed_c_guanqia []int
 
+	loginTime int64 //登录的时间
+
 	//cd time
 	last_login      int64
 	last_power_time int64
+
+	//offline pk
+	pkWin             int //离线pk胜场
+	pkFail            int //离线pk败场
+	pkScore           int //离线pk积分
+	pkCheckCode       int //pk结算验证码
+	pkCount           int //每日pk次数
+	pkShop            [6]pkShopReward
+	pKShopRefreshTime int64 //上次更新时间
 
 	//random cards
 	vip          int
@@ -83,8 +94,8 @@ type User struct {
 
 	//boss
 
-	bossInfos map[int]*bossInfo `神兽信息`
-    convenedBossID int //召唤的bossid
+	bossInfos      map[int]*bossInfo `神兽信息`
+	convenedBossID int               //召唤的bossid
 
 	//friend
 	//friends         map[string]bool
@@ -150,6 +161,10 @@ type User struct {
 
 	combat_score int
 
+	shenshou_curr int
+
+	time_line *TimeLine
+
 	sess *Session
 }
 
@@ -157,6 +172,14 @@ type Unreward struct {
 	Value  int
 	Type   int
 	Reason int
+}
+
+type pkShopReward struct {
+	Type  int ////1 游戏币、2宝石、3兵魂、4将魂、5武将碎片、6装备碎片
+	Value int
+	Cost  int
+	Extra int  //保存其他信息
+	Valid bool //
 }
 
 type QuestData struct {
@@ -256,6 +279,9 @@ func NewUser() *User {
 	user.E_Arm = NewExtraArmManger()
 	user.E_Arm.SetUser(&user)
 
+	user.time_line = NewTimeLine()
+	user.time_line.SetUser(&user)
+
 	user.unreward = make(map[int]Unreward)
 
 	//user.guanqia_quest = make(map[int]bool)
@@ -269,6 +295,7 @@ func NewUser() *User {
 
 func (sess *Session) Start() {
 	defer func() {
+		log.Error("Socket close")
 		sess.connect.Close()
 		if sess.user != nil {
 			PlayerManager.UnregisterOnline(sess.user.uid, sess)
@@ -326,7 +353,8 @@ func (sess *Session) send(data []byte) bool {
 }
 
 func (sess *Session) SendReply(back_json []byte, op uint16) bool {
-	var base []byte
+	return sess.SendError(back_json, op, 0)
+	/*var base []byte
 	n := base64.StdEncoding.EncodedLen(len(back_json))
 	base = make([]byte, n)
 
@@ -340,11 +368,82 @@ func (sess *Session) SendReply(back_json []byte, op uint16) bool {
 	flag := 2
 	writer.WriteU16(uint16(flag))
 	writer.WriteRawBytes(base)
+	return sess.send(writer.Data)*/
+}
+
+func (sess *Session) SendError(back_json []byte, op uint16, code uint16) bool {
+	var base []byte
+	n := base64.StdEncoding.EncodedLen(len(back_json))
+	base = make([]byte, n)
+
+	base64.StdEncoding.Encode(base, back_json)
+
+	writer := packet.Writer()
+	// length in the head is only the length of data
+	writer.WriteU16(uint16(len(base)))
+
+	writer.WriteU16(uint16(op))
+	flag := 2
+	writer.WriteU16(uint16(flag))
+	writer.WriteU16(code)
+	writer.WriteRawBytes(base)
+	return sess.send(writer.Data)
+}
+
+// op对应消息码， code对应错误码
+func (sess *Session) SendErrorBack(back interface{}, op int, code int) bool {
+	var dst []byte
+	var flag int
+
+	if back != nil {
+		back_json, err := json.Marshal(back)
+		if err != nil {
+			sess.Error("Can't decode json message in UserStartFight", err)
+			return false
+		}
+		sess.Debug("The back json message is", string(back_json))
+
+		var base []byte
+		n := base64.StdEncoding.EncodedLen(len(back_json))
+		base = make([]byte, n)
+
+		base64.StdEncoding.Encode(base, back_json)
+
+		flag = 2
+		dst = base
+		if len(base) > 100 {
+			sess.user.Info("The msg length large_than_100", len(base), op)
+			var b bytes.Buffer
+			w := zlib.NewWriter(&b)
+
+			w.Write(base)
+			w.Close()
+			dst = b.Bytes()
+			flag = 3
+			sess.user.Info("The msg length after_zlib is", len(dst), op)
+		}
+	} else {
+		dst = nil
+		flag = 0
+	}
+
+	writer := packet.Writer()
+	// length in the head is only the length of data
+	writer.WriteU16(uint16(len(dst)))
+
+	writer.WriteU16(uint16(op))
+
+	writer.WriteU16(uint16(flag))
+
+	writer.WriteU16(uint16(code))
+
+	writer.WriteRawBytes(dst)
 	return sess.send(writer.Data)
 }
 
 func (sess *Session) SendReplyBack(back interface{}, op uint16) bool {
-	back_json, err := json.Marshal(back)
+	return sess.SendErrorBack(back, int(op), 0)
+	/*back_json, err := json.Marshal(back)
 	if err != nil {
 		sess.Error("Can't decode json message in UserStartFight", err)
 		return false
@@ -377,7 +476,8 @@ func (sess *Session) SendReplyBack(back interface{}, op uint16) bool {
 
 	writer.WriteU16(uint16(flag))
 	writer.WriteRawBytes(dst)
-	return sess.send(writer.Data)
+	return sess.send(writer.Data)*/
+
 }
 
 func (sess *Session) Trace(v ...interface{}) {

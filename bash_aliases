@@ -35,4 +35,8 @@ alias bashrc="vi ~/.bashrc"
 alias allusers="cut -d: -f1 /etc/passwd"
 alias allgroups="cut -d: -f1 /etc/group"
 
+alias gm='git commit -a --allow-empty-message -m ""'
+alias gp='git push'
+alias gl='git pull'
+
 #alias my='mysql -uroot -p123456 -A --prompt="\\u@\\h : \\d \\r:\\m:\\s>"'

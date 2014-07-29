@@ -55,10 +55,11 @@ func (this *User) Critical(v ...interface{}) {
 	log.Critical(this.uid, v)
 }
 
+/*
 func (sess *Session) ChangeName(newname string) error {
 	dbconn := db.Pool.Get()
 	defer dbconn.Close()
-	_, err := dbconn.Do("RENAME", sess.user.name, newname)
+	_, err := dbconn.Do("RENAME", sess.user.GetUidUsedInDB(), newname)
 	if err != nil {
 		return err
 	}
@@ -76,7 +77,7 @@ func (sess *Session) ChangeName(newname string) error {
 func (sess *Session) ChangePhoto(p string) error {
 	dbconn := db.Pool.Get()
 	defer dbconn.Close()
-	_, err := dbconn.Do("HSET", sess.user.uid, "photo", p)
+	_, err := dbconn.Do("HSET",sess.user.GetUidUsedInDB(), "photo", p)
 	if err != nil {
 		return err
 	}
@@ -84,22 +85,24 @@ func (sess *Session) ChangePhoto(p string) error {
 	sess.user.photo = p
 
 	return nil
-}
+}*/
 
 func (sess *Session) InitStrangerTimeEveryDay() error {
 	sess.user.stranger_time = 0
 	dbconn := db.Pool.Get()
 	defer dbconn.Close()
 
-	_, err := dbconn.Do("HSET", sess.user.uid, "stranger_time", 0)
+	_, err := dbconn.Do("HSET", sess.user.GetUidUsedInDB(), "stranger_time", 0)
 	return err
 }
 
 func (sess *Session) AddStrangerTime() error {
+
 	dbconn := db.Pool.Get()
 	defer dbconn.Close()
 	sess.user.stranger_time++
-	_, err := dbconn.Do("HSET", sess.user.uid, "stranger_time", sess.user.stranger_time)
+	sess.user.Trace("In AddStrangerTime", sess.user.stranger_time)
+	_, err := dbconn.Do("HSET", sess.user.GetUidUsedInDB(), "stranger_time", sess.user.stranger_time)
 	return err
 }
 

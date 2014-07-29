@@ -5,7 +5,7 @@ type broadcastCh  chan broadcast
 type Listener chan broadcastCh  
 
 type broadcast struct {
-    next   chan broadcast
+    next   chan broadcast//broadcastCh
     v   interface{}
 }
 
@@ -17,7 +17,7 @@ type Broadcaster struct {
 
 type Receiver struct {
     // private fields:
-    bcCh chan broadcast
+    bcCh chan broadcast//broadcastCh
 }
 
 // create a new broadcaster object.
@@ -25,7 +25,7 @@ func NewBroadcaster() Broadcaster {
     listenc := make(chan Listener)
     sendc := make(chan interface{})
     go func() {
-        currc := make(chan broadcast, 1)
+        currc := make(chan broadcast, 1)//broadcastCh
         for {
             select {
             case v := <-sendc:
@@ -33,9 +33,9 @@ func NewBroadcaster() Broadcaster {
                     currc <- broadcast{}
                     return
                 }
-                c := make(chan broadcast, 1)
+                c := make(chan broadcast, 1)//broadcastCh
                 b := broadcast{next: c, v: v}
-                currc <- b
+                currc <- b//
                 currc = c
             case r := <-listenc:
                 r <- currc
@@ -61,7 +61,7 @@ func (b Broadcaster) Write(v interface{}) { b.Sendc <- v }
 // read a value that has been broadcast,
 // waiting until one is available if necessary.
 func (r *Receiver) Read() interface{} {
-    b := <-r.bcCh
+    b := <-r.bcCh//broadcast
     v := b.v
     r.bcCh <- b
     r.bcCh = b.next

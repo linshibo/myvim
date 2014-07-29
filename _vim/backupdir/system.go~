@@ -96,6 +96,7 @@ type weaponInfo struct {
 	AtkIncrease         int
 	SkillId             int
 	SkillPro            int
+	QualityLevel        int
 }
 type heroInfo struct {
 	OriginalId          int
@@ -239,11 +240,12 @@ func LoadSystemLineNode() (err error) {
 		Nodes[node_tmp.NodeID] = node_tmp
 	}
 
-	log.Trace("HHH_Nodes", Nodes)
+	log.Info("Nodes", Nodes)
 	return nil
 }
 
 func LoadSystemDataFromConf() bool {
+	log.Info("LoadSystemDataFromConf")
 	log.Info("Path is", config.Config.SystemDataPath+"/cfg")
 
 	LoadSystemLineNode()
@@ -260,8 +262,8 @@ func LoadSystemDataFromConf() bool {
 		ChapterInfo[chapterInfoSlice[i].Cpid] = chapterInfoSlice[i]
 		TrueHeroGuanqia[chapterInfoSlice[i].ChallengeSid] = true
 	}
-	log.Debug("LoadSystemDataFromConf")
-	log.Debug("ChapterInfo", len(ChapterInfo), ChapterInfo)
+	
+	log.Info("ChapterInfo", len(ChapterInfo), ChapterInfo)
 	/************************** Load ChapterCGuanQiaInfo *****************/
 	chapterGuanQiaInfoSlice := make([]chapterGuanQiaInfo, 0)
 	err = LoadData(config.Config.SystemDataPath+"/cfg/chapterGuanQiaInfo.cfg", &chapterGuanQiaInfoSlice)
@@ -292,7 +294,7 @@ func LoadSystemDataFromConf() bool {
 			ChapterBoss[i] = ChapterInfo[i].AllSGuanQias[len(ChapterInfo[i].AllSGuanQias)-1]
 
 		}
-		log.Info("S", SimpleNeedRecord)
+		log.Info("SimpleNeedRecord", SimpleNeedRecord)
 		log.Info("ChapterBoss", ChapterBoss)
 	}
 	/************************** Load guanqiaInfo *************************/
@@ -316,7 +318,7 @@ func LoadSystemDataFromConf() bool {
 			Guanqiaid:      guanqiaInfoSlice[i].Guanqiaid,
 		}
 	}
-	log.Debug("GuanqiaInfo", len(GuanqiaInfo), GuanqiaInfo)
+	log.Info("GuanqiaInfo", len(GuanqiaInfo), GuanqiaInfo)
 	/************************** Load challenge guanqiaInfo *************************/
 	scatteredGuanQiaInfoSlice := make([]guanqiaInfoCfg, 0)
 	err = LoadData(config.Config.SystemDataPath+"/cfg/scatteredGuanQiaInfo.cfg", &scatteredGuanQiaInfoSlice)
@@ -339,7 +341,7 @@ func LoadSystemDataFromConf() bool {
 			Guanqiaid:      scatteredGuanQiaInfoSlice[i].Guanqiaid,
 		}
 	}
-	log.Debug("GuanqiaInfo", len(GuanqiaInfo), GuanqiaInfo)
+	log.Info("GuanqiaInfo", len(GuanqiaInfo), GuanqiaInfo)
 	/************************** Load DanboInfo ***************************/
 	danboInfoSlice := make([]danboInfo, 0)
 	err = LoadData(config.Config.SystemDataPath+"/cfg/danboInfo.cfg", &danboInfoSlice)
@@ -350,7 +352,7 @@ func LoadSystemDataFromConf() bool {
 	for i := range danboInfoSlice {
 		DanboInfo[danboInfoSlice[i].BoshuId] = danboInfoSlice[i]
 	}
-	log.Debug("DanboInfo", len(DanboInfo), DanboInfo)
+	log.Info("DanboInfo", len(DanboInfo), DanboInfo)
 	/************************** Load ArmInfo *****************************/
 	armInfoSlice := make([]armInfo, 0)
 	err = LoadData(config.Config.SystemDataPath+"/cfg/armInfo.cfg", &armInfoSlice)
@@ -366,7 +368,7 @@ func LoadSystemDataFromConf() bool {
 			ArmOriginalId[Arm.OriginalId][Arm.QualityLevel] = Arm.Armid
 		}
 	}
-	log.Debug("ArmInfo", len(ArmInfo), ArmInfo)
+	log.Info("ArmInfo", len(ArmInfo), ArmInfo)
 	/************************** Load HeroInfo **********************************/
 	heroInfoSlice := make([]heroInfo, 0)
 	err = LoadData(config.Config.SystemDataPath+"/cfg/heroInfo.cfg", &heroInfoSlice)
@@ -379,7 +381,8 @@ func LoadSystemDataFromConf() bool {
 		HeroQualityCount[heroInfoSlice[i].QualityLevel]++
 		HeroOriginalId[heroInfoSlice[i].OriginalId][heroInfoSlice[i].QualityLevel] = heroInfoSlice[i].Heroid
 	}
-	log.Debug("HeroInfo", len(HeroInfo), HeroInfo[3].OriginalId)
+	log.Info("HeroInfo", len(HeroInfo), HeroInfo[3].OriginalId)
+	log.Info("HeroOriginalIdInfo", HeroOriginalId)
 	/****************************** Load EnemyUnit ******************************/
 	enemyUnitInfoSlice := make([]enemyUnit, 0)
 	err = LoadData(config.Config.SystemDataPath+"/cfg/enemyUnit.cfg", &enemyUnitInfoSlice)
@@ -391,7 +394,7 @@ func LoadSystemDataFromConf() bool {
 		EnemyUnit[enemyUnitInfoSlice[i].Euid] = enemyUnitInfoSlice[i]
 	}
 
-	log.Debug("EnemyUnitInfo", len(EnemyUnit), EnemyUnit)
+	log.Info("EnemyUnitInfo", len(EnemyUnit), EnemyUnit)
 	/******************************Load Quest***************************************************/
 	questSlice := make([]quest, 0)
 	err = LoadData(config.Config.SystemDataPath+"/cfg/quest.cfg", &questSlice)
@@ -402,7 +405,7 @@ func LoadSystemDataFromConf() bool {
 	for i := range questSlice {
 		Quest[questSlice[i].Qid] = questSlice[i]
 	}
-	log.Debug("Quest", len(Quest), Quest)
+	log.Info("Quest", len(Quest), Quest)
 	/****************************** Load BossGuanQiaInfo ******************************/
 	bossGuanQiaInfoSlice := make([]bossGuanQiaInfo, 0)
 	err = LoadData(config.Config.SystemDataPath+"/cfg/bossGuanQiaInfo.cfg", &bossGuanQiaInfoSlice)
@@ -413,7 +416,7 @@ func LoadSystemDataFromConf() bool {
 	for i := range bossGuanQiaInfoSlice {
 		BossGuanQiaInfo[bossGuanQiaInfoSlice[i].BossGuanQiaId] = bossGuanQiaInfoSlice[i]
 	}
-	log.Debug("BossGuanQiaInfo", len(BossGuanQiaInfo), BossGuanQiaInfo)
+	log.Info("BossGuanQiaInfo", len(BossGuanQiaInfo), BossGuanQiaInfo)
 	/************************* Load FightQuest Info ************************/
 	for id, v := range Quest {
 		if v.Needpushreward != 0 {
@@ -440,7 +443,7 @@ func LoadSystemDataFromConf() bool {
 	for i := range weaponInfoSlice {
 		WeaponInfo[weaponInfoSlice[i].Wid] = weaponInfoSlice[i]
 	}
-	log.Debug("WeaponInfo", len(WeaponInfo), WeaponInfo)
+	log.Info("WeaponInfo", len(WeaponInfo), WeaponInfo)
 
 	InitRandomArmOid()
 	InitRandomHeroOid()
@@ -451,6 +454,284 @@ func LoadSystemDataFromConf() bool {
 	InitQuest()
 	return true
 }
+
+
+
+/****************** Oid *******************/
+const (
+	HeroIdNum     = 500
+	HeroOrigIdNum = 100
+	HeroOidNum    = 100
+
+	ArmIdNum     = 1000
+	ArmOrigIdNum = 500
+	ArmOidNum    = 500
+
+	StarNum    = 4
+	QualityNum = 5
+)
+
+var (
+	ArmOidIndex               [ArmOidNum]int
+	ArmOidStarAndQualityCount [StarNum + 1][QualityNum + 1]int
+	ArmOidStarAndQualityBegin [StarNum + 1][QualityNum + 1]int
+	InitAllArmOid             [ArmOidNum]int
+	ArmMinIdOfOid             [ArmOidNum]int
+
+	HeroOidIndex        [HeroIdNum]int
+	HeroOidQualityCount [QualityNum + 1]int
+	HeroOidQualityBegin [QualityNum + 1]int
+	InitAllHeroOid      [HeroOidNum]int
+	HeroMinIdOfOid      [HeroOidNum]int
+)
+
+func InitRandomArmOid() {
+	for armid, v := range ArmInfo {
+		if v.StarsNeed != 0 {
+			ArmOriginalId[v.OriginalId][v.QualityLevel] = armid
+		}
+
+		if v.CanPick == 0 {
+			InitAllArmOid[v.OriginalId] = ArmUnGet
+		}
+	}
+
+	for oid := 0; oid < ArmOidNum; oid++ {
+		log.Debug("ArmOriginalId", oid, ArmOriginalId[oid])
+		for q := 0; q <= QualityNum; q++ {
+			if ArmOriginalId[oid][q] != 0 {
+				ArmMinIdOfOid[oid] = ArmOriginalId[oid][q]
+				log.Debug("ArmMinIdOfOid[oid]", oid, ArmMinIdOfOid[oid])
+				break
+			}
+		}
+	}
+
+	for _, id := range ArmMinIdOfOid {
+		if id == 0 {
+			continue
+		}
+
+		q := ArmInfo[id].QualityLevel
+		s := ArmInfo[id].StarsNeed
+		ArmOidStarAndQualityCount[s][q]++
+	}
+	log.Info("ArmOidStarAndQualityCount", ArmOidStarAndQualityCount)
+
+	for star := 1; star < 5; star++ {
+		ArmOidStarAndQualityBegin[star][0] = ArmOidStarAndQualityBegin[star-1][5] + ArmOidStarAndQualityCount[star-1][5]
+		for quality := int(1); quality < 6; quality++ {
+			ArmOidStarAndQualityBegin[star][quality] = ArmOidStarAndQualityCount[star][quality-1] + ArmOidStarAndQualityBegin[star][quality-1]
+		}
+	}
+	log.Info("ArmOidStarAndQualityBegin", ArmOidStarAndQualityBegin)
+
+	var i [5][6]int
+	for oid, id := range ArmMinIdOfOid {
+		if id == 0 {
+			continue
+		}
+		v := ArmInfo[id]
+		index := ArmOidStarAndQualityBegin[v.StarsNeed][v.QualityLevel] + i[v.StarsNeed][v.QualityLevel]
+		ArmOidIndex[index] = oid
+		i[v.StarsNeed][v.QualityLevel]++
+	}
+	log.Info("ArmOidIndex", ArmOidIndex)
+
+	//for _, arm_oid := range InitUnGetArmOidByGold {
+	//	InitAllArmOid[arm_oid] = ArmUnGet
+	//}
+
+	for star := 1; star < 5; star++ {
+		ArmStarAndQualityBegin[star][0] = ArmStarAndQualityBegin[star-1][5] + ArmStarAndQualityCount[star-1][5]
+		for quality := int(1); quality < 6; quality++ {
+			ArmStarAndQualityBegin[star][quality] = ArmStarAndQualityCount[star][quality-1] + ArmStarAndQualityBegin[star][quality-1]
+		}
+	}
+
+	var ii [5][6]int
+	for armid, v := range ArmInfo {
+		if v.StarsNeed == 0 {
+			continue
+		}
+		ArmIndex[ArmStarAndQualityBegin[v.StarsNeed][v.QualityLevel]+ii[v.StarsNeed][v.QualityLevel]] = armid
+		ii[v.StarsNeed][v.QualityLevel]++
+	}
+	log.Info("ArmCount", ArmStarAndQualityCount)
+	log.Info("ArmBegin", ArmStarAndQualityBegin)
+	log.Info("ArmIndex", ArmIndex)
+
+	log.Info("InitAllArmOid", InitAllArmOid)
+}
+
+func InitRandomHeroOid() {
+	for heroid, v := range HeroInfo {
+		HeroOriginalId[v.OriginalId][v.QualityLevel] = heroid
+		if v.CanPick == 0 {
+			//InitAllHeroOid[v.OriginalId] = HeroUnGet
+		}
+	}
+
+	for oid := 0; oid < HeroOidNum; oid++ {
+		for q := 0; q <= QualityNum; q++ {
+			if HeroOriginalId[oid][q] != 0 {
+				HeroMinIdOfOid[oid] = HeroOriginalId[oid][q]
+				log.Debug("HeroMinIdOfOid[oid]", oid, HeroMinIdOfOid[oid])
+				break
+			}
+		}
+	}
+
+	for _, id := range HeroMinIdOfOid {
+		if id == 0 {
+			continue
+		}
+		q := HeroInfo[id].QualityLevel
+		HeroOidQualityCount[q]++
+	}
+	log.Info("HeroOidQualityCount", HeroOidQualityCount)
+
+	for quality := 1; quality < 6; quality++ {
+		HeroOidQualityBegin[quality] = HeroOidQualityCount[quality-1] + HeroOidQualityBegin[quality-1]
+	}
+	log.Info("HeroOidQualityBegin", HeroOidQualityBegin)
+
+	var j [6]int
+	for oid, id := range HeroMinIdOfOid {
+		if id == 0 {
+			continue
+		}
+		v := HeroInfo[id]
+		HeroOidIndex[HeroOidQualityBegin[v.QualityLevel]+j[v.QualityLevel]] = oid
+		j[v.QualityLevel]++
+	}
+	log.Info("HeroOidIndex", HeroOidIndex)
+
+	for _, hero_oid := range UnchargeInitSeenHeroOid {
+		InitAllHeroOid[hero_oid] = HeroUnchargeSeen
+	}
+
+	log.Info("InitALLHeroOid", InitAllHeroOid)
+}
+
+func IsTrueHeroGuanqia(sid int) bool {
+	_, ok := TrueHeroGuanqia[sid]
+	return ok
+}
+
+var (
+	AllArmEquipQuests   []int
+	AllHeroEvolveQuests []int
+)
+
+func InitQuest() {
+	for qid, v := range Quest {
+		if v.Needpushreward == QuestMold_HeroAdvance {
+			AllHeroEvolveQuests = append(AllHeroEvolveQuests, qid)
+		}
+
+		if v.Needpushreward == QuestMold_ArmEquip {
+			AllArmEquipQuests = append(AllArmEquipQuests, qid)
+		}
+	}
+
+	log.Info("AllHeroEvolveQuests", AllHeroEvolveQuests)
+	log.Info("AllArmEquipQuests", AllArmEquipQuests)
+}
+
+func init() {
+	ChapterInfo = make(map[int]chapterInfo)
+	ChapterGuanQiaInfo = make(map[int]chapterGuanQiaInfo)
+	GuanqiaInfo = make(map[int]guanqiaInfo)
+	DanboInfo = make(map[int]danboInfo)
+	ArmInfo = make(map[int]armInfo)
+	HeroInfo = make(map[int]heroInfo)
+	EnemyUnit = make(map[int]enemyUnit)
+	Quest = make(map[int]quest)
+	BossGuanQiaInfo = make(map[int]bossGuanQiaInfo)
+	FinalChapter = 7
+	SimpleNeedRecord = make(map[int]bool)
+	C_Sguanqia = make(map[int]int)
+
+	TrueHeroGuanqia = make(map[int]bool)
+	WeaponInfo	= make(map[int]weaponInfo)
+
+	//ChallengeGuanqiaInfo = make(map[int]scatteredGuanqiaInfo)
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /*
 func LoadSystemData() bool {
@@ -1261,205 +1542,3 @@ func LoadSystemData() bool {
 
 	return true
 }*/
-
-/****************** Oid *******************/
-const (
-	HeroIdNum     = 500
-	HeroOrigIdNum = 100
-	HeroOidNum    = 100
-
-	ArmIdNum     = 1000
-	ArmOrigIdNum = 500
-	ArmOidNum    = 500
-
-	StarNum    = 4
-	QualityNum = 5
-)
-
-var (
-	ArmOidIndex               [ArmOidNum]int
-	ArmOidStarAndQualityCount [StarNum + 1][QualityNum + 1]int
-	ArmOidStarAndQualityBegin [StarNum + 1][QualityNum + 1]int
-	InitAllArmOid             [ArmOidNum]int
-	ArmMinIdOfOid             [ArmOidNum]int
-
-	HeroOidIndex        [HeroIdNum]int
-	HeroOidQualityCount [QualityNum + 1]int
-	HeroOidQualityBegin [QualityNum + 1]int
-	InitAllHeroOid      [HeroOidNum]int
-	HeroMinIdOfOid      [HeroOidNum]int
-)
-
-func InitRandomArmOid() {
-	for armid, v := range ArmInfo {
-		if v.StarsNeed != 0 {
-			ArmOriginalId[v.OriginalId][v.QualityLevel] = armid
-		}
-
-		if v.CanPick == 0 {
-			InitAllArmOid[v.OriginalId] = ArmUnGet
-		}
-	}
-
-	for oid := 0; oid < ArmOidNum; oid++ {
-		log.Debug("ArmOriginalId", oid, ArmOriginalId[oid])
-		for q := 0; q <= QualityNum; q++ {
-			if ArmOriginalId[oid][q] != 0 {
-				ArmMinIdOfOid[oid] = ArmOriginalId[oid][q]
-				log.Critical("ArmMinIdOfOid[oid]", oid, ArmMinIdOfOid[oid])
-				break
-			}
-		}
-	}
-
-	for _, id := range ArmMinIdOfOid {
-		if id == 0 {
-			continue
-		}
-
-		q := ArmInfo[id].QualityLevel
-		s := ArmInfo[id].StarsNeed
-		ArmOidStarAndQualityCount[s][q]++
-	}
-	log.Critical("ArmOidStarAndQualityCount", ArmOidStarAndQualityCount)
-
-	for star := 1; star < 5; star++ {
-		ArmOidStarAndQualityBegin[star][0] = ArmOidStarAndQualityBegin[star-1][5] + ArmOidStarAndQualityCount[star-1][5]
-		for quality := int(1); quality < 6; quality++ {
-			ArmOidStarAndQualityBegin[star][quality] = ArmOidStarAndQualityCount[star][quality-1] + ArmOidStarAndQualityBegin[star][quality-1]
-		}
-	}
-	log.Critical("ArmOidStarAndQualityBegin", ArmOidStarAndQualityBegin)
-
-	var i [5][6]int
-	for oid, id := range ArmMinIdOfOid {
-		if id == 0 {
-			continue
-		}
-		v := ArmInfo[id]
-		index := ArmOidStarAndQualityBegin[v.StarsNeed][v.QualityLevel] + i[v.StarsNeed][v.QualityLevel]
-		ArmOidIndex[index] = oid
-		i[v.StarsNeed][v.QualityLevel]++
-	}
-	log.Critical("ArmOidIndex", ArmOidIndex)
-
-	//for _, arm_oid := range InitUnGetArmOidByGold {
-	//	InitAllArmOid[arm_oid] = ArmUnGet
-	//}
-
-	for star := 1; star < 5; star++ {
-		ArmStarAndQualityBegin[star][0] = ArmStarAndQualityBegin[star-1][5] + ArmStarAndQualityCount[star-1][5]
-		for quality := int(1); quality < 6; quality++ {
-			ArmStarAndQualityBegin[star][quality] = ArmStarAndQualityCount[star][quality-1] + ArmStarAndQualityBegin[star][quality-1]
-		}
-	}
-
-	var ii [5][6]int
-	for armid, v := range ArmInfo {
-		if v.StarsNeed == 0 {
-			continue
-		}
-		ArmIndex[ArmStarAndQualityBegin[v.StarsNeed][v.QualityLevel]+ii[v.StarsNeed][v.QualityLevel]] = armid
-		ii[v.StarsNeed][v.QualityLevel]++
-	}
-	log.Debug("ArmCount", ArmStarAndQualityCount)
-	log.Debug("ArmBegin", ArmStarAndQualityBegin)
-	log.Debug("ArmIndex", ArmIndex)
-
-	log.Critical("hzz", InitAllArmOid)
-}
-
-func InitRandomHeroOid() {
-	for heroid, v := range HeroInfo {
-		HeroOriginalId[v.OriginalId][v.QualityLevel] = heroid
-		if v.CanPick == 0 {
-			//InitAllHeroOid[v.OriginalId] = HeroUnGet
-		}
-	}
-
-	for oid := 0; oid < HeroOidNum; oid++ {
-		for q := 0; q <= QualityNum; q++ {
-			if HeroOriginalId[oid][q] != 0 {
-				HeroMinIdOfOid[oid] = HeroOriginalId[oid][q]
-				log.Critical("HeroMinIdOfOid[oid]", oid, HeroMinIdOfOid[oid])
-				break
-			}
-		}
-	}
-
-	for _, id := range HeroMinIdOfOid {
-		if id == 0 {
-			continue
-		}
-		q := HeroInfo[id].QualityLevel
-		HeroOidQualityCount[q]++
-	}
-	log.Critical("HeroOidQualityCount", HeroOidQualityCount)
-
-	for quality := 1; quality < 6; quality++ {
-		HeroOidQualityBegin[quality] = HeroOidQualityCount[quality-1] + HeroOidQualityBegin[quality-1]
-	}
-	log.Critical("HeroOidQualityBegin", HeroOidQualityBegin)
-
-	var j [6]int
-	for oid, id := range HeroMinIdOfOid {
-		if id == 0 {
-			continue
-		}
-		v := HeroInfo[id]
-		HeroOidIndex[HeroOidQualityBegin[v.QualityLevel]+j[v.QualityLevel]] = oid
-		j[v.QualityLevel]++
-	}
-	log.Critical("HeroOidIndex", HeroOidIndex)
-
-	for _, hero_oid := range UnchargeInitSeenHeroOid {
-		InitAllHeroOid[hero_oid] = HeroUnchargeSeen
-	}
-
-	log.Critical("hzz_InitALLHeroOid", InitAllHeroOid)
-}
-
-func IsTrueHeroGuanqia(sid int) bool {
-	_, ok := TrueHeroGuanqia[sid]
-	return ok
-}
-
-var (
-	AllArmEquipQuests   []int
-	AllHeroEvolveQuests []int
-)
-
-func InitQuest() {
-	for qid, v := range Quest {
-		if v.Needpushreward == QuestMold_HeroAdvance {
-			AllHeroEvolveQuests = append(AllHeroEvolveQuests, qid)
-		}
-
-		if v.Needpushreward == QuestMold_ArmEquip {
-			AllArmEquipQuests = append(AllArmEquipQuests, qid)
-		}
-	}
-
-	log.Info("AllHeroEvolveQuests", AllHeroEvolveQuests)
-	log.Info("AllArmEquipQuests", AllArmEquipQuests)
-}
-
-func init() {
-	ChapterInfo = make(map[int]chapterInfo)
-	ChapterGuanQiaInfo = make(map[int]chapterGuanQiaInfo)
-	GuanqiaInfo = make(map[int]guanqiaInfo)
-	DanboInfo = make(map[int]danboInfo)
-	ArmInfo = make(map[int]armInfo)
-	HeroInfo = make(map[int]heroInfo)
-	EnemyUnit = make(map[int]enemyUnit)
-	Quest = make(map[int]quest)
-	BossGuanQiaInfo = make(map[int]bossGuanQiaInfo)
-	FinalChapter = 7
-	SimpleNeedRecord = make(map[int]bool)
-	C_Sguanqia = make(map[int]int)
-
-	TrueHeroGuanqia = make(map[int]bool)
-	WeaponInfo	= make(map[int]weaponInfo)
-
-	//ChallengeGuanqiaInfo = make(map[int]scatteredGuanqiaInfo)
-}

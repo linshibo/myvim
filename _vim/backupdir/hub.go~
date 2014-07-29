@@ -1,400 +1,419 @@
-package hub
+package gameserver
 
 import (
-    "encoding/json"
-    //"net"
-    "sanguo/base/log"
-    //"github.com/golang/log"
-    "GameHub/asynserver"
-    "GameHub/db"
-    //"fmt"
-    "sanguo/base/packet"
-    //"strconv"
-    //"strings"
-    //"sync"
+	"encoding/binary"
+	"encoding/json"
+	"io"
+	"net"
+	//"os"
+	"sanguo/base/log"
+	"sanguo/base/packet"
+	"sanguo/config"
+	"time"
 )
 
-func UserGetServerId(sess *asynserver.Session, reader *packet.Packet, cmd uint16) bool {
-    gmSess := CM.GetConn(GMServerID)
-    if gmSess != nil {
-        if gmSess == sess {
-            type data struct {
-                Name string
-            }
-            var msg data
-            err := json.Unmarshal(reader.Data[reader.Pos:], &msg)
-            if err != nil {
-                log.Error("Can't decode json message, err = ", err)
-                return true
-            }
-            uid := db.GetUid(msg.Name)
-            in := make(map[string]interface{})
-            if uid == 0 {
-                log.Error("uid not exist", uid, msg.Name)
-                in["sid"] = 0
-                in["uid"] = 0
-            } else {
-                in["sid"] = db.GetServerid(uid)
-                in["uid"] = uid
-
-            }
-            back_json, err := json.Marshal(in)
-            if err != nil {
-                log.Error("Can't decode json message", err)
-                return true
-            }
-            SendToSession(sess, 0, back_json)
-        }
-    }
-    return true
+type _request struct {
+	data IPCMsg
+	sync chan []byte
+	op   int
 }
 
-func UserTransmit(sess *asynserver.Session, reader *packet.Packet, cmd uint16) bool {
-    log.Debug("UserChat")
-    type IPCMsg struct {
-        SrcID    int
-        DestID   int
-        Op       int
-        CastType int
-        Content  []byte
-        Time     int64
-    }
-    var msg IPCMsg
-    err := json.Unmarshal(reader.Data[reader.Pos:], &msg)
-    if err != nil {
-        log.Error("Can't decode json message, err = ", err)
-        return true
-    }
-    other := CM.GetConn(db.GetServerid(msg.DestID))
-    if other != nil {
-        SendToSession(other, cmd+1, reader.Data[reader.Pos:])
-    }
-    return true
+type _transport struct {
+	data []byte
+	op   int
+	flag int
 }
 
-const (
-    Success               = 0
-    PlayerNotOnline       = 1
-    ErrorNameNotExist     = 5
-    ErrorOperationTrouble = 6
-)
-
-func AllUserAdd(sess *asynserver.Session, reader *packet.Packet, cmd uint16) bool {
-    gmSess := CM.GetConn(GMServerID)
-    if gmSess != nil {
-        if gmSess == sess {
-            for i := range CM.connSlice {
-                if CM.connSlice[i].sess != nil && CM.connSlice[i].ID != GMServerID {
-                    SendToSession(CM.connSlice[i].sess, AllUserAddCmd, reader.Data[reader.Pos:])
-                }
-            }
-            back := make(map[string]interface{})
-            back["ret"] = 0
-            back_json, err := json.Marshal(back)
-            if err != nil {
-                log.Error("Can't decode json message", err)
-                return false
-            }
-            SendToSession(sess, AllUserAddCmd, back_json)
-        }
-    }
-    return true
-
+type HubClient struct {
+	conn   net.Conn
+	hub    chan []byte
+	listen chan _transport
+	api    chan _request
 }
 
-func AddSoldier(sess *asynserver.Session, reader *packet.Packet, cmd uint16) bool {
-    gmSess := CM.GetConn(GMServerID)
-    if gmSess != nil {
-        if gmSess == sess {
-            type data struct {
-                Name  string
-                Level int
-                Id    int
-                Type  int
-            }
-            var msg data
-            err := json.Unmarshal(reader.Data[reader.Pos:], &msg)
-            if err != nil {
-                log.Error("Can't decode json message, err = ", err)
-                return true
-            }
-            uid := db.GetUid(msg.Name)
-            if uid == 0 {
-                log.Error("uid not exist", uid, msg.Name)
-                return true
-            } else {
-                other := CM.GetConn(db.GetServerid(uid))
-                if other == nil {
-                    log.Error("not find server by uid ", uid)
-                    return true
-                } else {
-                    in := make(map[string]interface{})
-                    in["uid"] = uid
-                    in["level"] = msg.Level
-                    in["Id"] = msg.Id
-                    in["Type"] = msg.Type
-                    back_json, err := json.Marshal(in)
-                    if err != nil {
-                        log.Error("Can't decode json message", err)
-                        return true
-                    }
-                    SendToSession(other, AddSoldierCmd, back_json)
-                    //back["ret"] = 0
-                }
-            }
-        } else {
-            SendToSession(gmSess, AddSoldierCmd, reader.Data[reader.Pos:])
-        }
-    }
-    return true
+var Hub HubClient
+
+func NewHub() HubClient {
+	var hub HubClient
+	hub.conn = nil
+	hub.hub = make(chan []byte, 2000)
+	hub.listen = make(chan _transport, 2000)
+	hub.api = make(chan _request, 2000)
+	return hub
 }
 
-func SkipGuanqia(sess *asynserver.Session, reader *packet.Packet, cmd uint16) bool {
-    gmSess := CM.GetConn(GMServerID)
-    if gmSess != nil {
-        if gmSess == sess {
-            type data struct {
-                Name    string
-                Chapter int
-                C_guan  int
-                S_guan  int
-            }
-            var msg data
-            err := json.Unmarshal(reader.Data[reader.Pos:], &msg)
-            if err != nil {
-                log.Error("Can't decode json message, err = ", err)
-                return true
-            }
-            //back := make(map[string]interface{})
-            uid := db.GetUid(msg.Name)
-            if uid == 0 {
-                log.Error("name not exist ", msg.Name)
-                //back["ret"] = ErrorNameNotExist
-                return true
-            } else {
-                other := CM.GetConn(db.GetServerid(uid))
-                if other == nil {
-                    log.Error("not find server by uid ", uid, db.GetServerid(uid))
-                    //back["ret"] = ErrorOperationTrouble
-                    return true
-                } else {
-                    in := make(map[string]interface{})
-                    in["uid"] = uid
-                    in["chapter"] = msg.Chapter
-                    in["c_guan"] = msg.C_guan
-                    in["s_guan"] = msg.S_guan
-                    back_json, err := json.Marshal(in)
-                    if err != nil {
-                        log.Error("Can't decode json message", err)
-                        return true
-                    }
-                    SendToSession(other, SkipGuanqiaCmd, back_json)
-                    //back["ret"] = 0
-                }
-            }
-        } else {
-            SendToSession(gmSess, SkipGuanqiaCmd, reader.Data[reader.Pos:])
-        }
-    }
-    return true
+func (this *HubClient) SetTCP(conn net.Conn) {
+	this.conn = conn
 }
 
-func UserAdd(sess *asynserver.Session, reader *packet.Packet, cmd uint16) bool {
-    gmSess := CM.GetConn(GMServerID)
-    if gmSess != nil {
-        if gmSess == sess {
-            type data struct {
-                Name  string
-                Type  int
-                Value int
-            }
-            var msg data
-            err := json.Unmarshal(reader.Data[reader.Pos:], &msg)
-            if err != nil {
-                log.Error("Can't decode json message ", string(reader.Data[reader.Pos:]), err)
-                return true
-            }
-            //back := make(map[string]interface{})
-            uid := db.GetUid(msg.Name)
-            if uid == 0 {
-                log.Error("name not exist ", msg.Name)
-                //back["ret"] = ErrorNameNotExist
-                return true
-            } else {
-                other := CM.GetConn(db.GetServerid(uid))
-                if other == nil {
-                    log.Error("not find server by uid ", uid)
-                    //back["ret"] = ErrorOperationTrouble
-                    return true
-                } else {
-                    in := make(map[string]interface{})
-                    in["uid"] = uid
-                    in["type"] = msg.Type
-                    in["value"] = msg.Value
-                    back_json, err := json.Marshal(in)
-                    if err != nil {
-                        log.Error("Can't decode json message", err)
-                        return true
-                    }
-                    SendToSession(other, UserAddCmd, back_json)
-                    //back["ret"] = 0
-                }
-            }
-        } else {
-            SendToSession(gmSess, UserAddCmd, reader.Data[reader.Pos:])
-        }
-    }
-    return true
-}
-func CheckUserOnline(sess *asynserver.Session, reader *packet.Packet, cmd uint16) bool {
-    log.Debug("CheckUserOnline")
-    gmSess := CM.GetConn(GMServerID)
-    if gmSess != nil {
-        if gmSess == sess {
-            //from gm
-            type data struct {
-                Name string
-            }
-            var msg data
-            err := json.Unmarshal(reader.Data[reader.Pos:], &msg)
-            if err != nil {
-                log.Error("Can't decode json message, err = ", err)
-                return true
-            }
-            uid := db.GetUid(msg.Name)
-            if uid == 0 {
-                log.Error("name not exist ", msg.Name)
-            } else {
-                other := CM.GetConn(db.GetServerid(uid))
-                if other == nil {
-                    log.Error("not find server by uid ", uid, db.GetServerid(uid))
-                } else {
-                    in := make(map[string]interface{})
-                    in["uid"] = uid
-                    log.Debug(in)
-                    back_json, err := json.Marshal(in)
-                    if err != nil {
-                        log.Error("Can't decode json message", err)
-                        return true
-                    }
-                    log.Debug(string(back_json))
-                    SendToSession(other, CheckUserOnlineCmd, back_json)
-                }
-            }
-        } else {
-            //from server
-            log.Debug(string(reader.Data[reader.Pos:]))
-            SendToSession(gmSess, CheckUserOnlineCmd, reader.Data[reader.Pos:])
-        }
-    }
-    return true
+type HubLoginOut struct {
+	ID int
 }
 
-func QueryUserInfo(sess *asynserver.Session, reader *packet.Packet, cmd uint16) bool {
-    log.Debug("QueryUserInfo")
-    gmSess := CM.GetConn(GMServerID)
-    if gmSess != nil {
-        if gmSess == sess {
-            //from gm
-            type data struct {
-                Name string
-            }
-            var msg data
-            err := json.Unmarshal(reader.Data[reader.Pos:], &msg)
-            if err != nil {
-                log.Error("Can't decode json message, err = ", err)
-                return true
-            }
-            uid := db.GetUid(msg.Name)
-            if uid == 0 {
-                log.Error("name not exist ", msg.Name)
-            } else {
-                other := CM.GetConn(db.GetServerid(uid))
-                if other == nil {
-                    log.Error("not find server by uid ", uid)
-                } else {
-                    in := make(map[string]interface{})
-                    in["uid"] = uid
-                    back_json, err := json.Marshal(in)
-                    if err != nil {
-                        log.Error("Can't decode json message", err)
-                        return true
-                    }
-                    SendToSession(other, QueryUserInfoCmd, back_json)
-                }
-            }
-        } else {
-            //from server
-            //log.Debug(string(reader.Data[reader.Pos:]))
-            SendToSession(gmSess, QueryUserInfoCmd, reader.Data[reader.Pos:])
-        }
-    }
-    return true
+type HubLoginIn struct {
+	ID int
 }
 
-func GetPlayerBattleInfo(sess *asynserver.Session, reader *packet.Packet, cmd uint16) bool {
-    type IPCMsg struct {
-        UID int
-    }
-    var msg IPCMsg
-    err := json.Unmarshal(reader.Data[reader.Pos:], &msg)
-    if err != nil {
-        log.Error("Can't decode json message, err = ", err)
-        return true
-    }
-    other := CM.GetConn(db.GetServerid(msg.UID))
-    if other != nil {
-        SendToSession(other, uint16(ReplyGetPlayerBattleInfoCmd), reader.Data[reader.Pos:])
-    }
-    return true
-}
+func HubStart() {
+	Hub = NewHub()
+	go Hub.handleHub()
 
-func ReplyGetPlayerBattleInfo(sess *asynserver.Session, reader *packet.Packet, cmd uint16) bool {
-    type IPCMsg struct {
-        UID   int
-        Level int
-    }
-    var msg IPCMsg
-    err := json.Unmarshal(reader.Data[reader.Pos:], &msg)
-    if err != nil {
-        log.Error("Can't decode json message, err = ", err)
-        return true
-    }
-    other := CM.GetConn(db.GetServerid(msg.UID))
-    if other != nil {
-        SendToSession(other, uint16(GetPlayerBattleInfoCmd), reader.Data[reader.Pos:])
-    }
-    return true
+	for {
+		log.Info("Will Dial Hub")
+		hubconn, err := net.Dial("tcp", config.Config.HubAddr)
+		if err != nil {
+			log.Error("Failed dial hub", err)
+			time.Sleep(3 * time.Second)
+			continue
+		}
+
+		Hub.SetTCP(hubconn)
+		log.Info("Dial Hub Success")
+
+		var data HubLoginOut
+		data.ID = config.Config.GSID
+		data_json, err := json.Marshal(data)
+		if err != nil {
+			log.Error("Can't decode json message in UserStartFight", err)
+			return
+		}
+
+		writer := packet.Writer()
+		// length in the head is only the length of data
+		writer.WriteU16(uint16(len(data_json)))
+
+		writer.WriteU16(1)
+
+		writer.WriteU16(uint16(0))
+		writer.WriteRawBytes(data_json)
+
+		_, err = hubconn.Write(writer.Data)
+		if err != nil {
+			log.Error("Failed send hub login info", err)
+			continue
+		}
+
+		header := make([]byte, 2)
+		for {
+			/**block until recieve len(header)**/
+			// 对方主动关闭我能够立刻知道，因为会有三次握手，发送FIN信号，但是如果网络断了则不会立刻知道
+			n, err := io.ReadFull(hubconn, header)
+			if n == 0 && err == io.EOF {
+				//Opposite socket is closed
+				log.Debug("Socket closed and read 0 and eof")
+				break
+			} else if err != nil {
+				//Sth wrong with this socket
+				log.Debug("Socket read wrong", err)
+				break
+			}
+
+			//data length is in header, and flag + opcode is 4
+			size := binary.LittleEndian.Uint16(header) + 4
+
+			data := make([]byte, size)
+			n, err = io.ReadFull(hubconn, data)
+			if n == 0 && err == io.EOF {
+				log.Debug("Socket closed")
+				break
+			} else if err != nil {
+				log.Debug("Socket wrong", err)
+				break
+			}
+			Hub.hub <- data //send data to Client to process
+		}
+	}
 
 }
 
-func ServerRegister(sess *asynserver.Session, reader *packet.Packet, cmd uint16) bool {
-    type data struct {
-        Id int
-    }
-    var msg data
-    log.Debug("ServerReigster", reader.Data[reader.Pos:], sess.Conn.RemoteAddr())
-    err := json.Unmarshal(reader.Data[reader.Pos:], &msg)
-    if err != nil {
-        log.Error("Can't decode json message, err = ", err)
-        return true
-    }
-    CM.RegisterConn(int(msg.Id), sess)
-    SendToSession(sess, ServerRegisterCmd+1, reader.Data[reader.Pos:])
-    return true
+func (this *HubClient) Send(data []byte) (err error) {
+	_, err = this.conn.Write(data)
+	return
 }
 
-func DoPProf(sess *asynserver.Session, reader *packet.Packet, cmd uint16) bool {
-    gmSess := CM.GetConn(GMServerID)
-    if gmSess != nil {
-        if gmSess == sess {
-            for i := range CM.connSlice {
-                if CM.connSlice[i].sess != nil && CM.connSlice[i].ID != GMServerID {
-                    SendToSession(CM.connSlice[i].sess, DoPProfCmd, reader.Data[reader.Pos:])
-                }
-            }
-        }
-    }
-    return true
+func (this *HubClient) SendAPI(data []byte, op int) (err error) {
+	writer := packet.Writer()
+	// length in the head is only the length of data
+	writer.WriteU16(uint16(len(data)))
 
+	writer.WriteU16(uint16(op))
+
+	writer.WriteU16(uint16(0))
+
+	writer.WriteRawBytes(data)
+
+	_, err = this.conn.Write(writer.Data)
+
+	return
+}
+
+func (this *HubClient) handleHub() {
+	wait_sync := make(map[int]chan []byte)
+	ack := 0
+	for {
+		select {
+		case hub_data, ok := <-this.hub: //msg from hub
+			if !ok {
+				log.Error("The hub connection break")
+				return
+			}
+
+			reader := packet.Reader(hub_data)
+			op, err := reader.ReadU16()
+			if err != nil {
+				log.Error("Can't read the opcode")
+				continue
+			}
+
+			if op&0xf000 != 0 {
+				/******************************
+					GM order
+				*******************************/
+				GMProxy(hub_data, int(op))
+			}
+
+			var ipc IPCMsg
+			err = json.Unmarshal(hub_data[4:], &ipc)
+			if err != nil {
+				log.Error("Can't decode json message of ipc", err)
+				continue
+			}
+
+			if !PlayerManager.IsUserLocal(ipc.DestID) {
+				log.Warn("The DestID is not here")
+				continue
+			}
+
+			if op%2 != 0 {
+				/***********************
+					HUB return msg
+				***********************/
+				if ipc.CastType != 0 {
+					sync, ok := wait_sync[ipc.CastType]
+					if !ok {
+						log.Debug("Wrong or Expired flag")
+						continue
+					}
+
+					//sync <- hub_data[4:]
+					sync <- ipc.Content
+					continue
+				}
+			}
+
+			/************************************
+				HUB send msg
+			*************************************/
+			_HubProxy(&ipc)
+
+		case listen_data, ok := <-this.listen: //msg from player goroutine
+			if !ok {
+				log.Error("The listen is break which should not happen")
+				return
+			}
+
+			err := this.SendAPI(listen_data.data, listen_data.op)
+			if err != nil {
+				log.Info("Send2HubErr", err)
+				this.conn.Close()
+			}
+
+		case api_data, ok := <-this.api: //msg from player call api
+			if !ok {
+				log.Error("The api channel is close which should not happen")
+				return
+			}
+			ack++
+			if ack == 0 {
+				ack++
+			}
+			wait_sync[ack] = api_data.sync
+
+			api_data.data.CastType = ack
+
+			data_json, _ := json.Marshal(api_data.data)
+
+			err := this.SendAPI(data_json, api_data.op)
+			if err != nil {
+				log.Info("API2HubErr", err)
+				this.conn.Close()
+			}
+		}
+	}
+}
+
+func CallAPIHub(data *IPCMsg, op int) []byte {
+	defer func() {
+		if x := recover(); x != nil {
+			log.Warn("CallAPIHubb Panic", x)
+		}
+	}()
+	/*data_json, err := json.Marshal(data)
+	if err != nil {
+		log.Error("Can't decode json message in UserStartFight", err)
+		return nil
+	}*/
+
+	var r _request
+	r.data = *data
+	r.op = op
+	r.sync = make(chan []byte, 1)
+
+	Hub.api <- r
+
+	select {
+	case msg := <-r.sync:
+		return msg
+	case <-time.After(time.Second * 10):
+		log.Error("The HUB is not response")
+		return nil
+	}
+	return nil
+}
+
+func SendToHub(data interface{}, op int) bool {
+	defer func() {
+		if x := recover(); x != nil {
+			log.Warn("SendToHub Panic", x)
+		}
+	}()
+
+	data_json, err := json.Marshal(data)
+	if err != nil {
+		log.Error("Can't decode json message in UserStartFight", err)
+		return false
+	}
+
+	var t _transport
+	t.data = data_json
+	t.op = op
+	t.flag = 0
+
+	select {
+	case Hub.listen <- t:
+
+	case <-time.After(10 * time.Second):
+		panic("Dead lock in SendToHub, mean hub.listen is closed")
+	}
+
+	return true
+}
+
+func _HubProxy(ipc *IPCMsg) bool {
+	log.Debug("TheRecvIPCMsgOpcodeIs", ipc.Op, string(ipc.Content))
+	handle := HubHandler[ipc.Op]
+	if handle == nil {
+		log.Error("Failed find response handle function")
+		return false
+	}
+
+	handle(ipc)
+
+	back_val := handle(ipc)
+	log.Debug("The back_val is", back_val)
+
+	if back_val == nil {
+		return true
+	}
+
+	back_json, _ := json.Marshal(back_val)
+
+	var back IPCMsg
+
+	back.SrcID = ipc.DestID
+	back.DestID = ipc.SrcID
+	back.CastType = ipc.CastType
+	back.Op = ipc.Op
+	back.Content = back_json
+	back.Time = GetCurrentTime()
+
+	log.Debug("The back of _HubProxy is", back.SrcID, back.DestID, back.Op, string(back.Content))
+	return SendToHub(back, back.Op-1)
+}
+
+func GMProxy(data []byte, op int) bool {
+	handle := GMHandler[op]
+
+	log.Debug("RecvGMMsg", op)
+	log.Trace(string(data))
+
+	if handle == nil {
+		log.Error("Failed found handle", op)
+		return false
+	}
+
+	return handle(data[4:])
+}
+
+func HubLogin(ipc *IPCMsg) interface{} {
+	var msg HubLoginIn
+	err := json.Unmarshal(ipc.Content, &msg)
+	if err != nil {
+		log.Error("Can't decode json message,", err)
+		return false
+	}
+
+	if msg.ID != config.Config.GSID {
+		log.Error("HubLogin err, recv GSID and local GSID is", msg.ID, config.Config.GSID)
+		return false
+	}
+
+	log.Info("HubLogin Success")
+	return true
+}
+
+func Deliver(ipc *IPCMsg) interface{} {
+	IPCSendLocal(ipc)
+
+	return nil
+}
+
+func HubQueryUserFormation(ipc *IPCMsg) interface{} {
+	return GetFormationArmByUID(ipc.DestID)
+}
+
+func HubGetRandomHero(ipc *IPCMsg) interface{} {
+	user := PlayerManager.GetUserByUid(ipc.DestID)
+	return user.Hero.GetRandomHero()
+}
+
+type BackPlayerInfo struct {
+	Photo string
+	Sid   int
+}
+
+func HubGetUserInfo(ipc *IPCMsg) interface{} {
+	log.Debug("Will use HubGetUserInfo")
+	user := PlayerManager.GetUserByUid(ipc.DestID)
+
+	var back BackPlayerInfo
+	back.Sid = user.s_guanqia
+	back.Photo = user.photo
+	return back
+}
+
+var HubHandler map[int]func(*IPCMsg) interface{}
+var GMHandler map[int]func([]byte) bool
+
+func init() {
+
+	HubHandler = make(map[int]func(*IPCMsg) interface{})
+	GMHandler = make(map[int]func([]byte) bool)
+	HubHandler[2] = HubLogin
+	HubHandler[4] = HubQueryUserFormation
+	HubHandler[61] = Deliver
+	HubHandler[62] = Deliver
+	HubHandler[64] = Deliver
+	HubHandler[66] = Deliver
+	//有返回值的opcode必须是奇数
+	HubHandler[111] = HubGetRandomHero
+	HubHandler[113] = HubGetUserInfo
+
+	GMHandler[0xf001] = GMPlayerOnline
+	GMHandler[0xf002] = GMUserAdd
+	GMHandler[0xf003] = GMUserGuanqia
+	GMHandler[0xf004] = GMUserAddCard
+	GMHandler[0xf005] = GMUserInfo
+	GMHandler[0xf007] = GMUserAllReward
+	GMHandler[0xf008] = GMDoPProf
 }

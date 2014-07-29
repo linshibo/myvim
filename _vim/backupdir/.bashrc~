@@ -1,4 +1,7 @@
 source ~/myvim/bashrc
-alias c240="ssh frank@42.62.67.240"
+#alias c240="ssh frank@42.62.67.240"
 export PATH=$PATH:$HOME/work/bin/
 alias vi="/usr/local/bin/vim"
+alias cdw="cd ~/work/src"
+
+alias_comm_cmd 240 '' root  42.62.67 22 feixiong_httpserver
