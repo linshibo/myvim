@@ -36,11 +36,13 @@ Bundle 'vim-scripts/ack.vim'
 Bundle 'Lokaltog/vim-powerline'
 Bundle 'Lokaltog/vim-easymotion'
 Bundle 'Shougo/unite.vim'
+
 if has('lua') && version >= 703
     Bundle 'Shougo/neocomplete'
 else
     Bundle 'Shougo/neocomplcache'
 endif
+
 Bundle 'tpope/vim-surround'
 Bundle 'bootleq/vim-cycle'
 Bundle 'kana/vim-smartword'
@@ -225,16 +227,6 @@ set tm=500
 
 " Highlight VCS conflict markers
 syn match ErrorMsg '^\(<\|=\|>\)\{7}\([^=].\+\)\?$'
-
-"" for error highlight，防止错误整行标红导致看不清
-highlight clear SpellBad
-highlight SpellBad term=standout ctermfg=1 term=underline cterm=underline
-highlight clear SpellCap
-highlight SpellCap term=underline cterm=underline
-highlight clear SpellRare
-highlight SpellRare term=underline cterm=underline
-highlight clear SpellLocal
-highlight SpellLocal term=underline cterm=underline"
 
 "vimtips 
 command! -nargs=0 VIMTIPS  :tabe | :r ! w3m -dump http://zzapper.co.uk/vimtips.html 
@@ -720,7 +712,7 @@ autocmd BufEnter *  set tabstop=4
 """"""""""""
 "c c++
 """"""""""""
-"autocmd BufEnter  *.cpp,*.c,*.h call s:SET_PATH("include") 
+autocmd BufEnter  *.cpp,*.c,*.h call s:SET_PATH("include") 
 autocmd FileType c set omnifunc=ccomplete#Complete
 ".c  .h 文件设为 .cpp
 autocmd BufEnter *.c  set filetype=cpp
@@ -901,10 +893,10 @@ function! SET_UAW()
 endfunction
 
 
-"go get -u github.com/jstemmer/gotags
 function! GEN_TAGS() 
     if ( &filetype == "go")
         "silent! execute "! /usr/local/bin/ctags -f gosource.tags -R `pwd`"<CR>
+        "go get -u github.com/jstemmer/gotags
         silent! execute "!gotags  -R=true `pwd`  >.gosource.tags"
         exec "redraw!"
     endif
