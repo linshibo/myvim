@@ -36,11 +36,13 @@ Bundle 'vim-scripts/ack.vim'
 Bundle 'Lokaltog/vim-powerline'
 Bundle 'Lokaltog/vim-easymotion'
 Bundle 'Shougo/unite.vim'
+
 if has('lua') && version >= 703
     Bundle 'Shougo/neocomplete'
 else
     Bundle 'Shougo/neocomplcache'
 endif
+
 Bundle 'tpope/vim-surround'
 Bundle 'bootleq/vim-cycle'
 Bundle 'kana/vim-smartword'
@@ -225,16 +227,6 @@ set tm=500
 
 " Highlight VCS conflict markers
 syn match ErrorMsg '^\(<\|=\|>\)\{7}\([^=].\+\)\?$'
-
-"" for error highlight，防止错误整行标红导致看不清
-highlight clear SpellBad
-highlight SpellBad term=standout ctermfg=1 term=underline cterm=underline
-highlight clear SpellCap
-highlight SpellCap term=underline cterm=underline
-highlight clear SpellRare
-highlight SpellRare term=underline cterm=underline
-highlight clear SpellLocal
-highlight SpellLocal term=underline cterm=underline"
 
 "vimtips 
 command! -nargs=0 VIMTIPS  :tabe | :r ! w3m -dump http://zzapper.co.uk/vimtips.html 
@@ -517,7 +509,7 @@ if has('lua') && version >= 703
     " Disable AutoComplPop.
     let g:acp_enableAtStartup = 0
     " Use neocomplete.
-    let g:neocomplete#enable_at_startup = 1
+    let g:neocomplete#enable_at_startup = 0
     " Use smartcase.
     let g:neocomplete#enable_smart_case = 1
     " Set minimum syntax keyword length.
@@ -579,7 +571,7 @@ else
     "neocomplcache{{{
     let g:neocomplcache_enable_quick_match = 1
     " Launches neocomplcache automatically on vim startup.
-    let g:neocomplcache_enable_at_startup = 1
+    let g:neocomplcache_enable_at_startup = 0
     " Use smartcase.
     let g:neocomplcache_enable_smart_case = 1
     " Use camel case completion.
@@ -720,7 +712,7 @@ autocmd BufEnter *  set tabstop=4
 """"""""""""
 "c c++
 """"""""""""
-"autocmd BufEnter  *.cpp,*.c,*.h call s:SET_PATH("include") 
+autocmd BufEnter  *.cpp,*.c,*.h call s:SET_PATH("include") 
 autocmd FileType c set omnifunc=ccomplete#Complete
 ".c  .h 文件设为 .cpp
 autocmd BufEnter *.c  set filetype=cpp
@@ -740,7 +732,7 @@ au BufNewFile,BufRead *.py,*.pyw set filetype=python
 "golang
 """"""""""""
 autocmd BufEnter *.go  set filetype=go
-au Filetype go set makeprg=go\ build\ ./...
+au Filetype go set makeprg=go\ build\ -race\ ./...
 
 """"""""""""
 " HTML 
@@ -901,10 +893,10 @@ function! SET_UAW()
 endfunction
 
 
-"go get -u github.com/jstemmer/gotags
 function! GEN_TAGS() 
     if ( &filetype == "go")
         "silent! execute "! /usr/local/bin/ctags -f gosource.tags -R `pwd`"<CR>
+        "go get -u github.com/jstemmer/gotags
         silent! execute "!gotags  -R=true `pwd`  >.gosource.tags"
         exec "redraw!"
     endif
@@ -926,9 +918,9 @@ function! GEN_C_TAGS()
     if(executable('ctags'))
         silent! execute "!rm -f ./.tags"
         if g:os== 'Linux' 
-            silent! execute "!ctags -R -f .ctags  --languages=c,c++ --c++-kinds=+p --fields=+iaS --extra=+q ."
+            silent! execute "!ctags -R -f .tags  --languages=c,c++ --c++-kinds=+p --fields=+iaS --extra=+q ."
         elseif g:os == 'Darwin' || g:os == 'Mac'
-            silent! execute "!/usr/local/bin/ctags -R -f .ctags --languages=c,c++ --c++-kinds=+p --fields=+iaS --extra=+q ."
+            silent! execute "!/usr/local/bin/ctags -R -f .tags --languages=c,c++ --c++-kinds=+p --fields=+iaS --extra=+q ."
         endif
     endif
     exec "redraw!"

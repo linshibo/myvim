@@ -1,6 +1,0 @@
-#include "test.h"
-#include <iostream>
-int foo(){
-    std::cout<<"nihao"<<std::endl;
-    return 0;
-}

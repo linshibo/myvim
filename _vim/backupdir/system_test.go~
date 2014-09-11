@@ -1,7 +1,0 @@
-package systemdata
-import(
-    "test"
-)
-func test_load(t *testing.T){
-    LoadSystemDataFromConf()
-}
