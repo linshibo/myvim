@@ -1,94 +1,352 @@
 package main
 
 import (
-	"sanguo/base/log"
-	"sanguo/gameserver"
-	"io/ioutil"
-	"os"
-	"sanguo/config"
-	"fmt"
-	"sanguo/db"
-	"runtime/pprof"
-	"runtime"
+    "fmt"
+    "net/http"
+    "os"
+    //"encoding/json"
+    "github.com/Unknwon/goconfig"
+    "github.com/garyburd/redigo/redis"
+	//"math/rand"
+    "sanguo/base/log"
+    "strconv"
+    "time"
 )
 
-func main() {
-	if len(os.Args) != 2 {
-		fmt.Println("Wrong input, please input ' ./sanguo sanguo.conf' ")
-		return
-	}
+const(
+	UidBase = 100000
+)
 
-	content, err := ioutil.ReadFile(os.Args[1])
-	if err != nil {
-		fmt.Println("Failed read configure file",os.Args[1], err)
-		return 
-	}
-	
-	if !config.Load(content) {
-		fmt.Println("Failed load config")
-		return 
-	}
-	
-	runtime.GOMAXPROCS(8)
+var redisPool *redis.Pool
 
-	log.SetLevel(config.Config.LogLevel)
-	
-	filew := log.NewFileWriter(config.Config.LogName, true)
-	err = filew.StartLogger()
-	if err != nil {
-		fmt.Println("Failed start log",err)
-		return
-	}
+// ExistID  @brief   检查机器码是否存在  @return  存在返回0 不存在返回1
+func ExistID(w http.ResponseWriter, r *http.Request) {
+    a, ret := r.URL.Query()["GID"]
+    if !ret || len(a) == 0 {
+		log.Error("url not right")
+		w.Write([]byte("1"))
+        return 
+    }
+    gid := a[0]//机器码
 
-	if config.Config.ProfEnable {
-		f_cpu, err := os.Create(config.Config.CPUProfFile)
-		if err != nil {
-			fmt.Println("Failed open CPUProfile",err)
-			return
-		}
-		
-		err = pprof.StartCPUProfile(f_cpu)
-		if err != nil {
-			fmt.Println("Failed startCPUProfile",err)
-			return
-		}
-		defer pprof.StopCPUProfile()
-		
-		f_mem, err := os.Create(config.Config.MemProfFile)
-		if err != nil {
-			fmt.Println("Failed open MemProfile",err)
-			return
-		}
-		pprof.WriteHeapProfile(f_mem)
-		defer f_mem.Close()		
-	}
-	
-	if !db.Init(){
-		log.Error("Failed Init Redis",err)
-		return 
-	}
+	db := redisPool.Get()
+	defer db.Close()
 
-	//go GM.Start()
-	
-	err = gameserver.PlayerManager.LoadAllPlayerInTheServerStart()
-	if err != nil {
-		fmt.Println("Failed LoadAllPlayer",err)
-		os.Exit(-1)
-	}else {
-		fmt.Println("Load OK")
-	}
+    exist, err := redis.Int(db.Do("HEXISTS", "gateway:gid2sid", gid))
 
-	//go pp.Start()
-	
-	//if !gameserver.StartGameManage() {
-	//	log.Error("Failed StartGameManage")
-	//	return
-	//}
-
-	go gameserver.HubStart()
-	
-	var server gameserver.GameServer
-	server.Host = config.Config.HostAddr
-	server.Start()
+    if err != nil {
+        log.Error("Cant get result of keys", err)
+        w.Write([]byte("1"))
+        return
+    }
+    if exist == 0 {
+        //not exist
+        w.Write([]byte("1"))
+    } else {
+        w.Write([]byte("0"))
+    }
 }
 
+//Merge  将gameid加入绑定
+func Merge(w http.ResponseWriter, r *http.Request) {
+    a, ok1 := r.URL.Query()["ID"]
+    b, ok2 := r.URL.Query()["GID"]
+    if !ok1 || !ok2 || len(a) == 0 || len(b) == 0 {
+        log.Error("url not right")
+        w.Write([]byte("1"))
+        return
+    }
+    gid := a[0]
+    id := b[0]
+    log.Debug("merge", gid, " ", id)
+
+	db := redisPool.Get()
+	defer db.Close()
+
+    reply, err := db.Do("HGET", "gateway:gid2sid", gid)
+    if err != nil {
+        log.Error("Cant get result of keys gid ", gid, err)
+        w.Write([]byte("1"))
+        return
+    }
+    sid, err := redis.Int(reply, nil)
+    if err != nil {
+        log.Error("Cant get result of int", err)
+        w.Write([]byte("1"))
+        return
+    }
+    reply, err = db.Do("HGET", "gateway:gid2uid", gid)
+    if err != nil {
+        log.Error("Cant get result of keys gid ", gid, err)
+        w.Write([]byte("1"))
+        return
+    }
+    uid, err := redis.Int(reply, nil)
+    if err != nil {
+        log.Error("Cant get result of int", err)
+        w.Write([]byte("1"))
+        return
+    }
+    err = db.Send("MULTI")
+    if err != nil {
+        log.Error("transaction start ", err)
+        w.Write([]byte("1"))
+        return
+    }
+    _, err = db.Do("HSET", "gateway:gid2uid", id, uid)
+    if err != nil {
+        log.Error("set gateway:gid2uid ", id, uid, err)
+        w.Write([]byte("1"))
+        return
+    }
+    _, err = db.Do("HSET", "gateway:gid2sid", id, sid)
+    if err != nil {
+        log.Error("set gateway:gid2sid ", id, sid, err)
+        w.Write([]byte("1"))
+        return
+    }
+    err = db.Send("EXEC")
+    if err != nil {
+        log.Error("transaction end", err)
+        w.Write([]byte("1"))
+        return
+    }
+    w.Write([]byte("0"))
+}
+
+func getServerHost(sid int)(string, error){
+	db := redisPool.Get()
+	defer db.Close()
+
+    host, err := redis.String(db.Do("HGET", "gateway:server_host", sid))
+	if err != nil {
+		log.Error("redis", err)
+		return host, err 
+	}
+	return host, nil
+}
+
+func isServerIDValid(sid int)bool{
+	db := redisPool.Get()
+	defer db.Close()
+
+    exist, err := redis.Int(db.Do("HEXISTS", "gateway:server_host", sid))
+	if err != nil {
+		log.Error("redis", err)
+		return false 
+	}
+
+    if exist == 0 {
+        //not exist
+		return false
+	}else{
+		return true
+	}
+}
+
+//GetServer 拉取服务器列表
+func GetServer(w http.ResponseWriter, r *http.Request) {
+	db := redisPool.Get()
+	defer db.Close()
+	reply, err := redis.Strings(db.Do("HGETALL", "gateway:server_host"))
+	if err != nil {
+        log.Error(err)
+        w.Write([]byte("1"))
+		return
+	}
+	ret := ""
+	for i:=0 ; i<len(reply); i+=2 {
+		ret+=fmt.Sprintf("%s %s;",reply[i], reply[+1])
+	}
+	w.Write([]byte(ret))
+}
+
+func GetServerUidIndex(sid int)(int, error){
+	db := redisPool.Get()
+	defer db.Close()
+	idx, err := redis.Int(db.Do("HGET", "gateway:server_uid_index", sid))
+	if err != nil && err != redis.ErrNil {
+		return 0, err
+	}
+	return idx, nil
+}
+
+//GetAddr 获取服务器地址  如果没有注册过就注册
+func GetAddr(w http.ResponseWriter, r *http.Request) {
+    a, ret := r.URL.Query()["ID"]
+    if !ret || len(a) == 0 {
+        log.Error("url not right")
+        w.Write([]byte("1"))
+        return
+    }
+    mid := a[0]//机器码
+
+	var userSid int//用户指定serverid
+
+	a, ret = r.URL.Query()["SID"]
+    if ret && len(a) > 0 {
+		var err error
+		userSid , err = strconv.Atoi(a[0])
+		if err != nil {
+			log.Error("sid not right")
+			w.Write([]byte("1"))
+			return
+		}
+    }
+
+    var host = "error"
+    var sid int
+    log.Debug("getAddr ", mid, userSid)
+
+	db := redisPool.Get()
+	defer db.Close()
+
+    exist, err := redis.Int(db.Do("HEXISTS", "gateway:gid2sid", mid))
+    if err != nil {
+		log.Error("Cant get result of gateway:gid2sid err:", err)
+        w.Write([]byte("1, "))
+        return
+    }
+    if exist == 0 {
+        //not exist
+		if isServerIDValid(userSid) {
+			sid=userSid
+			log.Debug("user serverid ", sid)
+		}else{
+			sid = 1
+			log.Debug("random serverid ", sid)
+		}
+
+        idx , err := GetServerUidIndex(sid) 
+		if err != nil {
+			log.Error("redis GetServerUidIndex err:", err)
+			w.Write([]byte("1, "))
+			return 
+		}
+		idx++
+
+		if idx >= UidBase {
+			log.Error("uid up to the max, cant register", idx)
+			w.Write([]byte("1, "))
+			return
+		}
+
+		uid := idx+sid*UidBase
+		log.Debug("uid", uid)
+
+        //err := db.Send("MULTI")
+        //if err != nil {
+            //log.Error("transaction start ", err)
+            //w.Write([]byte("1, "))
+            //return
+        //}
+        _, err = db.Do("HSET", "gateway:server_uid_index", sid, idx)
+        if err != nil {
+            log.Error("set gateway:server_uid_index", err)
+            w.Write([]byte("1, "))
+            return
+        }
+        _, err = db.Do("HSET", "gateway:uid2sid", uid, sid)
+        if err != nil {
+            log.Error("set gateway:uid2sid ", uid, sid, err)
+            w.Write([]byte("1, "))
+            return
+        }
+        _, err = db.Do("HSET", "gateway:gid2uid", mid, uid)
+        if err != nil {
+            log.Error("set gateway:gid2uid ", mid, uid, err)
+            w.Write([]byte("1, "))
+            return
+        }
+        _, err = db.Do("HSET", "gateway:gid2sid", mid, sid)
+        if err != nil {
+            log.Error("set gateway:gid2sid ", mid, sid, err)
+            w.Write([]byte("1, "))
+            return
+        }
+        //err = db.Send("EXEC")
+        //if err != nil {
+            //log.Error("transaction end", err)
+            //w.Write([]byte("1, "))
+            //return
+        //}
+    } else {
+        //exist
+        sid, err = redis.Int(db.Do("HGET", "gateway:gid2sid", mid))
+        if err != nil {
+            log.Error("Cant get result of keys gateway:gid2sid gid", mid, err)
+            w.Write([]byte("1, "))
+            return
+        }
+    }
+	host , err = getServerHost(sid)
+	if err != nil {
+		log.Error("Cant get server",err)
+		w.Write([]byte("1, "))
+	}
+    w.Write([]byte("0," + host))
+}
+
+func main() {
+    //初始化log
+    log.SetLevel(0)
+    filew := log.NewFileWriter("log", true)
+    filew.StartLogger()
+
+	log.Debug("/************************************************/")
+    log.Debug("SERVER START")
+    cfg, err := goconfig.LoadConfigFile(os.Args[1])
+    if err != nil {
+        fmt.Println("Failed load config file bench.conf", err)
+        return
+    }
+
+    redisHost := cfg.MustValue("", "RedisHost", "")
+	redisPool = &redis.Pool{
+		MaxIdle:     3,
+		IdleTimeout: 240 * time.Second,
+		Dial: func() (redis.Conn, error) {
+			c, err := redis.Dial("tcp", redisHost)
+			if err != nil {
+				log.Error("Failed connect redis", err)
+				fmt.Println("Failed connect redis", err)
+				//os.Exit(-1)
+			}
+			return c, err
+		},
+	}
+	http.HandleFunc("/httpservice/ios/apple/getaddr", GetAddr)
+	http.HandleFunc("/httpservice/ios/apple/merge", Merge)
+	http.HandleFunc("/httpservice/ios/apple/existid", ExistID)
+	http.HandleFunc("/httpservice/ios/apple/getserver", GetServer)
+
+    http.HandleFunc("/httpservice/debug/getaddr", GetAddr)
+    http.HandleFunc("/httpservice/debug/merge", Merge)
+    http.HandleFunc("/httpservice/debug/existid", ExistID)
+    http.HandleFunc("/httpservice/debug/getserver", GetServer)
+
+    http.HandleFunc("/httpservice/ios/itools/getaddr", GetAddr)
+    http.HandleFunc("/httpservice/ios/itools/merge", Merge)
+    http.HandleFunc("/httpservice/ios/itools/existid", ExistID)
+    http.HandleFunc("/httpservice/ios/itools/getserver", GetServer)
+
+    http.HandleFunc("/httpservice/ios/i4/getaddr", GetAddr)
+    http.HandleFunc("/httpservice/ios/i4/merge", Merge)
+    http.HandleFunc("/httpservice/ios/i4/existid", ExistID)
+    http.HandleFunc("/httpservice/ios/i4/getserver", GetServer)
+
+
+    host := cfg.MustValue("", "BindAddr", "")
+    log.Debug("SERVER START SUCC")
+	log.Debug("/************************************************/")
+	fmt.Println("/************************************************/")
+    fmt.Println("Server Start")
+	fmt.Println("Listen : ",host )
+	fmt.Println("Redis host : ",redisHost)
+	fmt.Println("/************************************************/")
+    err = http.ListenAndServe(host, nil)
+    if err != nil {
+        fmt.Println("Http Server Start Fail", err)
+        return
+    }
+}

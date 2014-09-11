@@ -1,108 +1,22 @@
-#include <iostream> 
- 
-extern "C"  
-{  
-    #include "lua.h"  
-    #include "lauxlib.h"  
-    #include "lualib.h"  
-}  
- 
-using namespace std;  
-static int l_sin (lua_State *L)
-{
-    double d = lua_tonumber(L, 1);      /* 不出意外，Lua中的参数也是通过虚拟堆栈传递的。因此C函数必须自己从堆栈中读取参数。注意在Lua中调用函数时是不会做原型检查的，Lua代码调用C函数时传递几个参数，虚拟堆栈中就会有几个参数，因此C代码在从堆栈中读取参数的时候最好自己检查一下堆栈的大小和参数类型是否符合预期。这里为了简化起见我们就不做类型检查了 */
-    d = d*2; /* 这里是C函数实现自己功能的代码 */
-    printf("l_sin  %f", d);
-    lua_pushnumber(L, d);              /* 在完成计算后，只需将结果重新写入虚拟堆栈即可（写入的这个值就是函数的返回值） */
-    return 1;    /* 函数的返回值是函数返回参数的个数。没错，Lua函数可以有多个返回值。 */
+#include <iostream>
+void g() noexcept {
+
 }
- 
-int main(int argc, char* argv[])  
-{  
-    cout << "01_Read_Stack" << endl;  
- 
-    /**//* Create a LUA VMachine */  
-    lua_State *L = lua_open();  
-    luaopen_base(L);  
-    luaopen_table(L);  
-    luaL_openlibs(L);  
-    luaopen_string(L);  
-    luaopen_math(L);  
- 
-    int iError;  
-    iError = luaL_loadfile(L, "./a.lua");  
-    if (iError)  
-    {  
-        cout << "Load script FAILED!" << lua_tostring(L, -1)<< endl;  
-        lua_close(L);  
-        return 1;  
-    }  
-    iError = lua_pcall(L, 0, 0, 0);  
-    if (iError)  
-    {  
-        cout << "pcall FAILED"<< lua_tostring(L, -1)<< iError<< endl;  
-        lua_close(L);  
-        return 1;  
-    }  
-      
-    lua_getglobal(L, "rows");  
-    lua_getglobal(L, "cols");  
- 
-    if (!lua_isnumber(L, -2))  
-   {  
-        cout << "[rows] is not a number" << endl;  
-        lua_close(L);  
-        return 1;  
-    }  
-    if (!lua_isnumber(L, -1))  
-    {  
-        cout << "[cols] is not a number" << endl;  
-        lua_close(L);  
-        return 1;  
-    }  
-    cout << "[rows]"  
-         << static_cast<int> (lua_tonumber(L, -2))  
-         << "[cols]"  
-         << static_cast<int> (lua_tonumber(L, -1))  
-         << endl;  
- 
-    lua_pop(L,2);  
 
-    lua_pushinteger(L, 9);
-    lua_setglobal(L, "rows");
-
-    lua_getglobal(L, "rows");  
-    lua_getglobal(L, "cols");  
-    cout << "[rows]"  
-         << static_cast<int> (lua_tonumber(L, -2))  
-         << "[cols]"  
-         << static_cast<int> (lua_tonumber(L, -1))  
-         << endl;  
-    lua_pop(L,2);  
+template <typename Func>
+void f(Func && func) noexcept(noexcept(func())){
+    func();
+    static_assert(noexcept(func()), "func()");
+} // No error!
+    
+void h() { 
+    f(&g);
+} // No error!
 
 
-    lua_getglobal(L, "plustwo");    /* 首先将lua函数从Lua Space放入虚拟堆栈中 */
-    lua_pushnumber(L, 100.0f);            /* 然后再把所需的参数入栈 */
-    lua_pushnumber(L, 200.0f);
-
-    if (lua_pcall(L, 2, 1, 0) != 0){ /* 使用pcall调用刚才入栈的函数，pcall的参数的含义为：pcall(Lua_state, 参数格式, 返回值个数, 错误处理函数所在的索引)，最后一个参数暂时先忽略 */
-        printf("error running lua function: %s", lua_tostring(L, -1));
-    }
-    double z = lua_tonumber(L, -1);         /* 将函数的返回值读取出来 */
-    lua_pop(L, 1);                   /* 将返回值弹出堆栈，将堆栈恢复到调用前的样子 */
-
-    printf("Return from lua:%f\n", z);
-
-
-    lua_pushcfunction(L, l_sin);
-    lua_setglobal(L, "l_sin");
-
-    lua_getglobal(L, "foo");    /* 首先将lua函数从Lua Space放入虚拟堆栈中 */
-    if (lua_pcall(L, 0, 0, 0) != 0){ /* 使用pcall调用刚才入栈的函数，pcall的参数的含义为：pcall(Lua_state, 参数格式, 返回值个数, 错误处理函数所在的索引)，最后一个参数暂时先忽略 */
-        printf("error running lua function: %s", lua_tostring(L, -1));
-    }
-
-
-    lua_close(L);  
-    return 0;  
-} 
+int main(int argc, char** argv)
+{   
+    static_assert(noexcept(f((&g))), "Error!");
+    std::cout<<noexcept(f((&g)))<<std::endl; 
+    return 0;
+}

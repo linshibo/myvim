@@ -337,11 +337,6 @@ func (this *_HeroManager) AddNewHero(id int, level int, true_flag bool) (err err
 		return err
 	}
 
-	err = this.user.LevelUp()
-	if err != nil {
-		return err
-	}
-
 	err = this.user.RefreshCombatScore()
 	if err != nil {
 		return err
@@ -505,30 +500,38 @@ func (this *_HeroManager) IsKindOwnedByOid(oid int) bool {
 //IsWeaponChipLackOf 判断武器碎片是否缺少
 func (this *_HeroManager) IsAnyWeaponChipLackOf() bool {
 	for k, v := range this.heros {
-		conf, ok := HeroInfo[k]
-		if ok && v.weaponChip < conf.Weapon.UnlockFragmentCount {
+		if conf, ok := HeroInfo[k]; ok {
+			if weapon, ok := WeaponInfo[conf.Weapon]; ok && v.weaponChip < weapon.UnlockFragmentCount {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+//GetHeroChipNeed 判断武将碎片是否足够
+func (this *_HeroManager) IsHeroChipEnough(id int) bool {
+	count, ok := this.heroChip[id]
+	if ok {
+		conf, ok := HeroInfo[id]
+		if ok && count >= conf.FragmentCount {
 			return true
 		}
 	}
 	return false
 }
 
-//GetHeroChipNeed 判断武将碎片是否缺少
-func (this *_HeroManager) IsHeroChipLackOf(id int) bool {
-	count, ok := this.heroChip[id]
-	if ok {
-		conf, ok := HeroInfo[id]
-		if ok && count >= conf.FragmentCount {
-			return false
-		}
-	}
-	return true
-}
-
-func (this *_HeroManager) addWeaponChip(id int, hero _Hero, count int) (err error) {
+func (this *_HeroManager) addWeaponChip(id int, count int) (err error) {
 
 	dbconn := db.Pool.Get()
 	defer dbconn.Close()
+
+	hero, ok := this.heros[id]
+	if !ok {
+		return errors.New("not find hero")
+	}
+
+	this.user.Debug("addWeaponChip ", count, hero.weaponChip)
 
 	_, err = dbconn.Do("HSET", this.user.GetUidUsedInDB()+":hero:"+strconv.Itoa(id), "weaponChip", hero.weaponChip+count)
 
@@ -561,7 +564,7 @@ func (this *_HeroManager) addHeroChip(id int) (err error) {
 
 	now, _ := this.heroChip[id]
 
-	_, err = dbconn.Do("HSET", this.user.GetUidUsedInDB()+":heroChip:", id, now+1)
+	_, err = dbconn.Do("HSET", this.user.GetUidUsedInDB()+":heroChip", id, now+1)
 
 	if err != nil {
 		return err
@@ -579,16 +582,12 @@ func (this *_HeroManager) ProcessNewGetHero(id int) (Type int, Value int, Extra 
 	flag := this.IsKindOwnedByID(id)
 	if !flag {
 		//not exist
-		if this.IsHeroChipLackOf(id) {
-			//武将碎片不够
-			err = this.addHeroChip(id)
-			if err != nil {
-				return
-			}
-			Type = NewCard
-		} else {
-			Type = NewCard
-			Value = 0
+		err = this.addHeroChip(id)
+		if err != nil {
+			return
+		}
+		Type = NewCard
+		if this.IsHeroChipEnough(id) {
 			err = this.AddNewHero(id, 1, false)
 			if err != nil {
 				return
@@ -635,6 +634,7 @@ func (this *_HeroManager) getSmashType() int {
 	} else {
 		vec = SmashTypeProb
 	}
+	this.user.Debug("getSmashType weaponChip", this.IsAnyWeaponChipLackOf())
 	for index, v := range vec {
 		if num > v {
 			continue
@@ -685,6 +685,7 @@ func (this *_HeroManager) smashHeroCard(id int) (smash_type, num int, Extra int,
 		event_flag = true
 	}
 
+	this.user.Debug("smashHeroCard", smash_type, num)
 	_, Extra, err = this.user.ProcessReward(reward_type, num)
 	if err != nil {
 		return
@@ -887,7 +888,7 @@ func (this *_HeroManager) CanHeroUpdate(id int) bool {
 }
 
 var (
-	HeroUpdateBaseCoef = []int{0, 100, 125, 150, 200, 250, 300, 450, 525, 0}
+	HeroUpdateBaseCoef = []int{0, 100, 125, 150, 200, 250, 300, 375, 450, 0}
 )
 
 func (this *_HeroManager) GetHeroUpdatePrice(id int) (Type, Value int) {

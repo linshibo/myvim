@@ -1,23 +1,13 @@
 
 # Please enter the commit message for your changes. Lines starting
 # with '#' will be ignored, and an empty message aborts the commit.
-#
-# Committer: frank <frank@frankMac.local>
-#
 # On branch master
-# Your branch is up-to-date with 'origin/master'.
-#
 # Changes to be committed:
-#	modified:   gameserver/hero.go
+#   (use "git reset HEAD <file>..." to unstage)
+#
+#	new file:   releas.sh
 #
 # Untracked files:
-#	.gosource.tags
-#	apple_cpu.prof
-#	apple_mem.prof
-#	f
-#	gameserver/dump.rdb
-#	gameserver/gosource.tags
-#	log_55555
-#	sanguo
-#	vimlog
+#   (use "git add <file>..." to include in what will be committed)
 #
+#	sanguo

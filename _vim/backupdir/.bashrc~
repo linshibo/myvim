@@ -1,4 +1,39 @@
-source ~/myvim/bashrc
-alias c240="ssh frank@42.62.67.240"
-export PATH=$PATH:$HOME/work/bin/
-alias vi="/usr/local/bin/vim"
+# .bashrc
+
+# User specific aliases and functions
+
+alias rm='rm -i -f'
+alias cp='cp -i'
+alias mv='mv -i'
+alias cdw='cd /data/mygo/src'
+
+# Source global definitions
+if [ -f /etc/bashrc ]; then
+	. /etc/bashrc
+fi
+export HISTFILESIZE=100000
+export HISTTIMEFORMAT="%Y-%m-%d %H:%M:%S "
+export GOPATH=/data/mygo
+alias my='mysql -uroot -pfeixiongtech_mysql'
+
+set JAVA_HOME = /usr/java/jdk1.7.0_17
+
+export JAVA_HOME
+
+set PATH=$PATH:$JAVA_HOME/bin
+
+export PATH
+
+set CLASSPATH = .:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar
+
+export CLASSPATH
+if [ -f ~/myvim/bashrc ]; then     
+    . ~/myvim/bashrc 
+fi
+alias_comm_cmd  239 ''  root 42.62.67 22 feixiong_server_002
+alias_comm_cmd  239 'z'  root 42.62.67 22 feixiong_server_002
+alias_comm_cmd  238 ''  root 42.62.67 22 feixiong_server_001
+alias_comm_cmd  237 ''  root 42.62.67 22 feixiong_hud
+alias redis-c="redis-cli -h 10.6.14.99"
+alias cdt='cd /data/gameserver/'
+alias myy='mysql -h10.6.13.39 -uroot -pfeixiong_game'

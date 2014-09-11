@@ -1,3 +1,13 @@
-BindAddr=0.0.0.0:8891
-LogLevel=0
-RedisHost=127.0.0.1:6379
+{
+"DBUser":"root",
+"DBDatabase":"zone",
+"DBPasswd":"feixiongtech_mysql", 
+"DBHost":"localhost:3306",
+"LogLevel":0, 
+"BindAddr":"0.0.0.0:8888",
+"FileAddr":"0.0.0.0:8081",
+"RedisHost":"10.6.10.242:6379",
+"GameServerHost":"42.62.67.239:55556", 
+"User":"feixiong",                
+"Passwd":"meiyoumima"
+}

@@ -1,13 +1,15 @@
 package db
 
 import (
-    "database/sql"
+    //"database/sql"
     //"fmt"
-    _ "github.com/Go-SQL-Driver/MySQL"
+    //_ "github.com/Go-SQL-Driver/MySQL"
+    //"errors"
     "github.com/Unknwon/goconfig"
     "github.com/garyburd/redigo/redis"
     "sanguo/base/log"
     "strconv"
+    "strings"
     "time"
 )
 
@@ -15,79 +17,81 @@ var names2uidMap map[string]int
 
 var uid2sidMap map[int]int
 
-func init(){
-    names2uidMap=make(map[string]int)
-    uid2sidMap=make(map[int]int)
+func init() {
+    names2uidMap = make(map[string]int)
+    uid2sidMap = make(map[int]int)
 }
 
-func TryLoadUserServerid(id int)error{
-    reply, err := redisHandler.Get().Do("HGET", id)
+func TryLoadUserServerid(id int) error {
+    pool := redisHandler.Get()
+    defer pool.Close()
+    sid, err := redis.Int(pool.Do("HGET", "gateway:uid2sid", id))
     if err != nil {
         log.Error("Cant get result of keys", id, err)
         return err
     }
-    sid, err := redis.Int(reply, nil)
-    if err != nil {
-        log.Error(err)
-        return err
-    }
-    uid2sidMap[id]=sid
+    log.Debug("TryLoadUserServerid ", id, sid)
+    uid2sidMap[id] = sid
     return nil
 }
-func TryLoadUserName(name string)error{
-    reply, err := redisHandler.Get().Do("KEYS", "name:"+name)
+
+func TryLoadUserName(name string) error {
+    pool := redisHandler.Get()
+    defer pool.Close()
+    str, err := redis.String(pool.Do("GET", "name:"+name))
     if err != nil {
         log.Error("Cant get result of keys", "name:"+name, err)
         return err
     }
-    uid, err := redis.Int(reply, nil)
+    id, err := strconv.Atoi(str)
     if err != nil {
         log.Error(err)
         return err
     }
-    names2uidMap[name]=uid
+    names2uidMap[name] = id
     return nil
 }
 
 func GetServerid(uid int) int {
+    log.Debug("GetServerid")
     id, ok := uid2sidMap[uid]
-    if ok {
-        return id 
+    if ok == true {
+        return id
     }
-    err:=TryLoadUserServerid(uid)
+    err := TryLoadUserServerid(uid)
     if err != nil {
+        log.Error(err)
         return 0
     }
+    log.Debug("GetServerid1")
     id, ok = uid2sidMap[uid]
-    if ok {
-        return id 
+    if ok == true {
+        return id
     }
+    log.Debug("GetServerid2")
     return 0
 
 }
 
-func GetUid(name string) (int) {
+func GetUid(name string) int {
     id, ok := names2uidMap[name]
     if ok {
-        return id 
+        return id
     }
     TryLoadUserName(name)
     id, ok = names2uidMap[name]
     if ok {
-        return id 
+        return id
     }
     return 0
 }
 
-func LoadServers() {
-    reply, err := redis.Values(redisHandler.Get().Do("HGETALL", "gateway:uid2sid"))
+func Loaduid2sid() {
+    pool := redisHandler.Get()
+    defer pool.Close()
+    results, err := redis.Strings(pool.Do("HGETALL", "gateway:uid2sid"))
     if err != nil {
-        log.Error("Cant get result of keys", err)
-        return
-    }
-    results, err := redis.Strings(reply, nil)
-    if err != nil {
-        log.Error("Cant convert result to string", err)
+        log.Error("Cant get result of keys gateway:uid2sid", err)
         return
     }
     for i := 0; i < len(results)/2; i++ {
@@ -106,26 +110,19 @@ func LoadServers() {
 }
 
 func LoadNames() {
-    reply, err := redis.Values(redisHandler.Get().Do("KEYS", "name:*"))
+    pool := redisHandler.Get()
+    defer pool.Close()
+    reply, err := redis.Values(pool.Do("KEYS", "name:*"))
+    if err != nil {
+        log.Error("Cant get result of keys", err)
+        return
+    }
+    results, err := redis.Strings(pool.Do("MGET", reply...))
     if err != nil {
         log.Error("Cant get result of keys", err)
         return
     }
     namesStr, err := redis.Strings(reply, nil)
-    if err != nil {
-        log.Error("Cant convert result to string", err)
-        return
-    }
-    namesInterface:=make([]interface{}, 0)
-    for i:=range namesStr{
-        namesInterface=append(namesInterface, namesStr[i])
-    }
-    reply2, err := redis.Values(redisHandler.Get().Do("MGET", namesInterface...))
-    if err != nil {
-        log.Error("Cant get result of keys", err)
-        return
-    }
-    results, err := redis.Strings(reply2, nil)
     if err != nil {
         log.Error("Cant convert result to string", err)
         return
@@ -136,21 +133,32 @@ func LoadNames() {
             log.Error(err)
             continue
         }
+        //ids := strings.Split(str, ":")
+        //if len(ids) < 2 {
+            //log.Error("split err", str)
+            //continue
+        //}
         id, err := strconv.Atoi(str)
         if err != nil {
             log.Error(err)
             continue
         }
+        //names := strings.Split(namesStr[i], ":")
+        //if len(names) < 2 {
+        //log.Error("split err", namesStr)
+        //continue
+        //}
         if id != 0 {
             names2uidMap[namesStr[i]] = id
+            log.Debug("monitor ", namesStr[i], id)
         }
     }
 }
 
 var redisHandler *redis.Pool
-var mysqlHandler *sql.DB
+
 var config struct {
-    dbUser, dbHost, dbPasswd, dbDatabase, redisHost string
+    redisHost string
 }
 
 type ServerID struct {
@@ -159,15 +167,12 @@ type ServerID struct {
 }
 
 func GetServers() ([]ServerID, error) {
+    pool := redisHandler.Get()
+    defer pool.Close()
     //加载服务器id host
-    reply, err := redis.Values(redisHandler.Get().Do("HGETALL", "gateway:server_host:*"))
+    results, err := redis.Strings(pool.Do("HGETALL", "gateway:server_host"))
     if err != nil {
-        log.Error("Cant get result of keys", err)
-        return nil, err
-    }
-    results, err := redis.Strings(reply, nil)
-    if err != nil {
-        log.Error("Cant convert result to string", err)
+        log.Error("Cant get result of keys gateway:server_host:* ", err)
         return nil, err
     }
     servs := make([]ServerID, 0)
@@ -178,53 +183,19 @@ func GetServers() ([]ServerID, error) {
             log.Error(err)
             continue
         }
-         tmp.Host, err = redis.String(results[i*2+1], nil)
+        tmp.Host, err = redis.String(results[i*2+1], nil)
         if err != nil {
             log.Error(err)
             continue
         }
+        log.Debug("monitor load Servers ", tmp.ID, tmp.Host)
         servs = append(servs, tmp)
     }
     return servs, nil
 }
 
-//func GetServers() ([]ServerID, error) {
-    //var err error
-    //mysqlHandler, err = sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8", config.dbUser, config.dbPasswd, config.dbHost, config.dbDatabase))
-    //if err != nil {
-        //log.Error("mysql conn error\n")
-        //return nil, err
-    //}
-    //defer mysqlHandler.Close()
-    //err = mysqlHandler.Ping()
-    //if err != nil {
-        //log.Error("mysql ping error\n")
-        //return nil, err
-    //}
-    //sqlStr := "select id, addr from servers"
-    //rows, err := mysqlHandler.Query(sqlStr)
-    //if err != nil {
-        //log.Error(err.Error())
-        //return nil, err
-    //}
-    //ids := make([]ServerID, 0)
-    //for rows.Next() {
-        //var tmp ServerID
-        //rerr := rows.Scan(&tmp.ID, &tmp.Host)
-        //if rerr != nil {
-            //return nil, rerr
-        //}
-        //ids = append(ids, tmp)
-    //}
-    //return ids, nil
-//}
-
 func InitDB(cfg *goconfig.ConfigFile) {
     config.redisHost = cfg.MustValue("", "RedisHost", "")
-    //config.dbUser = cfg.MustValue("", "DBUser", "")
-    //config.dbHost = cfg.MustValue("", "DBHost", "")
-    //config.dbPasswd = cfg.MustValue("", "DBPasswd", "")
-    //config.dbDatabase = cfg.MustValue("", "DBDatabase", "")
     redisHandler = &redis.Pool{
         MaxIdle:     3,
         IdleTimeout: 240 * time.Second,
@@ -238,5 +209,5 @@ func InitDB(cfg *goconfig.ConfigFile) {
         },
     }
     LoadNames()
-    LoadServers()
+    Loaduid2sid()
 }

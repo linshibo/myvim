@@ -9,9 +9,29 @@ import (
 	"sanguo/db"
 	. "sanguo/systemdata"
 	"time"
+	"io/ioutil"
+	"net/http"
+	"crypto/md5"
+	"io"
+	"fmt"
 )
 
+func (this *User)bindAccountToUid(account string) (err error) {
+    dbconn := db.ZonePool.Get()
+    defer dbconn.Close()                                                                                                                                                     
+
+    _, err = dbconn.Do("HSET", "gateway:account2uid", account, this.uid)
+    if err != nil {
+        log.Error("Failed HGET sid", err)
+        return err
+    }
+
+    return nil
+}
+
 func CanRegister(id string) (flag bool, err error) {
+	//return true, nil
+
 	dbconn := db.ZonePool.Get()
 	defer dbconn.Close()
 
@@ -32,6 +52,7 @@ func CanRegister(id string) (flag bool, err error) {
 func UserLogin_(sess *Session, reader []byte) bool {
 	type Data struct {
 		Id string
+		Token string
 	}
 
 	var msg Data
@@ -41,7 +62,53 @@ func UserLogin_(sess *Session, reader []byte) bool {
 		return false
 	}
 	log.Debug("Login: user id is ", msg.Id)
+	
+	applyID := "413"
+	tmp := "appid=413&sessionid="+msg.Token
+	
+	h := md5.New()
 
+	io.WriteString(h, tmp)
+	//tmp_md5 := h.Sum(nil)
+	url := fmt.Sprintf("https://pay.slooti.com/?r=auth/verify&appid=413&sessionid=%s&sign=%x", msg.Token, h.Sum(nil))
+	
+	//log.Debug("tmp_md5",len(tmp_md5), string(tmp_md5))
+	
+	//url := "https://pay.slooti.com/?r=auth/verify&" + tmp + "&sign=" + string(tmp_md5)
+	
+	log.Trace("HHHHofurlis",url)
+	
+	response, err := http.Get(url)
+	if err != nil {
+		log.Error("Failed send http require to appstore", err)
+		return false
+	}
+
+	defer response.Body.Close()
+	
+	apple_body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		log.Error("Failed read all info", err)
+		return false
+	}
+	log.Critical("Response recv in Appstore is", string(apple_body))
+
+	type TokenVerifyData struct {
+
+		Status        string
+
+	}	
+
+	var res TokenVerifyData
+	err = json.Unmarshal(apple_body, &res)
+	if err != nil {
+		sess.Error("Can't decode json message,", err)
+		return false
+	}
+	sess.Debug("hzz", res)
+	
+	//if res.
+	
 	uid := PlayerManager.GetUidById(msg.Id)
 	if uid == 0 {
 		log.Debug("The uid is not exist (uid = 0), will register", msg.Id)
@@ -146,6 +213,12 @@ func UserLogin_(sess *Session, reader []byte) bool {
 			sess.Error("Failed InitBoxRewadInTheFirstLogin", err)
 			return false
 		}
+
+		err = sess.user.setPKCount(0)
+		if err != nil {
+			sess.Error("Failed setPKCount", err)
+			return false
+		}
 	}
 
 	bosses := sess.GetAllBossInfo()
@@ -157,6 +230,7 @@ func UserLogin_(sess *Session, reader []byte) bool {
 	e := sess.user.E_Arm.ListAllExtraArm()
 
 	now := time.Now().Unix()
+	sess.user.loginTime = now
 	back := map[string]interface{}{
 		"ret":              true,
 		"uid":              sess.user.uid,
@@ -219,6 +293,9 @@ func UserLogin_(sess *Session, reader []byte) bool {
 		"HeroEvolveQuests": sess.user.quest.GetFinishedHeroEvolve(),
 		"MHeroID":          sess.user.Hero.GetMainHero(),
 		"HeroChip":         sess.user.Hero.GetAllHeroChip(),
+		"Line":             sess.user.time_line.GetAllNode(),
+		"ExtraBaoxiang": sess.user.GetExtraBaoxiang(),
+		"RecruitArm":sess.user.getRecruitArm(),
 	}
 
 	if !sess.SendReplyBack(back, 1) {
@@ -240,7 +317,7 @@ func UserLogin_(sess *Session, reader []byte) bool {
 
 	////////////////////////////// Quest type 9 ////////////////////////////////////////////////////////////////////
 	if IsFirstLoginOfToday(sess.user.last_login) {
-		sess.user.Trace("This is the first login of today")
+		sess.user.Trace("XJ_This is the first login of today")
 		err = sess.user.quest.InspectQuest(QuestType_LoginDays, 0, 0)
 		if err != nil {
 			sess.Error("QuestType_LoginDays ", err)

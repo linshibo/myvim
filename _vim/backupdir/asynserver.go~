@@ -162,7 +162,7 @@ func handleConn(sess *Session, handler Callback) {
         //size := binary.LittleEndian.Uint16(header) + 4
         size := handler.GetSizeCallback(header)
         data := make([]byte, size)
-        log.Debug("size ", size, sess.Conn.RemoteAddr())
+		//log.Debug("size ", size, sess.Conn.RemoteAddr())
         n, err = io.ReadFull(sess.Conn, data[0:size])
         if n == 0 && err == io.EOF {
             fmt.Println("peer socket is closed ", err)
