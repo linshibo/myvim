@@ -130,7 +130,7 @@ function! CommentLine()
       execute ":silent! normal ^i(*\<ESC>$a*)\<ESC>==\<down>^"
     endif
     " .html,.xml,.xthml,.htm
-  elseif file_name =~ '\.html$' || file_name =~ '\.htm$' || file_name =~ '\.xml$' || file_name =~ '\.xhtml$' 
+  elseif file_name =~ '\.html$' || file_name =~ '\.htm$' || file_name =~ '\.xml$' || file_name =~ '\.xhtml$' || file_name =~ '\.tmpl$' 
     if stridx( getline("."), "\<!--" ) != -1 && stridx( getline("."), "--\>" ) != -1
     elseif stridx( getline("."), "\<!--" ) != -1 && stridx( getline("."), "--\>" ) == -1
         "  open, but a close "
