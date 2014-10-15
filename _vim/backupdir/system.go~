@@ -1,0 +1,683 @@
+package systemdata
+
+import (
+	//"encoding/json"
+	//"github.com/garyburd/redigo/redis"
+	"sanguo/base/log"
+	"sanguo/config"
+	//"sanguo/db"
+	//"strconv"
+	//"strings"
+)
+
+//TODO
+type chapterInfo struct {
+	AllCGuanQias []int
+	// simple_guanqia can play again
+	AllSGuanQias []int
+	ChallengeSid int
+	UnlockArms   []int
+	UnlockHeroes []int
+	Cpid         int
+}
+
+type chapterGuanQiaInfo struct {
+	Allsimpleguanqias []int
+	//guanqiaTask       int
+	Cgqid             int
+	TasksOfHardMode   []int
+	TasksOfNormalMode []int
+}
+
+type ScoreReward struct {
+	Value      int
+	RewardType int
+	Prob       int
+	Score      int
+}
+
+type TongguanReward struct {
+	Value      int
+	RewardType int
+	Prob       int
+}
+type guanqiaInfoCfg struct {
+	AllDanboIds     []int
+	TongguanReward  []TongguanReward
+	BaoxiangReward1 []ScoreReward
+	BaoxiangReward2 []ScoreReward
+	MaxScore1        int
+	MaxScore2        int
+	Guanqiaid       int
+	ExtraBaoxiangReward   []ScoreReward
+}
+type guanqiaInfo struct {
+	AllDanboIds    []int
+	TongguanReward []TongguanReward
+	ScoreRewardNormal    []ScoreReward
+	ScoreRewardHard    []ScoreReward
+	MaxScoreNormal       int
+	MaxScoreHard       int
+	Guanqiaid      int
+	ExtraBaoxiangReward   []ScoreReward
+}
+
+type scatteredGuanqiaInfo struct {
+	AllDanboIds []int
+	ScoreReward []ScoreReward
+	MaxScore    int
+}
+
+type bossGuanQiaInfo struct {
+	ContentGuanQiaId  int
+	NextBossGuanQiaId int
+	NeedFinishTimes   int
+	BossGuanQiaId     int
+}
+
+type danboInfo struct {
+	AllUnitSeq   []int
+	AllUnitCount int
+	BoshuId      int
+}
+
+type armInfo struct {
+	OriginalId         int
+	QualityLevel       int
+	Damage             int
+	Hp                 int
+	DamageRatio        float64
+	StarsNeed          int
+	SellType           int
+	SellPrice          int
+	CanPick            int
+	Armid              int
+	EGrid1UnlockQuests []int
+	EGrid2UnlockQuests []int
+	EGrid3UnlockQuests []int
+}
+
+type weaponInfo struct {
+	Wid                 int
+	UnlockFragmentCount int
+	FragmentGotWay      int
+	AtkIncrease         int
+	SkillId             int
+	SkillPro            int
+	QualityLevel        int
+}
+type heroInfo struct {
+	OriginalId          int
+	QualityLevel        int
+	Damage              int
+	DamageRatio         float64
+	StarsNeed           int
+	SkillRoundCount     int
+	SellType            int
+	SellPrice           int
+	CanPick             int
+	Heroid              int
+	FragmentCount       int
+	Weapon              int 
+	BlueAdvanceQuests   []int
+	PurpleAdvanceQuests []int
+	OrangeAdvanceQuests []int
+}
+
+type enemyUnit struct {
+	Damage int
+	Hp     int
+	Euid   int
+}
+
+type quest struct {
+	PreId          int
+	Unlocklevel    int
+	Actiontype     int
+	Value          int
+	Actionparam    int
+	Actionparam2   int
+	Refreshtype    int
+	Rewardtype     int
+	Rewardcount    int
+	Maxlevel       int
+	Needpushreward int
+	Qid            int
+}
+
+const (
+	LevelNum = 11
+	QuestNum = 200
+)
+
+var (
+	ChapterInfo        map[int]chapterInfo
+	ChapterGuanQiaInfo map[int]chapterGuanQiaInfo
+	GuanqiaInfo        map[int]guanqiaInfo
+	DanboInfo          map[int]danboInfo
+	ArmInfo            map[int]armInfo
+	HeroInfo           map[int]heroInfo
+	EnemyUnit          map[int]enemyUnit
+	Quest              map[int]quest
+	BossGuanQiaInfo    map[int]bossGuanQiaInfo
+	//ChallengeGuanqiaInfo    map[int]scatteredGuanqiaInfo
+
+	FinalChapter int
+
+	UserFightQuestIndex [LevelNum + 1][QuestNum]int
+	UserFightQuestCount [LevelNum + 1]int
+
+	//[chapter] simple_guanqia
+	ChapterBoss []int
+	//map[simple_guanqia]chapter_guanqia  as set
+	SimpleNeedRecord map[int]int
+	// chapter_guanqia  response  simple_guanqia
+	C_Sguanqia map[int]int
+
+	UnlockArms map[int]bool
+
+	TrueHeroGuanqia map[int]bool
+	WeaponInfo map[int]weaponInfo
+)
+
+var (
+	ArmIndex               [ArmIdNum]int
+	ArmStarAndQualityCount [StarNum + 1][QualityNum + 1]int
+	ArmStarAndQualityBegin [StarNum + 1][QualityNum + 1]int
+	InitAllArmId           [ArmIdNum]int
+
+	ArmOriginalId [ArmOrigIdNum][QualityNum + 1]int
+
+	HeroIndex        [HeroIdNum]int
+	HeroQualityCount [QualityNum + 1]int
+	HeroQualityBegin [QualityNum + 1]int
+	InitAllHeroId    [HeroIdNum]int
+
+	HeroOriginalId [HeroOrigIdNum][QualityNum + 1]int
+)
+
+type SystemLineNode struct {
+	GloabalNodexIndex int
+	MainBuffs         [][2]float64
+	SubBuffs          [][2]float64
+}
+
+type buffer struct {
+	BufferID    int
+	BufferValue int
+}
+
+type LineNode struct {
+	NodeID int
+	Buffer []buffer
+}
+
+var Nodes map[int]LineNode
+
+func LoadSystemLineNode() (err error) {
+	Nodes = make(map[int]LineNode)
+
+	SystemLineNodeSlice := make([]SystemLineNode, 0)
+	err = LoadData(config.Config.SystemDataPath+"/cfg/levelNodeInfo.cfg", &SystemLineNodeSlice)
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+
+	log.Trace("HHH_LineNode", SystemLineNodeSlice)
+
+	//var buffer_tmp buffer
+	for _, v := range SystemLineNodeSlice {
+		var node_tmp LineNode
+		node_tmp.NodeID = v.GloabalNodexIndex
+		for _, bv := range v.MainBuffs {
+			var buffer_tmp buffer
+			buffer_tmp.BufferID = int(bv[0])
+			buffer_tmp.BufferValue = int(bv[1] * 100)
+			node_tmp.Buffer = append(node_tmp.Buffer, buffer_tmp)
+		}
+
+		if v.GloabalNodexIndex%10 != 0 {
+			for _, bv := range v.SubBuffs {
+				var buffer_tmp buffer
+				buffer_tmp.BufferID = int(bv[0])
+				buffer_tmp.BufferValue = int(bv[1] * 100)
+				node_tmp.Buffer = append(node_tmp.Buffer, buffer_tmp)
+			}
+		}
+		Nodes[node_tmp.NodeID] = node_tmp
+	}
+
+	log.Info("Nodes", Nodes)
+	return nil
+}
+
+func LoadSystemDataFromConf() bool {
+	log.Info("LoadSystemDataFromConf")
+	log.Info("Path is", config.Config.SystemDataPath+"/cfg")
+
+	LoadSystemLineNode()
+
+	/************************** Load chapterInfo *************************/
+	chapterInfoSlice := make([]chapterInfo, 0)
+	err := LoadData(config.Config.SystemDataPath+"/cfg/chapterInfo.cfg", &chapterInfoSlice)
+	if err != nil {
+		log.Error(err)
+		return false
+	}
+	for i := range chapterInfoSlice {
+		chapterInfoSlice[i].AllSGuanQias = make([]int, len(chapterInfoSlice[i].AllCGuanQias))
+		ChapterInfo[chapterInfoSlice[i].Cpid] = chapterInfoSlice[i]
+		TrueHeroGuanqia[chapterInfoSlice[i].ChallengeSid] = true
+	}
+	
+	log.Info("ChapterInfo", len(ChapterInfo), ChapterInfo)
+	/************************** Load ChapterCGuanQiaInfo *****************/
+	chapterGuanQiaInfoSlice := make([]chapterGuanQiaInfo, 0)
+	err = LoadData(config.Config.SystemDataPath+"/cfg/chapterGuanQiaInfo.cfg", &chapterGuanQiaInfoSlice)
+	if err != nil {
+		log.Error(err)
+		return false
+	}
+	for i := range chapterGuanQiaInfoSlice {
+		ChapterGuanQiaInfo[chapterGuanQiaInfoSlice[i].Cgqid] = chapterGuanQiaInfoSlice[i]
+	}
+	// Improve chapterInfo
+	{
+		ChapterBoss = make([]int, FinalChapter)
+		for i := 1; i < FinalChapter; i++ {
+			for index, cid := range ChapterInfo[i].AllCGuanQias {
+				length := len(ChapterGuanQiaInfo[cid].Allsimpleguanqias)
+				if length < 1 {
+					log.Error("There is no simple_guanqia in chapter_guanqia")
+					return false
+				}
+				sid := ChapterGuanQiaInfo[cid].Allsimpleguanqias[length-1]
+				log.Trace("ChapterInfo, i, index", i, index)
+				ChapterInfo[i].AllSGuanQias[index] = sid
+				SimpleNeedRecord[sid] = cid
+				C_Sguanqia[cid] = sid
+			}
+			SimpleNeedRecord[ChapterInfo[i].ChallengeSid] = i  //每章的挑战关卡ID
+			ChapterBoss[i] = ChapterInfo[i].AllSGuanQias[len(ChapterInfo[i].AllSGuanQias)-1]
+
+		}
+		log.Info("SimpleNeedRecord", SimpleNeedRecord)
+		log.Info("ChapterBoss", ChapterBoss)
+	}
+	/************************** Load guanqiaInfo *************************/
+	guanqiaInfoSlice := make([]guanqiaInfoCfg, 0)
+	err = LoadData(config.Config.SystemDataPath+"/cfg/guanqiaInfo.cfg", &guanqiaInfoSlice)
+	if err != nil {
+		log.Error(err)
+		return false
+	}
+	for i := range guanqiaInfoSlice {
+		for _, v := range guanqiaInfoSlice[i].BaoxiangReward1 {
+			if guanqiaInfoSlice[i].MaxScore1 < v.Score {
+				guanqiaInfoSlice[i].MaxScore1 = v.Score
+			}
+		}
+		
+		for _, v := range guanqiaInfoSlice[i].BaoxiangReward2 {
+			if guanqiaInfoSlice[i].MaxScore2 < v.Score {
+				guanqiaInfoSlice[i].MaxScore2 = v.Score
+			}
+		}
+				
+		GuanqiaInfo[guanqiaInfoSlice[i].Guanqiaid] = guanqiaInfo{
+			AllDanboIds:    guanqiaInfoSlice[i].AllDanboIds,
+			TongguanReward: guanqiaInfoSlice[i].TongguanReward,
+			ScoreRewardNormal:    guanqiaInfoSlice[i].BaoxiangReward1,
+			ScoreRewardHard:    guanqiaInfoSlice[i].BaoxiangReward2,
+			MaxScoreNormal:       guanqiaInfoSlice[i].MaxScore1,
+			MaxScoreHard:       guanqiaInfoSlice[i].MaxScore2,
+			Guanqiaid:      guanqiaInfoSlice[i].Guanqiaid,
+			ExtraBaoxiangReward:    guanqiaInfoSlice[i].ExtraBaoxiangReward,
+		}
+	}
+	log.Info("GuanqiaInfo", len(GuanqiaInfo), GuanqiaInfo)
+	/************************** Load challenge guanqiaInfo *************************/
+	scatteredGuanQiaInfoSlice := make([]guanqiaInfoCfg, 0)
+	err = LoadData(config.Config.SystemDataPath+"/cfg/scatteredGuanQiaInfo.cfg", &scatteredGuanQiaInfoSlice)
+
+	if err != nil {
+		log.Error(err)
+		return false
+	}
+	for i := range scatteredGuanQiaInfoSlice {
+		for _, v := range scatteredGuanQiaInfoSlice[i].BaoxiangReward1 {
+			if scatteredGuanQiaInfoSlice[i].MaxScore1 < v.Score {
+				scatteredGuanQiaInfoSlice[i].MaxScore1 = v.Score
+			}
+		}
+		GuanqiaInfo[scatteredGuanQiaInfoSlice[i].Guanqiaid] = guanqiaInfo{
+			AllDanboIds:    scatteredGuanQiaInfoSlice[i].AllDanboIds,
+			TongguanReward: scatteredGuanQiaInfoSlice[i].TongguanReward,
+			ScoreRewardNormal:    scatteredGuanQiaInfoSlice[i].BaoxiangReward1,
+			MaxScoreNormal:       scatteredGuanQiaInfoSlice[i].MaxScore1,
+			Guanqiaid:      scatteredGuanQiaInfoSlice[i].Guanqiaid,
+		}
+	}
+	log.Info("GuanqiaInfo2", len(GuanqiaInfo), GuanqiaInfo)
+	/************************** Load DanboInfo ***************************/
+	danboInfoSlice := make([]danboInfo, 0)
+	err = LoadData(config.Config.SystemDataPath+"/cfg/danboInfo.cfg", &danboInfoSlice)
+	if err != nil {
+		log.Error(err)
+		return false
+	}
+	for i := range danboInfoSlice {
+		DanboInfo[danboInfoSlice[i].BoshuId] = danboInfoSlice[i]
+	}
+	log.Info("DanboInfo", len(DanboInfo), DanboInfo)
+	/************************** Load ArmInfo *****************************/
+	armInfoSlice := make([]armInfo, 0)
+	err = LoadData(config.Config.SystemDataPath+"/cfg/armInfo.cfg", &armInfoSlice)
+	if err != nil {
+		log.Error(err)
+		return false
+	}
+	for i := range armInfoSlice {
+		Arm := &armInfoSlice[i]
+		ArmInfo[armInfoSlice[i].Armid] = armInfoSlice[i]
+		if Arm.StarsNeed != 0 {
+			ArmStarAndQualityCount[Arm.StarsNeed][Arm.QualityLevel]++
+			ArmOriginalId[Arm.OriginalId][Arm.QualityLevel] = Arm.Armid
+		}
+	}
+	log.Info("ArmInfo", len(ArmInfo), ArmInfo)
+	/************************** Load HeroInfo **********************************/
+	heroInfoSlice := make([]heroInfo, 0)
+	err = LoadData(config.Config.SystemDataPath+"/cfg/heroInfo.cfg", &heroInfoSlice)
+	if err != nil {
+		log.Error(err)
+		return false
+	}
+	for i := range heroInfoSlice {
+		HeroInfo[heroInfoSlice[i].Heroid] = heroInfoSlice[i]
+		HeroQualityCount[heroInfoSlice[i].QualityLevel]++
+		HeroOriginalId[heroInfoSlice[i].OriginalId][heroInfoSlice[i].QualityLevel] = heroInfoSlice[i].Heroid
+	}
+	log.Info("HeroInfo", len(HeroInfo), HeroInfo[3].OriginalId)
+	log.Info("HeroOriginalIdInfo", HeroOriginalId)
+	/****************************** Load EnemyUnit ******************************/
+	enemyUnitInfoSlice := make([]enemyUnit, 0)
+	err = LoadData(config.Config.SystemDataPath+"/cfg/enemyUnit.cfg", &enemyUnitInfoSlice)
+	if err != nil {
+		log.Error(err)
+		return false
+	}
+	for i := range enemyUnitInfoSlice {
+		EnemyUnit[enemyUnitInfoSlice[i].Euid] = enemyUnitInfoSlice[i]
+	}
+
+	log.Info("EnemyUnitInfo", len(EnemyUnit), EnemyUnit)
+	/******************************Load Quest***************************************************/
+	questSlice := make([]quest, 0)
+	err = LoadData(config.Config.SystemDataPath+"/cfg/quest.cfg", &questSlice)
+	if err != nil {
+		log.Error(err)
+		return false
+	}
+	for i := range questSlice {
+		Quest[questSlice[i].Qid] = questSlice[i]
+	}
+	log.Info("Quest", len(Quest), Quest)
+	/****************************** Load BossGuanQiaInfo ******************************/
+	bossGuanQiaInfoSlice := make([]bossGuanQiaInfo, 0)
+	err = LoadData(config.Config.SystemDataPath+"/cfg/bossGuanQiaInfo.cfg", &bossGuanQiaInfoSlice)
+	if err != nil {
+		log.Error(err)
+		return false
+	}
+	for i := range bossGuanQiaInfoSlice {
+		BossGuanQiaInfo[bossGuanQiaInfoSlice[i].BossGuanQiaId] = bossGuanQiaInfoSlice[i]
+	}
+	log.Info("BossGuanQiaInfo", len(BossGuanQiaInfo), BossGuanQiaInfo)
+	/************************* Load FightQuest Info ************************/
+	for id, v := range Quest {
+		if v.Needpushreward != 0 {
+			continue
+		}
+
+		for i := v.Unlocklevel; i <= v.Maxlevel; i++ {
+			if i == 2 {
+				UserFightQuestCount[i-1]++
+				UserFightQuestIndex[i-1][UserFightQuestCount[i-1]] = id
+			}
+			UserFightQuestCount[i]++
+			UserFightQuestIndex[i][UserFightQuestCount[i]] = id
+		}
+	}
+
+	/****************************** Load WeaponInfo ******************************/
+	weaponInfoSlice := make([]weaponInfo, 0)
+	err = LoadData(config.Config.SystemDataPath+"/cfg/weapon.cfg", &weaponInfoSlice)
+	if err != nil {
+		log.Error(err)
+		return false
+	}
+	for i := range weaponInfoSlice {
+		WeaponInfo[weaponInfoSlice[i].Wid] = weaponInfoSlice[i]
+	}
+	log.Info("WeaponInfo", len(WeaponInfo), WeaponInfo)
+
+	InitRandomArmOid()
+	InitRandomHeroOid()
+
+	LoadSystemActivityEveryDayFromConf()
+	generateActivityByLevel()
+
+	InitQuest()
+	return true
+}
+
+
+
+/****************** Oid *******************/
+const (
+	HeroIdNum     = 500
+	HeroOrigIdNum = 100
+	HeroOidNum    = 100
+
+	ArmIdNum     = 1000
+	ArmOrigIdNum = 500
+	ArmOidNum    = 500
+
+	StarNum    = 4
+	QualityNum = 5
+)
+
+var (
+	ArmOidIndex               [ArmOidNum]int
+	ArmOidStarAndQualityCount [StarNum + 1][QualityNum + 1]int
+	ArmOidStarAndQualityBegin [StarNum + 1][QualityNum + 1]int
+	InitAllArmOid             [ArmOidNum]int
+	ArmMinIdOfOid             [ArmOidNum]int
+
+	HeroOidIndex        [HeroIdNum]int
+	HeroOidQualityCount [QualityNum + 1]int
+	HeroOidQualityBegin [QualityNum + 1]int
+	InitAllHeroOid      [HeroOidNum]int
+	HeroMinIdOfOid      [HeroOidNum]int
+)
+
+func InitRandomArmOid() {
+	for armid, v := range ArmInfo {
+		if v.StarsNeed != 0 {
+			ArmOriginalId[v.OriginalId][v.QualityLevel] = armid
+		}
+
+		if v.CanPick == 0 {
+			InitAllArmOid[v.OriginalId] = ArmUnGet
+		}
+	}
+
+	for oid := 0; oid < ArmOidNum; oid++ {
+		log.Debug("ArmOriginalId", oid, ArmOriginalId[oid])
+		for q := 0; q <= QualityNum; q++ {
+			if ArmOriginalId[oid][q] != 0 {
+				ArmMinIdOfOid[oid] = ArmOriginalId[oid][q]
+				log.Debug("ArmMinIdOfOid[oid]", oid, ArmMinIdOfOid[oid])
+				break
+			}
+		}
+	}
+
+	for _, id := range ArmMinIdOfOid {
+		if id == 0 {
+			continue
+		}
+
+		q := ArmInfo[id].QualityLevel
+		s := ArmInfo[id].StarsNeed
+		ArmOidStarAndQualityCount[s][q]++
+	}
+	log.Info("ArmOidStarAndQualityCount", ArmOidStarAndQualityCount)
+
+	for star := 1; star < 5; star++ {
+		ArmOidStarAndQualityBegin[star][0] = ArmOidStarAndQualityBegin[star-1][5] + ArmOidStarAndQualityCount[star-1][5]
+		for quality := int(1); quality < 6; quality++ {
+			ArmOidStarAndQualityBegin[star][quality] = ArmOidStarAndQualityCount[star][quality-1] + ArmOidStarAndQualityBegin[star][quality-1]
+		}
+	}
+	log.Info("ArmOidStarAndQualityBegin", ArmOidStarAndQualityBegin)
+
+	var i [5][6]int
+	for oid, id := range ArmMinIdOfOid {
+		if id == 0 {
+			continue
+		}
+		v := ArmInfo[id]
+		index := ArmOidStarAndQualityBegin[v.StarsNeed][v.QualityLevel] + i[v.StarsNeed][v.QualityLevel]
+		ArmOidIndex[index] = oid
+		i[v.StarsNeed][v.QualityLevel]++
+	}
+	log.Info("ArmOidIndex", ArmOidIndex)
+
+	//for _, arm_oid := range InitUnGetArmOidByGold {
+	//	InitAllArmOid[arm_oid] = ArmUnGet
+	//}
+
+	for star := 1; star < 5; star++ {
+		ArmStarAndQualityBegin[star][0] = ArmStarAndQualityBegin[star-1][5] + ArmStarAndQualityCount[star-1][5]
+		for quality := int(1); quality < 6; quality++ {
+			ArmStarAndQualityBegin[star][quality] = ArmStarAndQualityCount[star][quality-1] + ArmStarAndQualityBegin[star][quality-1]
+		}
+	}
+
+	var ii [5][6]int
+	for armid, v := range ArmInfo {
+		if v.StarsNeed == 0 {
+			continue
+		}
+		ArmIndex[ArmStarAndQualityBegin[v.StarsNeed][v.QualityLevel]+ii[v.StarsNeed][v.QualityLevel]] = armid
+		ii[v.StarsNeed][v.QualityLevel]++
+	}
+	log.Info("ArmCount", ArmStarAndQualityCount)
+	log.Info("ArmBegin", ArmStarAndQualityBegin)
+	log.Info("ArmIndex", ArmIndex)
+
+	log.Info("InitAllArmOid", InitAllArmOid)
+}
+
+func InitRandomHeroOid() {
+	for heroid, v := range HeroInfo {
+		HeroOriginalId[v.OriginalId][v.QualityLevel] = heroid
+		if v.CanPick == 0 {
+			//InitAllHeroOid[v.OriginalId] = HeroUnGet
+		}
+	}
+
+	for oid := 0; oid < HeroOidNum; oid++ {
+		for q := 0; q <= QualityNum; q++ {
+			if HeroOriginalId[oid][q] != 0 {
+				HeroMinIdOfOid[oid] = HeroOriginalId[oid][q]
+				log.Debug("HeroMinIdOfOid[oid]", oid, HeroMinIdOfOid[oid])
+				break
+			}
+		}
+	}
+
+	for _, id := range HeroMinIdOfOid {
+		if id == 0 {
+			continue
+		}
+		q := HeroInfo[id].QualityLevel
+		HeroOidQualityCount[q]++
+	}
+	log.Info("HeroOidQualityCount", HeroOidQualityCount)
+
+	for quality := 1; quality < 6; quality++ {
+		HeroOidQualityBegin[quality] = HeroOidQualityCount[quality-1] + HeroOidQualityBegin[quality-1]
+	}
+	log.Info("HeroOidQualityBegin", HeroOidQualityBegin)
+
+	var j [6]int
+	for oid, id := range HeroMinIdOfOid {
+		if id == 0 {
+			continue
+		}
+		v := HeroInfo[id]
+		HeroOidIndex[HeroOidQualityBegin[v.QualityLevel]+j[v.QualityLevel]] = oid
+		j[v.QualityLevel]++
+	}
+	log.Info("HeroOidIndex", HeroOidIndex)
+
+	for _, hero_oid := range UnchargeInitSeenHeroOid {
+		InitAllHeroOid[hero_oid] = HeroUnchargeSeen
+	}
+
+	log.Info("InitALLHeroOid", InitAllHeroOid)
+}
+
+func IsTrueHeroGuanqia(sid int) bool {
+	_, ok := TrueHeroGuanqia[sid]
+	return ok
+}
+
+var (
+	AllArmEquipQuests   []int
+	AllHeroEvolveQuests []int
+)
+
+func InitQuest() {
+	for qid, v := range Quest {
+		if v.Needpushreward == QuestMold_HeroAdvance {
+			AllHeroEvolveQuests = append(AllHeroEvolveQuests, qid)
+		}
+
+		if v.Needpushreward == QuestMold_ArmEquip {
+			AllArmEquipQuests = append(AllArmEquipQuests, qid)
+		}
+	}
+
+	log.Info("AllHeroEvolveQuests", AllHeroEvolveQuests)
+	log.Info("AllArmEquipQuests", AllArmEquipQuests)
+}
+
+func init() {
+	ChapterInfo = make(map[int]chapterInfo)
+	ChapterGuanQiaInfo = make(map[int]chapterGuanQiaInfo)
+	GuanqiaInfo = make(map[int]guanqiaInfo)
+	DanboInfo = make(map[int]danboInfo)
+	ArmInfo = make(map[int]armInfo)
+	HeroInfo = make(map[int]heroInfo)
+	EnemyUnit = make(map[int]enemyUnit)
+	Quest = make(map[int]quest)
+	BossGuanQiaInfo = make(map[int]bossGuanQiaInfo)
+	FinalChapter = 7
+	SimpleNeedRecord = make(map[int]int)
+	C_Sguanqia = make(map[int]int)
+
+	TrueHeroGuanqia = make(map[int]bool)
+	WeaponInfo	= make(map[int]weaponInfo)
+
+	//ChallengeGuanqiaInfo = make(map[int]scatteredGuanqiaInfo)
+}
+
+
+
+
+

@@ -1,0 +1,22 @@
+#include <iostream>
+void g() noexcept {
+
+}
+
+template <typename Func>
+void f(Func && func) noexcept(noexcept(func())){
+    func();
+    static_assert(noexcept(func()), "func()");
+} // No error!
+    
+void h() { 
+    f(&g);
+} // No error!
+
+
+int main(int argc, char** argv)
+{   
+    static_assert(noexcept(f((&g))), "Error!");
+    std::cout<<noexcept(f((&g)))<<std::endl; 
+    return 0;
+}

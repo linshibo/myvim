@@ -1,0 +1,15 @@
+source /root/myvim/_vim/comm.vim
+""imap ]  @@@<ESC>hhkyWjl?@@@<CR>P/@@@<CR>3s
+""nmap ] i@@@<ESC>hhkyWjl?@@@<CR>P/@@@<CR>3s   
+function! Fooo()
+    let @"=getline(line('.')-1)[col('.')-1]
+endfunc
+
+""nmap ] :let @"=getline(line('.')-1)[col('.')-1]<CR>p
+""inoremap <expr> <c-y> pumvisible() ? "\<c-y>" : matchstr(getline(line('.')-1), '\%' . virtcol('.') . 'v\%(\k\+\\|.\)')
+""inoremap <expr> <c-l> pumvisible() ? "\<c-l>" : getline(line('.')-1)[col('.')-1]
+inoremap <c-l> <c-r>=getline(line('.')-1)[col('.')-1]<CR>
+
+""imap <C-y> <ESC>:echo getline(line('.')-1)[col('.')-1]<CR>a
+""<expr> <c-y> pumvisible() ? "\<c-y>" : matchstr(getline(line('.')-1), '\%' . virtcol('.') . 'v\%(\k\+\\|.\)')
+

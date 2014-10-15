@@ -1,0 +1,935 @@
+package gameserver
+
+import (
+	"errors"
+	"github.com/garyburd/redigo/redis"
+	"sanguo/base/util"
+	"sanguo/config"
+	"sanguo/db"
+	. "sanguo/systemdata"
+	"strconv"
+)
+
+const (
+//MaxHeroLevel = 5
+)
+
+var (
+	//HeroUpdatePro        = [6]int{0, 80, 60, 50, 40, 0}
+	//HeroEvolvePro        = [6]int{0, 30, 20, 10, 10, 0}
+	OptEvoQualityOfLevel = [12]int{0, 2, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5}
+)
+
+type _Hero struct {
+	level      int
+	prob       int
+	flag       int
+	weaponChip int //武将武器碎片个数
+}
+
+type _HeroManager struct {
+	heros      map[int]_Hero
+	heroChip   map[int]int //heroid->武将碎片个数
+	n_heros    map[int]bool
+	allherooid [HeroOidNum]int
+	main_hero  int
+	user       *User
+}
+
+type RandomHeros struct {
+	Heros [100]int
+	Count int
+}
+
+func NewHeroManager() *_HeroManager {
+	var h _HeroManager
+	h.heros = make(map[int]_Hero)
+	h.n_heros = make(map[int]bool)
+	h.heroChip = make(map[int]int)
+	return &h
+}
+
+func (this *_HeroManager) SetUser(u *User) {
+	this.user = u
+}
+
+func (this *_HeroManager) InitHero() (err error) {
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+	level := 1
+	for _, id := range config.Config.InitHero {
+
+		prob := this.GetInitProbOfLevel(0, level)
+
+		this.heros[id] = _Hero{level: level, prob: prob, flag: 0}
+		_, err = dbconn.Do("SADD", this.user.GetUidUsedInDB()+":heros", id)
+		if err != nil {
+			return err
+		}
+
+		_, err = dbconn.Do("HMSET", this.user.GetUidUsedInDB()+":hero:"+strconv.Itoa(id), "level", level, "prob", prob, "flag", 0, "weaponChip", 0)
+		if err != nil {
+			return err
+		}
+	}
+
+	for i := 0; i < HeroOidNum; i++ {
+		this.allherooid[i] = InitAllHeroOid[i]
+		_, err = dbconn.Do("RPUSH", this.user.GetUidUsedInDB()+":allhero", this.allherooid[i])
+		if err != nil {
+			this.user.Error("Failed init allhero in register", err)
+			return err
+		}
+	}
+
+	this.main_hero = 0
+	_, err = dbconn.Do("HSET", this.user.GetUidUsedInDB(), "main_hero", 0)
+	if err != nil {
+		this.user.Error("Failed init main_hero", err)
+		return err
+	}
+
+	return err
+}
+
+func (this *_HeroManager) Load() (err error) {
+	if this.user == nil {
+		err = errors.New("Error: The user is nil")
+		return err
+	}
+
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+
+	reply, err := redis.Values(dbconn.Do("SMEMBERS", this.user.GetUidUsedInDB()+":heros"))
+	if err != nil {
+		this.user.Error("Can't get user:heros from redis")
+		return err
+	}
+
+	num := len(reply)
+	for i := 0; i < num; i++ {
+		id, err := redis.Int(reply[i], nil)
+		if err != nil {
+			this.user.Error("Can't convert hero to int")
+			return err
+		}
+
+		r, err := redis.Values(dbconn.Do("HMGET", this.user.GetUidUsedInDB()+":hero:"+strconv.Itoa(id), "level", "prob", "flag", "weaponChip"))
+		if err != nil {
+			return err
+		}
+
+		level, err := redis.Int(r[0], nil)
+		if err != nil {
+			return err
+		}
+
+		prob, err := redis.Int(r[1], nil)
+		if err != nil {
+			return err
+		}
+
+		flag, err := redis.Int(r[2], nil)
+		if err != nil {
+			_, err = dbconn.Do("HSET", this.user.GetUidUsedInDB()+":hero:"+strconv.Itoa(id), "flag", 0)
+			if err != nil {
+				return err
+			}
+			flag = 0
+		}
+		weaponChip, err := redis.Int(r[3], nil)
+		if err != nil {
+			return err
+		}
+
+		this.heros[id] = _Hero{level: level, prob: prob, flag: flag, weaponChip: weaponChip}
+	}
+
+	reply2, err := redis.Strings(dbconn.Do("HGETALL", this.user.GetUidUsedInDB()+":heroChip"))
+	if err != nil {
+		this.user.Error("Failed get heroChip", err)
+		return err
+	}
+	for i := 0; i < len(reply2)/2; i++ {
+		heroid, err1 := strconv.Atoi(reply2[i*2])
+		chip, err2 := strconv.Atoi(reply2[i*2+1])
+		if err1 != nil || err2 != nil {
+			this.user.Error("Failed strconv to int ", err)
+			continue
+		}
+		this.heroChip[heroid] = chip
+	}
+	this.user.Debug("heroChip", this.heroChip)
+
+	this.main_hero, err = redis.Int(dbconn.Do("HGET", this.user.GetUidUsedInDB(), "main_hero"))
+	if err != nil {
+		this.user.Error("Failed get main_hero", err)
+		return err
+	}
+
+	reply, err = redis.Values(dbconn.Do("SMEMBERS", this.user.GetUidUsedInDB()+":new_hero"))
+	if err != nil {
+		this.user.Error("Can't get user:new_heros from redis", err)
+		return err
+	}
+
+	for i := 0; i < len(reply); i++ {
+		aid, err := redis.Int(reply[i], nil)
+		if err != nil {
+			this.user.Error("Can't convert new_hero to int")
+			return err
+		}
+		this.n_heros[aid] = true
+	}
+
+	reply, err = redis.Values(dbconn.Do("LRANGE", this.user.GetUidUsedInDB()+":allhero", 0, -1))
+	if err != nil {
+		this.user.Error("Can't get allherooid from redis", err)
+		return err
+	}
+
+	num = len(reply)
+	if num > 100 {
+		num = 100
+	}
+
+	for i := 0; i < num; i++ {
+		this.allherooid[i], err = redis.Int(reply[i], nil)
+		if err != nil {
+			this.user.Error("Can't convert heros to int", err)
+			return err
+		}
+	}
+	this.user.Trace("HeroOid", this.user.uid, this.allherooid)
+
+	return nil
+}
+
+func (this *_HeroManager) CanSetMainHero() bool {
+	if this.GetHeroCount() < 6 {
+		return false
+	}
+
+	return true
+}
+
+func (this *_HeroManager) SetMainHero(id int) (err error) {
+	this.main_hero = id
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+
+	_, err = dbconn.Do("HSET", this.user.GetUidUsedInDB(), "main_hero", this.main_hero)
+	return err
+}
+
+func (this *_HeroManager) GetMainHero() (id int) {
+	return this.main_hero
+}
+
+func (this *_HeroManager) GetInitProbOfLevel(quality int, level int) (prob int) {
+
+	if level < 0 {
+		return 0
+	}
+	if level > MaxCardLevel {
+		return 0
+	}
+
+	if level == MaxCardLevel {
+		return CardEvolvePro[quality]
+	}
+
+	return CardUpdatePro[level]
+}
+
+func (this *_HeroManager) GetHeroNum() int {
+	return len(this.heros)
+}
+
+func (this *_HeroManager) GetHeroLevel(id int) int {
+	return this.heros[id].level
+}
+
+func (this *_HeroManager) Evolve(id int) (new_id int, err error) {
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+
+	if !util.IsProbabilityHappen(this.heros[id].prob) {
+		tmp := this.heros[id]
+		tmp.prob += 10
+		this.heros[id] = tmp
+
+		_, err = dbconn.Do("HSET", this.user.GetUidUsedInDB()+":hero:"+strconv.Itoa(id), "prob", tmp.prob)
+		if err != nil {
+			return -1, err
+		}
+		return -1, nil
+	}
+
+	oid := HeroInfo[id].OriginalId
+	quality := HeroInfo[id].QualityLevel
+
+	flag := this.IsHeroTure(oid)
+
+	level := this.user.GetLevel()
+	if quality >= OptEvoQualityOfLevel[level] {
+		return 0, nil
+	}
+
+	quality++
+	new_id = HeroOriginalId[oid][quality]
+	if new_id == 0 {
+		return 0, nil
+	}
+
+	err = this.DelOldHero(id)
+	if err != nil {
+		return 0, err
+	}
+
+	err = this.AddNewHero(new_id, 1, flag)
+	if err != nil {
+		return 0, err
+	}
+
+	err = this.user.quest.InspectQuest(QuestType_HeroEvolveSpecQuality, quality, 0)
+	if err != nil {
+		this.user.Error("Failed QuestType_HeroEvolveSpecQuality", err)
+		return
+	}
+
+	return new_id, nil
+}
+
+func (this *_HeroManager) AddNewHero(id int, level int, true_flag bool) (err error) {
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+
+	prob := this.GetInitProbOfLevel(HeroInfo[id].QualityLevel, level)
+
+	this.heros[id] = _Hero{level: level, prob: prob, flag: 0}
+	_, err = dbconn.Do("SADD", this.user.GetUidUsedInDB()+":heros", id)
+	if err != nil {
+		return err
+	}
+
+	_, err = dbconn.Do("HMSET", this.user.GetUidUsedInDB()+":hero:"+strconv.Itoa(id), "level", level, "prob", prob, "flag", 0, "weaponChip", 0)
+	if err != nil {
+		return err
+	}
+
+	if true_flag {
+		err = this.SetHeroTrue(id)
+		if err != nil {
+			this.user.Error("Failed SetHeroTure", err)
+			return err
+		}
+	}
+
+	err = this.addToNewHero(id)
+	if err != nil {
+		return err
+	}
+
+	err = this.addHeroToSeen(id)
+	if err != nil {
+		return err
+	}
+
+	err = this.user.RefreshCombatScore()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (this *_HeroManager) addToNewHero(id int) error {
+	this.n_heros[id] = true
+
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+	_, err := dbconn.Do("SADD", this.user.GetUidUsedInDB()+":new_hero", id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (this *_HeroManager) addHeroToSeen(id int) error {
+
+	oid := HeroInfo[id].OriginalId
+	if this.allherooid[oid] == HeroUnchargeSeen {
+		return nil
+	}
+
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+
+	this.allherooid[oid] = HeroUnchargeSeen
+	_, err := dbconn.Do("LSET", this.user.GetUidUsedInDB()+":allhero", oid, HeroUnchargeSeen)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (this *_HeroManager) DelOldHero(id int) (err error) {
+	delete(this.heros, id)
+
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+
+	//dbconn.Send("MULTI")
+	_, err = dbconn.Do("SREM", this.user.GetUidUsedInDB()+":heros", id)
+	_, err = dbconn.Do("DEL", this.user.GetUidUsedInDB()+":hero:"+strconv.Itoa(id))
+
+	//_, err = dbconn.Do("EXEC")
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (this *_HeroManager) UpdateHeroLevel(id int) (flag bool, err error) {
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+
+	flag = util.IsProbabilityHappen(this.heros[id].prob)
+	if !flag {
+		tmp := this.heros[id]
+		tmp.prob += 5
+		this.heros[id] = tmp
+
+		_, err = dbconn.Do("HSET", this.user.GetUidUsedInDB()+":hero:"+strconv.Itoa(id), "prob", tmp.prob)
+		if err != nil {
+			return false, err
+		}
+		return false, nil
+	}
+
+	tmp := this.heros[id]
+	tmp.level += 1
+	tmp.prob = this.GetInitProbOfLevel(HeroInfo[id].QualityLevel, tmp.level)
+	this.heros[id] = tmp
+
+	_, err = dbconn.Do("HMSET", this.user.GetUidUsedInDB()+":hero:"+strconv.Itoa(id), "level", tmp.level, "prob", tmp.prob)
+	if err != nil {
+		return false, err
+	}
+
+	err = this.user.quest.InspectQuest(QuestType_CollectSpecHeroLevel, HeroInfo[id].OriginalId, 0)
+	if err != nil {
+		this.user.Error("Failed QuestType_CollectSpecHeroLevel", err)
+		return false, err
+	}
+
+	return true, nil
+}
+
+func (this *_HeroManager) GetHeroOfGivenQuality(quality int) int {
+	var heros RandomHeros
+	this.user.Debug("All allherooid", this.allherooid)
+	for i := 0; i < HeroOidQualityCount[quality]; i++ {
+		oid := HeroOidIndex[HeroOidQualityBegin[quality]+i]
+		if this.allherooid[oid] == HeroUnchargeSeen {
+			heros.Heros[heros.Count] = oid
+			heros.Count++
+		}
+		if this.allherooid[oid] == HeroChargeSeen {
+			if this.user.GetChargeNum() != 0 {
+				heros.Heros[heros.Count] = oid
+				heros.Count++
+			}
+		}
+	}
+
+	this.user.Debug("Quality and heros and count is", quality, heros)
+	if heros.Count == 0 {
+		return 0
+	} else {
+		index := util.GetRandomNum(heros.Count)
+		oid := heros.Heros[index]
+		return HeroMinIdOfOid[oid]
+	}
+
+	return 0
+}
+
+func (this *_HeroManager) IsOwned(id int) bool {
+	_, ok := this.heros[id]
+	return ok
+}
+
+func (this *_HeroManager) Verify(id_level int) bool {
+	id := id_level >> 8
+	level := id_level & 0x0f
+
+	v, ok := this.heros[id]
+	if !ok {
+		return false
+	}
+
+	if v.level != level {
+		return false
+	}
+
+	return true
+}
+
+func (this *_HeroManager) IsKindOwnedByID(id int) bool {
+	oid := HeroInfo[id].OriginalId
+	return this.IsKindOwnedByOid(oid)
+}
+
+func (this *_HeroManager) IsKindOwnedByOid(oid int) bool {
+	this.user.Trace("IsKindOwnedByOid", HeroOriginalId[oid])
+	for _, id_tmp := range HeroOriginalId[oid] {
+		if id_tmp == 0 {
+			continue
+		}
+		if this.IsOwned(id_tmp) {
+			return true
+		}
+	}
+	return false
+}
+
+//IsWeaponChipLackOf 判断武器碎片是否缺少
+func (this *_HeroManager) IsAnyWeaponChipLackOf() bool {
+	for k, v := range this.heros {
+		if conf, ok := HeroInfo[k]; ok {
+			if weapon, ok := WeaponInfo[conf.Weapon]; ok && v.weaponChip < weapon.UnlockFragmentCount {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+//GetHeroChipNeed 判断武将碎片是否足够
+func (this *_HeroManager) IsHeroChipEnough(id int) bool {
+	count, ok := this.heroChip[id]
+	if ok {
+		conf, ok := HeroInfo[id]
+		if ok && count >= conf.FragmentCount {
+			return true
+		}
+	}
+	return false
+}
+
+func (this *_HeroManager) addWeaponChip(id int, count int) (err error) {
+
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+
+	hero, ok := this.heros[id]
+	if !ok {
+		return errors.New("not find hero")
+	}
+
+	this.user.Debug("addWeaponChip ", count, hero.weaponChip)
+
+	_, err = dbconn.Do("HSET", this.user.GetUidUsedInDB()+":hero:"+strconv.Itoa(id), "weaponChip", hero.weaponChip+count)
+
+	if err != nil {
+		return err
+	}
+	hero.weaponChip += count
+	this.heros[id] = hero
+	return nil
+}
+
+func (this *_HeroManager) DelHeroChip(id int) (err error) {
+
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+
+	_, err = dbconn.Do("HDEL", this.user.GetUidUsedInDB()+":heroChip", id)
+
+	if err != nil {
+		return err
+	}
+	delete(this.heroChip, id)
+	return nil
+}
+
+func (this *_HeroManager) addHeroChip(id int) (err error) {
+
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+
+	now, _ := this.heroChip[id]
+
+	_, err = dbconn.Do("HSET", this.user.GetUidUsedInDB()+":heroChip", id, now+1)
+
+	if err != nil {
+		return err
+	}
+	this.heroChip[id] = now + 1
+
+	return nil
+}
+
+func (this *_HeroManager) ProcessNewGetHero(id int) (Type int, Value int, Extra int, err error) {
+	if id == 0 {
+		return 0, 0, 0, nil
+	}
+
+	flag := this.IsKindOwnedByID(id)
+	if !flag {
+		//not exist
+		err = this.addHeroChip(id)
+		if err != nil {
+			return
+		}
+		Type = NewCard
+		if this.IsHeroChipEnough(id) {
+			err = this.AddNewHero(id, 1, false)
+			if err != nil {
+				return
+			}
+			err = this.DelHeroChip(id)
+			if err != nil {
+				return
+			}
+		}
+	} else {
+		//exist
+		//已经足够则分解
+		Type, Value, Extra, err = this.smashHeroCard(id)
+		if err != nil {
+			return
+		}
+	}
+
+	this.user.Trace("Will QuestType_GetHero", id, HeroInfo[id].OriginalId)
+
+	err = this.user.quest.InspectQuest(QuestType_GetHero, HeroInfo[id].OriginalId, 0)
+	if err != nil {
+		this.user.Error("Failed QuestType_GetHero", err)
+		return
+	}
+
+	err = this.user.quest.InspectQuest(QuestType_CollectHeroCount, HeroInfo[id].OriginalId, 0)
+	if err != nil {
+		this.user.Error("Failed QuestType_CollectHeroCount ", err)
+		return
+	}
+
+	return
+}
+
+func (this *_HeroManager) getSmashType() int {
+	//var SmashTypeProb = []int{7, 79, 100}
+
+	num := util.GetRandomNumOf100()
+
+	var vec []int
+	if this.IsAnyWeaponChipLackOf() {
+		vec = SmashTypeProbWithWeaponChip
+	} else {
+		vec = SmashTypeProb
+	}
+	this.user.Debug("getSmashType weaponChip", this.IsAnyWeaponChipLackOf())
+	for index, v := range vec {
+		if num > v {
+			continue
+		}
+		switch index {
+		case 0:
+			return SmashCardToStone
+		case 1:
+			return SmashCardToGold
+		case 2:
+			return SmashCardToHeroCurr
+		case 3:
+			return SmashCardToWeaponChip
+		}
+	}
+	return SmashCardToGold
+}
+
+func (this *_HeroManager) smashHeroCard(id int) (smash_type, num int, Extra int, err error) {
+	smash_type = this.getSmashType()
+	var reward_type int
+
+	switch smash_type {
+	case SmashCardToStone:
+		reward_type = RewardType_Stone
+		//num = HeroInfo[id].QualityLevel * 600 *3
+		num = (HeroInfo[id].QualityLevel*50 + 400)
+
+	case SmashCardToGold:
+		reward_type = RewardType_Gold
+		num = HeroInfo[id].QualityLevel * 500 * 3
+
+	case SmashCardToHeroCurr:
+		reward_type = RewardType_HeroCurr
+		num = HeroInfo[id].QualityLevel * 100
+
+	case SmashCardToWeaponChip:
+		reward_type = RewardType_WeaponChip
+		num = 3
+	}
+
+	var event_flag bool
+	if this.user.IsSmashStoneDouble() {
+		num = num * 2
+		event_flag = true
+	} else if this.user.IsSmashStoneTriple() {
+		num = num * 3
+		event_flag = true
+	}
+
+	this.user.Debug("smashHeroCard", smash_type, num)
+	_, Extra, err = this.user.ProcessReward(reward_type, num)
+	if err != nil {
+		return
+	}
+
+	if event_flag {
+		err = this.user.AddEventCount()
+		if err != nil {
+			return
+		}
+	}
+	return
+}
+
+type HeroChipBack struct {
+	HeroID, ChipCount int
+}
+
+func (this *_HeroManager) GetAllHeroChip() []HeroChipBack {
+	hero := make([]HeroChipBack, len(this.heroChip))
+	index := 0
+	this.user.Debug("GetAllHeroChip", this.heroChip)
+	for id, v := range this.heroChip {
+		hero[index].HeroID = id
+		hero[index].ChipCount = v
+		index++
+	}
+	return hero
+}
+
+func (this *_HeroManager) GetAllHeros() []HeroBack {
+	hero := make([]HeroBack, len(this.heros))
+	index := 0
+	this.user.Debug("GetAllHeros", this.heros)
+	for id, v := range this.heros {
+		hero[index].Id = id
+		hero[index].Level = v.level
+		hero[index].Prob = v.prob
+		hero[index].Flag = v.flag
+		hero[index].WeaponChip = v.weaponChip
+		index++
+	}
+	return hero
+}
+
+func (this *_HeroManager) GetHeroLevelUpProb(id int) int {
+	return this.heros[id].prob
+}
+
+const (
+	NormalHero = 0
+	TrueHero   = 1
+)
+
+func (this *_HeroManager) SetHeroTrue(hid int) (err error) {
+	v, ok := this.heros[hid]
+	if !ok {
+		this.user.Warn("The hero id is not own")
+		return nil
+	}
+
+	v.flag = TrueHero
+	this.heros[hid] = v
+
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+
+	_, err = dbconn.Do("HSET", this.user.GetUidUsedInDB()+":hero:"+strconv.Itoa(hid), "flag", TrueHero)
+	if err != nil {
+		return err
+	}
+
+	err = this.user.quest.InspectQuest(QuestType_GetTrueHero, HeroInfo[hid].OriginalId, 0)
+	if err != nil {
+		this.user.Error("Failed QuestType_GetTrueHero", err)
+		return
+	}
+
+	return nil
+}
+
+func (this *_HeroManager) IsHeroTure(oid int) bool {
+	for _, id_tmp := range HeroOriginalId[oid] {
+		if id_tmp == 0 {
+			continue
+		}
+
+		if this.IsOwned(id_tmp) {
+			if this.heros[id_tmp].flag == 0 {
+				return false
+			} else {
+				return true
+			}
+		}
+
+	}
+	return false
+}
+
+func GetHeroEvolveQuests(id int, quality int) []int {
+	switch quality {
+	case Blue:
+		return HeroInfo[id].BlueAdvanceQuests
+
+	case Violet:
+		return HeroInfo[id].PurpleAdvanceQuests
+
+	case Orange:
+		return HeroInfo[id].OrangeAdvanceQuests
+
+	default:
+		return nil
+	}
+}
+
+func (this *_HeroManager) CanHeroEvolve(id int) bool {
+	if this.heros[id].level < MaxCardLevel {
+		this.user.Error("The level is not top", id, this.heros[id].level)
+		return false
+	}
+
+	quality := HeroInfo[id].QualityLevel
+	for _, qid := range GetHeroEvolveQuests(id, quality) {
+		if !this.user.quest.IsQuestFinished(QuestMold_HeroAdvance, qid) {
+			this.user.Error("The hero evolve quest is not finish", qid)
+			return false
+		}
+	}
+	return true
+}
+
+func (this *_HeroManager) GetCombatScore() (s int) {
+	return len(this.heros) * 2
+}
+
+func (this *_HeroManager) GetHeroCount() (s int) {
+	return len(this.heros)
+}
+
+func (this *_HeroManager) GetRandomHero() BackHeroInfo {
+	var back BackHeroInfo
+
+	r := util.GetRandomNum(len(this.heros))
+	index := 0
+	for id, v := range this.heros {
+		if index == r {
+			back.ID = id
+			back.Level = v.level
+			back.Flag = v.flag
+			break
+		} else {
+			index++
+		}
+	}
+
+	return back
+}
+
+func (this *_HeroManager) GetHeroOfTopN(num int) []BackHeroInfo {
+	if len(this.heros) <= num {
+		hero := make([]BackHeroInfo, len(this.heros))
+		index := 0
+		for id, v := range this.heros {
+			hero[index].ID = id
+			hero[index].Level = v.level
+			hero[index].Flag = v.flag
+			index++
+		}
+		return hero
+	}
+
+	back := make([]BackHeroInfo, num)
+	count := 0
+	//this.user.Trace("dddddddsfss")
+	for quality := 5; quality >= 1; quality-- {
+		for id, v := range this.heros {
+			this.user.Trace("The count and back is", count, back)
+			if HeroInfo[id].QualityLevel == quality {
+				back[count].ID = id
+				back[count].Level = v.level
+				back[count].Flag = v.flag
+				count++
+
+				this.user.Trace("The count and back is", count, back)
+				if count >= num {
+					return back
+				}
+			}
+		}
+	}
+	return nil
+}
+
+func (this *_HeroManager) CanHeroUpdate(id int) bool {
+	if this.heros[id].level >= MaxCardLevel {
+		return false
+	}
+
+	return true
+}
+
+var (
+	HeroUpdateBaseCoef = []int{0, 100, 125, 150, 200, 250, 300, 375, 450, 0}
+)
+
+func (this *_HeroManager) GetHeroUpdatePrice(id int) (Type, Value int) {
+	if this.CanHeroEvolve(id) {
+		Type = RewardType_HeroCurr
+		Value = QualityCoef[HeroInfo[id].QualityLevel] * HeroInfo[id].SkillRoundCount * 100
+	} else if this.CanHeroUpdate(id) {
+		Type = RewardType_Gold
+		//base := 100 + ((this.GetHeroLevel(id)-1)/3+1)*25
+		base := HeroUpdateBaseCoef[this.GetHeroLevel(id)]
+		Value = QualityCoef[HeroInfo[id].QualityLevel] * HeroInfo[id].SkillRoundCount * base
+	} else {
+		Type = -1
+		Value = 0
+	}
+	return
+}
+
+func (this *_HeroManager) GetNewHero() []int {
+	back := make([]int, len(this.n_heros))
+	index := 0
+
+	for id, _ := range this.n_heros {
+		back[index] = id
+		index++
+	}
+	return back
+}
+
+func (this *_HeroManager) DelNewHero() (err error) {
+	for id, _ := range this.n_heros {
+		delete(this.n_heros, id)
+	}
+
+	dbconn := db.Pool.Get()
+	defer dbconn.Close()
+
+	_, err = dbconn.Do("DEL", this.user.GetUidUsedInDB()+":new_hero")
+	if err != nil {
+		this.user.Error("Failed delete new_arm")
+		return err
+	}
+	return err
+}
