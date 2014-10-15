@@ -1,5 +1,0 @@
-#git pull
-go build -race 
-cp GameGateway /data/gameserver/ios91/GameGateway/GameGateway91
-cd /data/gameserver/ios91/GameHub/
-sh startup.sh
