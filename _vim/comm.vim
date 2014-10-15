@@ -36,11 +36,11 @@ Bundle 'vim-scripts/ack.vim'
 Bundle 'Lokaltog/vim-powerline'
 Bundle 'Lokaltog/vim-easymotion'
 Bundle 'Shougo/unite.vim'
-if has('lua') && version >= 703
-    Bundle 'Shougo/neocomplete'
-else
-    Bundle 'Shougo/neocomplcache'
-endif
+"if has('lua') && version >= 703
+    "Bundle 'Shougo/neocomplete'
+"else
+    "Bundle 'Shougo/neocomplcache'
+"endif
 Bundle 'tpope/vim-surround'
 Bundle 'bootleq/vim-cycle'
 Bundle 'kana/vim-smartword'
@@ -48,6 +48,7 @@ Bundle 'altercation/vim-colors-solarized'
 Bundle 'terryma/vim-multiple-cursors'
 Bundle 'fatih/vim-go'
 Bundle 'plasticboy/vim-markdown'
+Bundle 'octol/vim-cpp-enhanced-highlight'
 
 
 " 代码存放在 vim script 上
@@ -88,7 +89,7 @@ set nocompatible
 "disable alt
 set winaltkeys=no
 "tags 位置
-set tags=~/.vim/comm_tags,~/.vim/cpp_tags,.tags,.gosource.tags; 
+set tags=~/.vim/comm_tags,~/.vim/stl_tags,.tags,.gosource.tags; 
 
 "折叠
 set foldmethod=syntax
