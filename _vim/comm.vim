@@ -28,7 +28,7 @@ Bundle 'vim-scripts/python.vim'
 Bundle 'vim-scripts/xml.vim'
 Bundle 'vim-scripts/matchit.zip'
 Bundle 'vim-scripts/YankRing.vim'
-Bundle 'vim-scripts/AutoClose'
+""Bundle 'vim-scripts/AutoClose'
 "Bundle 'vim-scripts/Tabular'
 Bundle 'vim-scripts/snipMate'
 Bundle 'vim-scripts/a.vim'
@@ -295,7 +295,11 @@ noremap Y y$
 "支持粘贴
 inoremap kk <Esc>:set paste<CR>i
 
-""nnoremap \i  [I
+inoremap [ []<Esc>i
+inoremap " ""<Esc>i
+inoremap ' ''<Esc>i
+inoremap ( ()<Esc>i
+inoremap { {}<Esc>i
 
 "窗口间移动
 nnoremap <C-H> <Esc><C-W>h
@@ -374,7 +378,7 @@ nmap ge  <Plug>(smartword-ge)
 "}}}
 
 "autoclose{{{
-nmap <F2> <Plug>ToggleAutoCloseMappings
+""nmap <F2> <Plug>ToggleAutoCloseMappings
 "}}}}
 
 "a.vim {{{
