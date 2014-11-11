@@ -49,6 +49,8 @@ Bundle 'terryma/vim-multiple-cursors'
 Bundle 'fatih/vim-go'
 Bundle 'plasticboy/vim-markdown'
 Bundle 'octol/vim-cpp-enhanced-highlight'
+Bundle 'elzr/vim-json'
+Bundle 'Valloric/YouCompleteMe'
 
 
 " 代码存放在 vim script 上
@@ -307,6 +309,8 @@ nnoremap <C-L> <Esc><C-W>l
 nnoremap <C-J> <Esc><C-W>j
 nnoremap <C-K> <Esc><C-W>k
 
+nnoremap \j :%!python -m json.tool<CR>
+
 "Fast reloading of the .vimrc
 nnoremap \s <ESC>:source ~/.vim/comm.vim<cr>
 "Fast editing of .vimrc
@@ -360,6 +364,10 @@ inoremap <expr><C-U>  pumvisible()?"\<C-E>":"\<C-U>"
 "---------------------------------------------------------------------------
 "插件设置
 "---------------------------------------------------------------------------
+" YCM settings
+let g:ycm_key_list_select_completion = ['', '']
+let g:ycm_key_list_previous_completion = ['']
+let g:ycm_key_invoke_completion = '<C-Space>'
 
 "ack.vim{
 if g:os == 'Linux' 
@@ -377,9 +385,6 @@ nmap e  <Plug>(smartword-e)
 nmap ge  <Plug>(smartword-ge)
 "}}}
 
-"autoclose{{{
-""nmap <F2> <Plug>ToggleAutoCloseMappings
-"}}}}
 
 "a.vim {{{
 nnoremap ,a <Esc>:A<CR>
@@ -389,10 +394,6 @@ nnoremap ,a <Esc>:A<CR>
 "unite{{{
 nnoremap ,f :Unite file<CR>
 nnoremap ,b :Unite buffer<CR>
-"}}}
-
-"tabular{{{
-""nnoremap \= :call SetAlign()<CR>
 "}}}
 
 "vim-easymotion{{{
@@ -758,7 +759,8 @@ autocmd FileType vim map <buffer> <leader><space> :w!<cr>:source %<cr>
 """"""""""""
 " Enable omni completion. (Ctrl-X Ctrl-O)
 autocmd FileType javascript setlocal omnifunc=javascriptcomplete#CompleteJS
-autocmd BufNewFile,BufRead *.json set ft=javascript
+au! BufRead *.json,*.cfg set filetype=json 
+
 
 "----------------------------------------------------------------------------
 " FUNCTIONS
@@ -780,6 +782,7 @@ endfunc
 function! AckFile() range
     exec "Ack " . expand('<cword>') ." --". &filetype 
 endfunc
+
 " Visual mode related
 function! VisualSelection(direction) range
     let l:saved_reg = @"
@@ -808,15 +811,6 @@ function! VisualSelection(direction) range
     let @" = l:saved_reg
 endfunction
 
-"自动更新 修改时间
-function! LastModified()
-    if search("\\/\\*LastModified: \\d\\{4}-\\d\\{2}-\\d\\{2} \\d\\{2}:\\d\\{2}:\\d\\{2}\\*\\/","","")>0
-        exe "silent! $,$g/$/s/LastModified: .*/LastModified: " .
-            \ strftime("%Y-%m-%d %H:%M:%S") . "\\*\\/"
-    else
-        exe "silent! $,$g/$/s/$/\r\\/\\*LastModified: " .
-            \ strftime("%Y-%m-%d %H:%M:%S") . "\\*\\/"
-endif
 
 "退格时自动补全
 function! Ex_bspace()
@@ -837,7 +831,6 @@ function! Ex_bspace()
     "default
     return "\<Backspace>"	
 endf
-endfunc
 
 "获取当前路径的上一级的路径
 function! GET_UP_PATH(dir)
