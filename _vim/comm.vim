@@ -302,7 +302,7 @@ nnoremap <C-L> <Esc><C-W>l
 nnoremap <C-J> <Esc><C-W>j
 nnoremap <C-K> <Esc><C-W>k
 
-nnoremap \j :%!python -m json.tool<CR>
+nnoremap \j :call ConvertToJson()<CR>
 
 "Fast reloading of the .vimrc
 nnoremap \s <ESC>:source ~/.vim/comm.vim<cr>
@@ -343,8 +343,6 @@ inoremap <C-I> <C-X><C-I>
 inoremap <C-U> <C-X><C-U> 
 "全能补全
 inoremap <C-O> <C-X><C-O>
-" 用于支持 退格后 . -> 代码补全
-"inoremap   <expr> <Backspace>  Ex_bspace() 
 "用于支持代码补全时，提示存在。
 set complete=.,w,b,u,t
 set completeopt=longest,menuone
@@ -677,27 +675,6 @@ function! VisualSelection(direction) range
     let @" = l:saved_reg
 endfunction
 
-
-"退格时自动补全
-function! Ex_bspace()
-    if (&filetype == "cpp" || &filetype == "c" )
-        let pre_str= strpart(getline('.'),0,col('.')-2)
-        if pre_str  =~ "[.][ \t]*$" || pre_str  =~ "->[ \t]*$"   
-            return "\<Backspace>\<C-X>\<C-O>"	
-        endif 
-    endif
-
-    if (&filetype == "python"|| &filetype == "html"  || &filetype == "python"  )
-        let pre_str= strpart(getline('.'),0,col('.')-2)
-        if pre_str  =~ "[.][ \t]*$"
-            return "\<Backspace>\<C-X>\<C-O>\<C-P>\<C-R>=pumvisible() ? \"\\<down>\" : \"\"\<cr>"	
-        endif 
-    endif
-
-    "default
-    return "\<Backspace>"	
-endf
-
 "获取当前路径的上一级的路径
 function! GET_UP_PATH(dir)
     let pos=len(a:dir)-1
@@ -775,6 +752,12 @@ function! GEN_C_TAGS()
         endif
     endif
     exec "redraw!"
+endfunction
+
+function! ConvertToJson()
+    if &filetype == "json" 
+        exec "%!python -m json.tool"
+    endif
 endfunction
 
 function! OPT_RANGE( opt_str ) 

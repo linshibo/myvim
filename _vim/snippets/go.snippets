@@ -16,7 +16,7 @@ snippet eif
 snippet todo
 	/*TODO:${1:something}*/
 snippet ie 
-	if	err != nil{
+	if	err != nil {
 		log.Error(sess.user.uid, "${1:something}:", err)
 	}
 snippet loop
@@ -46,23 +46,26 @@ snippet im
 		"${1:package}"
 	)
 snippet sp
-	fmt.Sprintf("%${1:s}", ${2:var})}"}")
+	fmt.Sprintf("${1:s}", ${2:var})}"}")
 snippet log
-	log.Debug(sess.user.uid, "%${1:value}")
+	log.Debug(${1:sess.user.uid}, "${2:value}")
 snippet elog
-	log.Error(sess.user.uid, "%${1:value}")
+	log.Error(${1:sess.user.uid}, "${2:value}")
 snippet tlog
-	log.Trace("%${1:value}")
+	log.Trace("${1:value}")
 snippet wlog
-	log.Warn("%${1:value}")
+	log.Warn("${1:value}")
 snippet flog
-	log.Fatal("%${1:value}")
+	log.Fatal("${1:value}")
 snippet vars
     var(
 	)
 snippet co
 	const(
 	)
+snippet st
+	type ${1:name} struct{
+	}
 snippet hd
 	/*=========================================================================       
 	* 
