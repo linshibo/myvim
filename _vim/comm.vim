@@ -267,7 +267,8 @@ nnoremap ,t <Esc>:tabedit
 nnoremap ,g :exec "Ack " . expand('<cword>') ." --". &filetype<CR>
 vnoremap ,g :call VisualSelection('gv')<CR>
 nnoremap ,r <Esc>:call GEN_TAGS()<CR>
-nnoremap ,m <Esc>:make<CR>:cc<CR>
+""nnoremap ,m <Esc>:make<CR>:cc<CR>
+nnoremap ,m <Esc>:call Make()<CR>
 "nnoremap ,y <Esc>:call OPT_RANGE("ya")<CR>
 "nnoremap ,Y <Esc>:call OPT_RANGE("yi")<CR>
 "nnoremap ,d <Esc>:call OPT_RANGE("da")<CR>
@@ -363,7 +364,7 @@ let g:ycm_key_invoke_completion = '<C-Space>'
 "ack.vim{
 if g:os == 'Linux' 
     set grepprg=/user/bin/ack-grep
-    let g:ackprg="/usr/local/bin/ack-grep -H --nocolor --nogroup "
+    let g:ackprg="/usr/bin/ack-grep -H --nocolor --nogroup"
 elseif g:os == 'Darwin' || g:os == 'Mac'
     let g:ackprg="/usr/local/bin/ack -H --nocolor --nogroup"
 endif
@@ -719,6 +720,16 @@ function! SET_UAW()
     
     call setpos('.', save_cursor)
 endfunction
+
+function! Make() 
+    if ( &filetype == "go")
+        exec "GoBuild" 
+    endif
+    if ( &filetype == "cpp" || &filetype == "c")
+        exec "make"
+    endif
+endfunction
+
 
 
 function! GEN_TAGS() 
