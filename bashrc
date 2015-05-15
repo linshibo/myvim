@@ -235,7 +235,7 @@ function _killall()
     # get a list of processes (the first sed evaluation
     # takes care of swapped out processes, the second
     # takes care of getting the basename of the process)
-    COMPREPLY=( $( /usr/bin/ps -u $USER -o comm  | \
+    COMPREPLY=( $( /bin/ps -u $USER -o comm  | \
         sed -e '1,1d' -e 's#[]\[]##g' -e 's#^.*/##'| \
         awk '{if ($0 ~ /^'$cur'/) print $0}' ))
     return 0

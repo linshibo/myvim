@@ -11,39 +11,45 @@
 ":BundleSearch(!) foo - search(or refresh cache first) for foo
 ":BundleClean(!)      - confirm(or auto-approve) removal of unused bundles
 
+set nocompatible
+filetype off
+
 "Vundle 管理
-set rtp+=~/.vim/bundle/vundle/
-call vundle#rc()
+set rtp+=~/.vim/bundle/Vundle.vim/
+call vundle#begin()
 
 " 让 Vundle 管理 Vundle
 " 此条必须有
-Bundle 'gmarik/vundle'
+Plugin 'gmarik/Vundle.vim'
 
 " 代码源在 github 上的
-Bundle 'vim-scripts/DoxygenToolkit.vim'
-Bundle 'vim-scripts/FencView.vim'
-Bundle 'vim-scripts/OmniCppComplete'
-Bundle 'vim-scripts/Tagbar'
-Bundle 'vim-scripts/python.vim'
-Bundle 'vim-scripts/xml.vim'
-Bundle 'vim-scripts/matchit.zip'
-Bundle 'vim-scripts/YankRing.vim'
-Bundle 'vim-scripts/snipMate'
-Bundle 'vim-scripts/a.vim'
-Bundle 'vim-scripts/ack.vim'
-Bundle 'Lokaltog/vim-powerline'
-Bundle 'Lokaltog/vim-easymotion'
-Bundle 'Shougo/unite.vim'
-Bundle 'tpope/vim-surround'
-Bundle 'bootleq/vim-cycle'
-Bundle 'kana/vim-smartword'
-Bundle 'altercation/vim-colors-solarized'
-Bundle 'terryma/vim-multiple-cursors'
-Bundle 'fatih/vim-go'
-Bundle 'plasticboy/vim-markdown'
-Bundle 'octol/vim-cpp-enhanced-highlight'
-Bundle 'elzr/vim-json'
-Bundle 'Valloric/YouCompleteMe'
+Plugin 'vim-scripts/DoxygenToolkit.vim'
+Plugin 'vim-scripts/FencView.vim'
+Plugin 'vim-scripts/OmniCppComplete'
+Plugin 'vim-scripts/Tagbar'
+Plugin 'vim-scripts/python.vim'
+Plugin 'vim-scripts/xml.vim'
+Plugin 'vim-scripts/matchit.zip'
+Plugin 'vim-scripts/YankRing.vim'
+Plugin 'vim-scripts/snipMate'
+Plugin 'vim-scripts/a.vim'
+Plugin 'vim-scripts/ack.vim'
+Plugin 'Lokaltog/vim-powerline'
+Plugin 'Lokaltog/vim-easymotion'
+Plugin 'Shougo/unite.vim'
+Plugin 'tpope/vim-surround'
+Plugin 'bootleq/vim-cycle'
+Plugin 'kana/vim-smartword'
+Plugin 'altercation/vim-colors-solarized'
+Plugin 'terryma/vim-multiple-cursors'
+Plugin 'fatih/vim-go'
+Plugin 'plasticboy/vim-markdown'
+Plugin 'octol/vim-cpp-enhanced-highlight'
+Plugin 'elzr/vim-json'
+Plugin 'Valloric/YouCompleteMe'
+Plugin 'scrooloose/nerdtree'
+Plugin 'Shougo/vimshell.vim'
+call vundle#end()
 
 
 " 代码存放在 vim script 上
@@ -267,7 +273,6 @@ nnoremap ,t <Esc>:tabedit
 nnoremap ,g :exec "Ack " . expand('<cword>') ." --". &filetype<CR>
 vnoremap ,g :call VisualSelection('gv')<CR>
 nnoremap ,r <Esc>:call GEN_TAGS()<CR>
-""nnoremap ,m <Esc>:make<CR>:cc<CR>
 nnoremap ,m <Esc>:call Make()<CR>
 "nnoremap ,y <Esc>:call OPT_RANGE("ya")<CR>
 "nnoremap ,Y <Esc>:call OPT_RANGE("yi")<CR>
@@ -390,7 +395,6 @@ nnoremap ,b :Unite buffer<CR>
 
 "vim-easymotion{{{
 let g:EasyMotion_leader_key = '0'
-""nnoremap \w <Esc>00w
 "}}}
 
 "FencView {{{
@@ -403,9 +407,9 @@ let g:yankring_max_history = 10
 let g:yankring_min_element_length = 3
 let g:yankring_max_display = 50 
 let g:yankring_persist = 0
-nnoremap <silent> <C-Y> :YRShow<CR> 
 let g:yankring_history_dir = '~/.vim/'
 let g:yankring_history_file='.yankring_history_file'
+nnoremap <silent> <C-Y> :YRShow<CR> 
 "}}}
 
 " omnicppcomplete{{{
@@ -546,6 +550,7 @@ let g:cycle_default_groups = [
 \ [['south', 'north']],
 \ [['prefix', 'suffix']],
 \ [['decode', 'encode']],
+\ [['float', 'int','string']],
 \ [['short', 'long']],
 \ [['pop', 'shift']],
 \ [['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday',

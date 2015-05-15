@@ -46,6 +46,7 @@ alias gp='git push origin $(git branch 2>/dev/null | sed -e "/^ /d" -e "s/* \(.*
 alias gl='git pull --rebase'
 alias apt-get='sudo apt-get'
 alias path='echo -e ${PATH//:/\\n}'
+alias vi='vim'
 
 
 #alias my='mysql -uroot -p123456 -A --prompt="\\u@\\h : \\d \\r:\\m:\\s>"'
