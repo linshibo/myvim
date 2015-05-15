@@ -35,6 +35,7 @@ alias dstat="dstat -cdlmnpsy"
 #alias translate="~/myvim/bin/gtrans en zh-cn"
 alias vimrc="vi ~/.vim/comm.vim"
 alias bashrc="vi ~/.bashrc"
+alias vi='vim'
 
 alias allusers="cut -d: -f1 /etc/passwd"
 alias allgroups="cut -d: -f1 /etc/group"
