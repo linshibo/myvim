@@ -48,7 +48,6 @@ Plugin 'octol/vim-cpp-enhanced-highlight'
 Plugin 'elzr/vim-json'
 Plugin 'Valloric/YouCompleteMe'
 Plugin 'scrooloose/nerdtree'
-Plugin 'Shougo/vimshell.vim'
 call vundle#end()
 
 
@@ -266,7 +265,7 @@ cnoremap <C-j> <t_kd>
 cnoremap <C-k> <t_ku>
 
 "tabedit
-nnoremap ,t <Esc>:tabedit 
+""nnoremap ,t <Esc>:tabedit 
 
 "查找当前光标下的单词
 ""nnoremap ,g :Ack <C-R>=expand('<cword>')<CR><CR>
@@ -291,7 +290,6 @@ nnoremap <silent> g* g*zz
 " Go to home and end using capitalized directions
 noremap H ^
 noremap L $
-noremap Y y$
 
 "支持粘贴
 inoremap kk <Esc>:set paste<CR>i
@@ -319,12 +317,12 @@ nnoremap ,cd <ESC>:cd %:p:h<cr>
 
 "在正常模式下的整块移动
 "大括号内向左移
-nmap <F7> <Esc><i{
+""nmap <F7> <Esc><i{
 "大括号内向右移
-nmap <F8> <Esc>>i{
+""nmap <F8> <Esc>>i{
 "选择区移动
-vnoremap <F7> <gv
-vnoremap <F8> >gv
+""vnoremap <F7> <gv
+""vnoremap <F8> >gv
 " Visual mode pressing * or # searches for the current selection
 " Super useful! From an idea by Michael Naumann
 vnoremap <silent> * :call VisualSelection('f')<CR>
@@ -361,10 +359,18 @@ inoremap <expr><C-U>  pumvisible()?"\<C-E>":"\<C-U>"
 "---------------------------------------------------------------------------
 "插件设置
 "---------------------------------------------------------------------------
-" YCM settings
+" YCM settings {{{
 let g:ycm_key_list_select_completion = ['', '']
 let g:ycm_key_list_previous_completion = ['']
 let g:ycm_key_invoke_completion = '<C-Space>'
+"}}}
+
+"Nerdtree{{{
+autocmd StdinReadPre * let s:std_in=1
+autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif""))
+autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTreeType") && b:NERDTreeType == "primary") | q | endif
+map <C-e> :NERDTreeToggle<CR>
+"}}}
 
 "ack.vim{
 if g:os == 'Linux' 
