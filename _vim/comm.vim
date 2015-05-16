@@ -48,6 +48,7 @@ Plugin 'octol/vim-cpp-enhanced-highlight'
 Plugin 'elzr/vim-json'
 Plugin 'Valloric/YouCompleteMe'
 Plugin 'scrooloose/nerdtree'
+Plugin 'scrooloose/syntastic'
 call vundle#end()
 
 
