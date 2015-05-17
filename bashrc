@@ -72,50 +72,33 @@ if [ -x /usr/bin/dircolors ]; then
     test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
 fi
 
-#设置vi模式
-#set -o vi
-
-
-
 if [[ $(type -P brew) ]]; then
     [[ -f `brew --prefix`/etc/bash_completion ]] && source `brew --prefix`/etc/bash_completion
     [[ -f `brew --prefix`/etc/autojump.bash ]] && source `brew --prefix`/etc/autojump.bash
 fi
 
 if [ "`uname`" == "Darwin" ]; then
-    localip=`/sbin/ifconfig en0 2>/dev/null | awk '$1=="inet"{print $2}'`
+    localip=`/sbin/ifconfig en1 2>/dev/null | awk '$1=="inet"{print $2}'`
 elif [ "`uname`" == "Linux" ]; then
     localip=`/sbin/ifconfig eth0 2>/dev/null | awk '$1=="inet"{print $2}' | awk -F: '{print $2}' `
 fi
 
 #colors
-BLK='\e[01;30m'
-RED='\e[1;31m'
-GRN='\e[1;32m';
-YEL='\e[1;33m'
-BLU='\e[1;34m'
-MAG='\e[1;35m'
-CYN='\e[1;36m'
-WHI='\e[1;37m'
-DRED='\e[0;31m'
-DGRN='\e[0;32m'
-DYEL='\e[0;33m'
-DBLU='\e[0;34m'
-DMAG='\e[0;35m'
-DCYN='\e[0;36m'
-DWHI='\e[0;37m'
-RES='\e[0m'
+BLK='\e[00;30m'
+RED='\e[00;31m'
+GRN='\e[00;32m'
+YEL='\e[00;33m'
+BLU='\e[00;34m'
+MAG='\e[00;35m'
+CYN='\e[00;36m'
+WHI='\e[00;37m'
+RES='\e[00m'
 
 set -o notify
 
-shopt -s extglob
-
-# autocomplete ssh commands
-complete -W "$(echo `cat ~/.bash_history | egrep '^ssh ' | sort | uniq | sed 's/^ssh //'`;)" ssh
-
 export LOCAL_IP=$localip
 export LOCAL_IP_4=`echo $localip | awk -F. '{print $4}' `
-export PS1='\e[01;32m➜\e[00;38m=\e[01;31m$LOCAL_IP\e[00;38m=\[\e[00;38m\][\[\e[00;32m\]\u\[\e[01;36m\]\[\e[00m\] \[\e[00;34m\]`pwd``B=$(git branch 2>/dev/null | sed -e "/^ /d" -e "s/* \(.*\)/\1/"); if [ "$B" != "" ]; then S="git"; elif [ -e .bzr ]; then S=bzr; elif [ -e .hg ]; then S="hg"; elif [ -e .svn ]; then S="svn"; else S=""; fi; if [ "$S" != "" ]; then if [ "$B" != "" ]; then M=$S:$B; else M=$S; fi; fi; [[ "$M" != "" ]] && echo -n -e "\[\e[33;40m\]($M)\[\e[01;32m\]\[\e[00m\]"`\[\e[01;34m\]\[\e[00;38m\]]\[\e[01;31m\]\n\e[01;32m➜\$\[\e[00m\]'
+PS1='\e[00;37m\][\[\e[00;31m\]$LOCAL_IP \[\e[00;32m\]\u\[\e[00;36m\]\[\e[00m\] \[\e[00;34m\]`pwd``B=$(git branch 2>/dev/null | sed -e "/^ /d" -e "s/* \(.*\)/\1/"); if [ "$B" != "" ]; then S="git"; elif [ -e .bzr ]; then S=bzr; elif [ -e .hg ]; then S="hg"; elif [ -e .svn ]; then S="svn"; else S=""; fi; if [ "$S" != "" ]; then if [ "$B" != "" ]; then M=$S:$B; else M=$S; fi; fi; [[ "$M" != "" ]] && echo -n -e "\[\e[33;40m\]($M)\[\e[01;32m\]\[\e[00m\]"`\[\e[00;37m\]]\[\e[00;32m\]➜\[\e[00m\]'
 export TERM=xterm-256color
 export EDITOR="vim"
 export LANG=en_US.UTF-8
@@ -123,12 +106,12 @@ ulimit -c 40000000
 export PATH=$PATH:.
 export CLICOLOR=1
 
+shopt -s extglob
 shopt -s cdspell                # this will correct minor spelling errors in a cd command
 shopt -s checkhash
 shopt -s checkwinsize               # update windows size on command
 shopt -s cmdhist                    # save multi-line commands in history as single line
 shopt -s extglob				# necessary for bash completion (programmable completion)
-
 
 
 # remove duplicate path entries
@@ -140,6 +123,10 @@ END { for (i in arr) printf "%s:" , i; printf "\n"; } ')
 if [ -f ~/myvim/bash_func ]; then
     . ~/myvim/bash_func
 fi
+
+# autocomplete ssh commands
+complete -W "$(echo `cat ~/.bash_history | egrep '^ssh ' | sort | uniq | sed 's/^ssh //'`;)" ssh
+
 complete -F _killall killall killps
 
 complete -F _make -X '+($*|*.[cho])' make gmake pmake\
