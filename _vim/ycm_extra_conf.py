@@ -60,14 +60,6 @@ flags = [
 '-x',
 'c++',
 '-isystem', '../BoostParts',
-'-isystem', '/usr/include/c++/4.6',
-'-isystem', '/usr/include/clang/3.0/include/',
-'-isystem', '/usr/include/c++/4.6/i686-linux-gnu',
-'-isystem', '/usr/lib/gcc/i686-linux-gnu/4.6/include/',
-'-isystem', '/usr/local/include',
-'-isystem', '/usr/include',
-'-isystem', '/usr/include/c++/4.6/i686-linux-gnu',
-'_I','/home/frank/workspace/voice/servers'
 '-isystem',
 # This path will only work on OS X, but extra paths that don't exist are not
 # harmful
@@ -76,6 +68,11 @@ flags = [
 '../llvm/include',
 '-isystem',
 '../llvm/tools/clang/include',
+'-isystem','/Library/Developer/CommandLineTools/usr/bin/../include/c++/v1',
+'-isystem','/usr/local/include',
+'-isystem','/Library/Developer/CommandLineTools/usr/bin/../lib/clang/6.1.0/include',
+'-isystem','/Library/Developer/CommandLineTools/usr/include',
+'-isystem','/usr/include',
 '-I', '.',
 '-I', './ClangCompleter',
 '-isystem',

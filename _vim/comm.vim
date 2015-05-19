@@ -364,8 +364,9 @@ inoremap <expr><C-U>  pumvisible()?"\<C-E>":"\<C-U>"
 " YCM settings {{{
 let g:ycm_key_list_select_completion = ['', '']
 let g:ycm_key_list_previous_completion = ['']
-let g:ycm_confirm_extra_conf = 1
+let g:ycm_confirm_extra_conf = 0
 let g:ycm_key_invoke_completion = '<C-Space>'
+let g:ycm_global_ycm_extra_conf = '~/.ycm_extra_conf.py'
 nnoremap <C-d> <Esc>:YcmCompleter GoToDefinition<CR>
 "}}}
 
