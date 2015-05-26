@@ -48,7 +48,6 @@ Plugin 'octol/vim-cpp-enhanced-highlight'
 Plugin 'elzr/vim-json'
 Plugin 'Valloric/YouCompleteMe'
 Plugin 'scrooloose/nerdtree'
-""Plugin 'scrooloose/syntastic'
 Plugin 'Shougo/neocomplete.vim'
 call vundle#end()
 
@@ -91,7 +90,7 @@ set nocompatible
 "disable alt
 set winaltkeys=no
 "tags 位置
-set tags=~/.vim/comm_tags,~/.vim/stl_tags,.tags,.gosource.tags; 
+set tags=~/.vim/comm_tags,~/.vim/stl_tags,.tags,.gosource.tags,../.tags; 
 
 "折叠
 set foldmethod=syntax
@@ -111,7 +110,6 @@ autocmd InsertLeave * if &paste == 1|set nopaste |endif
 let &termencoding = &encoding
 set encoding=utf-8
 set termencoding=utf-8
-set fileencoding=utf-8
 set fileencodings=ucs-bom,utf-8,gb2312,big5,euc-jp,euc-kr,latin1
 language messages POSIX
 
@@ -267,7 +265,7 @@ cnoremap <C-j> <t_kd>
 cnoremap <C-k> <t_ku>
 
 "tabedit
-""nnoremap ,t <Esc>:tabedit 
+nnoremap ,t <Esc>:tabedit 
 
 "查找当前光标下的单词
 ""nnoremap ,g :Ack <C-R>=expand('<cword>')<CR><CR>
@@ -323,8 +321,8 @@ nnoremap ,cd <ESC>:cd %:p:h<cr>
 "大括号内向右移
 ""nmap <F8> <Esc>>i{
 "选择区移动
-""vnoremap <F7> <gv
-""vnoremap <F8> >gv
+vnoremap < <gv
+vnoremap > >gv
 " Visual mode pressing * or # searches for the current selection
 " Super useful! From an idea by Michael Naumann
 vnoremap <silent> * :call VisualSelection('f')<CR>
@@ -332,8 +330,8 @@ vnoremap <silent> # :call VisualSelection('b')<CR>
 
 "quick fix toggle
 nnoremap <F4> <Esc>:call ToggleQF()<CR>
-nnoremap ,cn <Esc>:cn<CR>
-nnoremap ,cp <Esc>:cp<CR>
+nnoremap ,n <Esc>:cn<CR>
+nnoremap ,p <Esc>:cp<CR>
 
 "根据标签补全
 inoremap <C-]> <C-X><C-]> 
@@ -367,7 +365,8 @@ let g:ycm_key_list_previous_completion = ['']
 let g:ycm_confirm_extra_conf = 0
 let g:ycm_key_invoke_completion = '<C-Space>'
 let g:ycm_global_ycm_extra_conf = '~/.ycm_extra_conf.py'
-nnoremap <C-d> <Esc>:YcmCompleter GoToDefinition<CR>
+nnoremap <C-d> :YcmCompleter GoTo<CR>
+""nnoremap <C-d> :YcmCompleter GoToDefinition<CR>
 "}}}
 
 "Nerdtree{{{
@@ -475,7 +474,6 @@ let g:DoxygenToolkit_undocTag="DOXIGEN_SKIP_BLOCK"
 let g:DoxygenToolkit_briefTag_funcName = "no"
 let g:DoxygenToolkit_maxFunctionProtoLines = 30
 nnoremap \d :Dox<CR>
-""nnoremap \da :DoxAuthor<CR>
 "}}}
 
 "neocomplete{{{
@@ -483,7 +481,7 @@ nnoremap \d :Dox<CR>
 " Disable AutoComplPop.
 let g:acp_enableAtStartup = 0
 " Use neocomplete.
-let g:neocomplete#enable_at_startup = 1
+let g:neocomplete#enable_at_startup = 0
 " Use smartcase.
 let g:neocomplete#enable_smart_case = 1
 " Set minimum syntax keyword length.
@@ -669,7 +667,7 @@ let g:go_fmt_command = "gofmt"
 au FileType go nmap gd <Plug>(go-def)
 au FileType go nmap <Leader>d <Plug>(go-doc)
 au FileType go nmap <Leader>i <Plug>(go-info)
-noremap \\f <Esc>:GoFmt<CR> 
+au FileType go noremap \\f <Esc>:GoFmt<CR> 
 "}}}
 "----------------------------------------------------------------------------
 " FileType related
@@ -744,10 +742,6 @@ function! ToggleQF()
         let g:fx_toggle = 0
         cclose
     endif
-endfunc
-
-function! AckFile() range
-    exec "Ack " . expand('<cword>') ." --". &filetype 
 endfunc
 
 " Visual mode related
@@ -850,7 +844,7 @@ endfunction
 "重新生成c语言 ctag cscope
 function! GEN_C_TAGS() 
     if(executable('cscope') && has("cscope") )
-        silent! execute "!find . -name '[^.]*.h' -o -name '[^.]*.c' -o -name '[^.]*.cpp' -o -name '[^.]*.hpp' > cscope.files"
+        silent! execute "!find . -name '[^.]*.h' -o -name '[^.]*.c' -o -name '[^.]*.cpp' -o -name '[^.]*.hpp' > _cscope.files"
         silent! execute "!cscope -bkq -f _cscope.out -i _cscope.files"
         if (filereadable("_cscope.out"))
             execute "cs reset"

@@ -60,6 +60,14 @@ flags = [
 '-x',
 'c++',
 '-isystem', '../BoostParts',
+'-isystem', '/usr/include/c++/4.6',
+'-isystem', '/usr/include//c++/4.6/backward',
+'-isystem', '/usr/bin/../lib/gcc/i686-linux-gnu/4.6/../../../../include/c++/4.6/i686-linux-gnu',
+'-isystem', '/usr/local/include',
+'-isystem', '/usr/bin/../lib/clang/3.4/include',
+'-isystem', '/usr/bin/../lib/gcc/i686-linux-gnu/4.6/include',
+'-isystem', '/usr/include/i386-linux-gnu',
+'-isystem', '/usr/include',
 '-isystem',
 # This path will only work on OS X, but extra paths that don't exist are not
 # harmful
@@ -83,6 +91,7 @@ flags = [
 './tests/gmock',
 '-isystem',
 './tests/gmock/include',
+'-I', '/home/frank/workspace/voice/servers',
 ]
 
 
