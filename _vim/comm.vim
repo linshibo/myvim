@@ -49,6 +49,7 @@ Plugin 'elzr/vim-json'
 Plugin 'Valloric/YouCompleteMe'
 Plugin 'scrooloose/nerdtree'
 Plugin 'Shougo/neocomplete.vim'
+Plugin 'Shougo/vimfiler.vim'
 call vundle#end()
 
 
@@ -368,6 +369,8 @@ let g:ycm_global_ycm_extra_conf = '~/.ycm_extra_conf.py'
 nnoremap <C-d> :YcmCompleter GoTo<CR>
 ""nnoremap <C-d> :YcmCompleter GoToDefinition<CR>
 "}}}
+
+""nmap <C-e> :VimFiler<CR>
 
 "Nerdtree{{{
 autocmd StdinReadPre * let s:std_in=1
