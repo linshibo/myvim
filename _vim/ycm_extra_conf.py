@@ -69,13 +69,10 @@ flags = [
 '-isystem', '/usr/include/i386-linux-gnu',
 '-isystem', '/usr/include',
 '-isystem',
-# This path will only work on OS X, but extra paths that don't exist are not
-# harmful
+# This path will only work on OS X, but extra paths that don't exist are not harmful
 '/System/Library/Frameworks/Python.framework/Headers',
-'-isystem',
-'../llvm/include',
-'-isystem',
-'../llvm/tools/clang/include',
+'-isystem', '../llvm/include',
+'-isystem', '../llvm/tools/clang/include',
 '-isystem','/Library/Developer/CommandLineTools/usr/bin/../include/c++/v1',
 '-isystem','/usr/local/include',
 '-isystem','/Library/Developer/CommandLineTools/usr/bin/../lib/clang/6.1.0/include',
@@ -83,14 +80,11 @@ flags = [
 '-isystem','/usr/include',
 '-I', '.',
 '-I', './ClangCompleter',
-'-isystem',
-'./tests/gmock/gtest',
-'-isystem',
-'./tests/gmock/gtest/include',
-'-isystem',
-'./tests/gmock',
-'-isystem',
-'./tests/gmock/include',
+'-isystem', './tests/gmock/gtest',
+'-isystem', './tests/gmock/gtest/include',
+'-isystem', './tests/gmock',
+'-isystem', './tests/gmock/include',
+#add your own workspace
 '-I', '/home/frank/workspace/voice/servers',
 ]
 
