@@ -4,13 +4,6 @@
 "add to   .vimrc
 "source ~/.vim/comm.vim
 "---------------------------------------------------------------------------
-
-"Brief help
-":BundleList          - list configured bundles
-":BundleInstall(!)    - install(update) bundles
-":BundleSearch(!) foo - search(or refresh cache first) for foo
-":BundleClean(!)      - confirm(or auto-approve) removal of unused bundles
-
 set nocompatible
 filetype off
 
@@ -23,7 +16,6 @@ call vundle#begin()
 Plugin 'gmarik/Vundle.vim'
 
 " 代码源在 github 上的
-Plugin 'vim-scripts/DoxygenToolkit.vim'
 Plugin 'vim-scripts/FencView.vim'
 Plugin 'vim-scripts/OmniCppComplete'
 Plugin 'vim-scripts/Tagbar'
@@ -49,7 +41,6 @@ Plugin 'elzr/vim-json'
 Plugin 'Valloric/YouCompleteMe'
 Plugin 'scrooloose/nerdtree'
 Plugin 'Shougo/neocomplete.vim'
-Plugin 'Shougo/vimfiler.vim'
 call vundle#end()
 
 
@@ -91,7 +82,7 @@ set nocompatible
 "disable alt
 set winaltkeys=no
 "tags 位置
-set tags=~/.vim/comm_tags,~/.vim/stl_tags,.tags,.gosource.tags,../.tags; 
+set tags=~/.vim/comm_tags,~/.vim/stl_tags,.tags,.gosource.tags
 
 "折叠
 set foldmethod=syntax
@@ -239,7 +230,7 @@ inoremap jj <Esc>
 
 nnoremap gr gT
 
-nmap  <F1> :help <C-R>=expand('<cword>')<CR><CR>
+""nmap  <F1> :help <C-R>=expand('<cword>')<CR><CR>
 
 " }}} 跨 Vim 剪貼 {{{2
 " http://vim.wikia.com/wiki/Transfer_text_between_two_Vim_instances
@@ -366,11 +357,9 @@ let g:ycm_key_list_previous_completion = ['']
 let g:ycm_confirm_extra_conf = 0
 let g:ycm_key_invoke_completion = '<C-Space>'
 let g:ycm_global_ycm_extra_conf = '~/.ycm_extra_conf.py'
-nnoremap <C-d> :YcmCompleter GoTo<CR>
-""nnoremap <C-d> :YcmCompleter GoToDefinition<CR>
+nnoremap <C-s> :YcmCompleter GoTo<CR>
+nnoremap <C-d> :YcmCompleter GoToDefinition<CR>
 "}}}
-
-""nmap <C-e> :VimFiler<CR>
 
 "Nerdtree{{{
 autocmd StdinReadPre * let s:std_in=1
@@ -454,7 +443,7 @@ au filetype cpp nnoremap ,s :cs find s <C-R>=expand("<cword>")<CR><CR>
 au filetype cpp vnoremap ,s :call  VisualSelection('cs')<CR>
 "s: 查找C语言符号，即查找函数名、宏、枚举值等出现的地方
 "g: 查找函数、宏、枚举等定义的位置，类似ctags所提供的功能
-"d: 查找本函数调用的函数
+"d: 找本函数调用的函数
 "c: 查找调用本函数的函数
 "t: 查找指定的字符串
 "e: 查找egrep模式，相当于egrep功能，但查找速度快多了
@@ -466,17 +455,6 @@ au filetype cpp vnoremap ,s :call  VisualSelection('cs')<CR>
 let g:Powerline_colorscheme = 'solarized256'
 set laststatus=2
 set t_Co=256
-"}}}
-
-"Doxygen插件{{{
-let g:DoxygenToolkit_briefTag_pre="@brief  " 
-let g:DoxygenToolkit_paramTag_pre="@param  " 
-let g:DoxygenToolkit_returnTag="@return  " 
-let g:DoxygenToolkit_authorName="francisco" 
-let g:DoxygenToolkit_undocTag="DOXIGEN_SKIP_BLOCK"
-let g:DoxygenToolkit_briefTag_funcName = "no"
-let g:DoxygenToolkit_maxFunctionProtoLines = 30
-nnoremap \d :Dox<CR>
 "}}}
 
 "neocomplete{{{
@@ -556,9 +534,9 @@ autocmd FileType xml setlocal omnifunc=xmlcomplete#CompleteTags
 if !exists('g:neocomplete#sources#omni#input_patterns')
   let g:neocomplete#sources#omni#input_patterns = {}
 endif
-"let g:neocomplete#sources#omni#input_patterns.php = '[^. \t]->\h\w*\|\h\w*::'
-"let g:neocomplete#sources#omni#input_patterns.c = '[^.[:digit:] *\t]\%(\.\|->\)'
-"let g:neocomplete#sources#omni#input_patterns.cpp = '[^.[:digit:] *\t]\%(\.\|->\)\|\h\w*::'
+let g:neocomplete#sources#omni#input_patterns.php = '[^. \t]->\h\w*\|\h\w*::'
+let g:neocomplete#sources#omni#input_patterns.c = '[^.[:digit:] *\t]\%(\.\|->\)'
+let g:neocomplete#sources#omni#input_patterns.cpp = '[^.[:digit:] *\t]\%(\.\|->\)\|\h\w*::'
 
 " For perlomni.vim setting.
 " https://github.com/c9s/perlomni.vim
@@ -625,20 +603,18 @@ let g:cycle_default_groups = [
 \ [['"', "'"]],
 \ [['==', '!=']],
 \ [['and', 'or']],
-\ [['p_in', 'p_out']],
-\ [['P_IN', 'P_OUT']],
 \ [['in', 'out']],
 \ [['left', 'right']],
 \ [['Left', 'Right']],
 \ [['up', 'down']],
 \ [['min', 'max']],
 \ [['get', 'set']],
+\ [['int', 'uint']],
+\ [['32', '64']],
 \ [['add', 'remove']],
 \ [['to', 'from']],
 \ [['read', 'write']],
-\ [['save', 'load', 'restore']],
 \ [['next', 'previous', 'prev']],
-\ [['only', 'except']],
 \ [['without', 'with']],
 \ [['exclude', 'include']],
 \ [['width', 'height']],
@@ -648,7 +624,6 @@ let g:cycle_default_groups = [
 \ [['south', 'north']],
 \ [['prefix', 'suffix']],
 \ [['decode', 'encode']],
-\ [['float', 'int','string']],
 \ [['short', 'long']],
 \ [['pop', 'shift']],
 \ [['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday',
