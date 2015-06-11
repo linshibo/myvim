@@ -230,6 +230,8 @@ inoremap jj <Esc>
 
 nnoremap gr gT
 
+nnoremap \s :vsplit<CR>
+
 ""nmap  <F1> :help <C-R>=expand('<cword>')<CR><CR>
 
 " }}} 跨 Vim 剪貼 {{{2
@@ -301,9 +303,9 @@ nnoremap <C-K> <Esc><C-W>k
 nnoremap \j :call ConvertToJson()<CR>
 
 "Fast reloading of the .vimrc
-nnoremap \s <ESC>:source ~/.vim/comm.vim<cr>
+nnoremap \\s <ESC>:source ~/.vim/comm.vim<cr>
 "Fast editing of .vimrc
-nnoremap \e <ESC>:e! ~/.vim/comm.vim<cr>
+nnoremap \\e <ESC>:e! ~/.vim/comm.vim<cr>
 "Switch to current dir
 nnoremap ,cd <ESC>:cd %:p:h<cr>
 
@@ -362,8 +364,8 @@ nnoremap <C-d> :YcmCompleter GoToDefinition<CR>
 "}}}
 
 "Nerdtree{{{
-autocmd StdinReadPre * let s:std_in=1
-autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif""))
+""autocmd StdinReadPre * let s:std_in=1
+""autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif""))
 autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTreeType") && b:NERDTreeType == "primary") | q | endif
 map <C-e> :NERDTreeToggle<CR>
 "}}}
@@ -502,7 +504,7 @@ inoremap <expr><BS> neocomplete#smart_close_popup()."\<C-h>"
 ""inoremap <expr><C-y>  neocomplete#close_popup()
 ""inoremap <expr><C-e>  neocomplete#cancel_popup()
 " Close popup by <Space>.
-inoremap <expr><Space> pumvisible() ? neocomplete#close_popup() : "\<Space>"
+""inoremap <expr><Space> pumvisible() ? neocomplete#close_popup() : "\<Space>"
 
 " For cursor moving in insert mode(Not recommended)
 "inoremap <expr><Left>  neocomplete#close_popup() . "\<Left>"
