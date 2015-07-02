@@ -12,6 +12,10 @@ dec2ip () {
     printf '%s  ' "$ip"
 }
 
+clearPath() {
+    export PATH=$(echo $PATH | awk -F: '{ for (i = 1; i <= NF; i++) {if(arr[$i]!=$i){printf "%s:",$i;arr[$i]=$i;}}printf "\n"}')
+}
+
 ip2dec () {
     local a b c d ip=$@
     IFS=. read -r a b c d <<< "$ip"
