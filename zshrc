@@ -81,8 +81,9 @@ source $ZSH/oh-my-zsh.sh
 #
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
-# HISTCONTROL来消除命令历史中的连续重复条目
+
 [ -z "$PS1" ] && return
+
 export HISTCONTROL=$HISTCONTROL${HISTCONTROL+,}ignoredups
 # ... and ignore same sucessive entries.
 export HISTCONTROL=ignoreboth
@@ -116,17 +117,12 @@ if [ -x /usr/bin/dircolors ]; then
     test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
 fi
 
-#if [ "`uname`" == "Darwin" ]; then
-    #localip=`/sbin/ifconfig en1 2>/dev/null | awk '$1=="inet"{print $2}'`
-#elif [ "`uname`" == "Linux" ]; then
-    #localip=`/sbin/ifconfig eth0 2>/dev/null | awk '$1=="inet"{print $2}' | awk -F: '{print $2}' `
-#fi
-
 export TERM=xterm-256color
 export EDITOR="vim"
 export LANG=en_US.UTF-8
 ulimit -c 40000000
 export CLICOLOR=1
+export LSCOLORS="exfxcxdxbxexexabagacad"
 
 
 # remove duplicate path entries
