@@ -500,7 +500,7 @@ endfunction
 inoremap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"
 " <C-h>, <BS>: close popup and delete backword char.
 inoremap <expr><C-h> neocomplete#smart_close_popup()."\<C-h>"
-inoremap <expr><BS> neocomplete#smart_close_popup()."\<C-h>"
+""inoremap <expr><BS> neocomplete#smart_close_popup()."\<C-h>"
 ""inoremap <expr><C-y>  neocomplete#close_popup()
 ""inoremap <expr><C-e>  neocomplete#cancel_popup()
 " Close popup by <Space>.
@@ -524,6 +524,7 @@ inoremap <expr><BS> neocomplete#smart_close_popup()."\<C-h>"
 "let g:neocomplete#enable_auto_select = 1
 "let g:neocomplete#disable_auto_complete = 1
 "inoremap <expr><TAB>  pumvisible() ? "\<Down>" : "\<C-x>\<C-u>"
+
 
 " Enable omni completion.
 autocmd FileType css setlocal omnifunc=csscomplete#CompleteCSS
