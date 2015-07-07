@@ -19,7 +19,7 @@ Plugin 'gmarik/Vundle.vim'
 Plugin 'vim-scripts/FencView.vim'
 Plugin 'vim-scripts/OmniCppComplete'
 Plugin 'vim-scripts/Tagbar'
-Plugin 'vim-scripts/python.vim'
+""Plugin 'vim-scripts/python.vim'
 Plugin 'vim-scripts/xml.vim'
 Plugin 'vim-scripts/matchit.zip'
 Plugin 'vim-scripts/YankRing.vim'
@@ -40,6 +40,12 @@ Plugin 'octol/vim-cpp-enhanced-highlight'
 Plugin 'elzr/vim-json'
 Plugin 'Valloric/YouCompleteMe'
 Plugin 'scrooloose/nerdtree'
+""Plugin 'davidhalter/jedi-vim'
+Plugin 'klen/python-mode'
+
+  
+
+
 call vundle#end()
 
 
@@ -230,6 +236,7 @@ inoremap jj <Esc>
 nnoremap gr gT
 
 nnoremap \s :vsplit<CR>
+nnoremap \h :split<CR>
 
 ""nmap  <F1> :help <C-R>=expand('<cword>')<CR><CR>
 
@@ -352,6 +359,25 @@ inoremap <expr><C-U>  pumvisible()?"\<C-E>":"\<C-U>"
 "---------------------------------------------------------------------------
 "插件设置
 "---------------------------------------------------------------------------
+"python-mode{{{
+let g:pymode_rope = 1
+let g:pymode_rope_goto_definition_bind = '\g'
+" syntax highlighting
+let g:pymode_syntax = 1
+let g:pymode_syntax_all = 1
+let g:pymode_syntax_indent_errors = g:pymode_syntax_all
+let g:pymode_syntax_space_errors = g:pymode_syntax_all
+"Linting
+let g:pymode_lint = 1
+let g:pymode_lint_checker = "pyflakes,pep8"
+" Auto check on save
+let g:pymode_lint_write = 1
+" Support virtualenv
+let g:pymode_virtualenv = 1
+" Don't autofold code
+let g:pymode_folding = 0
+"}}}
+"
 " YCM settings {{{
 let g:ycm_key_list_select_completion = ['', '']
 let g:ycm_key_list_previous_completion = ['']
@@ -562,6 +588,7 @@ au FileType go nmap <Leader>d <Plug>(go-doc)
 au FileType go nmap <Leader>i <Plug>(go-info)
 au FileType go noremap \\f <Esc>:GoFmt<CR> 
 "}}}
+
 "----------------------------------------------------------------------------
 " FileType related
 "----------------------------------------------------------------------------
@@ -589,7 +616,7 @@ autocmd FileType python setlocal et sta sw=4 sts=4
 autocmd FileType python setlocal foldmethod=indent
 autocmd FileType python set complete+=k~/.vim/bundle/Pydiction isk+=.,(
 au BufNewFile,BufRead *.py,*.pyw set filetype=python
-
+au FileType python noremap \\f <Esc>:!pyfmt -i %<CR> 
 """"""""""""
 "golang
 """"""""""""
