@@ -376,6 +376,7 @@ let g:pymode_lint_write = 1
 let g:pymode_virtualenv = 1
 " Don't autofold code
 let g:pymode_folding = 0
+let g:pymode_rope_lookup_project=0
 "}}}
 "
 " YCM settings {{{

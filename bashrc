@@ -103,7 +103,7 @@ export TERM=xterm-256color
 export EDITOR="vim"
 export LANG=en_US.UTF-8
 ulimit -c 40000000
-export PATH=$PATH:.
+#export PATH=$PATH:.
 export CLICOLOR=1
 
 shopt -s extglob
@@ -112,12 +112,6 @@ shopt -s checkhash
 shopt -s checkwinsize               # update windows size on command
 shopt -s cmdhist                    # save multi-line commands in history as single line
 shopt -s extglob				# necessary for bash completion (programmable completion)
-
-
-# remove duplicate path entries
-export PATH=$(echo $PATH | awk -F: '
-{ for (i = 1; i <= NF; i++) arr[$i]; }
-END { for (i in arr) printf "%s:" , i; printf "\n"; } ')
 
 
 if [ -f ~/myvim/bash_func ]; then
