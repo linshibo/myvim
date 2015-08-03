@@ -19,7 +19,6 @@ Plugin 'gmarik/Vundle.vim'
 Plugin 'vim-scripts/FencView.vim'
 Plugin 'vim-scripts/OmniCppComplete'
 Plugin 'vim-scripts/Tagbar'
-""Plugin 'vim-scripts/python.vim'
 Plugin 'vim-scripts/xml.vim'
 Plugin 'vim-scripts/matchit.zip'
 Plugin 'vim-scripts/YankRing.vim'
@@ -360,23 +359,29 @@ inoremap <expr><C-U>  pumvisible()?"\<C-E>":"\<C-U>"
 "插件设置
 "---------------------------------------------------------------------------
 "python-mode{{{
+let g:pymode_rope_lookup_project = 0
 let g:pymode_rope = 1
-let g:pymode_rope_goto_definition_bind = '\g'
+let g:pymode_rope_goto_definition_bind = 'gd'
 " syntax highlighting
 let g:pymode_syntax = 1
 let g:pymode_syntax_all = 1
 let g:pymode_syntax_indent_errors = g:pymode_syntax_all
 let g:pymode_syntax_space_errors = g:pymode_syntax_all
+
+let g:pymode_motion = 1
+let g:pymode_breakpoint = 0
 "Linting
 let g:pymode_lint = 1
-let g:pymode_lint_checker = "pyflakes,pep8"
+let g:pymode_lint_checker = "pylint,pep8"
+let g:pymode_lint_ignore = "W"
 " Auto check on save
-let g:pymode_lint_write = 1
+let g:pymode_lint_write = 0
+
+let g:pymode_lint_unmodified = 0
 " Support virtualenv
 let g:pymode_virtualenv = 1
 " Don't autofold code
 let g:pymode_folding = 0
-let g:pymode_rope_lookup_project=0
 "}}}
 "
 " YCM settings {{{
@@ -615,9 +620,9 @@ autocmd FileType python setlocal omnifunc=pythoncomplete#Complete
 autocmd BufRead,BufNewFile *.py set ai
 autocmd FileType python setlocal et sta sw=4 sts=4
 autocmd FileType python setlocal foldmethod=indent
-autocmd FileType python set complete+=k~/.vim/bundle/Pydiction isk+=.,(
 au BufNewFile,BufRead *.py,*.pyw set filetype=python
-au FileType python noremap \\f <Esc>:!pyfmt -i %<CR> 
+"""au FileType python noremap \\f <Esc>:pyfmt -i %<CR> 
+au FileType python noremap \\f <Esc>:PymodeLintAuto<CR> 
 """"""""""""
 "golang
 """"""""""""
@@ -744,6 +749,9 @@ function! Make()
     endif
     if ( &filetype == "cpp" || &filetype == "c")
         exec "make"
+    endif
+    if ( &filetype == "python")
+        exec "PymodeLint"
     endif
 endfunction
 
