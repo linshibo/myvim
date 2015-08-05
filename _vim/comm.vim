@@ -39,11 +39,12 @@ Plugin 'octol/vim-cpp-enhanced-highlight'
 Plugin 'elzr/vim-json'
 Plugin 'Valloric/YouCompleteMe'
 Plugin 'scrooloose/nerdtree'
-""Plugin 'davidhalter/jedi-vim'
 Plugin 'klen/python-mode'
-
-  
-
+Plugin 'jelera/vim-javascript-syntax'
+Plugin 'guileen/vim-node-dict'
+Plugin 'ahayman/vim-nodejs-complete'
+Plugin 'moll/vim-node'
+Plugin 'marijnh/tern_for_vim'
 
 call vundle#end()
 
@@ -595,6 +596,12 @@ au FileType go nmap <Leader>i <Plug>(go-info)
 au FileType go noremap \\f <Esc>:GoFmt<CR> 
 "}}}
 
+"vim-nodejs-complete{{{
+let g:nodejs_complete_config = {
+\  'js_compl_fn': 'jscomplete#CompleteJS',
+\  'max_node_compl_len': 15
+\}
+"}}}
 "----------------------------------------------------------------------------
 " FileType related
 "----------------------------------------------------------------------------
@@ -640,6 +647,13 @@ autocmd BufRead *.mxml set filetype=mxml
 autocmd BufRead *.tmpl set filetype=html
 
 """"""""""""
+" javascript 
+""""""""""""
+autocmd BufRead *.js set filetype=javascript
+au FileType javascript set dictionary+=$HOME/.vim/bundle/vim-node-dict/dict/node.dict
+autocmd FileType javascript setlocal omnifunc=javascriptcomplete#CompleteJS
+
+""""""""""""
 " Vim 
 """"""""""""
 autocmd FileType vim set nofen
@@ -649,7 +663,6 @@ autocmd FileType vim map <buffer> <leader><space> :w!<cr>:source %<cr>
 "others
 """"""""""""
 " Enable omni completion. (Ctrl-X Ctrl-O)
-autocmd FileType javascript setlocal omnifunc=javascriptcomplete#CompleteJS
 au! BufRead *.json,*.cfg set filetype=json 
 
 
