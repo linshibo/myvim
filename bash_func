@@ -55,7 +55,7 @@ function alias_comm_cmd()
 
 function getdate()
 {
-    if [ "`uname`" == "Darwin" ]; then
+    if [ "`uname`" eq "Darwin" ]; then
         date -r $1
     elif [ "`uname`" == "Linux" ]; then
         date -d @$1
