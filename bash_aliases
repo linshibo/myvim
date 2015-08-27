@@ -13,7 +13,7 @@ alias rm="rm -i"
 alias df="df -h"
 alias du='du -h -c'
 
-alias reload='source ~/.bashrc'
+#alias reload='source ~/.bashrc'
 alias largest='du -cks * | sort -rn | head -n 10'
 alias dir='ls  -d */'
 alias bk="cd -" #回到上一目录

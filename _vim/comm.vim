@@ -45,6 +45,8 @@ Plugin 'guileen/vim-node-dict'
 Plugin 'ahayman/vim-nodejs-complete'
 Plugin 'moll/vim-node'
 Plugin 'marijnh/tern_for_vim'
+Plugin 'digitaltoad/vim-jade'
+
 
 call vundle#end()
 
@@ -286,6 +288,9 @@ nnoremap <silent> N Nzz
 nnoremap <silent> * *zz
 nnoremap <silent> # #zz
 nnoremap <silent> g* g*zz
+
+nnoremap j gj
+nnoremap k gk
 
 " Go to home and end using capitalized directions
 noremap H ^
