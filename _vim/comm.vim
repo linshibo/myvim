@@ -116,9 +116,9 @@ language messages POSIX
 "autocmd BufWritePre,FileWritePre *.cpp,*.c,*.h,*.hpp exec "normal ms"|call LastModified()|exec "normal `s"
 
 "for cmake ':make' ,由于定位错误,中文会有问题，如下调整
-if finddir("build") == "build"
-    set makeprg=export\ LANG=zh_CN:en;make\ -C\ ./build
-endif
+""if finddir("build") == "build"
+    ""set makeprg=export\ LANG=zh_CN:en;make\ -C\ ./build
+""endif
 
 set scrolloff=5 " 距离垂直边界 n 行就开始滚动
 set sidescroll=1 " 水平滚动列数
