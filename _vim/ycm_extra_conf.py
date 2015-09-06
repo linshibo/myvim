@@ -86,6 +86,7 @@ flags = [
 '-isystem', './tests/gmock/include',
 #add your own workspace
 '-I', '/home/frank/workspace/voice/servers',
+'-I', '/Users/frank/workspace/voice/servers',
 ]
 
 
@@ -162,6 +163,7 @@ def GetCompilationInfoForFile( filename ):
           return compilation_info
     return None
   return database.GetCompilationInfoForFile( filename )
+
 
 
 def FlagsForFile( filename, **kwargs ):

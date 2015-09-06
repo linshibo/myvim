@@ -374,6 +374,8 @@ let g:pymode_syntax_all = 1
 let g:pymode_syntax_indent_errors = g:pymode_syntax_all
 let g:pymode_syntax_space_errors = g:pymode_syntax_all
 
+let g:pymode_rope_autoimport = 0
+
 let g:pymode_motion = 1
 let g:pymode_breakpoint = 0
 "Linting
