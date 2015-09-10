@@ -48,6 +48,7 @@ Plugin 'marijnh/tern_for_vim'
 Plugin 'digitaltoad/vim-jade'
 
 
+
 call vundle#end()
 
 
@@ -363,11 +364,11 @@ inoremap <expr><C-U>  pumvisible()?"\<C-E>":"\<C-U>"
 
 "---------------------------------------------------------------------------
 "插件设置
-"---------------------------------------------------------------------------
 "python-mode{{{
 let g:pymode_rope_lookup_project = 0
-let g:pymode_rope = 1
+let g:pymode_rope = 0
 let g:pymode_rope_goto_definition_bind = 'gd'
+
 " syntax highlighting
 let g:pymode_syntax = 1
 let g:pymode_syntax_all = 1
@@ -378,10 +379,12 @@ let g:pymode_rope_autoimport = 0
 
 let g:pymode_motion = 1
 let g:pymode_breakpoint = 0
+
 "Linting
 let g:pymode_lint = 1
-let g:pymode_lint_checker = "pylint,pep8"
+let g:pymode_lint_checker = "pep8"
 let g:pymode_lint_ignore = "W"
+
 " Auto check on save
 let g:pymode_lint_write = 0
 
@@ -391,7 +394,7 @@ let g:pymode_virtualenv = 1
 " Don't autofold code
 let g:pymode_folding = 0
 "}}}
-"
+
 " YCM settings {{{
 let g:ycm_key_list_select_completion = ['', '']
 let g:ycm_key_list_previous_completion = ['']
