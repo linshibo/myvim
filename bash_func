@@ -330,8 +330,6 @@ ifconfig | awk '/inet / {sub(/addr:/, "", $2); print $2}'
 ###### convert hexadecimal numbers to decimals
 function dec()		{ printf "%d\n" $1; }
 
-
-
 ###### convert decimals to hexadecimal numbers
 function hex()		{ printf "0x%08x\n" $1; }
 
