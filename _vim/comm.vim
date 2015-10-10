@@ -65,7 +65,7 @@ call vundle#end()
 set history=400
 
 "map leader key ","
-let mapleader =","
+let mapleader ="\<Space>"
 
 " Enable filetype plugins
 filetype plugin indent on
@@ -248,13 +248,13 @@ nnoremap \h :split<CR>
 nmap \p :r $HOME/.vimxfer<CR>
 vmap \y :w! $HOME/.vimxfer<CR>
 
-nnoremap ,q <Esc>:q!<CR>
-nnoremap ,w :w!<CR>:nohl<CR>
+nnoremap <Leader>q <Esc>:q!<CR>
+nnoremap <Leader>w :w!<CR>:nohl<CR>
 
 " sudo write this
-nnoremap ,W <Esc>:w !sudo tee % >/dev/null<CR>
-nnoremap ,e <Esc>:e 
-nnoremap ,x <Esc>:!
+nnoremap <Leader>W <Esc>:w !sudo tee % >/dev/null<CR>
+nnoremap <Leader>e <Esc>:e 
+nnoremap <Leader>x <Esc>:!
 
 "cmd model map
 cnoremap <C-A> <HOME>
@@ -267,21 +267,19 @@ cnoremap <C-N> <DOWN>
 cnoremap <C-j> <t_kd>
 cnoremap <C-k> <t_ku>
 
-"tabedit
-nnoremap ,t <Esc>:tabedit 
 
 "查找当前光标下的单词
 ""nnoremap ,g :Ack <C-R>=expand('<cword>')<CR><CR>
-nnoremap ,g :exec "Ack " . expand('<cword>') ." --". &filetype<CR>
-vnoremap ,g :call VisualSelection('gv')<CR>
-nnoremap ,r <Esc>:call GEN_TAGS()<CR>
-nnoremap ,m <Esc>:call Make()<CR>
+nnoremap <Leader>g :exec "Ack " . expand('<cword>') ." --". &filetype<CR>
+vnoremap <Leader>g :call VisualSelection('gv')<CR>
+nnoremap <Leader>r <Esc>:call GEN_TAGS()<CR>
+nnoremap <Leader>m <Esc>:call Make()<CR>
 "nnoremap ,y <Esc>:call OPT_RANGE("ya")<CR>
 "nnoremap ,Y <Esc>:call OPT_RANGE("yi")<CR>
 "nnoremap ,d <Esc>:call OPT_RANGE("da")<CR>
 "nnoremap ,D <Esc>:call OPT_RANGE("di")<CR>
 "转换单词大小写
-nnoremap ,u <Esc>:call SET_UAW()<CR>
+nnoremap <Leader>u <Esc>:call SET_UAW()<CR>
 
 "Keep search pattern at the center of the screen."
 nnoremap <silent> n nzz
@@ -312,14 +310,14 @@ nnoremap <C-L> <Esc><C-W>l
 nnoremap <C-J> <Esc><C-W>j
 nnoremap <C-K> <Esc><C-W>k
 
-nnoremap \j :call ConvertToJson()<CR>
+nnoremap \\j :call ConvertToJson()<CR>
 
 "Fast reloading of the .vimrc
 nnoremap \\s <ESC>:source ~/.vim/comm.vim<cr>
 "Fast editing of .vimrc
 nnoremap \\e <ESC>:e! ~/.vim/comm.vim<cr>
 "Switch to current dir
-nnoremap ,cd <ESC>:cd %:p:h<cr>
+nnoremap <Leader>cd <ESC>:cd %:p:h<cr>
 
 "在正常模式下的整块移动
 "大括号内向左移
@@ -335,9 +333,9 @@ vnoremap <silent> * :call VisualSelection('f')<CR>
 vnoremap <silent> # :call VisualSelection('b')<CR>
 
 "quick fix toggle
-nnoremap <F4> <Esc>:call ToggleQF()<CR>
-nnoremap ,n <Esc>:cn<CR>
-nnoremap ,p <Esc>:cp<CR>
+nnoremap <C-q> <Esc>:call ToggleQF()<CR>
+nnoremap <Leader>n <Esc>:cn<CR>
+nnoremap <Leader>p <Esc>:cp<CR>
 
 "根据标签补全
 inoremap <C-]> <C-X><C-]> 
@@ -368,26 +366,20 @@ inoremap <expr><C-U>  pumvisible()?"\<C-E>":"\<C-U>"
 let g:pymode_rope_lookup_project = 0
 let g:pymode_rope = 0
 let g:pymode_rope_goto_definition_bind = 'gd'
-
 " syntax highlighting
 let g:pymode_syntax = 1
 let g:pymode_syntax_all = 1
 let g:pymode_syntax_indent_errors = g:pymode_syntax_all
 let g:pymode_syntax_space_errors = g:pymode_syntax_all
-
 let g:pymode_rope_autoimport = 0
-
 let g:pymode_motion = 1
 let g:pymode_breakpoint = 0
-
 "Linting
 let g:pymode_lint = 1
 let g:pymode_lint_checker = "pep8"
 let g:pymode_lint_ignore = "W"
-
 " Auto check on save
 let g:pymode_lint_write = 0
-
 let g:pymode_lint_unmodified = 0
 " Support virtualenv
 let g:pymode_virtualenv = 1
@@ -409,7 +401,7 @@ nnoremap <C-d> :YcmCompleter GoToDefinition<CR>
 ""autocmd StdinReadPre * let s:std_in=1
 ""autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif""))
 autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTreeType") && b:NERDTreeType == "primary") | q | endif
-map <C-e> :NERDTreeToggle<CR>
+nmap <C-e> :NERDTreeToggle<CR>
 "}}}
 
 "ack.vim{
@@ -430,17 +422,17 @@ nmap ge  <Plug>(smartword-ge)
 
 
 "a.vim {{{
-nnoremap ,a <Esc>:A<CR>
+au filetype cpp nnoremap <Leader>a <Esc>:A<CR>
 "}}}
 "
 
 "unite{{{
-nnoremap ,f :Unite file<CR>
-nnoremap ,b :Unite buffer<CR>
+nnoremap <Leader>f :Unite file<CR>
+nnoremap <Leader>b :Unite buffer<CR>
 "}}}
 
 "vim-easymotion{{{
-let g:EasyMotion_leader_key = '0'
+let g:EasyMotion_leader_key = '\'
 "}}}
 
 "FencView {{{
@@ -485,15 +477,7 @@ if has("cscope")
 endif
 au filetype cpp nnoremap ,s :cs find s <C-R>=expand("<cword>")<CR><CR>
 au filetype cpp vnoremap ,s :call  VisualSelection('cs')<CR>
-"s: 查找C语言符号，即查找函数名、宏、枚举值等出现的地方
-"g: 查找函数、宏、枚举等定义的位置，类似ctags所提供的功能
-"d: 找本函数调用的函数
-"c: 查找调用本函数的函数
-"t: 查找指定的字符串
-"e: 查找egrep模式，相当于egrep功能，但查找速度快多了
-"f: 查找并打开文件，类似vim的find功能
-"i: 查找包含本文件的文
-" }}}
+"}}}
 
 "powerline{{{ 状态栏
 let g:Powerline_colorscheme = 'solarized256'
@@ -602,16 +586,10 @@ let g:go_fmt_autosave = 0
 let g:go_fmt_command = "gofmt"
 au FileType go nmap gd <Plug>(go-def)
 au FileType go nmap <Leader>d <Plug>(go-doc)
-au FileType go nmap <Leader>i <Plug>(go-info)
+""au FileType go nmap <Leader>i <Plug>(go-info)
 au FileType go noremap \\f <Esc>:GoFmt<CR> 
 "}}}
 
-"vim-nodejs-complete{{{
-let g:nodejs_complete_config = {
-\  'js_compl_fn': 'jscomplete#CompleteJS',
-\  'max_node_compl_len': 15
-\}
-"}}}
 "----------------------------------------------------------------------------
 " FileType related
 "----------------------------------------------------------------------------
@@ -712,10 +690,6 @@ function! VisualSelection(direction) range
         execute "normal /" . l:pattern . "^M"
     elseif a:direction == 'cs'
         execute "cs find s " . l:pattern 
-    elseif a:direction == 'oi'
-        execute "!onlinei " . l:pattern 
-    elseif a:direction == 'oo'
-        execute "!onlineo " . l:pattern 
     endif
     let @/ = l:pattern
     let @" = l:saved_reg
