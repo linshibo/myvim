@@ -19,7 +19,6 @@ Plugin 'gmarik/Vundle.vim'
 Plugin 'vim-scripts/FencView.vim'
 Plugin 'vim-scripts/OmniCppComplete'
 Plugin 'vim-scripts/Tagbar'
-Plugin 'vim-scripts/xml.vim'
 Plugin 'vim-scripts/matchit.zip'
 Plugin 'vim-scripts/YankRing.vim'
 Plugin 'vim-scripts/snipMate'
@@ -633,6 +632,7 @@ autocmd FileType html,markdown setlocal omnifunc=htmlcomplete#CompleteTags
 autocmd FileType xml setlocal omnifunc=xmlcomplete#CompleteTags
 autocmd BufRead *.mxml set filetype=mxml
 autocmd BufRead *.tmpl set filetype=html
+autocmd BufRead *.html set filetype=html
 
 """"""""""""
 " javascript 
