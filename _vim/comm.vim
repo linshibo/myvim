@@ -41,10 +41,11 @@ Plugin 'scrooloose/nerdtree'
 Plugin 'klen/python-mode'
 Plugin 'jelera/vim-javascript-syntax'
 Plugin 'guileen/vim-node-dict'
-Plugin 'ahayman/vim-nodejs-complete'
+""Plugin 'ahayman/vim-nodejs-complete'
 Plugin 'moll/vim-node'
 Plugin 'marijnh/tern_for_vim'
 Plugin 'digitaltoad/vim-jade'
+Plugin 'tell-k/vim-autopep8'
 
 
 
@@ -362,6 +363,7 @@ inoremap <expr><C-U>  pumvisible()?"\<C-E>":"\<C-U>"
 "---------------------------------------------------------------------------
 "插件设置
 "python-mode{{{
+let g:pymode_python = 'python'
 let g:pymode_rope_lookup_project = 0
 let g:pymode_rope = 0
 let g:pymode_rope_goto_definition_bind = 'gd'
@@ -615,7 +617,9 @@ autocmd BufRead,BufNewFile *.py set ai
 autocmd FileType python setlocal et sta sw=4 sts=4
 autocmd FileType python setlocal foldmethod=indent
 au BufNewFile,BufRead *.py,*.pyw set filetype=python
+""au BufRead,BufNewFile *.py,*.pyw,*.c,*.h match BadWhitespace /\s\+$/
 """au FileType python noremap \\f <Esc>:pyfmt -i %<CR> 
+""au FileType python noremap \\f <Esc>:!autopep8 --in-place --aggressive %<CR> 
 au FileType python noremap \\f <Esc>:PymodeLintAuto<CR> 
 """"""""""""
 "golang
