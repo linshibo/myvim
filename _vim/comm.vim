@@ -97,6 +97,8 @@ set tags=~/.vim/comm_tags,~/.vim/stl_tags,.tags,.gosource.tags
 set foldmethod=syntax
 ""默认情况下不折叠
 set foldlevel=99
+"set for gf 
+set path+=/usr/include/c++/4.6/
 
 
 "重新打开时自动定位到原来的位置
@@ -468,19 +470,19 @@ nnoremap <silent> <C-Y> :YRShow<CR>
 " }}}
 
 " cscope setting {{{
-if has("cscope")
-    set csprg=/usr/bin/cscope
-    set csto=0
-    set cst
-    set nocsverb
-    " add any database in current directory
-    if filereadable("_cscope.out")
-        silent cs add _cscope.out
-    endif
-    set csverb
-endif
-au filetype cpp nnoremap ,s :cs find s <C-R>=expand("<cword>")<CR><CR>
-au filetype cpp vnoremap ,s :call  VisualSelection('cs')<CR>
+"if has("cscope")
+    "set csprg=/usr/bin/cscope
+    "set csto=0
+    "set cst
+    "set nocsverb
+    "" add any database in current directory
+    "if filereadable("_cscope.out")
+        "silent cs add _cscope.out
+    "endif
+    "set csverb
+"endif
+"au filetype cpp nnoremap ,s :cs find s <C-R>=expand("<cword>")<CR><CR>
+"au filetype cpp vnoremap ,s :call  VisualSelection('cs')<CR>
 "}}}
 
 "powerline{{{ 状态栏
@@ -776,13 +778,13 @@ endfunction
     
 "重新生成c语言 ctag cscope
 function! GEN_C_TAGS() 
-    if(executable('cscope') && has("cscope") )
-        silent! execute "!find . -name '[^.]*.h' -o -name '[^.]*.c' -o -name '[^.]*.cpp' -o -name '[^.]*.hpp' > _cscope.files"
-        silent! execute "!cscope -bkq -f _cscope.out -i _cscope.files"
-        if (filereadable("_cscope.out"))
-            execute "cs reset"
-        endif
-    endif
+    "if(executable('cscope') && has("cscope") )
+        "silent! execute "!find . -name '[^.]*.h' -o -name '[^.]*.c' -o -name '[^.]*.cpp' -o -name '[^.]*.hpp' > _cscope.files"
+        "silent! execute "!cscope -bkq -f _cscope.out -i _cscope.files"
+        "if (filereadable("_cscope.out"))
+            "execute "cs reset"
+        "endif
+    "endif
     if(executable('ctags'))
         silent! execute "!rm -f ./.tags"
         if g:os== 'Linux' 
