@@ -17,7 +17,7 @@ Plugin 'gmarik/Vundle.vim'
 
 " 代码源在 github 上的
 Plugin 'vim-scripts/FencView.vim'
-Plugin 'vim-scripts/OmniCppComplete'
+""Plugin 'vim-scripts/OmniCppComplete'
 Plugin 'vim-scripts/Tagbar'
 Plugin 'vim-scripts/matchit.zip'
 Plugin 'vim-scripts/YankRing.vim'
@@ -36,7 +36,7 @@ Plugin 'fatih/vim-go'
 Plugin 'plasticboy/vim-markdown'
 Plugin 'octol/vim-cpp-enhanced-highlight'
 Plugin 'elzr/vim-json'
-Plugin 'Valloric/YouCompleteMe'
+""Plugin 'Valloric/YouCompleteMe'
 Plugin 'scrooloose/nerdtree'
 Plugin 'klen/python-mode'
 Plugin 'jelera/vim-javascript-syntax'
@@ -46,6 +46,7 @@ Plugin 'moll/vim-node'
 Plugin 'marijnh/tern_for_vim'
 Plugin 'digitaltoad/vim-jade'
 Plugin 'tell-k/vim-autopep8'
+Plugin 'Rip-Rip/clang_complete'
 
 
 
@@ -387,6 +388,9 @@ let g:pymode_virtualenv = 1
 " Don't autofold code
 let g:pymode_folding = 0
 "}}}
+"
+let g:clang_library_path = "/usr/lib/llvm-3.4/lib"
+let g:clang_user_options = "-I/usr/include/c++/4.6.3 -std=c++11"
 
 " YCM settings {{{
 let g:ycm_key_list_select_completion = ['', '']
@@ -452,17 +456,16 @@ nnoremap <silent> <C-Y> :YRShow<CR>
 "}}}
 
 " omnicppcomplete{{{
-let OmniCpp_ShowScopeInAbbr = 1
+""let OmniCpp_ShowScopeInAbbr = 1
 "支持STL模板
-let OmniCpp_DefaultNamespaces   = ["std", "_GLIBCXX_STD"]
+""let OmniCpp_DefaultNamespaces   = ["std", "_GLIBCXX_STD"]
 "不自动选择第一个
-let OmniCpp_SelectFirstItem = 0
+""let OmniCpp_SelectFirstItem = 0
 "使用本地搜索函数
-let OmniCpp_LocalSearchDecl = 1
+""let OmniCpp_LocalSearchDecl = 1
 "::补全
-let OmniCpp_MayCompleteScope =1
+""let OmniCpp_MayCompleteScope =1
 " }}}
-
 
 " cscope setting {{{
 if has("cscope")
@@ -603,8 +606,8 @@ autocmd BufEnter *  set tabstop=4
 """"""""""""
 "c c++
 """"""""""""
-autocmd BufEnter  *.cpp,*.c,*.h call s:SET_PATH("include") 
-autocmd FileType c set omnifunc=ccomplete#Complete
+""autocmd BufEnter  *.cpp,*.c,*.h call s:SET_PATH("include") 
+""autocmd FileType c set omnifunc=ccomplete#Complete
 ".c  .h 文件设为 .cpp
 autocmd BufEnter *.c  set filetype=cpp
 autocmd BufEnter *.h  set filetype=cpp
