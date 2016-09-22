@@ -141,19 +141,8 @@ complete  -o default -F _longopts wget id info a2ps ls recode
 # You may want to put all your additions into a separate file like
 # ~/.bash_aliases, instead of adding them here directly.
 # See /usr/share/doc/bash-doc/examples in the bash-doc package.
-if [ -f `pwd`/bash_aliases ]; then
-    . `pwd`/bash_aliases
-fi
+source ~/workspace/myvim/bash_aliases
+source ~/workspace/myvim/bash_func
 
-if [ -f ~/.bash_aliases ]; then
-    . ~/.bash_aliases
-fi
-
-function alias_server()
-{
-    alias goto='go_() { ssh -p 20220 -i ~/.ssh/devops.pem devops@$1; } && go_ ' 
-    alias upload='upload_() { scp -P 20220 -i ~/.ssh/devops.pem -C -r "$2" devops@$1:~/; } && upload_ '
-    alias download='download_() { scp -P 20220 -i ~/.ssh/devops.pem -C devops@$1:~/"$2"; } && download_ '
-}
 #ssh-copy-id -i ~/.ssh/id_rsa.pub "-p 22000 francisco@10.1.1.20"
 
