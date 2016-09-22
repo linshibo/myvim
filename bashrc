@@ -114,9 +114,9 @@ shopt -s cmdhist                    # save multi-line commands in history as sin
 shopt -s extglob				# necessary for bash completion (programmable completion)
 
 
-if [ -f ~/myvim/bash_func ]; then
-    . ~/myvim/bash_func
-fi
+source ~/workspace/myvim/bash_aliases
+
+source ~/workspace/myvim/bash_func
 
 # autocomplete ssh commands
 complete -W "$(echo `cat ~/.bash_history | egrep '^ssh ' | sort | uniq | sed 's/^ssh //'`;)" ssh
@@ -141,8 +141,6 @@ complete  -o default -F _longopts wget id info a2ps ls recode
 # You may want to put all your additions into a separate file like
 # ~/.bash_aliases, instead of adding them here directly.
 # See /usr/share/doc/bash-doc/examples in the bash-doc package.
-source ~/workspace/myvim/bash_aliases
-source ~/workspace/myvim/bash_func
 
 #ssh-copy-id -i ~/.ssh/id_rsa.pub "-p 22000 francisco@10.1.1.20"
 
