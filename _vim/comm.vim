@@ -32,22 +32,21 @@ Plugin 'bootleq/vim-cycle'
 Plugin 'kana/vim-smartword'
 Plugin 'altercation/vim-colors-solarized'
 Plugin 'terryma/vim-multiple-cursors'
-""Plugin 'fatih/vim-go'
+"Plugin 'fatih/vim-go'
 Plugin 'plasticboy/vim-markdown'
 Plugin 'octol/vim-cpp-enhanced-highlight'
 Plugin 'elzr/vim-json'
-""Plugin 'Valloric/YouCompleteMe'
+"Plugin 'Valloric/YouCompleteMe'
 Plugin 'scrooloose/nerdtree'
 Plugin 'klen/python-mode'
 Plugin 'jelera/vim-javascript-syntax'
-Plugin 'guileen/vim-node-dict'
+""Plugin 'guileen/vim-node-dict'
 ""Plugin 'ahayman/vim-nodejs-complete'
 Plugin 'moll/vim-node'
-Plugin 'marijnh/tern_for_vim'
-Plugin 'digitaltoad/vim-jade'
-Plugin 'tell-k/vim-autopep8'
+""Plugin 'marijnh/tern_for_vim'
+""Plugin 'digitaltoad/vim-jade'
+""Plugin 'tell-k/vim-autopep8'
 Plugin 'Rip-Rip/clang_complete'
-
 
 
 call vundle#end()
@@ -391,8 +390,10 @@ let g:pymode_virtualenv = 1
 let g:pymode_folding = 0
 "}}}
 "
+"clang complete{{{
 let g:clang_library_path = "/usr/lib/llvm-3.4/lib"
 let g:clang_user_options = "-I/usr/include/c++/4.6.3 -std=c++11"
+"}}}
 
 " YCM settings {{{
 let g:ycm_key_list_select_completion = ['', '']
@@ -583,17 +584,17 @@ let g:cycle_default_groups = [
 
 
 "vim-go{{{
-let g:go_play_open_browser = 0
+""let g:go_play_open_browser = 0
 ""By default vim-go shows errors for the fmt command, to disable it:
-let g:go_fmt_fail_silently = 1
+""let g:go_fmt_fail_silently = 1
 ""Disable auto fmt on save:
-let g:go_fmt_autosave = 0
+""let g:go_fmt_autosave = 0
 ""Disable goimports and use gofmt for the fmt command:
-let g:go_fmt_command = "gofmt"
-au FileType go nmap gd <Plug>(go-def)
-au FileType go nmap <Leader>d <Plug>(go-doc)
+""let g:go_fmt_command = "gofmt"
+""au FileType go nmap gd <Plug>(go-def)
+""au FileType go nmap <Leader>d <Plug>(go-doc)
 ""au FileType go nmap <Leader>i <Plug>(go-info)
-au FileType go noremap \\f <Esc>:GoFmt<CR> 
+""au FileType go noremap \\f <Esc>:GoFmt<CR> 
 "}}}
 
 "----------------------------------------------------------------------------
@@ -622,9 +623,9 @@ autocmd BufRead,BufNewFile *.py set ai
 autocmd FileType python setlocal et sta sw=4 sts=4
 autocmd FileType python setlocal foldmethod=indent
 au BufNewFile,BufRead *.py,*.pyw set filetype=python
-""au BufRead,BufNewFile *.py,*.pyw,*.c,*.h match BadWhitespace /\s\+$/
-"""au FileType python noremap \\f <Esc>:pyfmt -i %<CR> 
-""au FileType python noremap \\f <Esc>:!autopep8 --in-place --aggressive %<CR> 
+"au BufRead,BufNewFile *.py,*.pyw,*.c,*.h match BadWhitespace /\s\+$/
+"au FileType python noremap \\f <Esc>:pyfmt -i %<CR> 
+"au FileType python noremap \\f <Esc>:!autopep8 --in-place --aggressive %<CR> 
 au FileType python noremap \\f <Esc>:PymodeLintAuto<CR> 
 """"""""""""
 "golang
@@ -661,7 +662,6 @@ autocmd FileType vim map <buffer> <leader><space> :w!<cr>:source %<cr>
 """"""""""""
 " Enable omni completion. (Ctrl-X Ctrl-O)
 au! BufRead *.json,*.cfg set filetype=json 
-
 
 "----------------------------------------------------------------------------
 " FUNCTIONS
