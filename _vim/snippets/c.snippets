@@ -23,29 +23,12 @@ snippet ff
 	${1:/*code*/}
 
 	#endif /*`toupper(substitute(expand("%:t"),'\.','_',"g"))`*/
-snippet main
-	int main(int argc, const char *argv[])
-	{
-		${0:/* code */}
-		return 0;
-	}
 snippet is
 	#include <${1:iostream}>
 snippet in
 	#include "${1:`Filename("$1.h")`}"${2}
 snippet de
 	#define 
-snippet ifdef
-#ifdef ${1:FOO}
-	${2:#define }
-#endif
-snippet #if
-#if ${1:FOO}
-	${2}
-#endif
-snippet if
-	if(${1:/* condition */}) {
-	}
 snippet ife 
 	if(${1:/* condition */}) {
 		${2:/*code*/}
@@ -56,12 +39,6 @@ snippet eif
 	else if(${1:/* condition */}){
 		${2:/*code*/}
 	}
-snippet el
-	else{
-		${1:/*code*/}
-	}
-snippet t
-	${1:/* condition */} ? ${2:a} : ${3:b}
 snippet dowhile
 	do {
 		${2:/* code */}
@@ -69,9 +46,6 @@ snippet dowhile
 snippet while
 	while (${1:/* condition */}) {
 		${2:/* code */}
-	}
-snippet for
-	for(${1:before}; ${2:conditon}; ${3:after}) {
 	}
 snippet loop
 	for(uint32_t ${1:loop} = ${2:0}; ${3:$1}<${4:count}; ${5:++$1}) {
@@ -105,34 +79,16 @@ snippet func
 	{
 		${4:/* code */}
 	}
-snippet fund
-	${1:void} ${2:function_name}(${3});
-snippet td
-	typedef ${1:int} ${2:MyCustomType};${3}
-snippet st
-	struct ${1:name} {
-		${2:/* data */}
-	};
-snippet tds
-	typedef struct ${1:name}{
-		${2:/* data */}
-	} ${3:$1_t};
-snippet tde
-	typedef enum {
-		${1:/* data */}
-	} ${2:foo};
 snippet print
 	printf("${1:%s}\n"${1/([^%]|%%)*(%.)?.*/(?2:, :\);)/}$2${1/([^%]|%%)*(%.)?.*/(?2:\);)/}
-snippet fpr
-	fprintf(${1:stderr}, "${2:%s}\n"${3});${4}
-snippet un
-	unsigned
-snippet log
-	DEBUG_LOG("${1:content}");
-snippet klog
-	KDEBUG_LOG(${1:p->uid},"${2:content}");
+snippet dlog
+	LOG(DEBUG, "${1:content}");
+snippet ilog
+	LOG(INFO, "${1:content}");
+snippet wlog
+	LOG(WARN, "${1:content}");
 snippet elog
-	KERROR_LOG(${1:p->uid},"${2:content}");
+	LOG(ERROR, "${1:content}");
 snippet u64
 	uint64_t
 snippet u32

@@ -36,16 +36,10 @@ Plugin 'terryma/vim-multiple-cursors'
 Plugin 'plasticboy/vim-markdown'
 Plugin 'octol/vim-cpp-enhanced-highlight'
 Plugin 'elzr/vim-json'
-"Plugin 'Valloric/YouCompleteMe'
 Plugin 'scrooloose/nerdtree'
 Plugin 'klen/python-mode'
 Plugin 'jelera/vim-javascript-syntax'
-""Plugin 'guileen/vim-node-dict'
-""Plugin 'ahayman/vim-nodejs-complete'
 Plugin 'moll/vim-node'
-""Plugin 'marijnh/tern_for_vim'
-""Plugin 'digitaltoad/vim-jade'
-""Plugin 'tell-k/vim-autopep8'
 Plugin 'Rip-Rip/clang_complete'
 
 
@@ -391,18 +385,18 @@ let g:pymode_folding = 0
 "}}}
 "
 "clang complete{{{
-let g:clang_library_path = "/usr/lib/llvm-3.4/lib"
+"let g:clang_library_path = "/usr/lib/llvm-3.4/lib"
 let g:clang_user_options = "-I/usr/include/c++/4.6.3 -std=c++11"
 "}}}
 
 " YCM settings {{{
-let g:ycm_key_list_select_completion = ['', '']
-let g:ycm_key_list_previous_completion = ['']
-let g:ycm_confirm_extra_conf = 0
-let g:ycm_key_invoke_completion = '<C-Space>'
-let g:ycm_global_ycm_extra_conf = '~/.ycm_extra_conf.py'
-nnoremap <C-s> :YcmCompleter GoTo<CR>
-nnoremap <C-d> :YcmCompleter GoToDefinition<CR>
+""let g:ycm_key_list_select_completion = ['', '']
+""let g:ycm_key_list_previous_completion = ['']
+""let g:ycm_confirm_extra_conf = 0
+""let g:ycm_key_invoke_completion = '<C-Space>'
+""let g:ycm_global_ycm_extra_conf = '~/.ycm_extra_conf.py'
+""nnoremap <C-s> :YcmCompleter GoTo<CR>
+""nnoremap <C-d> :YcmCompleter GoToDefinition<CR>
 "}}}
 
 "Nerdtree{{{
@@ -609,7 +603,8 @@ autocmd BufEnter *  set tabstop=4
 """"""""""""
 "c c++
 """"""""""""
-""autocmd BufEnter  *.cpp,*.c,*.h call s:SET_PATH("include") 
+autocmd BufEnter  *.cpp,*.c,*.h call s:SET_PATH("include") 
+autocmd BufEnter  *.cpp,*.c,*.h call s:SET_PATH("commons") 
 ""autocmd FileType c set omnifunc=ccomplete#Complete
 ".c  .h 文件设为 .cpp
 autocmd BufEnter *.c  set filetype=cpp
@@ -623,7 +618,6 @@ autocmd BufRead,BufNewFile *.py set ai
 autocmd FileType python setlocal et sta sw=4 sts=4
 autocmd FileType python setlocal foldmethod=indent
 au BufNewFile,BufRead *.py,*.pyw set filetype=python
-"au BufRead,BufNewFile *.py,*.pyw,*.c,*.h match BadWhitespace /\s\+$/
 "au FileType python noremap \\f <Esc>:pyfmt -i %<CR> 
 "au FileType python noremap \\f <Esc>:!autopep8 --in-place --aggressive %<CR> 
 au FileType python noremap \\f <Esc>:PymodeLintAuto<CR> 
