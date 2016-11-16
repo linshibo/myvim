@@ -16,8 +16,7 @@ call vundle#begin()
 Plugin 'gmarik/Vundle.vim'
 
 " 代码源在 github 上的
-Plugin 'vim-scripts/FencView.vim'
-""Plugin 'vim-scripts/OmniCppComplete'
+Plugin 'mbbill/fencview'
 Plugin 'vim-scripts/Tagbar'
 Plugin 'vim-scripts/matchit.zip'
 Plugin 'vim-scripts/YankRing.vim'
@@ -32,14 +31,12 @@ Plugin 'bootleq/vim-cycle'
 Plugin 'kana/vim-smartword'
 Plugin 'altercation/vim-colors-solarized'
 Plugin 'terryma/vim-multiple-cursors'
-"Plugin 'fatih/vim-go'
 Plugin 'plasticboy/vim-markdown'
 Plugin 'octol/vim-cpp-enhanced-highlight'
 Plugin 'elzr/vim-json'
 Plugin 'scrooloose/nerdtree'
 Plugin 'klen/python-mode'
 Plugin 'jelera/vim-javascript-syntax'
-Plugin 'moll/vim-node'
 Plugin 'Rip-Rip/clang_complete'
 
 
@@ -84,7 +81,7 @@ set nocompatible
 "disable alt
 set winaltkeys=no
 "tags 位置
-set tags=~/.vim/comm_tags,~/.vim/stl_tags,.tags,.gosource.tags
+set tags=~/.vim/comm_tags,.tags
 
 "折叠
 set foldmethod=syntax
@@ -389,16 +386,6 @@ let g:pymode_folding = 0
 let g:clang_user_options = "-I/usr/include/c++/4.6.3 -std=c++11"
 "}}}
 
-" YCM settings {{{
-""let g:ycm_key_list_select_completion = ['', '']
-""let g:ycm_key_list_previous_completion = ['']
-""let g:ycm_confirm_extra_conf = 0
-""let g:ycm_key_invoke_completion = '<C-Space>'
-""let g:ycm_global_ycm_extra_conf = '~/.ycm_extra_conf.py'
-""nnoremap <C-s> :YcmCompleter GoTo<CR>
-""nnoremap <C-d> :YcmCompleter GoToDefinition<CR>
-"}}}
-
 "Nerdtree{{{
 ""autocmd StdinReadPre * let s:std_in=1
 ""autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif""))
@@ -452,33 +439,6 @@ let g:yankring_history_file='.yankring_history_file'
 nnoremap <silent> <C-Y> :YRShow<CR> 
 "}}}
 
-" omnicppcomplete{{{
-""let OmniCpp_ShowScopeInAbbr = 1
-"支持STL模板
-""let OmniCpp_DefaultNamespaces   = ["std", "_GLIBCXX_STD"]
-"不自动选择第一个
-""let OmniCpp_SelectFirstItem = 0
-"使用本地搜索函数
-""let OmniCpp_LocalSearchDecl = 1
-"::补全
-""let OmniCpp_MayCompleteScope =1
-" }}}
-
-" cscope setting {{{
-"if has("cscope")
-    "set csprg=/usr/bin/cscope
-    "set csto=0
-    "set cst
-    "set nocsverb
-    "" add any database in current directory
-    "if filereadable("_cscope.out")
-        "silent cs add _cscope.out
-    "endif
-    "set csverb
-"endif
-"au filetype cpp nnoremap ,s :cs find s <C-R>=expand("<cword>")<CR><CR>
-"au filetype cpp vnoremap ,s :call  VisualSelection('cs')<CR>
-"}}}
 
 "powerline{{{ 状态栏
 let g:Powerline_colorscheme = 'solarized256'
@@ -770,15 +730,8 @@ function! GEN_TAGS()
 endfunction
 
     
-"重新生成c语言 ctag cscope
+"重新生成c语言 ctag 
 function! GEN_C_TAGS() 
-    "if(executable('cscope') && has("cscope") )
-        "silent! execute "!find . -name '[^.]*.h' -o -name '[^.]*.c' -o -name '[^.]*.cpp' -o -name '[^.]*.hpp' > _cscope.files"
-        "silent! execute "!cscope -bkq -f _cscope.out -i _cscope.files"
-        "if (filereadable("_cscope.out"))
-            "execute "cs reset"
-        "endif
-    "endif
     if(executable('ctags'))
         silent! execute "!rm -f ./.tags"
         if g:os== 'Linux' 

@@ -58,4 +58,4 @@ alias autokey='sudo apt-get update 2> /tmp/keymissing; for key in $(grep "NO_PUB
 
 alias goto='go_() { ssh -p 20220 -i ~/.ssh/devops.pem devops@$1; } && go_ ' 
 alias upload='upload_() { scp -P 20220 -i ~/.ssh/devops.pem -C -r "$2" devops@$1:~/; } && upload_ '
-alias download='download_() { scp -P 20220 -i ~/.ssh/devops.pem -C devops@$1:~/"$2"; } && download_ '
+alias download='download_() { scp -P 20220 -i ~/.ssh/devops.pem -C devops@$1:~/"$2" . ; } && download_ '

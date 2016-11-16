@@ -30,7 +30,7 @@ function ip2dec() {
     printf '%d\n' "$((a * 256 ** 3 + b * 256 ** 2 + c * 256 + d))"
 }
 
-function todate()
+function 2date()
 {
     if [ "`uname`" = "Darwin" ]; then
         date -r $1
@@ -40,7 +40,7 @@ function todate()
     fi
 }
 
-function tostamp()
+function 2ts()
 {
     if [ "`uname`" = "Darwin" ]; then
         date -j -f "%Y-%m-%d %H:%M:%S" "$1" "+%s"
@@ -57,7 +57,7 @@ function hex(){
     printf "0x%08x\n" $1; 
 }
 
-source ~/workspace/myvim/bash_aliases
+source ~/workspace/UbuntuShare/myvim/bash_aliases
 
 function alias_server()
 {
@@ -65,5 +65,5 @@ function alias_server()
     local lastip=`echo $2 | awk -F. '{print $4}'`
     alias go.$idc$lastip="ssh -p 20220 -i ~/.ssh/devops.pem devops@$2" 
     alias upload.$idc$lastip="upload_() { scp -P 20220 -i ~/.ssh/devops.pem -C -r \$1 devops@$2:~/; } && upload_ "
-    alias download.$idc$lastip="download_() { scp -P 20220 -i ~/.ssh/devops.pem -C devops@$2:~/\"\$1\"; } && download_ "
+    alias download.$idc$lastip="download_() { scp -P 20220 -i ~/.ssh/devops.pem -C devops@$2:~/\"\$1\" . ; } && download_ "
 }
