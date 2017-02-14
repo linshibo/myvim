@@ -57,7 +57,7 @@ function hex(){
     printf "0x%08x\n" $1; 
 }
 
-source ~/workspace/UbuntuShare/myvim/bash_aliases
+source ~/workspace/myvim/bash_aliases
 
 function alias_server()
 {

@@ -1,5 +1,5 @@
 "---------------------------------------------------------------------------
-"author:francisco 
+"author:francisco
 "email:linshibo3456@gmail.com
 "add to   .vimrc
 "source ~/.vim/comm.vim
@@ -18,12 +18,15 @@ Plugin 'gmarik/Vundle.vim'
 " 代码源在 github 上的
 Plugin 'mbbill/fencview'
 Plugin 'vim-scripts/Tagbar'
-Plugin 'vim-scripts/matchit.zip'
+""Plugin 'vim-scripts/matchit.zip'
 Plugin 'vim-scripts/YankRing.vim'
 Plugin 'vim-scripts/snipMate'
 Plugin 'vim-scripts/a.vim'
 Plugin 'vim-scripts/ack.vim'
-Plugin 'Lokaltog/vim-powerline'
+"Plugin 'Lokaltog/vim-powerline'
+Plugin 'godlygeek/tabular'
+Plugin 'vim-airline/vim-airline'
+Plugin 'vim-airline/vim-airline-themes'
 Plugin 'Lokaltog/vim-easymotion'
 Plugin 'Shougo/unite.vim'
 Plugin 'tpope/vim-surround'
@@ -38,15 +41,14 @@ Plugin 'scrooloose/nerdtree'
 Plugin 'klen/python-mode'
 Plugin 'jelera/vim-javascript-syntax'
 Plugin 'Rip-Rip/clang_complete'
+Plugin 'nathanaelkane/vim-indent-guides'
+Plugin 'mbbill/undotree'
+Plugin 'gregsexton/matchtag'
+Plugin 'shougo/vimshell.vim'
+Plugin 'shougo/vimproc.vim'
 
 
 call vundle#end()
-
-
-" 代码存放在 vim script 上
-"Bundle 'FuzzyFinder'
-" 代码存放在其他地方
-"Bundle 'git://git.wincent.com/command-t.git'
 
 "---------------------------------------------------------------------------
 "GENERAL SET
@@ -65,7 +67,7 @@ syntax enable on
 
 "备份
 set backup
-"备份目录 
+"备份目录
 if !isdirectory($HOME."/.vim/backupdir")
     silent! execute "!mkdir ~/.vim/backupdir"
 endif
@@ -87,15 +89,15 @@ set tags=~/.vim/comm_tags,.tags
 set foldmethod=syntax
 ""默认情况下不折叠
 set foldlevel=99
-"set for gf 
+"set for gf
 set path+=/usr/include/c++/4.6/
 
 
 "重新打开时自动定位到原来的位置
 autocmd BufReadPost *
-	\ if line("'\"") > 0 && line ("'\"") <= line("$") |
-	\   exe "normal! g'\"" |
-	\ endif
+    \ if line("'\"") > 0 && line ("'\"") <= line("$") |
+    \   exe "normal! g'\"" |
+    \ endif
 "转换paste
 autocmd InsertLeave * if &paste == 1|set nopaste |endif
 
@@ -121,8 +123,8 @@ set sidescrolloff=10 " 距离水平边界 n 行就开始滚动
 "Favorite filetypes
 set fileformats=unix,mac
 let g:os=substitute(system('uname'), '\n', '', '')
-if has('gui_running') 
-    if g:os == 'Linux' 
+if has('gui_running')
+    if g:os == 'Linux'
         set guifont=Monospace\ 14
     elseif g:os == 'Darwin' || g:os == 'Mac'
         set guifont=Monaco\ 18
@@ -137,7 +139,7 @@ if has('gui_running')
     set noimd
 endif
 
-"主题 solarized 的配置必须在 colorscheme 之前 
+"主题 solarized 的配置必须在 colorscheme 之前
 let g:solarized_termcolors=256
 let g:solarized_termtrans=1
 let g:solarized_hitrail   =   0
@@ -191,8 +193,8 @@ set ruler
 
 " enables automatic C program indenting
 set autoindent
-set smartindent 
-set cindent 
+set smartindent
+set cindent
 set smarttab
 set expandtab " 开启把Tab扩展为空格
 set tabstop=4 " 设置Tab宽度为4个字符
@@ -220,13 +222,13 @@ set tm=500
 " Highlight VCS conflict markers
 syn match ErrorMsg '^\(<\|=\|>\)\{7}\([^=].\+\)\?$'
 
-"vimtips 
-command! -nargs=0 VIMTIPS  :tabe | :r ! w3m -dump http://zzapper.co.uk/vimtips.html 
+"vimtips
+command! -nargs=0 VIMTIPS  :tabe | :r ! w3m -dump http://zzapper.co.uk/vimtips.html
 
 "----------------------------------------------------------------------------
 "MAP BIND
 "----------------------------------------------------------------------------
-"use jj replace esc 
+"use jj replace esc
 inoremap jj <Esc>
 
 nnoremap gr gT
@@ -246,7 +248,7 @@ nnoremap <Leader>w :w!<CR>:nohl<CR>
 
 " sudo write this
 nnoremap <Leader>W <Esc>:w !sudo tee % >/dev/null<CR>
-nnoremap <Leader>e <Esc>:e 
+nnoremap <Leader>e <Esc>:e  
 nnoremap <Leader>x <Esc>:!
 
 "cmd model map
@@ -272,7 +274,7 @@ nnoremap <Leader>m <Esc>:call Make()<CR>
 "nnoremap ,d <Esc>:call OPT_RANGE("da")<CR>
 "nnoremap ,D <Esc>:call OPT_RANGE("di")<CR>
 "转换单词大小写
-nnoremap <Leader>u <Esc>:call SET_UAW()<CR>
+nnoremap <C-u> <Esc>:call SET_UAW()<CR>
 
 "Keep search pattern at the center of the screen."
 nnoremap <silent> n nzz
@@ -308,9 +310,9 @@ nnoremap \\j :call ConvertToJson()<CR>
 "Fast reloading of the .vimrc
 nnoremap \\s <ESC>:source ~/.vim/comm.vim<cr>
 "Fast editing of .vimrc
-nnoremap \\e <ESC>:e! ~/.vim/comm.vim<cr>
+"nnoremap \\e <ESC>:e! ~/.vim/comm.vim<cr>
 "Switch to current dir
-nnoremap <Leader>cd <ESC>:cd %:p:h<cr>
+nnoremap <Leader>c <ESC>:cd %:p:h<cr>
 
 "在正常模式下的整块移动
 "大括号内向左移
@@ -331,17 +333,17 @@ nnoremap <Leader>n <Esc>:cn<CR>
 nnoremap <Leader>p <Esc>:cp<CR>
 
 "根据标签补全
-inoremap <C-]> <C-X><C-]> 
+inoremap <C-]> <C-X><C-]>
 "补全文件名
-inoremap <C-F> <C-X><C-F> 
+inoremap <C-F> <C-X><C-F>
 "补全宏定义
 inoremap <C-D> <C-X><C-D>
 "整行补全
 inoremap <C-L> <C-X><C-L>
 "根据头文件内关键字补全
-inoremap <C-I> <C-X><C-I> 
-"用户自定义补全方式   
-inoremap <C-U> <C-X><C-U> 
+inoremap <C-I> <C-X><C-I>
+"用户自定义补全方式
+inoremap <C-U> <C-X><C-U>
 "全能补全
 inoremap <C-O> <C-X><C-O>
 "用于支持代码补全时，提示存在。
@@ -382,26 +384,33 @@ let g:pymode_folding = 0
 "}}}
 "
 "clang complete{{{
-"let g:clang_library_path = "/usr/lib/llvm-3.4/lib"
+if g:os == 'Linux'
+    let g:clang_library_path = "/usr/lib/llvm-3.4/lib"
+elseif g:os == 'Darwin' || g:os == 'Mac'
+    let g:clang_library_path='/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib'
+endif
 let g:clang_user_options = "-I/usr/include/c++/4.6.3 -std=c++11"
 "}}}
 
+
 "Nerdtree{{{
-""autocmd StdinReadPre * let s:std_in=1
-""autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif""))
 autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTreeType") && b:NERDTreeType == "primary") | q | endif
 nmap <C-e> :NERDTreeToggle<CR>
 "}}}
 
 "ack.vim{
-if g:os == 'Linux' 
+if g:os == 'Linux'
     set grepprg=/user/bin/ack-grep
     let g:ackprg="/usr/bin/ack-grep -H --nocolor --nogroup"
 elseif g:os == 'Darwin' || g:os == 'Mac'
     let g:ackprg="/usr/local/bin/ack -H --nocolor --nogroup"
 endif
 "}
-
+"
+"vimshell{{{
+nmap <Leader>s :VimShellTab<CR>
+"}}}
+"
 "vim-smartword{{{
 nmap w  <Plug>(smartword-w)
 nmap b  <Plug>(smartword-b)
@@ -415,6 +424,13 @@ au filetype cpp nnoremap <Leader>a <Esc>:A<CR>
 "}}}
 "
 
+"vim-indent-guides{{{
+let g:indent_guides_auto_colors = 0
+hi IndentGuidesOdd  ctermbg=black
+hi IndentGuidesEven ctermbg=darkgrey
+nmap \\i <Esc>:IndentGuidesToggle<CR>
+""}}}
+
 "unite{{{
 nnoremap <Leader>f :Unite file<CR>
 nnoremap <Leader>b :Unite buffer<CR>
@@ -425,33 +441,48 @@ let g:EasyMotion_leader_key = '\'
 "}}}
 
 "FencView {{{
-let g:fencview_autodetect = 1                      
+let g:fencview_autodetect = 1
 "}}}
 
 "YankRing {{{
 let g:yankring_enabled = 1  " Disables the yankring
 let g:yankring_max_history = 10
 let g:yankring_min_element_length = 3
-let g:yankring_max_display = 50 
+let g:yankring_max_display = 50
 let g:yankring_persist = 0
 let g:yankring_history_dir = '~/.vim/'
 let g:yankring_history_file='.yankring_history_file'
-nnoremap <silent> <C-Y> :YRShow<CR> 
+nnoremap <silent> <C-Y> :YRShow<CR>
 "}}}
 
+"undotree{{{
+if has("persistent_undo")
+    if !isdirectory($HOME."/.vim/undodir")
+        silent! execute "!mkdir ~/.vim/undodir"
+    endif
+    set undodir=$HOME."/.vim/undodir"
+    set undofile
+endif
+nnoremap <Leader>u :UndotreeToggle<cr>
+"}}}
 
 "powerline{{{ 状态栏
-let g:Powerline_colorscheme = 'solarized256'
+""let g:Powerline_colorscheme = 'solarized256'
+""set laststatus=2
+""set t_Co=256
+"}}}
+"
+"airline{{{
+let g:airline_theme='solarized'
+let g:airline#extensions#tabline#enabled = 1
 set laststatus=2
-set t_Co=256
 "}}}
 
-
 " Tagbar setting{{{
-let g:tagbar_width = 30 
+nnoremap <Leader>t <Esc>:TagbarToggle<cr>
+let g:tagbar_width = 30
 let g:tagbar_expand = 0
 let g:tagbar_autofocus = 1
-nnoremap <silent> <F3> <Esc>:TagbarToggle<cr>
 let g:tagbar_type_go = {
     \ 'ctagstype' : 'go',
     \ 'kinds'     : [
@@ -480,13 +511,6 @@ let g:tagbar_type_go = {
     \ 'ctagsargs' : '-sort -silent'
     \ }
 " }}}
-
-"xml.vim{{{
-let xml_use_xhtml = 1
-let html_use_css = 1
-let html_number_lines = 0
-let use_xhtml = 1
-"}}}
 
 "cycle.vim{{{
 let g:cycle_no_mappings = 1
@@ -548,7 +572,7 @@ let g:cycle_default_groups = [
 ""au FileType go nmap gd <Plug>(go-def)
 ""au FileType go nmap <Leader>d <Plug>(go-doc)
 ""au FileType go nmap <Leader>i <Plug>(go-info)
-""au FileType go noremap \\f <Esc>:GoFmt<CR> 
+""au FileType go noremap \\f <Esc>:GoFmt<CR>
 "}}}
 
 "----------------------------------------------------------------------------
@@ -558,13 +582,13 @@ let g:cycle_default_groups = [
 """"""""""""
 "general
 """"""""""""
-autocmd BufEnter *  set tabstop=4 
+autocmd BufEnter *  set tabstop=4
 
 """"""""""""
 "c c++
 """"""""""""
-autocmd BufEnter  *.cpp,*.c,*.h call s:SET_PATH("include") 
-autocmd BufEnter  *.cpp,*.c,*.h call s:SET_PATH("commons") 
+autocmd BufEnter  *.cpp,*.c,*.h call s:SET_PATH("commons")
+autocmd BufEnter  *.cpp,*.c,*.h call s:SET_PATH("../commons")
 ""autocmd FileType c set omnifunc=ccomplete#Complete
 ".c  .h 文件设为 .cpp
 autocmd BufEnter *.c  set filetype=cpp
@@ -578,9 +602,8 @@ autocmd BufRead,BufNewFile *.py set ai
 autocmd FileType python setlocal et sta sw=4 sts=4
 autocmd FileType python setlocal foldmethod=indent
 au BufNewFile,BufRead *.py,*.pyw set filetype=python
-"au FileType python noremap \\f <Esc>:pyfmt -i %<CR> 
-"au FileType python noremap \\f <Esc>:!autopep8 --in-place --aggressive %<CR> 
-au FileType python noremap \\f <Esc>:PymodeLintAuto<CR> 
+"au FileType python noremap \\f <Esc>:pyfmt -i %<CR>
+au FileType python noremap \\f <Esc>:PymodeLintAuto<CR>
 """"""""""""
 "golang
 """"""""""""
@@ -588,7 +611,7 @@ autocmd BufEnter *.go  set filetype=go
 au Filetype go set makeprg=go\ build\ -race\ ./...
 
 """"""""""""
-" HTML 
+" HTML
 """"""""""""
 au FileType html set ft=xml
 au FileType html set syntax=html
@@ -599,14 +622,14 @@ autocmd BufRead *.tmpl set filetype=html
 autocmd BufRead *.html set filetype=html
 
 """"""""""""
-" javascript 
+" javascript
 """"""""""""
 autocmd BufRead *.js set filetype=javascript
 au FileType javascript set dictionary+=$HOME/.vim/bundle/vim-node-dict/dict/node.dict
 autocmd FileType javascript setlocal omnifunc=javascriptcomplete#CompleteJS
 
 """"""""""""
-" Vim 
+" Vim
 """"""""""""
 autocmd FileType vim set nofen
 autocmd FileType vim map <buffer> <leader><space> :w!<cr>:source %<cr>
@@ -615,12 +638,12 @@ autocmd FileType vim map <buffer> <leader><space> :w!<cr>:source %<cr>
 "others
 """"""""""""
 " Enable omni completion. (Ctrl-X Ctrl-O)
-au! BufRead *.json,*.cfg set filetype=json 
+au! BufRead *.json,*.cfg set filetype=json
 
 "----------------------------------------------------------------------------
 " FUNCTIONS
 "----------------------------------------------------------------------------
-"quickfix 开关 
+"quickfix 开关
 function! ToggleQF()
     if !exists("g:fx_toggle")
         let g:fx_toggle = 0
@@ -638,21 +661,21 @@ endfunc
 function! VisualSelection(direction) range
     let l:saved_reg = @"
     execute "normal! vgvy"
-    
+
     let l:pattern = escape(@", '\\/.*$^~[]')
     let l:pattern = substitute(l:pattern, "\n$", "", "")
-    
+
     if a:direction == 'b'
         execute "normal ?" . l:pattern . "^M"
     elseif a:direction == 'gv'
         let my_filetype = &filetype
-        exec "Ack " . l:pattern ." --". my_filetype 
+        exec "Ack " . l:pattern ." --". my_filetype
     elseif a:direction == 'replace'
         ""call CmdLine("%s" . '/'. l:pattern . '/')
     elseif a:direction == 'f'
         execute "normal /" . l:pattern . "^M"
     elseif a:direction == 'cs'
-        execute "cs find s " . l:pattern 
+        execute "cs find s " . l:pattern
     endif
     let @/ = l:pattern
     let @" = l:saved_reg
@@ -661,26 +684,26 @@ endfunction
 "获取当前路径的上一级的路径
 function! GET_UP_PATH(dir)
     let pos=len(a:dir)-1
-    while pos>0 
+    while pos>0
         if (a:dir[pos]=="/" )
-            return 	strpart(a:dir,0,pos)
+            return     strpart(a:dir,0,pos)
         endif
-        let pos=pos-1 
+        let pos=pos-1
     endwhile
-    return  ""  
+    return  ""
 endfunction
 
-"设置相关 include , for cmd : gf 
+"设置相关 include , for cmd : gf
 function! s:SET_PATH( find_dir )
     let dir = expand("%:p:h") "获得源文件路径
     let dir_relative=''
     let g:alternateSearchPath = ''
-    "在路径上递归向上查找tags文件 
+    "在路径上递归向上查找tags文件
     while dir!=""
         if finddir(a:find_dir ,dir ) !=""
             "找到了就加入到tags
             exec "set path+=" . dir . "/". a:find_dir
-            let g:alternateSearchPath = g:alternateSearchPath.'sfr:'.dir_relative.a:find_dir."," 
+            let g:alternateSearchPath = g:alternateSearchPath.'sfr:'.dir_relative.a:find_dir.","
         endif
         "得到上级路径
         let dir_relative=dir_relative . "../"
@@ -691,7 +714,7 @@ endfunction
 "upper case
 function! SET_UAW()
     let save_cursor = getpos(".")
-    
+
     let line = getline('.')
     let col_num = col('.')
     if match("ABCDEFGHIJKLMNOPQRSTUVWXYZ",line[col_num-1])!= -1
@@ -699,13 +722,13 @@ function! SET_UAW()
     else
         exec "normal! gUaw"
     endif
-    
+
     call setpos('.', save_cursor)
 endfunction
 
-function! Make() 
+function! Make()
     if ( &filetype == "go")
-        exec "GoBuild" 
+        exec "GoBuild"
     endif
     if ( &filetype == "cpp" || &filetype == "c")
         exec "make"
@@ -717,7 +740,7 @@ endfunction
 
 
 
-function! GEN_TAGS() 
+function! GEN_TAGS()
     if ( &filetype == "go")
         "silent! execute "! /usr/local/bin/ctags -f gosource.tags -R `pwd`"<CR>
         "go get -u github.com/jstemmer/gotags
@@ -729,12 +752,12 @@ function! GEN_TAGS()
     endif
 endfunction
 
-    
-"重新生成c语言 ctag 
-function! GEN_C_TAGS() 
+
+"重新生成c语言 ctag
+function! GEN_C_TAGS()
     if(executable('ctags'))
         silent! execute "!rm -f ./.tags"
-        if g:os== 'Linux' 
+        if g:os== 'Linux'
             silent! execute "!ctags -R -f .tags  --languages=c,c++ --c++-kinds=+p --fields=+iaS --extra=+q ."
         elseif g:os == 'Darwin' || g:os == 'Mac'
             silent! execute "!/usr/local/bin/ctags -R -f .tags --languages=c,c++ --c++-kinds=+p --fields=+iaS --extra=+q ."
@@ -744,14 +767,14 @@ function! GEN_C_TAGS()
 endfunction
 
 function! ConvertToJson()
-    if &filetype == "json" 
+    if &filetype == "json"
         exec "%!python -m json.tool"
     endif
 endfunction
 
-function! OPT_RANGE( opt_str ) 
-    let cur_char=getline('.')[col('.') - 1] 
-    if cur_char == "(" || cur_char == "<" || cur_char == "{" || cur_char == "[" || cur_char == "\"" || cur_char == "'" || cur_char == ")" || cur_char == ">" || cur_char == "}" || cur_char == "]" 
+function! OPT_RANGE( opt_str )
+    let cur_char=getline('.')[col('.') - 1]
+    if cur_char == "(" || cur_char == "<" || cur_char == "{" || cur_char == "[" || cur_char == "\"" || cur_char == "'" || cur_char == ")" || cur_char == ">" || cur_char == "}" || cur_char == "]"
         exec "normal! ".a:opt_str.cur_char
     endif
 endfunction

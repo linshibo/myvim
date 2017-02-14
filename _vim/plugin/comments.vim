@@ -107,7 +107,7 @@ function! CommentLine()
   let file_name = buffer_name("%")
 
   " for .cpp or .hpp or .java or .C files use //
-  if file_name =~ '\.cpp$' || file_name =~ '\.hpp$' || file_name =~ '\.java$' || file_name =~ '\.php[2345]\?$' || file_name =~ '\.C$'|| file_name =~ '\.go$' ||  file_name =~ '\.jade$'
+  if file_name =~ '\.cpp$' || file_name =~ '\.hpp$' || file_name =~ '\.h$'|| file_name =~ '\.java$' || file_name =~ '\.php[2345]\?$' || file_name =~ '\.C$'|| file_name =~ '\.go$' ||  file_name =~ '\.jade$'
     execute ":silent! normal ^i//\<ESC>==\<down>^"
   elseif file_name =~ '\.js$' 
     execute ":silent! normal ^i//\<ESC>==\<down>^"
@@ -176,7 +176,7 @@ function! UnCommentLine()
   let file_name = buffer_name("%")
 
   " for .cpp or .hpp or .java or .C files use //
-  if file_name =~ '\.cpp$' || file_name =~ '\.hpp$' || file_name =~ '\.java$' || file_name =~ '\.php[2345]\?$' || file_name =~ '\.C$'|| file_name =~ '\.go$' ||  file_name =~ '\.jade$'
+  if file_name =~ '\.cpp$' || file_name =~ '\.hpp$' || file_name =~ '\.h$'|| file_name =~ '\.java$' || file_name =~ '\.php[2345]\?$' || file_name =~ '\.C$'|| file_name =~ '\.go$' ||  file_name =~ '\.jade$'
     execute ":silent! normal :nohlsearch\<CR>:s/\\/\\///\<CR>:nohlsearch\<CR>=="
   elseif file_name =~ '\.js$' 
     execute ":silent! normal :nohlsearch\<CR>:s/\\/\\///\<CR>:nohlsearch\<CR>=="
@@ -225,7 +225,7 @@ function! RangeCommentLine()
   let file_name = buffer_name("%")
 
   " for .cpp or .hpp or .java or .C files use //
-  if file_name =~ '\.cpp$' || file_name =~ '\.hpp$' || file_name =~ '\.java$' || file_name =~ '\.php[2345]\?$' || file_name =~ '\.C$'|| file_name =~ '\.go$'||  file_name =~ '\.jade$'
+  if file_name =~ '\.cpp$' || file_name =~ '\.hpp$' || file_name =~ '\.h$'|| file_name =~ '\.java$' || file_name =~ '\.php[2345]\?$' || file_name =~ '\.C$'|| file_name =~ '\.go$'||  file_name =~ '\.jade$'
     execute ":silent! normal :s/\\S/\\/\\/\\0/\<CR>:nohlsearch<CR>=="
   elseif file_name =~ '\.js$'
     execute ":silent! normal :s/\\S/\\/\\/\\0/\<CR>:nohlsearch<CR>=="
@@ -294,7 +294,7 @@ function! RangeUnCommentLine()
   let file_name = buffer_name("%")
 
   " for .cpp or .hpp or .java files use //
-  if file_name =~ '\.cpp$' || file_name =~ '\.hpp$' || file_name =~ '\.java$' || file_name =~ '\.php[2345]\?$' || file_name =~ '\.C$'|| file_name =~ '\.go$'||  file_name =~ '\.jade$'
+  if file_name =~ '\.cpp$' || file_name =~ '\.hpp$' || file_name =~ '\.h$'|| file_name =~ '\.java$' || file_name =~ '\.php[2345]\?$' || file_name =~ '\.C$'|| file_name =~ '\.go$'||  file_name =~ '\.jade$'
     execute ":silent! normal :s/\\/\\///\<CR>:nohlsearch\<CR>=="
   elseif file_name =~ '\.js$'
     execute ":silent! normal :s/\\/\\///\<CR>:nohlsearch\<CR>=="
