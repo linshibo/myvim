@@ -42,11 +42,10 @@ Plugin 'klen/python-mode'
 Plugin 'jelera/vim-javascript-syntax'
 Plugin 'Rip-Rip/clang_complete'
 Plugin 'nathanaelkane/vim-indent-guides'
-Plugin 'mbbill/undotree'
 Plugin 'gregsexton/matchtag'
 Plugin 'shougo/vimshell.vim'
 Plugin 'shougo/vimproc.vim'
-
+Plugin 'funorpain/vim-cpplint'
 
 call vundle#end()
 
@@ -248,7 +247,7 @@ nnoremap <Leader>w :w!<CR>:nohl<CR>
 
 " sudo write this
 nnoremap <Leader>W <Esc>:w !sudo tee % >/dev/null<CR>
-nnoremap <Leader>e <Esc>:e  
+nnoremap <Leader>e <Esc>:e %:p:h/
 nnoremap <Leader>x <Esc>:!
 
 "cmd model map
@@ -274,7 +273,7 @@ nnoremap <Leader>m <Esc>:call Make()<CR>
 "nnoremap ,d <Esc>:call OPT_RANGE("da")<CR>
 "nnoremap ,D <Esc>:call OPT_RANGE("di")<CR>
 "转换单词大小写
-nnoremap <C-u> <Esc>:call SET_UAW()<CR>
+nnoremap <C-U> <Esc>:call SET_UAW()<CR>
 
 "Keep search pattern at the center of the screen."
 nnoremap <silent> n nzz
@@ -593,6 +592,7 @@ autocmd BufEnter  *.cpp,*.c,*.h call s:SET_PATH("../commons")
 ".c  .h 文件设为 .cpp
 autocmd BufEnter *.c  set filetype=cpp
 autocmd BufEnter *.h  set filetype=cpp
+autocmd FileType cpp map <buffer> \\f :call Cpplint()<CR>
 
 """"""""""""
 "python
