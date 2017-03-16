@@ -26,7 +26,6 @@ Plugin 'godlygeek/tabular'
 Plugin 'vim-airline/vim-airline'
 Plugin 'vim-airline/vim-airline-themes'
 Plugin 'Lokaltog/vim-easymotion'
-Plugin 'Shougo/unite.vim'
 Plugin 'kien/ctrlp.vim'
 Plugin 'tpope/vim-surround'
 Plugin 'bootleq/vim-cycle'
@@ -352,6 +351,11 @@ inoremap <expr><C-U>  pumvisible()?"\<C-E>":"\<C-U>"
 
 "---------------------------------------------------------------------------
 "插件设置
+
+"CtrlP{{{
+nnoremap <Leader>b :CtrlPBuffer<CR>
+"}}}
+
 "python-mode{{{
 let g:pymode_python = 'python'
 let g:pymode_rope_lookup_project = 0
@@ -418,10 +422,6 @@ nmap ge  <Plug>(smartword-ge)
 au filetype cpp nnoremap <Leader>a <Esc>:A<CR>
 "}}}
 "
-
-"unite{{{
-nnoremap <Leader>b :Unite buffer<CR>
-"}}}
 
 "vim-easymotion{{{
 let g:EasyMotion_leader_key = '\'
