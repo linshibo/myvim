@@ -144,7 +144,7 @@ function! CommentLine()
     endif
   " for .vim files use "
   elseif file_name =~ '\.vim$' || file_name =~ '\.vimrc$'
-	 execute ":silent! normal ^i\"\<ESC>\<down>^"
+	 execute ":silent! normal :s/^/\"/\<CR> \<ESC>\<down>^"
   " for .sql files use --
   elseif file_name =~ '\.sql$'
     execute ":silent! normal ^i--\<ESC>\<down>^"

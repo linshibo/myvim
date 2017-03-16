@@ -17,18 +17,17 @@ Plugin 'gmarik/Vundle.vim'
 
 " 代码源在 github 上的
 Plugin 'mbbill/fencview'
-Plugin 'vim-scripts/Tagbar'
-""Plugin 'vim-scripts/matchit.zip'
+Plugin 'majutsushi/tagbar'
+Plugin 'MarcWeber/vim-addon-mw-utils'
 Plugin 'vim-scripts/YankRing.vim'
-Plugin 'vim-scripts/snipMate'
-Plugin 'vim-scripts/a.vim'
-Plugin 'vim-scripts/ack.vim'
-"Plugin 'Lokaltog/vim-powerline'
+Plugin 'garbas/vim-snipmate'
+Plugin 'mileszs/ack.vim'
 Plugin 'godlygeek/tabular'
 Plugin 'vim-airline/vim-airline'
 Plugin 'vim-airline/vim-airline-themes'
 Plugin 'Lokaltog/vim-easymotion'
 Plugin 'Shougo/unite.vim'
+Plugin 'kien/ctrlp.vim'
 Plugin 'tpope/vim-surround'
 Plugin 'bootleq/vim-cycle'
 Plugin 'kana/vim-smartword'
@@ -39,13 +38,10 @@ Plugin 'octol/vim-cpp-enhanced-highlight'
 Plugin 'elzr/vim-json'
 Plugin 'scrooloose/nerdtree'
 Plugin 'klen/python-mode'
-Plugin 'jelera/vim-javascript-syntax'
 Plugin 'Rip-Rip/clang_complete'
-Plugin 'nathanaelkane/vim-indent-guides'
 Plugin 'gregsexton/matchtag'
 Plugin 'shougo/vimshell.vim'
 Plugin 'shougo/vimproc.vim'
-Plugin 'funorpain/vim-cpplint'
 
 call vundle#end()
 
@@ -89,7 +85,7 @@ set foldmethod=syntax
 ""默认情况下不折叠
 set foldlevel=99
 "set for gf
-set path+=/usr/include/c++/4.6/
+""set path+=/usr/include/c++/4.6/
 
 
 "重新打开时自动定位到原来的位置
@@ -311,7 +307,7 @@ nnoremap \\s <ESC>:source ~/.vim/comm.vim<cr>
 "Fast editing of .vimrc
 "nnoremap \\e <ESC>:e! ~/.vim/comm.vim<cr>
 "Switch to current dir
-nnoremap <Leader>c <ESC>:cd %:p:h<cr>
+"nnoremap <Leader>c <ESC>:cd %:p:h<cr>
 
 "在正常模式下的整块移动
 "大括号内向左移
@@ -423,15 +419,7 @@ au filetype cpp nnoremap <Leader>a <Esc>:A<CR>
 "}}}
 "
 
-"vim-indent-guides{{{
-let g:indent_guides_auto_colors = 0
-hi IndentGuidesOdd  ctermbg=black
-hi IndentGuidesEven ctermbg=darkgrey
-nmap \\i <Esc>:IndentGuidesToggle<CR>
-""}}}
-
 "unite{{{
-nnoremap <Leader>f :Unite file<CR>
 nnoremap <Leader>b :Unite buffer<CR>
 "}}}
 
@@ -452,17 +440,6 @@ let g:yankring_persist = 0
 let g:yankring_history_dir = '~/.vim/'
 let g:yankring_history_file='.yankring_history_file'
 nnoremap <silent> <C-Y> :YRShow<CR>
-"}}}
-
-"undotree{{{
-if has("persistent_undo")
-    if !isdirectory($HOME."/.vim/undodir")
-        silent! execute "!mkdir ~/.vim/undodir"
-    endif
-    set undodir=$HOME."/.vim/undodir"
-    set undofile
-endif
-nnoremap <Leader>u :UndotreeToggle<cr>
 "}}}
 
 "powerline{{{ 状态栏
@@ -559,21 +536,6 @@ let g:cycle_default_groups = [
 \ ]
 "}}}
 
-
-"vim-go{{{
-""let g:go_play_open_browser = 0
-""By default vim-go shows errors for the fmt command, to disable it:
-""let g:go_fmt_fail_silently = 1
-""Disable auto fmt on save:
-""let g:go_fmt_autosave = 0
-""Disable goimports and use gofmt for the fmt command:
-""let g:go_fmt_command = "gofmt"
-""au FileType go nmap gd <Plug>(go-def)
-""au FileType go nmap <Leader>d <Plug>(go-doc)
-""au FileType go nmap <Leader>i <Plug>(go-info)
-""au FileType go noremap \\f <Esc>:GoFmt<CR>
-"}}}
-
 "----------------------------------------------------------------------------
 " FileType related
 "----------------------------------------------------------------------------
@@ -581,7 +543,6 @@ let g:cycle_default_groups = [
 """"""""""""
 "general
 """"""""""""
-autocmd BufEnter *  set tabstop=4
 
 """"""""""""
 "c c++
@@ -602,8 +563,8 @@ autocmd BufRead,BufNewFile *.py set ai
 autocmd FileType python setlocal et sta sw=4 sts=4
 autocmd FileType python setlocal foldmethod=indent
 au BufNewFile,BufRead *.py,*.pyw set filetype=python
-"au FileType python noremap \\f <Esc>:pyfmt -i %<CR>
 au FileType python noremap \\f <Esc>:PymodeLintAuto<CR>
+
 """"""""""""
 "golang
 """"""""""""
@@ -625,7 +586,6 @@ autocmd BufRead *.html set filetype=html
 " javascript
 """"""""""""
 autocmd BufRead *.js set filetype=javascript
-au FileType javascript set dictionary+=$HOME/.vim/bundle/vim-node-dict/dict/node.dict
 autocmd FileType javascript setlocal omnifunc=javascriptcomplete#CompleteJS
 
 """"""""""""
