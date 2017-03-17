@@ -191,9 +191,9 @@ set smartindent
 set cindent
 set smarttab
 set expandtab " 开启把Tab扩展为空格
-set tabstop=4 " 设置Tab宽度为4个字符
-set softtabstop=4 " 软缩进宽度
-set shiftwidth=4 " 设置移动代码块宽度
+set tabstop=2 " 设置Tab宽度为4个字符
+set softtabstop=2 " 软缩进宽度
+set shiftwidth=2 " 设置移动代码块宽度
 set shiftround " 移动代码块时取整到缩进宽度
 
 " autoread when a file is changed from the outside
