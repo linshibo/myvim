@@ -1,6 +1,0 @@
-<?xml version="1.0"?>
-<gconf>
-	<entry name="picture_filename" mtime="1365386302" type="string">
-		<stringvalue>file:///home/francisco/%E5%9B%BE%E7%89%87/vim-shortcuts.png</stringvalue>
-	</entry>
-</gconf>
