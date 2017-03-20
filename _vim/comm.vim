@@ -20,19 +20,17 @@ Plugin 'mbbill/fencview'
 Plugin 'majutsushi/tagbar'
 Plugin 'MarcWeber/vim-addon-mw-utils'
 Plugin 'vim-scripts/YankRing.vim'
-Plugin 'garbas/vim-snipmate'
+Plugin 'vim-scripts/snipMate'
 Plugin 'mileszs/ack.vim'
 Plugin 'godlygeek/tabular'
 Plugin 'vim-airline/vim-airline'
 Plugin 'vim-airline/vim-airline-themes'
 Plugin 'Lokaltog/vim-easymotion'
-Plugin 'kien/ctrlp.vim'
 Plugin 'tpope/vim-surround'
 Plugin 'bootleq/vim-cycle'
 Plugin 'kana/vim-smartword'
 Plugin 'altercation/vim-colors-solarized'
 Plugin 'terryma/vim-multiple-cursors'
-Plugin 'plasticboy/vim-markdown'
 Plugin 'octol/vim-cpp-enhanced-highlight'
 Plugin 'elzr/vim-json'
 Plugin 'scrooloose/nerdtree'
@@ -41,6 +39,7 @@ Plugin 'Rip-Rip/clang_complete'
 Plugin 'gregsexton/matchtag'
 Plugin 'shougo/vimshell.vim'
 Plugin 'shougo/vimproc.vim'
+Plugin 'shougo/unite.vim'
 
 call vundle#end()
 
@@ -346,14 +345,15 @@ set completeopt=longest,menuone
 "当离开INSERT模式时，Preview窗口会自动关闭
 "autocmd CursorMovedI * if pumvisible() == 0|pclose|endif
 "autocmd InsertLeave * if pumvisible() == 0|pclose|endif
-inoremap <expr><CR> pumvisible() ?"\<C-Y>" : "\<c-g>u\<cr>"
-inoremap <expr><C-U>  pumvisible()?"\<C-E>":"\<C-U>"
+"inoremap <expr><CR> pumvisible() ?"\<C-Y>" : "\<c-g>u\<cr>"
+"inoremap <expr><C-U>  pumvisible()?"\<C-E>":"\<C-U>"
 
 "---------------------------------------------------------------------------
 "插件设置
+autocmd BufEnter *  set tabstop=4
 
-"CtrlP{{{
-nnoremap <Leader>b :CtrlPBuffer<CR>
+"unite{{{
+nmap <Leader>b <ESC>:Unite buffer file<CR>
 "}}}
 
 "python-mode{{{
@@ -553,7 +553,7 @@ autocmd BufEnter  *.cpp,*.c,*.h call s:SET_PATH("../commons")
 ".c  .h 文件设为 .cpp
 autocmd BufEnter *.c  set filetype=cpp
 autocmd BufEnter *.h  set filetype=cpp
-autocmd FileType cpp map <buffer> \\f :call Cpplint()<CR>
+autocmd FileType cpp nmap <buffer> \\f :call Cpplint()<CR>
 
 """"""""""""
 "python
