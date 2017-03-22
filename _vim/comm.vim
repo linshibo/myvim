@@ -18,7 +18,6 @@ Plugin 'gmarik/Vundle.vim'
 " 代码源在 github 上的
 Plugin 'mbbill/fencview'
 Plugin 'majutsushi/tagbar'
-Plugin 'MarcWeber/vim-addon-mw-utils'
 Plugin 'vim-scripts/YankRing.vim'
 Plugin 'vim-scripts/snipMate'
 Plugin 'mileszs/ack.vim'
@@ -132,7 +131,7 @@ if has('gui_running')
     set noimd
 endif
 
-"主题 solarized 的配置必须在 colorscheme 之前
+""主题 solarized 的配置必须在 colorscheme 之前
 let g:solarized_termcolors=256
 let g:solarized_termtrans=1
 let g:solarized_hitrail   =   0
@@ -241,7 +240,8 @@ nnoremap <Leader>w :w!<CR>:nohl<CR>
 
 " sudo write this
 nnoremap <Leader>W <Esc>:w !sudo tee % >/dev/null<CR>
-nnoremap <Leader>e <Esc>:e %:p:h/
+nnoremap <Leader>e <Esc>:e 
+nnoremap <Leader>E <Esc>:e %:p:h/
 nnoremap <Leader>x <Esc>:!
 
 "cmd model map
