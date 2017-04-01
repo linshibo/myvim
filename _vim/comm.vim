@@ -39,6 +39,9 @@ Plugin 'gregsexton/matchtag'
 Plugin 'shougo/vimshell.vim'
 Plugin 'shougo/vimproc.vim'
 Plugin 'shougo/unite.vim'
+Plugin 'rhysd/vim-clang-format'
+Plugin 'roxma/vim-paste-easy'
+Plugin 'haya14busa/incsearch.vim'
 
 call vundle#end()
 
@@ -75,7 +78,7 @@ set nocompatible
 "disable alt
 set winaltkeys=no
 "tags 位置
-set tags=~/.vim/comm_tags,.tags
+set tags=.tags
 
 "折叠
 set foldmethod=syntax
@@ -350,7 +353,16 @@ set completeopt=longest,menuone
 
 "---------------------------------------------------------------------------
 "插件设置
-autocmd BufEnter *  set tabstop=4
+"autocmd BufEnter *  set tabstop=4
+
+"Tabular{{{
+vmap \\=  :Tabularize \=<CR>
+nmap \\:  :Tabularize \:<CR>
+"}}}
+
+"vim-clang-format{{{
+let g:clang_format#style_options = {"Standard" : "C++11"}
+"}}}
 
 "unite{{{
 nmap <Leader>b <ESC>:Unite buffer file<CR>
@@ -437,7 +449,7 @@ let g:yankring_max_history = 10
 let g:yankring_min_element_length = 3
 let g:yankring_max_display = 50
 let g:yankring_persist = 0
-let g:yankring_history_dir = '~/.vim/'
+let g:yankring_history_dir = '$VIM'
 let g:yankring_history_file='.yankring_history_file'
 nnoremap <silent> <C-Y> :YRShow<CR>
 "}}}
@@ -532,7 +544,6 @@ let g:cycle_default_groups = [
 \ [['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday',
 \ 'Friday', 'Saturday'], ['hard_case', {'name': 'Days'}]],
 \ [['{:}', '[:]', '(:)'], 'sub_pairs'],
-\ [['（:）', '「:」', '『:』'], 'sub_pairs'],
 \ ]
 "}}}
 
@@ -553,7 +564,8 @@ autocmd BufEnter  *.cpp,*.c,*.h call s:SET_PATH("../commons")
 ".c  .h 文件设为 .cpp
 autocmd BufEnter *.c  set filetype=cpp
 autocmd BufEnter *.h  set filetype=cpp
-autocmd FileType cpp nmap <buffer> \\f :call Cpplint()<CR>
+"autocmd FileType cpp nmap <buffer> \\f :call Cpplint()<CR>
+autocmd FileType cpp nmap <buffer> \\f :ClangFormat<CR>
 
 """"""""""""
 "python
@@ -692,9 +704,6 @@ function! Make()
     endif
     if ( &filetype == "cpp" || &filetype == "c")
         exec "make"
-    endif
-    if ( &filetype == "python")
-        exec "PymodeLint"
     endif
 endfunction
 

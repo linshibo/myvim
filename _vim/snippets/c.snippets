@@ -81,6 +81,8 @@ snippet func
 	}
 snippet print
 	printf("${1:%s}\n"${1/([^%]|%%)*(%.)?.*/(?2:, :\);)/}$2${1/([^%]|%%)*(%.)?.*/(?2:\);)/}
+snippet log
+	LOG(DEBUG, "${1:content}");
 snippet dlog
 	LOG(DEBUG, "${1:content}");
 snippet ilog
