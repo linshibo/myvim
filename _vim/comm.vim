@@ -20,7 +20,8 @@ Plugin 'mbbill/fencview'
 Plugin 'majutsushi/tagbar'
 Plugin 'vim-scripts/YankRing.vim'
 Plugin 'vim-scripts/snipMate'
-Plugin 'mileszs/ack.vim'
+"Plugin 'mileszs/ack.vim'
+Plugin 'rking/ag.vim'
 Plugin 'godlygeek/tabular'
 Plugin 'vim-airline/vim-airline'
 Plugin 'vim-airline/vim-airline-themes'
@@ -69,6 +70,8 @@ endif
 set backupdir=~/.vim/backupdir
 "不产生.swap文件
 set noswapfile
+
+set nu
 
 "中文帮助
 set helplang=cn
@@ -226,6 +229,9 @@ command! -nargs=0 VIMTIPS  :tabe | :r ! w3m -dump http://zzapper.co.uk/vimtips.h
 "use jj replace esc
 inoremap jj <Esc>
 
+" highlight last inserted text
+nnoremap gV `[v`]
+
 nnoremap gr gT
 
 nnoremap \s :vsplit<CR>
@@ -261,7 +267,8 @@ cnoremap <C-k> <t_ku>
 
 "查找当前光标下的单词
 ""nnoremap ,g :Ack <C-R>=expand('<cword>')<CR><CR>
-nnoremap <Leader>g :exec "Ack " . expand('<cword>') ." --". &filetype<CR>
+"nnoremap <Leader>g :exec "Ack " . expand('<cword>') ." --". &filetype<CR>
+nnoremap <Leader>g :Ag  <C-R>=expand('<cword>') ." --". &filetype<CR><CR>
 vnoremap <Leader>g :call VisualSelection('gv')<CR>
 nnoremap <Leader>r <Esc>:call GEN_TAGS()<CR>
 nnoremap <Leader>m <Esc>:call Make()<CR>
@@ -641,7 +648,7 @@ function! VisualSelection(direction) range
         execute "normal ?" . l:pattern . "^M"
     elseif a:direction == 'gv'
         let my_filetype = &filetype
-        exec "Ack " . l:pattern ." --". my_filetype
+        exec "Ag " . l:pattern ." --". my_filetype
     elseif a:direction == 'replace'
         ""call CmdLine("%s" . '/'. l:pattern . '/')
     elseif a:direction == 'f'
