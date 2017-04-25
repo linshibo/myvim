@@ -20,7 +20,6 @@ Plugin 'mbbill/fencview'
 Plugin 'majutsushi/tagbar'
 Plugin 'vim-scripts/YankRing.vim'
 Plugin 'vim-scripts/snipMate'
-"Plugin 'mileszs/ack.vim'
 Plugin 'rking/ag.vim'
 Plugin 'godlygeek/tabular'
 Plugin 'vim-airline/vim-airline'
@@ -32,17 +31,11 @@ Plugin 'kana/vim-smartword'
 Plugin 'altercation/vim-colors-solarized'
 Plugin 'terryma/vim-multiple-cursors'
 Plugin 'octol/vim-cpp-enhanced-highlight'
-Plugin 'elzr/vim-json'
 Plugin 'scrooloose/nerdtree'
 Plugin 'klen/python-mode'
 Plugin 'Rip-Rip/clang_complete'
 Plugin 'gregsexton/matchtag'
-Plugin 'shougo/vimshell.vim'
-Plugin 'shougo/vimproc.vim'
-Plugin 'shougo/unite.vim'
 Plugin 'rhysd/vim-clang-format'
-Plugin 'roxma/vim-paste-easy'
-Plugin 'haya14busa/incsearch.vim'
 
 call vundle#end()
 
@@ -121,23 +114,8 @@ set sidescrolloff=10 " 距离水平边界 n 行就开始滚动
 "Favorite filetypes
 set fileformats=unix,mac
 let g:os=substitute(system('uname'), '\n', '', '')
-if has('gui_running')
-    if g:os == 'Linux'
-        set guifont=Monospace\ 14
-    elseif g:os == 'Darwin' || g:os == 'Mac'
-        set guifont=Monaco\ 18
-    endif
-    set guioptions-=T
-    set guioptions+=e
-    set guioptions-=r
-    set guioptions-=L
-    set guitablabel=%M\ %t
-    set showtabline=1
-    set linespace=2
-    set noimd
-endif
 
-""主题 solarized 的配置必须在 colorscheme 之前
+"主题 solarized 的配置必须在 colorscheme 之前
 let g:solarized_termcolors=256
 let g:solarized_termtrans=1
 let g:solarized_hitrail   =   0
@@ -237,8 +215,6 @@ nnoremap gr gT
 nnoremap \s :vsplit<CR>
 nnoremap \h :split<CR>
 
-""nmap  <F1> :help <C-R>=expand('<cword>')<CR><CR>
-
 " }}} 跨 Vim 剪貼 {{{2
 " http://vim.wikia.com/wiki/Transfer_text_between_two_Vim_instances
 nmap \p :r $HOME/.vimxfer<CR>
@@ -268,7 +244,7 @@ cnoremap <C-k> <t_ku>
 "查找当前光标下的单词
 ""nnoremap ,g :Ack <C-R>=expand('<cword>')<CR><CR>
 "nnoremap <Leader>g :exec "Ack " . expand('<cword>') ." --". &filetype<CR>
-nnoremap <Leader>g :Ag  <C-R>=expand('<cword>') ." --". &filetype<CR><CR>
+nnoremap <Leader>g :Ag  <C-R>=expand('<cword>') ." --". &filetype. "."<CR><CR>
 vnoremap <Leader>g :call VisualSelection('gv')<CR>
 nnoremap <Leader>r <Esc>:call GEN_TAGS()<CR>
 nnoremap <Leader>m <Esc>:call Make()<CR>
@@ -352,15 +328,8 @@ inoremap <C-O> <C-X><C-O>
 "用于支持代码补全时，提示存在。
 set complete=.,w,b,u,t
 set completeopt=longest,menuone
-"当离开INSERT模式时，Preview窗口会自动关闭
-"autocmd CursorMovedI * if pumvisible() == 0|pclose|endif
-"autocmd InsertLeave * if pumvisible() == 0|pclose|endif
-"inoremap <expr><CR> pumvisible() ?"\<C-Y>" : "\<c-g>u\<cr>"
-"inoremap <expr><C-U>  pumvisible()?"\<C-E>":"\<C-U>"
 
 "---------------------------------------------------------------------------
-"插件设置
-"autocmd BufEnter *  set tabstop=4
 
 "Tabular{{{
 vmap \\=  :Tabularize \=<CR>
@@ -372,7 +341,8 @@ let g:clang_format#style_options = {"Standard" : "C++11"}
 "}}}
 
 "unite{{{
-nmap <Leader>b <ESC>:Unite buffer file<CR>
+nmap <Leader>b <ESC>:Unite buffer<CR>
+nmap <Leader>b <ESC>:Unite file<CR>
 "}}}
 
 "python-mode{{{
@@ -403,11 +373,11 @@ let g:pymode_folding = 0
 "
 "clang complete{{{
 if g:os == 'Linux'
-    let g:clang_library_path = "/usr/lib/llvm-3.4/lib"
+    let g:clang_library_path = "/usr/lib/llvm-3.8/lib"
 elseif g:os == 'Darwin' || g:os == 'Mac'
     let g:clang_library_path='/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib'
 endif
-let g:clang_user_options = "-I/usr/include/c++/4.6.3 -std=c++11"
+let g:clang_user_options = "-I/usr/include/c++/4.8.4 -std=c++11"
 "}}}
 
 
@@ -416,19 +386,6 @@ autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTreeType") && b:NERDTree
 nmap <C-e> :NERDTreeToggle<CR>
 "}}}
 
-"ack.vim{
-if g:os == 'Linux'
-    set grepprg=/user/bin/ack-grep
-    let g:ackprg="/usr/bin/ack-grep -H --nocolor --nogroup"
-elseif g:os == 'Darwin' || g:os == 'Mac'
-    let g:ackprg="/usr/local/bin/ack -H --nocolor --nogroup"
-endif
-"}
-"
-"vimshell{{{
-nmap <Leader>s :VimShellTab<CR>
-"}}}
-"
 "vim-smartword{{{
 nmap w  <Plug>(smartword-w)
 nmap b  <Plug>(smartword-b)
@@ -461,11 +418,6 @@ let g:yankring_history_file='.yankring_history_file'
 nnoremap <silent> <C-Y> :YRShow<CR>
 "}}}
 
-"powerline{{{ 状态栏
-""let g:Powerline_colorscheme = 'solarized256'
-""set laststatus=2
-""set t_Co=256
-"}}}
 "
 "airline{{{
 let g:airline_theme='solarized'
@@ -557,11 +509,6 @@ let g:cycle_default_groups = [
 "----------------------------------------------------------------------------
 " FileType related
 "----------------------------------------------------------------------------
-
-""""""""""""
-"general
-""""""""""""
-
 """"""""""""
 "c c++
 """"""""""""
@@ -713,8 +660,6 @@ function! Make()
         exec "make"
     endif
 endfunction
-
-
 
 function! GEN_TAGS()
     if ( &filetype == "go")
