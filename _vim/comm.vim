@@ -20,6 +20,7 @@ Plugin 'mbbill/fencview'
 Plugin 'majutsushi/tagbar'
 Plugin 'vim-scripts/YankRing.vim'
 Plugin 'vim-scripts/snipMate'
+"Plugin 'mileszs/ack.vim'
 Plugin 'rking/ag.vim'
 Plugin 'godlygeek/tabular'
 Plugin 'vim-airline/vim-airline'
@@ -31,12 +32,17 @@ Plugin 'kana/vim-smartword'
 Plugin 'altercation/vim-colors-solarized'
 Plugin 'terryma/vim-multiple-cursors'
 Plugin 'octol/vim-cpp-enhanced-highlight'
+Plugin 'elzr/vim-json'
 Plugin 'scrooloose/nerdtree'
 Plugin 'klen/python-mode'
 Plugin 'Rip-Rip/clang_complete'
 Plugin 'gregsexton/matchtag'
+Plugin 'shougo/vimshell.vim'
+Plugin 'shougo/vimproc.vim'
 Plugin 'shougo/unite.vim'
 Plugin 'rhysd/vim-clang-format'
+Plugin 'roxma/vim-paste-easy'
+Plugin 'haya14busa/incsearch.vim'
 
 call vundle#end()
 
@@ -47,11 +53,12 @@ call vundle#end()
 "Sets how many lines of history VIM har to remember
 set history=400
 
-"map leader key
-let mapleader="\<Space>"
+"map leader key ","
+let mapleader ="\<Space>"
 
 " Enable filetype plugins
 filetype plugin indent on
+"语法
 syntax enable on
 
 "备份
@@ -61,8 +68,7 @@ if !isdirectory($HOME."/.vim/backupdir")
     silent! execute "!mkdir ~/.vim/backupdir"
 endif
 set backupdir=~/.vim/backupdir
-
-"backupdir 不产生.swap文件
+"不产生.swap文件
 set noswapfile
 
 set nu
@@ -70,7 +76,7 @@ set nu
 "中文帮助
 set helplang=cn
 
-"Get out of VI's compatible mode
+"Get out of VI's compatible mode..
 set nocompatible
 "disable alt
 set winaltkeys=no
@@ -79,25 +85,34 @@ set tags=.tags
 
 "折叠
 set foldmethod=syntax
-"默认情况下不折叠
+""默认情况下不折叠
 set foldlevel=99
 "set for gf
-set path+=/usr/include/c++/4.6/
+""set path+=/usr/include/c++/4.6/
+
 
 "重新打开时自动定位到原来的位置
+autocmd BufReadPost *
     \ if line("'\"") > 0 && line ("'\"") <= line("$") |
     \   exe "normal! g'\"" |
     \ endif
-
 "转换paste
-autocmd InsertLeave * if &paste == 1|set nopaste |endif"
+autocmd InsertLeave * if &paste == 1|set nopaste |endif
 
+" ENCODING SETTINGS
 let &termencoding = &encoding
 set encoding=utf-8
 set termencoding=utf-8
 set fileencodings=ucs-bom,utf-8,gb2312,big5,euc-jp,euc-kr,latin1
 language messages POSIX
 
+"自动更新cpp修改时间
+"autocmd BufWritePre,FileWritePre *.cpp,*.c,*.h,*.hpp exec "normal ms"|call LastModified()|exec "normal `s"
+
+"for cmake ':make' ,由于定位错误,中文会有问题，如下调整
+""if finddir("build") == "build"
+    ""set makeprg=export\ LANG=zh_CN:en;make\ -C\ ./build
+""endif
 
 set scrolloff=5 " 距离垂直边界 n 行就开始滚动
 set sidescroll=1 " 水平滚动列数
@@ -106,14 +121,28 @@ set sidescrolloff=10 " 距离水平边界 n 行就开始滚动
 "Favorite filetypes
 set fileformats=unix,mac
 let g:os=substitute(system('uname'), '\n', '', '')
+if has('gui_running')
+    if g:os == 'Linux'
+        set guifont=Monospace\ 14
+    elseif g:os == 'Darwin' || g:os == 'Mac'
+        set guifont=Monaco\ 18
+    endif
+    set guioptions-=T
+    set guioptions+=e
+    set guioptions-=r
+    set guioptions-=L
+    set guitablabel=%M\ %t
+    set showtabline=1
+    set linespace=2
+    set noimd
+endif
 
 ""主题 solarized 的配置必须在 colorscheme 之前
 let g:solarized_termcolors=256
 let g:solarized_termtrans=1
 let g:solarized_hitrail   =   0
-set background=dark
 colorscheme solarized
-
+set background="dark"
 set cursorline
 
 "显示命令
@@ -239,10 +268,14 @@ cnoremap <C-k> <t_ku>
 "查找当前光标下的单词
 ""nnoremap ,g :Ack <C-R>=expand('<cword>')<CR><CR>
 "nnoremap <Leader>g :exec "Ack " . expand('<cword>') ." --". &filetype<CR>
-nnoremap <Leader>g :Ag  <C-R>=expand('<cword>') ." --". &filetype ." ."<CR><CR>
+nnoremap <Leader>g :Ag  <C-R>=expand('<cword>') ." --". &filetype<CR><CR>
 vnoremap <Leader>g :call VisualSelection('gv')<CR>
 nnoremap <Leader>r <Esc>:call GEN_TAGS()<CR>
 nnoremap <Leader>m <Esc>:call Make()<CR>
+"nnoremap ,y <Esc>:call OPT_RANGE("ya")<CR>
+"nnoremap ,Y <Esc>:call OPT_RANGE("yi")<CR>
+"nnoremap ,d <Esc>:call OPT_RANGE("da")<CR>
+"nnoremap ,D <Esc>:call OPT_RANGE("di")<CR>
 "转换单词大小写
 nnoremap <C-U> <Esc>:call SET_UAW()<CR>
 
@@ -270,10 +303,10 @@ inoremap ( ()<Esc>i
 inoremap { {}<Esc>i
 
 "窗口间移动
-nnoremap<C-H><Esc> <C-W>h
-nnoremap<C-L><Esc> <C-W>l
-nnoremap<C-J><Esc> <C-W>j
-nnoremap<C-K><Esc> <C-W>k
+nnoremap <C-H> <Esc><C-W>h
+nnoremap <C-L> <Esc><C-W>l
+nnoremap <C-J> <Esc><C-W>j
+nnoremap <C-K> <Esc><C-W>k
 
 nnoremap \\j :call ConvertToJson()<CR>
 
@@ -286,9 +319,9 @@ nnoremap \\s <ESC>:source ~/.vim/comm.vim<cr>
 
 "在正常模式下的整块移动
 "大括号内向左移
-"" nmap<F7><Esc> <i{
+""nmap <F7> <Esc><i{
 "大括号内向右移
-"" nmap<F8><Esc> >i{
+""nmap <F8> <Esc>>i{
 "选择区移动
 vnoremap < <gv
 vnoremap > >gv
@@ -339,8 +372,7 @@ let g:clang_format#style_options = {"Standard" : "C++11"}
 "}}}
 
 "unite{{{
-nmap <Leader>b <ESC>:Unite buffer<CR>
-nmap <Leader>f <ESC>:Unite file<CR>
+nmap <Leader>b <ESC>:Unite buffer file<CR>
 "}}}
 
 "python-mode{{{
@@ -368,14 +400,14 @@ let g:pymode_virtualenv = 1
 " Don't autofold code
 let g:pymode_folding = 0
 "}}}
-
+"
 "clang complete{{{
 if g:os == 'Linux'
-  let g:clang_library_path = "/usr/lib/llvm-3.8/lib"
+    let g:clang_library_path = "/usr/lib/llvm-3.4/lib"
 elseif g:os == 'Darwin' || g:os == 'Mac'
-  let g:clang_library_path='/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/'
+    let g:clang_library_path='/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib'
 endif
-let g:clang_user_options = "-I/usr/include/c++/4.8.4 -I~/workspace/ -I./ -std=c++0x -DDEBUG"
+let g:clang_user_options = "-I/usr/include/c++/4.6.3 -std=c++11"
 "}}}
 
 
@@ -384,6 +416,19 @@ autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTreeType") && b:NERDTree
 nmap <C-e> :NERDTreeToggle<CR>
 "}}}
 
+"ack.vim{
+if g:os == 'Linux'
+    set grepprg=/user/bin/ack-grep
+    let g:ackprg="/usr/bin/ack-grep -H --nocolor --nogroup"
+elseif g:os == 'Darwin' || g:os == 'Mac'
+    let g:ackprg="/usr/local/bin/ack -H --nocolor --nogroup"
+endif
+"}
+"
+"vimshell{{{
+nmap <Leader>s :VimShellTab<CR>
+"}}}
+"
 "vim-smartword{{{
 nmap w  <Plug>(smartword-w)
 nmap b  <Plug>(smartword-b)
@@ -416,9 +461,14 @@ let g:yankring_history_file='.yankring_history_file'
 nnoremap <silent> <C-Y> :YRShow<CR>
 "}}}
 
+"powerline{{{ 状态栏
+""let g:Powerline_colorscheme = 'solarized256'
+""set laststatus=2
+""set t_Co=256
+"}}}
+"
 "airline{{{
-"let g:airline_powerline_fonts = 1
-let g:AIRLINE_THEME='solarized'
+let g:airline_theme='solarized'
 let g:airline#extensions#tabline#enabled = 1
 set laststatus=2
 "}}}
@@ -429,32 +479,32 @@ let g:tagbar_width = 30
 let g:tagbar_expand = 0
 let g:tagbar_autofocus = 1
 let g:tagbar_type_go = {
-      \ 'ctagstype' : 'go',
-      \ 'kinds'     : [
-      \ 'p:package',
-      \ 'i:imports:1',
-      \ 'c:constants',
-      \ 'v:variables',
-      \ 't:types',
-      \ 'n:interfaces',
-      \ 'w:fields',
-      \ 'e:embedded',
-      \ 'm:methods',
-      \ 'r:constructor',
-      \ 'f:functions'
-      \ ],
-      \ 'sro' : '.',
-      \ 'kind2scope' : {
-      \ 't' : 'ctype',
-      \ 'n' : 'ntype'
-      \ },
-      \ 'scope2kind' : {
-      \ 'ctype' : 't',
-      \ 'ntype' : 'n'
-      \ },
-      \ 'ctagsbin'  : 'gotags',
-      \ 'ctagsargs' : '-sort -silent'
-      \ }
+    \ 'ctagstype' : 'go',
+    \ 'kinds'     : [
+        \ 'p:package',
+        \ 'i:imports:1',
+        \ 'c:constants',
+        \ 'v:variables',
+        \ 't:types',
+        \ 'n:interfaces',
+        \ 'w:fields',
+        \ 'e:embedded',
+        \ 'm:methods',
+        \ 'r:constructor',
+        \ 'f:functions'
+    \ ],
+    \ 'sro' : '.',
+    \ 'kind2scope' : {
+        \ 't' : 'ctype',
+        \ 'n' : 'ntype'
+    \ },
+    \ 'scope2kind' : {
+        \ 'ctype' : 't',
+        \ 'ntype' : 'n'
+    \ },
+    \ 'ctagsbin'  : 'gotags',
+    \ 'ctagsargs' : '-sort -silent'
+    \ }
 " }}}
 
 "cycle.vim{{{
@@ -464,49 +514,53 @@ let g:cycle_phased_search = 1
 nmap <silent> \a <Plug>CycleNext
 vmap <silent> \a <Plug>CycleNext
 let g:cycle_default_groups = [
-      \ [['true', 'false']],
-      \ [['yes', 'no']],
-      \ [['||', '&&']],
-      \ [['on', 'off']],
-      \ [['+', '-']],
-      \ [['++', '--']],
-      \ [['>', '<']],
-      \ [['.', '->']],
-      \ [['"', "'"]],
-      \ [['==', '!=']],
-      \ [['and', 'or']],
-      \ [['in', 'out']],
-      \ [['left', 'right']],
-      \ [['Left', 'Right']],
-      \ [['up', 'down']],
-      \ [['min', 'max']],
-      \ [['get', 'set']],
-      \ [['int', 'uint']],
-      \ [['32', '64']],
-      \ [['add', 'remove']],
-      \ [['to', 'from']],
-      \ [['read', 'write']],
-      \ [['next', 'previous', 'prev']],
-      \ [['without', 'with']],
-      \ [['exclude', 'include']],
-      \ [['width', 'height']],
-      \ [['asc', 'desc']],
-      \ [['start', 'end']],
-      \ [['east', 'west']],
-      \ [['south', 'north']],
-      \ [['prefix', 'suffix']],
-      \ [['decode', 'encode']],
-      \ [['short', 'long']],
-      \ [['pop', 'shift']],
-      \ [['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday',
-      \ 'Friday', 'Saturday'], ['hard_case', {'name': 'Days'}]],
-      \ [['{:}', '[:]', '(:)'], 'sub_pairs'],
-      \ ]
+\ [['true', 'false']],
+\ [['yes', 'no']],
+\ [['||', '&&']],
+\ [['on', 'off']],
+\ [['+', '-']],
+\ [['++', '--']],
+\ [['>', '<']],
+\ [['.', '->']],
+\ [['"', "'"]],
+\ [['==', '!=']],
+\ [['and', 'or']],
+\ [['in', 'out']],
+\ [['left', 'right']],
+\ [['Left', 'Right']],
+\ [['up', 'down']],
+\ [['min', 'max']],
+\ [['get', 'set']],
+\ [['int', 'uint']],
+\ [['32', '64']],
+\ [['add', 'remove']],
+\ [['to', 'from']],
+\ [['read', 'write']],
+\ [['next', 'previous', 'prev']],
+\ [['without', 'with']],
+\ [['exclude', 'include']],
+\ [['width', 'height']],
+\ [['asc', 'desc']],
+\ [['start', 'end']],
+\ [['east', 'west']],
+\ [['south', 'north']],
+\ [['prefix', 'suffix']],
+\ [['decode', 'encode']],
+\ [['short', 'long']],
+\ [['pop', 'shift']],
+\ [['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday',
+\ 'Friday', 'Saturday'], ['hard_case', {'name': 'Days'}]],
+\ [['{:}', '[:]', '(:)'], 'sub_pairs'],
+\ ]
 "}}}
 
 "----------------------------------------------------------------------------
 " FileType related
 "----------------------------------------------------------------------------
+
+""""""""""""
+"general
+""""""""""""
 
 """"""""""""
 "c c++
@@ -517,6 +571,7 @@ autocmd BufEnter  *.cpp,*.c,*.h call s:SET_PATH("../commons")
 ".c  .h 文件设为 .cpp
 autocmd BufEnter *.c  set filetype=cpp
 autocmd BufEnter *.h  set filetype=cpp
+"autocmd FileType cpp nmap <buffer> \\f :call Cpplint()<CR>
 autocmd FileType cpp nmap <buffer> \\f :ClangFormat<CR>
 
 """"""""""""
@@ -569,124 +624,133 @@ au! BufRead *.json,*.cfg set filetype=json
 "----------------------------------------------------------------------------
 "quickfix 开关
 function! ToggleQF()
-  if !exists("g:fx_toggle")
-    let g:fx_toggle = 0
-  endif
-  if g:fx_toggle == 0
-    let g:fx_toggle = 1
-    copen
-  else
-    let g:fx_toggle = 0
-    cclose
-  endif
+    if !exists("g:fx_toggle")
+        let g:fx_toggle = 0
+    endif
+    if g:fx_toggle == 0
+        let g:fx_toggle = 1
+        copen
+    else
+        let g:fx_toggle = 0
+        cclose
+    endif
 endfunc
 
 " Visual mode related
 function! VisualSelection(direction) range
-  let l:saved_reg = @"
-  execute "normal! vgvy"
+    let l:saved_reg = @"
+    execute "normal! vgvy"
 
-  let l:pattern = escape(@", '\\/.*$^~[]')
-  let l:pattern = substitute(l:pattern, "\n$", "", "")
+    let l:pattern = escape(@", '\\/.*$^~[]')
+    let l:pattern = substitute(l:pattern, "\n$", "", "")
 
-  if a:direction == 'b'
-    execute "normal ?" . l:pattern . "^M"
-  elseif a:direction == 'gv'
-    let my_filetype = &filetype
-    exec "Ag " . l:pattern ." --". my_filetype
-  elseif a:direction == 'replace'
-    ""call CmdLine("%s" . '/'. l:pattern . '/')
-  elseif a:direction == 'f'
-    execute "normal /" . l:pattern . "^M"
-  elseif a:direction == 'cs'
-    execute "cs find s " . l:pattern
-  endif
-  let @/ = l:pattern
-  let @" = l:saved_reg
+    if a:direction == 'b'
+        execute "normal ?" . l:pattern . "^M"
+    elseif a:direction == 'gv'
+        let my_filetype = &filetype
+        exec "Ag " . l:pattern ." --". my_filetype
+    elseif a:direction == 'replace'
+        ""call CmdLine("%s" . '/'. l:pattern . '/')
+    elseif a:direction == 'f'
+        execute "normal /" . l:pattern . "^M"
+    elseif a:direction == 'cs'
+        execute "cs find s " . l:pattern
+    endif
+    let @/ = l:pattern
+    let @" = l:saved_reg
 endfunction
 
 "获取当前路径的上一级的路径
 function! GET_UP_PATH(dir)
-  let pos=len(a:dir)-1
-  while pos>0
-    if (a:dir[pos]=="/" )
-      return     strpart(a:dir,0,pos)
-    endif
-    let pos=pos-1
-  endwhile
-  return  ""
+    let pos=len(a:dir)-1
+    while pos>0
+        if (a:dir[pos]=="/" )
+            return     strpart(a:dir,0,pos)
+        endif
+        let pos=pos-1
+    endwhile
+    return  ""
 endfunction
 
 "设置相关 include , for cmd : gf
 function! s:SET_PATH( find_dir )
-  let dir = expand("%:p:h") "获得源文件路径
-  let dir_relative=''
-  let g:alternateSearchPath = ''
-  "在路径上递归向上查找tags文件
-  while dir!=""
-    if finddir(a:find_dir ,dir ) !=""
-      "找到了就加入到tags
-      exec "set path+=" . dir . "/". a:find_dir
-      let g:alternateSearchPath = g:alternateSearchPath.'sfr:'.dir_relative.a:find_dir.","
-    endif
-    "得到上级路径
-    let dir_relative=dir_relative . "../"
-    let dir=GET_UP_PATH(dir)
-  endwhile
+    let dir = expand("%:p:h") "获得源文件路径
+    let dir_relative=''
+    let g:alternateSearchPath = ''
+    "在路径上递归向上查找tags文件
+    while dir!=""
+        if finddir(a:find_dir ,dir ) !=""
+            "找到了就加入到tags
+            exec "set path+=" . dir . "/". a:find_dir
+            let g:alternateSearchPath = g:alternateSearchPath.'sfr:'.dir_relative.a:find_dir.","
+        endif
+        "得到上级路径
+        let dir_relative=dir_relative . "../"
+        let dir=GET_UP_PATH(dir)
+    endwhile
 endfunction
 
 "upper case
 function! SET_UAW()
-  let save_cursor = getpos(".")
+    let save_cursor = getpos(".")
 
-  let line = getline('.')
-  let col_num = col('.')
-  if match("ABCDEFGHIJKLMNOPQRSTUVWXYZ",line[col_num-1])!= -1
-    exec "normal! guaw"
-  else
-    exec "normal! gUaw"
-  endif
+    let line = getline('.')
+    let col_num = col('.')
+    if match("ABCDEFGHIJKLMNOPQRSTUVWXYZ",line[col_num-1])!= -1
+        exec "normal! guaw"
+    else
+        exec "normal! gUaw"
+    endif
 
-  call setpos('.', save_cursor)
+    call setpos('.', save_cursor)
 endfunction
 
 function! Make()
-  if ( &filetype == "go")
-    exec "GoBuild"
-  endif
-  if ( &filetype == "cpp" || &filetype == "c")
-    exec "make"
-  endif
+    if ( &filetype == "go")
+        exec "GoBuild"
+    endif
+    if ( &filetype == "cpp" || &filetype == "c")
+        exec "make"
+    endif
 endfunction
 
+
+
 function! GEN_TAGS()
-  if ( &filetype == "go")
-    "silent! execute "! /usr/local/bin/ctags -f gosource.tags -R `pwd`"<CR>
-    "go get -u github.com/jstemmer/gotags
-    silent! execute "!gotags  -R=true `pwd`  >.gosource.tags"
-    exec "redraw!"
-  endif
-  if ( &filetype == "cpp" || &filetype == "c")
-    call GEN_C_TAGS()
-  endif
+    if ( &filetype == "go")
+        "silent! execute "! /usr/local/bin/ctags -f gosource.tags -R `pwd`"<CR>
+        "go get -u github.com/jstemmer/gotags
+        silent! execute "!gotags  -R=true `pwd`  >.gosource.tags"
+        exec "redraw!"
+    endif
+    if ( &filetype == "cpp" || &filetype == "c")
+        call GEN_C_TAGS()
+    endif
 endfunction
 
 
 "重新生成c语言 ctag
 function! GEN_C_TAGS()
-  if(executable('ctags'))
-    silent! execute "!rm -f ./.tags"
-    if g:os== 'Linux'
-      silent! execute "!ctags -R -f .tags  --languages=c,c++ --c++-kinds=+p --fields=+iaS --extra=+q ."
-    elseif g:os == 'Darwin' || g:os == 'Mac'
-      silent! execute "!/usr/local/bin/ctags -R -f .tags --languages=c,c++ --c++-kinds=+p --fields=+iaS --extra=+q ."
+    if(executable('ctags'))
+        silent! execute "!rm -f ./.tags"
+        if g:os== 'Linux'
+            silent! execute "!ctags -R -f .tags  --languages=c,c++ --c++-kinds=+p --fields=+iaS --extra=+q ."
+        elseif g:os == 'Darwin' || g:os == 'Mac'
+            silent! execute "!/usr/local/bin/ctags -R -f .tags --languages=c,c++ --c++-kinds=+p --fields=+iaS --extra=+q ."
+        endif
     endif
-  endif
-  exec "redraw!"
+    exec "redraw!"
 endfunction
 
 function! ConvertToJson()
-  if &filetype == "json"
-    exec "%!python -m json.tool"
-  endif
+    if &filetype == "json"
+        exec "%!python -m json.tool"
+    endif
+endfunction
+
+function! OPT_RANGE( opt_str )
+    let cur_char=getline('.')[col('.') - 1]
+    if cur_char == "(" || cur_char == "<" || cur_char == "{" || cur_char == "[" || cur_char == "\"" || cur_char == "'" || cur_char == ")" || cur_char == ">" || cur_char == "}" || cur_char == "]"
+        exec "normal! ".a:opt_str.cur_char
+    endif
 endfunction
