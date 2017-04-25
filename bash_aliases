@@ -13,38 +13,38 @@ alias rm="rm -i"
 alias df="df -h"
 alias du='du -h -c'
 
-#alias reload='source ~/.bashrc'
+#alias reloadrc='source ~/.bashrc'
 alias largest='du -cks * | sort -rn | head -n 10'
 alias dir='ls  -d */'
 alias bk="cd -" #回到上一目录
 alias cp="cp -i -rf " 
-alias ..="cd .."
 
+alias ..="cd .."
+alias cd..="cd .."
 alias ...="cd ../../"
+alias cd...="cd ../../"
 alias ....="cd ../../../"
+alias cd....="cd ../../../"
 alias .....="cd ../../../../"
+alias cd.....="cd ../../../../"
 alias .4='cd ../../../../'
 alias .5='cd ../../../../..'
 
 alias psmem='ps -e -o "%C : %p : %z : %a"|sort -k5 -nr'
-alias meminfo='free -m -l -t'
 alias pscpu='ps -e -o "%C : %p : %z : %a"|sort -nr'
+alias meminfo='free -m -l -t'
 alias cpuinfo='lscpu'
 
-alias tt="date +%s"
-alias now='date +"%T"'
-alias nowdate='date +"%d-%m-%Y"'
+alias nowts='date +%s'
+alias nowdate='date +"%Y-%m-%d %T"'
 
 alias dstat="dstat -cdlmnpsy"
 
-alias vimrc="vi ~/.vim/comm.vim"
-alias bashrc="vi ~/.bashrc"
 alias debugvi="vi -V9vimlog"
 
 alias allusers="cut -d: -f1 /etc/passwd"
 alias allgroups="cut -d: -f1 /etc/group"
 
-alias gm='git commit'
 alias gp='git push origin $(git branch 2>/dev/null | sed -e "/^ /d" -e "s/* \(.*\)/\1/") '
 alias gl='git pull'
 alias glr='git pull --rebase'
