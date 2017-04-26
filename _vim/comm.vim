@@ -36,6 +36,7 @@ Plugin 'klen/python-mode'
 Plugin 'Rip-Rip/clang_complete'
 Plugin 'gregsexton/matchtag'
 Plugin 'rhysd/vim-clang-format'
+Plugin 'shougo/unite.vim'
 
 call vundle#end()
 
@@ -244,7 +245,7 @@ cnoremap <C-k> <t_ku>
 "查找当前光标下的单词
 ""nnoremap ,g :Ack <C-R>=expand('<cword>')<CR><CR>
 "nnoremap <Leader>g :exec "Ack " . expand('<cword>') ." --". &filetype<CR>
-nnoremap <Leader>g :Ag  <C-R>=expand('<cword>') ." --". &filetype. "."<CR><CR>
+nnoremap <Leader>g :Ag  <C-R>=expand('<cword>') ." --". &filetype. " ."<CR><CR>
 vnoremap <Leader>g :call VisualSelection('gv')<CR>
 nnoremap <Leader>r <Esc>:call GEN_TAGS()<CR>
 nnoremap <Leader>m <Esc>:call Make()<CR>
@@ -253,7 +254,7 @@ nnoremap <Leader>m <Esc>:call Make()<CR>
 "nnoremap ,d <Esc>:call OPT_RANGE("da")<CR>
 "nnoremap ,D <Esc>:call OPT_RANGE("di")<CR>
 "转换单词大小写
-nnoremap <C-U> <Esc>:call SET_UAW()<CR>
+nnoremap <Leader>u <Esc>:call SET_UAW()<CR>
 
 "Keep search pattern at the center of the screen."
 nnoremap <silent> n nzz
@@ -296,8 +297,8 @@ nnoremap \\s <ESC>:source ~/.vim/comm.vim<cr>
 "在正常模式下的整块移动
 "大括号内向左移
 ""nmap <F7> <Esc><i{
-"大括号内向右移
-""nmap <F8> <Esc>>i{
+    "大括号内向右移
+    "" nmap<F8><Esc>> i {
 "选择区移动
 vnoremap < <gv
 vnoremap > >gv
@@ -342,7 +343,7 @@ let g:clang_format#style_options = {"Standard" : "C++11"}
 
 "unite{{{
 nmap <Leader>b <ESC>:Unite buffer<CR>
-nmap <Leader>b <ESC>:Unite file<CR>
+nmap <Leader>f <ESC>:Unite file<CR>
 "}}}
 
 "python-mode{{{
@@ -377,7 +378,7 @@ if g:os == 'Linux'
 elseif g:os == 'Darwin' || g:os == 'Mac'
     let g:clang_library_path='/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib'
 endif
-let g:clang_user_options = "-I/usr/include/c++/4.8.4 -std=c++11"
+let g:clang_user_options = "-I/usr/include/c++/4.8.4 -I~/workspace/media_server_library -I~/workspace/media_server_protocol -std=c++0x -DDEBUG"
 "}}}
 
 
@@ -420,8 +421,8 @@ nnoremap <silent> <C-Y> :YRShow<CR>
 
 "
 "airline{{{
-let g:airline_theme='solarized'
-let g:airline#extensions#tabline#enabled = 1
+"let g:airline_theme='solarized'
+"let g:airline#extensions#tabline#enabled = 1
 set laststatus=2
 "}}}
 
@@ -512,13 +513,12 @@ let g:cycle_default_groups = [
 """"""""""""
 "c c++
 """"""""""""
-autocmd BufEnter  *.cpp,*.c,*.h call s:SET_PATH("commons")
-autocmd BufEnter  *.cpp,*.c,*.h call s:SET_PATH("../commons")
+autocmd BufEnter  *.cpp,*.c,*.h set path+=~/workspace/media_server_library/,~/workspace/media_server_protocol/
 ""autocmd FileType c set omnifunc=ccomplete#Complete
 ".c  .h 文件设为 .cpp
 autocmd BufEnter *.c  set filetype=cpp
 autocmd BufEnter *.h  set filetype=cpp
-"autocmd FileType cpp nmap <buffer> \\f :call Cpplint()<CR>
+autocmd FileType cpp nmap <buffer> \\l :call Cpplint()<CR>
 autocmd FileType cpp nmap <buffer> \\f :ClangFormat<CR>
 
 """"""""""""

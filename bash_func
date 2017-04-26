@@ -1,5 +1,5 @@
 #!/bin/bash
-dec2ip () {
+function dec2ip () {
     local ip dec=$@
     for e in {3..0}
     do
@@ -12,48 +12,17 @@ dec2ip () {
     printf '%s  ' "$ip"
 }
 
-clearPath() {
+function clearPath() {
     export PATH=$(echo $PATH | awk -F: '{ for (i = 1; i <= NF; i++) {if(arr[$i]!=$i){printf "%s:",$i;arr[$i]=$i;}}printf "\n"}')
 }
 
-ip2dec () {
+function ip2dec () {
     local a b c d ip=$@
     IFS=. read -r a b c d <<< "$ip"
     printf '%d\n' "$((a * 256 ** 3 + b * 256 ** 2 + c * 256 + d))"
 }
 
-function comm_put_ser() 
-{
-    user=$1
-    ip_fix=$2
-    port=$3
-    passwd=$4
-    sshpass -p"$passwd" scp -q -2 -P $port $6 $user@$ip_fix.$5:~/
-}
-
-function comm_get_ser() 
-{
-    user=$1
-    ip_fix=$2
-    port=$3
-    passwd=$4
-    sshpass -p"$passwd" scp -q -2 -P $port  $user@$ip_fix.$5:~/$6 . 
-}
-
-function alias_comm_cmd() 
-{
-    flag=$2
-    user=$3
-    ip_fix=$4
-    port=$5
-    passwd=$6
-    user_flag=$7
-    eval "alias c$flag$1$user_flag='sshpass  -p\"$passwd\" ssh -q -2 -p$port $user@$ip_fix.$1' "
-    eval "alias put$flag$1$user_flag=' comm_put_ser $user $ip_fix $port \"$passwd\" $1 ' "
-    eval "alias get$flag$1$user_flag=' comm_get_ser $user $ip_fix $port \"$passwd\" $1 ' "
-}
-
-function getdate()
+function 2date()
 {
     if [ "`uname`" eq "Darwin" ]; then
         date -r $1
@@ -63,268 +32,13 @@ function getdate()
     fi
 }
 
-function gettime()
+function 2ts()
 {
     if [ "`uname`" == "Darwin" ]; then
         date -j -f "%Y-%m-%d %H:%M:%S" "$1" "+%s"
     elif [ "`uname`" == "Linux" ]; then
         date -d "$1" +%s
     fi
-}
-# Easy extract
-extract () {
-  if [ -f $1 ] ; then
-      case $1 in
-          *.tar.bz2)   tar xvjf $1    ;;
-          *.tar.gz)    tar xvzf $1    ;;
-          *.bz2)       bunzip2 $1     ;;
-          *.rar)       rar x $1       ;;
-          *.gz)        gunzip $1      ;;
-          *.tar)       tar xvf $1     ;;
-          *.tbz2)      tar xvjf $1    ;;
-          *.tgz)       tar xvzf $1    ;;
-          *.zip)       unzip $1       ;;
-          *.Z)         uncompress $1  ;;
-          *.7z)        7z x $1        ;;
-          *)           echo "don't know how to extract '$1'..." ;;
-      esac
-  else
-      echo "'$1' is not a valid file!"
-  fi
-}
-
-function _killall()
-{
-    local cur prev
-    COMPREPLY=()
-    cur=${COMP_WORDS[COMP_CWORD]}
-    # get a list of processes (the first sed evaluation
-    # takes care of swapped out processes, the second
-    # takes care of getting the basename of the process)
-    COMPREPLY=( $( /bin/ps -u $USER -o comm  | \
-        sed -e '1,1d' -e 's#[]\[]##g' -e 's#^.*/##'| \
-        awk '{if ($0 ~ /^'$cur'/) print $0}' ))
-    return 0
-}
-
-function _make()
-{
-    local mdef makef makef_dir="." makef_inc gcmd cur prev i;
-    COMPREPLY=();
-    cur=${COMP_WORDS[COMP_CWORD]};
-    prev=${COMP_WORDS[COMP_CWORD-1]};
-    case "$prev" in
-        -*f)
-            COMPREPLY=($(compgen -f $cur ));
-            return 0
-        ;;
-    esac;
-    case "$cur" in
-        -*)
-            COMPREPLY=($(_get_longopts $1 $cur ));
-            return 0
-        ;;
-    esac;
-    # make reads `GNUmakefile', then `makefile', then `Makefile'
-    if [ -f ${makef_dir}/GNUmakefile ]; then
-        makef=${makef_dir}/GNUmakefile
-    elif [ -f ${makef_dir}/makefile ]; then
-        makef=${makef_dir}/makefile
-    elif [ -f ${makef_dir}/Makefile ]; then
-        makef=${makef_dir}/Makefile
-    else
-        makef=${makef_dir}/*.mk        # Local convention.
-    fi
-    # Before we scan for targets, see if a Makefile name was
-    # specified with -f ...
-    for (( i=0; i < ${#COMP_WORDS[@]}; i++ )); do
-        if [[ ${COMP_WORDS[i]} == -f ]]; then
-           # eval for tilde expansion
-           eval makef=${COMP_WORDS[i+1]}
-           break
-        fi
-    done
-    [ ! -f $makef ] && return 0
-    # deal with included Makefiles
-    makef_inc=$( grep -E '^-?include' $makef | \
-    sed -e "s,^.* ,"$makef_dir"/," )
-    for file in $makef_inc; do
-        [ -f $file ] && makef="$makef $file"
-    done
-    # If we have a partial word to complete, restrict completions to
-    # matches of that word.
-    if [ -n "$cur" ]; then gcmd='grep "^$cur"' ; else gcmd=cat ; fi
-    COMPREPLY=( $( awk -F':' '/^[a-zA-Z0-9][^$#\/\t=]*:([^=]|$)/ \
-                                {split($1,A,/ /);for(i in A)print A[i]}' \
-                                $makef 2>/dev/null | eval $gcmd  ))
-}
-
-###### A meta-command completion function for commands like sudo(8), which need to
-# first complete on a command, then complete according to that command's own
-# completion definition - currently not quite foolproof,
-# but still quite useful (By Ian McDonald, modified by me).
-function _meta_comp()
-{
-    local cur func cline cspec
-    COMPREPLY=()
-    cur=${COMP_WORDS[COMP_CWORD]}
-    cmdline=${COMP_WORDS[@]}
-    if [ $COMP_CWORD = 1 ]; then
-         COMPREPLY=( $( compgen -c $cur ) )
-    else
-        cmd=${COMP_WORDS[1]}            # Find command.
-        cspec=$( complete -p ${cmd} )   # Find spec of that command.
-        # COMP_CWORD and COMP_WORDS() are not read-only,
-        # so we can set them before handing off to regular
-        # completion routine:
-        # Get current command line minus initial command,
-        cline="${COMP_LINE#$1 }"
-        # split current command line tokens into array,
-        COMP_WORDS=( $cline )
-        # set current token number to 1 less than now.
-        COMP_CWORD=$(( $COMP_CWORD - 1 ))
-        # If current arg is empty, add it to COMP_WORDS array
-        # (otherwise that information will be lost).
-        if [ -z $cur ]; then COMP_WORDS[COMP_CWORD]=""  ; fi
-        if [ "${cspec%%-F *}" != "${cspec}" ]; then
-      # if -F then get function:
-            func=${cspec#*-F }
-            func=${func%% *}
-            eval $func $cline   # Evaluate it.
-        else
-            func=$( echo $cspec | sed -e 's/^complete//' -e 's/[^ ]*$//' )
-            COMPREPLY=( $( eval compgen $func $cur ) )
-        fi
-    fi
-}
-
-function _tar()
-{
-    local cur ext regex tar untar
-    COMPREPLY=()
-    cur=${COMP_WORDS[COMP_CWORD]}
-    # If we want an option, return the possible long options.
-    case "$cur" in
-        -*)     COMPREPLY=( $(_get_longopts $1 $cur ) ); return 0;;
-    esac
-    if [ $COMP_CWORD -eq 1 ]; then
-        COMPREPLY=( $( compgen -W 'c t x u r d A' -- $cur ) )
-        return 0
-    fi
-    case "${COMP_WORDS[1]}" in
-        ?(-)c*f)
-            COMPREPLY=( $( compgen -f $cur ) )
-            return 0
-            ;;
-            +([^Izjy])f)
-            ext='tar'
-            regex=$ext
-            ;;
-        *z*f)
-            ext='tar.gz'
-            regex='t\(ar\.\)\(gz\|Z\)'
-            ;;
-        *[Ijy]*f)
-            ext='t?(ar.)bz?(2)'
-            regex='t\(ar\.\)bz2\?'
-            ;;
-        *)
-            COMPREPLY=( $( compgen -f $cur ) )
-            return 0
-            ;;
-    esac
-    if [[ "$COMP_LINE" == tar*.$ext' '* ]]; then
-        # Complete on files in tar file.
-        #
-        # Get name of tar file from command line.
-        tar=$( echo "$COMP_LINE" | \
-               sed -e 's|^.* \([^ ]*'$regex'\) .*$|\1|' )
-        # Devise how to untar and list it.
-        untar=t${COMP_WORDS[1]//[^Izjyf]/}
-        COMPREPLY=( $( compgen -W "$( echo $( tar $untar $tar \
-                    2>/dev/null ) )" -- "$cur" ) )
-        return 0
-
-    else
-        # File completion on relevant files.
-        COMPREPLY=( $( compgen -G $cur\*.$ext ) )
-    fi
-    return 0
-}
-
-function _tar()
-{
-    local cur ext regex tar untar
-    COMPREPLY=()
-    cur=${COMP_WORDS[COMP_CWORD]}
-    # If we want an option, return the possible long options.
-    case "$cur" in
-        -*)     COMPREPLY=( $(_get_longopts $1 $cur ) ); return 0;;
-    esac
-    if [ $COMP_CWORD -eq 1 ]; then
-        COMPREPLY=( $( compgen -W 'c t x u r d A' -- $cur ) )
-        return 0
-    fi
-    case "${COMP_WORDS[1]}" in
-        ?(-)c*f)
-            COMPREPLY=( $( compgen -f $cur ) )
-            return 0
-            ;;
-            +([^Izjy])f)
-            ext='tar'
-            regex=$ext
-            ;;
-        *z*f)
-            ext='tar.gz'
-            regex='t\(ar\.\)\(gz\|Z\)'
-            ;;
-        *[Ijy]*f)
-            ext='t?(ar.)bz?(2)'
-            regex='t\(ar\.\)bz2\?'
-            ;;
-        *)
-            COMPREPLY=( $( compgen -f $cur ) )
-            return 0
-            ;;
-    esac
-    if [[ "$COMP_LINE" == tar*.$ext' '* ]]; then
-        # Complete on files in tar file.
-        #
-        # Get name of tar file from command line.
-        tar=$( echo "$COMP_LINE" | \
-               sed -e 's|^.* \([^ ]*'$regex'\) .*$|\1|' )
-        # Devise how to untar and list it.
-        untar=t${COMP_WORDS[1]//[^Izjyf]/}
-        COMPREPLY=( $( compgen -W "$( echo $( tar $untar $tar \
-                    2>/dev/null ) )" -- "$cur" ) )
-        return 0
-
-    else
-        # File completion on relevant files.
-        COMPREPLY=( $( compgen -G $cur\*.$ext ) )
-    fi
-    return 0
-}
-
-function _longopts()
-{
-    local cur
-    cur=${COMP_WORDS[COMP_CWORD]}
-    case "${cur:-*}" in
-       -*)      ;;
-        *)      return ;;
-    esac
-    case "$1" in
-      \~*)      eval cmd="$1" ;;
-        *)      cmd="$1" ;;
-    esac
-    COMPREPLY=( $(_get_longopts ${1} ${cur} ) )
-}
-
-###### get all IPs via ifconfig
-function allips()
-{
-ifconfig | awk '/inet / {sub(/addr:/, "", $2); print $2}'
 }
 
 ###### convert hexadecimal numbers to decimals

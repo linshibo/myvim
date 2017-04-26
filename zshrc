@@ -1,7 +1,6 @@
 export TERM=xterm-256color
 export EDITOR="vim"
 export LANG=en_US.UTF-8
-ulimit -c 40000000
 export CLICOLOR=1
 export LSCOLORS="exfxcxdxbxexexabagacad"
 
