@@ -67,15 +67,12 @@ set noswapfile
 
 set nu
 
-"中文帮助
-set helplang=cn
-
 "Get out of VI's compatible mode..
 set nocompatible
 "disable alt
 set winaltkeys=no
 "tags 位置
-set tags=.tags
+set tags+=.tags
 
 "折叠
 set foldmethod=syntax
@@ -100,14 +97,6 @@ set termencoding=utf-8
 set fileencodings=ucs-bom,utf-8,gb2312,big5,euc-jp,euc-kr,latin1
 language messages POSIX
 
-"自动更新cpp修改时间
-"autocmd BufWritePre,FileWritePre *.cpp,*.c,*.h,*.hpp exec "normal ms"|call LastModified()|exec "normal `s"
-
-"for cmake ':make' ,由于定位错误,中文会有问题，如下调整
-""if finddir("build") == "build"
-    ""set makeprg=export\ LANG=zh_CN:en;make\ -C\ ./build
-""endif
-
 set scrolloff=5 " 距离垂直边界 n 行就开始滚动
 set sidescroll=1 " 水平滚动列数
 set sidescrolloff=10 " 距离水平边界 n 行就开始滚动
@@ -119,7 +108,7 @@ let g:os=substitute(system('uname'), '\n', '', '')
 "主题 solarized 的配置必须在 colorscheme 之前
 let g:solarized_termcolors=256
 let g:solarized_termtrans=1
-let g:solarized_hitrail   =   0
+let g:solarized_hitrail = 0
 colorscheme solarized
 set background="dark"
 set cursorline
@@ -243,16 +232,10 @@ cnoremap <C-k> <t_ku>
 
 
 "查找当前光标下的单词
-""nnoremap ,g :Ack <C-R>=expand('<cword>')<CR><CR>
-"nnoremap <Leader>g :exec "Ack " . expand('<cword>') ." --". &filetype<CR>
 nnoremap <Leader>g :Ag  <C-R>=expand('<cword>') ." --". &filetype. " ."<CR><CR>
 vnoremap <Leader>g :call VisualSelection('gv')<CR>
 nnoremap <Leader>r <Esc>:call GEN_TAGS()<CR>
 nnoremap <Leader>m <Esc>:call Make()<CR>
-"nnoremap ,y <Esc>:call OPT_RANGE("ya")<CR>
-"nnoremap ,Y <Esc>:call OPT_RANGE("yi")<CR>
-"nnoremap ,d <Esc>:call OPT_RANGE("da")<CR>
-"nnoremap ,D <Esc>:call OPT_RANGE("di")<CR>
 "转换单词大小写
 nnoremap <Leader>u <Esc>:call SET_UAW()<CR>
 
@@ -289,16 +272,9 @@ nnoremap \\j :call ConvertToJson()<CR>
 
 "Fast reloading of the .vimrc
 nnoremap \\s <ESC>:source ~/.vim/comm.vim<cr>
-"Fast editing of .vimrc
-"nnoremap \\e <ESC>:e! ~/.vim/comm.vim<cr>
 "Switch to current dir
 "nnoremap <Leader>c <ESC>:cd %:p:h<cr>
 
-"在正常模式下的整块移动
-"大括号内向左移
-""nmap <F7> <Esc><i{
-    "大括号内向右移
-    "" nmap<F8><Esc>> i {
 "选择区移动
 vnoremap < <gv
 vnoremap > >gv
@@ -308,7 +284,6 @@ vnoremap <silent> * :call VisualSelection('f')<CR>
 vnoremap <silent> # :call VisualSelection('b')<CR>
 
 "quick fix toggle
-nnoremap <C-q> <Esc>:call ToggleQF()<CR>
 nnoremap <Leader>n <Esc>:cn<CR>
 nnoremap <Leader>p <Esc>:cp<CR>
 
@@ -421,8 +396,7 @@ nnoremap <silent> <C-Y> :YRShow<CR>
 
 "
 "airline{{{
-"let g:airline_theme='solarized'
-"let g:airline#extensions#tabline#enabled = 1
+let g:airline_theme='cool'
 set laststatus=2
 "}}}
 
@@ -485,12 +459,11 @@ let g:cycle_default_groups = [
 \ [['min', 'max']],
 \ [['get', 'set']],
 \ [['int', 'uint']],
-\ [['32', '64']],
-\ [['add', 'remove']],
+\ [['16', '32', '64']],
+\ [['uint16_t', 'uint32_t', 'uint64_t']],
+\ [['int16_t', 'int32_t', 'int64_t']],
 \ [['to', 'from']],
 \ [['read', 'write']],
-\ [['next', 'previous', 'prev']],
-\ [['without', 'with']],
 \ [['exclude', 'include']],
 \ [['width', 'height']],
 \ [['asc', 'desc']],
@@ -500,7 +473,6 @@ let g:cycle_default_groups = [
 \ [['prefix', 'suffix']],
 \ [['decode', 'encode']],
 \ [['short', 'long']],
-\ [['pop', 'shift']],
 \ [['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday',
 \ 'Friday', 'Saturday'], ['hard_case', {'name': 'Days'}]],
 \ [['{:}', '[:]', '(:)'], 'sub_pairs'],
@@ -514,8 +486,6 @@ let g:cycle_default_groups = [
 "c c++
 """"""""""""
 autocmd BufEnter  *.cpp,*.c,*.h set path+=~/workspace/media_server_library/,~/workspace/media_server_protocol/
-""autocmd FileType c set omnifunc=ccomplete#Complete
-".c  .h 文件设为 .cpp
 autocmd BufEnter *.c  set filetype=cpp
 autocmd BufEnter *.h  set filetype=cpp
 autocmd FileType cpp nmap <buffer> \\l :call Cpplint()<CR>
@@ -569,20 +539,6 @@ au! BufRead *.json,*.cfg set filetype=json
 "----------------------------------------------------------------------------
 " FUNCTIONS
 "----------------------------------------------------------------------------
-"quickfix 开关
-function! ToggleQF()
-    if !exists("g:fx_toggle")
-        let g:fx_toggle = 0
-    endif
-    if g:fx_toggle == 0
-        let g:fx_toggle = 1
-        copen
-    else
-        let g:fx_toggle = 0
-        cclose
-    endif
-endfunc
-
 " Visual mode related
 function! VisualSelection(direction) range
     let l:saved_reg = @"
@@ -605,36 +561,6 @@ function! VisualSelection(direction) range
     endif
     let @/ = l:pattern
     let @" = l:saved_reg
-endfunction
-
-"获取当前路径的上一级的路径
-function! GET_UP_PATH(dir)
-    let pos=len(a:dir)-1
-    while pos>0
-        if (a:dir[pos]=="/" )
-            return     strpart(a:dir,0,pos)
-        endif
-        let pos=pos-1
-    endwhile
-    return  ""
-endfunction
-
-"设置相关 include , for cmd : gf
-function! s:SET_PATH( find_dir )
-    let dir = expand("%:p:h") "获得源文件路径
-    let dir_relative=''
-    let g:alternateSearchPath = ''
-    "在路径上递归向上查找tags文件
-    while dir!=""
-        if finddir(a:find_dir ,dir ) !=""
-            "找到了就加入到tags
-            exec "set path+=" . dir . "/". a:find_dir
-            let g:alternateSearchPath = g:alternateSearchPath.'sfr:'.dir_relative.a:find_dir.","
-        endif
-        "得到上级路径
-        let dir_relative=dir_relative . "../"
-        let dir=GET_UP_PATH(dir)
-    endwhile
 endfunction
 
 "upper case
@@ -690,12 +616,5 @@ endfunction
 function! ConvertToJson()
     if &filetype == "json"
         exec "%!python -m json.tool"
-    endif
-endfunction
-
-function! OPT_RANGE( opt_str )
-    let cur_char=getline('.')[col('.') - 1]
-    if cur_char == "(" || cur_char == "<" || cur_char == "{" || cur_char == "[" || cur_char == "\"" || cur_char == "'" || cur_char == ")" || cur_char == ">" || cur_char == "}" || cur_char == "]"
-        exec "normal! ".a:opt_str.cur_char
     endif
 endfunction
