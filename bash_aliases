@@ -10,11 +10,8 @@ alias egrep='egrep --color=auto'
 alias fgrep='fgrep --color=auto'
 alias mkdir='mkdir -pv'
 alias rm="rm -i"
-alias df="df -h"
-alias du='du -h -c'
 
 alias largest='du -cks * | sort -rn | head -n 10'
-alias dir='ls  -d */'
 alias bk="cd -" #回到上一目录
 alias cp="cp -i -rf " 
 
@@ -29,8 +26,11 @@ alias cd.....="cd ../../../../"
 alias .4='cd ../../../../'
 alias .5='cd ../../../../..'
 
-alias psmem='ps -e -o "%C : %p : %z : %a"|sort -k5 -nr'
-alias pscpu='ps -e -o "%C : %p : %z : %a"|sort -nr'
+alias cdvocs='cd ~/workspace/media_server_vocs/'
+alias cdcomm='cd ~/workspace/media_server_library/'
+alias cdp='cd ~/workspace/media_server_protocol//'
+alias cdvoqa='cd ~/workspace/media_server_voqa/'
+
 alias meminfo='free -m -l -t'
 alias cpuinfo='lscpu'
 
@@ -44,11 +44,11 @@ alias debugvi="vi -V9vimlog"
 alias allusers="cut -d: -f1 /etc/passwd"
 alias allgroups="cut -d: -f1 /etc/group"
 
-alias gm='git commit'
+alias gm='git commit -a'
 alias gp='git push origin $(git branch 2>/dev/null | sed -e "/^ /d" -e "s/* \(.*\)/\1/") '
 alias gl='git pull'
 alias glr='git pull --rebase'
-alias gtr='git log --graph --oneline --all'
+
 alias path='echo -e ${PATH//:/\\n}'
 
 #alias my='mysql -uroot -p123456 -A --prompt="\\u@\\h : \\d \\r:\\m:\\s>"'

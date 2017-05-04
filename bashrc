@@ -29,4 +29,6 @@ source ~/workspace/myvim/bash_aliases
 
 source ~/workspace/myvim/bash_func
 
+eval `dircolors ~/workspace/myvim/dircolors.256dark`
+
 #ssh-copy-id -i ~/.ssh/id_rsa.pub "-p 22000 francisco@10.1.1.20"
