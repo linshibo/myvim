@@ -37,6 +37,7 @@ Plugin 'Rip-Rip/clang_complete'
 Plugin 'gregsexton/matchtag'
 Plugin 'rhysd/vim-clang-format'
 Plugin 'shougo/unite.vim'
+Plugin 'mindriot101/vim-yapf'
 
 call vundle#end()
 
@@ -307,6 +308,9 @@ set completeopt=longest,menuone
 
 "---------------------------------------------------------------------------
 
+"yapf
+let g:yapf_style = "google"
+
 "Tabular{{{
 vmap \\=  :Tabularize \=<CR>
 nmap \\:  :Tabularize \:<CR>
@@ -317,8 +321,11 @@ let g:clang_format#style_options = {"Standard" : "C++11"}
 "}}}
 
 "unite{{{
-nmap <Leader>b <ESC>:Unite buffer<CR>
-nmap <Leader>f <ESC>:Unite file<CR>
+nmap <Leader>b <ESC>:Unite buffer file<CR>
+"}}}
+
+"fzf{{{
+nmap <Leader>f <ESC>:FZF<CR>
 "}}}
 
 "python-mode{{{
@@ -349,13 +356,16 @@ let g:pymode_folding = 0
 "
 "clang complete{{{
 if g:os == 'Linux'
+  if matchstr(system('uname -a'),'12.04') == "12.04"
+    let g:clang_library_path = "/usr/lib/llvm-3.4/lib"
+  elseif matchstr(system('uname -a'),'14.04') == "14.04"
     let g:clang_library_path = "/usr/lib/llvm-3.8/lib"
+  endif
 elseif g:os == 'Darwin' || g:os == 'Mac'
     let g:clang_library_path='/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib'
 endif
-let g:clang_user_options = "-I/usr/include/c++/4.8.4 -I~/workspace/media_server_library -I~/workspace/media_server_protocol -std=c++0x -DDEBUG"
+let g:clang_user_options = "-I/usr/include/c++/4.8.4 -I/usr/include/c++/4.6.3 -I~/workspace/media_server_library -I~/workspace/media_server_protocol -std=c++0x -DDEBUG"
 "}}}
-
 
 "Nerdtree{{{
 autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTreeType") && b:NERDTreeType == "primary") | q | endif
@@ -366,7 +376,6 @@ nmap <C-e> :NERDTreeToggle<CR>
 nmap w  <Plug>(smartword-w)
 nmap b  <Plug>(smartword-b)
 nmap e  <Plug>(smartword-e)
-nmap ge  <Plug>(smartword-ge)
 "}}}
 
 
@@ -485,10 +494,9 @@ let g:cycle_default_groups = [
 """"""""""""
 "c c++
 """"""""""""
-autocmd BufEnter  *.cpp,*.c,*.h set path+=~/workspace/media_server_library/,~/workspace/media_server_protocol/
+autocmd BufEnter *.cpp,*.c,*.h set path+=~/workspace/media_server_library/,~/workspace/media_server_protocol/
 autocmd BufEnter *.c  set filetype=cpp
 autocmd BufEnter *.h  set filetype=cpp
-autocmd FileType cpp nmap <buffer> \\l :call Cpplint()<CR>
 autocmd FileType cpp nmap <buffer> \\f :ClangFormat<CR>
 
 """"""""""""
@@ -499,7 +507,8 @@ autocmd BufRead,BufNewFile *.py set ai
 autocmd FileType python setlocal et sta sw=4 sts=4
 autocmd FileType python setlocal foldmethod=indent
 au BufNewFile,BufRead *.py,*.pyw set filetype=python
-au FileType python noremap \\f <Esc>:PymodeLintAuto<CR>
+"au FileType python noremap \\f <Esc>:PymodeLintAuto<CR>
+au FileType python noremap \\f <Esc>:call Yapf()<CR>
 
 """"""""""""
 "golang

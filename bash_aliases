@@ -14,6 +14,7 @@ alias rm="rm -i"
 alias largest='du -cks * | sort -rn | head -n 10'
 alias bk="cd -" #回到上一目录
 alias cp="cp -i -rf " 
+alias fzf="fzf -e " 
 
 alias ..="cd .."
 alias ...="cd ../../"
@@ -26,10 +27,6 @@ alias cd.....="cd ../../../../"
 alias .4='cd ../../../../'
 alias .5='cd ../../../../..'
 
-alias cdvocs='cd ~/workspace/media_server_vocs/'
-alias cdcomm='cd ~/workspace/media_server_library/'
-alias cdp='cd ~/workspace/media_server_protocol//'
-alias cdvoqa='cd ~/workspace/media_server_voqa/'
 
 alias meminfo='free -m -l -t'
 alias cpuinfo='lscpu'
@@ -58,3 +55,13 @@ alias autokey='sudo apt-get update 2> /tmp/keymissing; for key in $(grep "NO_PUB
 alias goto='go_() { ssh -p 20220 -i ~/.ssh/devops.pem devops@$1; } && go_ ' 
 alias upload='upload_() { scp -P 20220 -i ~/.ssh/devops.pem -C -r "$2" devops@$1:~/; } && upload_ '
 alias download='download_() { scp -P 20220 -i ~/.ssh/devops.pem -C devops@$1:~/"$2" . ; } && download_ '
+
+
+alias cdvocs='cd ~/workspace/media_server_vocs/'
+alias cdlb='cd ~/workspace/media_server_library/'
+alias cdp='cd ~/workspace/media_server_protocol//'
+alias cdvoqa='cd ~/workspace/media_server_voqa/'
+alias cdargus='cd ~/workspace/DataHub/ArgusWeb'
+alias cds='cd ~/workspace/media_server_stat/'
+alias cdvos='cd ~/workspace/media_server_vos/'
+alias cdtool='cd ~/workspace/media_server_tools/'
