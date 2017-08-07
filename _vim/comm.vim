@@ -38,6 +38,7 @@ Plugin 'gregsexton/matchtag'
 Plugin 'rhysd/vim-clang-format'
 Plugin 'shougo/unite.vim'
 Plugin 'mindriot101/vim-yapf'
+Plugin 'funorpain/vim-cpplint'
 
 call vundle#end()
 
@@ -498,6 +499,7 @@ autocmd BufEnter *.cpp,*.c,*.h set path+=~/workspace/media_server_library/,~/wor
 autocmd BufEnter *.c  set filetype=cpp
 autocmd BufEnter *.h  set filetype=cpp
 autocmd FileType cpp nmap <buffer> \\f :ClangFormat<CR>
+autocmd FileType cpp nmap <buffer> \\l :call Cpplint()<CR>
 
 """"""""""""
 "python
