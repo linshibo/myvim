@@ -62,7 +62,7 @@ function alias_server()
 {
     local idc=$1
     local lastip=`echo $2 | awk -F. '{print $4}'`
-    alias go.$idc$lastip="ssh -p 20220 -i ~/.ssh/devops.pem devops@$2" 
-    alias upload.$idc$lastip="upload_() { scp -P 20220 -i ~/.ssh/devops.pem -C -r \$1 devops@$2:~/; } && upload_ "
-    alias download.$idc$lastip="download_() { scp -P 20220 -i ~/.ssh/devops.pem -C devops@$2:~/\"\$1\" . ; } && download_ "
+    alias go.$idc$lastip="ssh -p 20220 devops@$2" 
+    alias upload.$idc$lastip="upload_() { scp -P 20220 -C -r \$1 devops@$2:~/; } && upload_ "
+    alias download.$idc$lastip="download_() { scp -P 20220 -C devops@$2:~/\"\$1\" . ; } && download_ "
 }

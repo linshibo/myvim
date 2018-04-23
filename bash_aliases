@@ -52,16 +52,18 @@ alias path='echo -e ${PATH//:/\\n}'
 
 alias autokey='sudo apt-get update 2> /tmp/keymissing; for key in $(grep "NO_PUBKEY" /tmp/keymissing |sed "s/.*NO_PUBKEY //"); do echo -e "\nProcessing key: $key"; gpg --keyserver pool.sks-keyservers.net --recv $key && gpg --export --armor $key | sudo apt-key add -; done'
 
+alias opgo='go_() { ssh -p 20220 -i ~/.ssh/core.pem devops@$1; } && go_ ' 
+alias opupload='upload_() { scp -P 20220 -i ~/.ssh/core.pem -C -r "$2" devops@$1:~/; } && upload_ '
+alias opdownload='download_() { scp -P 20220 -i ~/.ssh/core.pem -C devops@$1:~/"$2" . ; } && download_ '
 alias goto='go_() { ssh -p 20220 -i ~/.ssh/devops.pem devops@$1; } && go_ ' 
 alias upload='upload_() { scp -P 20220 -i ~/.ssh/devops.pem -C -r "$2" devops@$1:~/; } && upload_ '
 alias download='download_() { scp -P 20220 -i ~/.ssh/devops.pem -C devops@$1:~/"$2" . ; } && download_ '
 
 
-alias cdvocs='cd ~/workspace/media_server_vocs/'
-alias cdlb='cd ~/workspace/media_server_library/'
-alias cdp='cd ~/workspace/media_server_protocol//'
+alias cdvocs='cd ~/workspace/media_server_build/media_server_vocs/'
+alias cdlb='cd ~/workspace/media_server_build/media_server_library/'
+alias cdp='cd ~/workspace/media_server_build/media_server_protocol/'
 alias cdvoqa='cd ~/workspace/media_server_voqa/'
 alias cdargus='cd ~/workspace/DataHub/ArgusWeb'
 alias cds='cd ~/workspace/media_server_stat/'
-alias cdvos='cd ~/workspace/media_server_vos/'
-alias cdtool='cd ~/workspace/media_server_tools/'
+alias cdvos='cd ~/workspace/media_server_build/media_server_vos/'

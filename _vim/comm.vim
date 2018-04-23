@@ -4,43 +4,38 @@
 "add to   .vimrc
 "source ~/.vim/comm.vim
 "---------------------------------------------------------------------------
-set nocompatible
-filetype off
 
-"Vundle 管理
-set rtp+=~/.vim/bundle/Vundle.vim/
-call vundle#begin()
-
-" 让 Vundle 管理 Vundle
-" 此条必须有
-Plugin 'gmarik/Vundle.vim'
-
+call plug#begin('~/.vim/plugged')
 " 代码源在 github 上的
-Plugin 'mbbill/fencview'
-Plugin 'majutsushi/tagbar'
-Plugin 'vim-scripts/YankRing.vim'
-Plugin 'vim-scripts/snipMate'
-Plugin 'rking/ag.vim'
-Plugin 'godlygeek/tabular'
-Plugin 'vim-airline/vim-airline'
-Plugin 'vim-airline/vim-airline-themes'
-Plugin 'Lokaltog/vim-easymotion'
-Plugin 'tpope/vim-surround'
-Plugin 'bootleq/vim-cycle'
-Plugin 'kana/vim-smartword'
-Plugin 'altercation/vim-colors-solarized'
-Plugin 'terryma/vim-multiple-cursors'
-Plugin 'octol/vim-cpp-enhanced-highlight'
-Plugin 'scrooloose/nerdtree'
-Plugin 'klen/python-mode'
-Plugin 'Rip-Rip/clang_complete'
-Plugin 'gregsexton/matchtag'
-Plugin 'rhysd/vim-clang-format'
-Plugin 'shougo/unite.vim'
-Plugin 'mindriot101/vim-yapf'
-Plugin 'funorpain/vim-cpplint'
+" 
+Plug 'ludovicchabant/vim-gutentags'
+Plug 'MarcWeber/vim-addon-mw-utils'
+Plug 'tomtom/tlib_vim'"
+Plug 'mbbill/fencview'
+Plug 'majutsushi/tagbar'
+Plug 'garbas/vim-snipmate'
+Plug 'rking/ag.vim'
+Plug 'godlygeek/tabular'
+Plug 'vim-airline/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
+Plug 'Lokaltog/vim-easymotion'
+Plug 'tpope/vim-surround'
+Plug 'bootleq/vim-cycle'
+Plug 'kana/vim-smartword'
+Plug 'altercation/vim-colors-solarized'
+Plug 'terryma/vim-multiple-cursors'
+Plug 'octol/vim-cpp-enhanced-highlight'
+Plug 'scrooloose/nerdtree'
+Plug 'klen/python-mode'
+Plug 'Rip-Rip/clang_complete'
+Plug 'gregsexton/matchtag'
+Plug 'rhysd/vim-clang-format'
+Plug 'shougo/unite.vim'
+Plug 'mindriot101/vim-yapf'
+Plug 'funorpain/vim-cpplint'
+Plug 'Shougo/echodoc.vim'
 
-call vundle#end()
+call plug#end()
 
 "---------------------------------------------------------------------------
 "GENERAL SET
@@ -51,6 +46,8 @@ set history=400
 
 "map leader key ","
 let mapleader ="\<Space>"
+
+set colorcolumn=80
 
 " Enable filetype plugins
 filetype plugin indent on
@@ -275,7 +272,7 @@ nnoremap \\j :call ConvertToJson()<CR>
 "Fast reloading of the .vimrc
 nnoremap \\s <ESC>:source ~/.vim/comm.vim<cr>
 "Switch to current dir
-"nnoremap <Leader>c <ESC>:cd %:p:h<cr>
+nnoremap <Leader>c <ESC>:cd %:p:h<cr>
 
 "选择区移动
 vnoremap < <gv
@@ -321,6 +318,24 @@ nmap \\:  :Tabularize \:<CR>
 let g:clang_format#style_options = {"Standard" : "C++11"}
 "}}}
 
+"vim-gutentagsa{{{
+" gutentags 搜索工程目录的标志，碰到这些文件/目录名就停止向上一级目录递归
+let g:gutentags_project_root = ['.root', '.svn', '.git', '.hg', '.project']
+" 所生成的数据文件的名称
+let g:gutentags_ctags_tagfile = '.tags'
+" 将自动生成的 tags 文件全部放入 ~/.cache/tags 目录中，避免污染工程目录
+let s:vim_tags = expand('~/.cache/tags')
+let g:gutentags_cache_dir = s:vim_tags
+" 配置 ctags 的参数
+let g:gutentags_ctags_extra_args = ['--fields=+niazS', '--extra=+q']
+let g:gutentags_ctags_extra_args += ['--c++-kinds=+px']
+let g:gutentags_ctags_extra_args += ['--c-kinds=+px']
+" 检测 ~/.cache/tags 不存在就新建
+if !isdirectory(s:vim_tags)
+    silent! call mkdir(s:vim_tags, 'p')
+endif
+"}}}
+
 "unite{{{
 nmap <Leader>b <ESC>:Unite buffer file<CR>
 "}}}
@@ -360,12 +375,12 @@ if g:os == 'Linux'
   if matchstr(system('uname -a'),'12.04') == "12.04"
     let g:clang_library_path = "/usr/lib/llvm-3.4/lib"
   elseif matchstr(system('uname -a'),'14.04') == "14.04"
-    let g:clang_library_path = "/usr/lib/llvm-3.8/lib"
+    let g:clang_library_path = "/usr/lib/llvm-3.9/lib"
   endif
 elseif g:os == 'Darwin' || g:os == 'Mac'
     let g:clang_library_path='/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib'
 endif
-let g:clang_user_options = "-I/usr/include/c++/4.8.4 -I/usr/include/c++/4.6.3 -I~/workspace/media_server_library -I~/workspace/media_server_protocol -std=c++0x -DDEBUG"
+let g:clang_user_options = "-I/usr/include/c++/4.8.4 -I/usr/include/c++/4.6.3 -I~/workspace/media_server_build/media_server_library -I~/workspace/media_server_build/media_server_protocol -std=c++0x -DDEBUG"
 "}}}
 
 "Nerdtree{{{
@@ -594,7 +609,8 @@ function! Make()
         exec "GoBuild"
     endif
     if ( &filetype == "cpp" || &filetype == "c")
-        exec "make"
+        execute "make"
+        execute "copen"
     endif
 endfunction
 
