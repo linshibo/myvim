@@ -8,6 +8,7 @@
 call plug#begin('~/.vim/plugged')
 " 代码源在 github 上的
 " 
+Plug 'Yggdroot/LeaderF'
 Plug 'ludovicchabant/vim-gutentags'
 Plug 'MarcWeber/vim-addon-mw-utils'
 Plug 'tomtom/tlib_vim'"
@@ -30,8 +31,8 @@ Plug 'klen/python-mode'
 Plug 'Rip-Rip/clang_complete'
 Plug 'gregsexton/matchtag'
 Plug 'rhysd/vim-clang-format'
-Plug 'shougo/unite.vim'
-Plug 'mindriot101/vim-yapf'
+"Plug 'shougo/unite.vim'
+"Plug 'mindriot101/vim-yapf'
 Plug 'funorpain/vim-cpplint'
 Plug 'Shougo/echodoc.vim'
 
@@ -78,7 +79,9 @@ set foldmethod=syntax
 ""默认情况下不折叠
 set foldlevel=99
 "set for gf
-""set path+=/usr/include/c++/4.6/
+set path+=/usr/include/c++/4.8/
+set path+=~/workspace/media_server_build/media_server_library/
+set path+=~/workspace/media_server_build/media_server_protocol/
 
 
 "重新打开时自动定位到原来的位置
@@ -337,11 +340,12 @@ endif
 "}}}
 
 "unite{{{
-nmap <Leader>b <ESC>:Unite buffer file<CR>
+nmap <Leader>b <ESC>:LeaderfBuffer<CR>
 "}}}
 
 "fzf{{{
-nmap <Leader>f <ESC>:FZF<CR>
+"nmap <Leader>f <ESC>:FZF<CR>
+nmap <Leader>f <ESC>:LeaderfFile<CR>
 "}}}
 
 "python-mode{{{
