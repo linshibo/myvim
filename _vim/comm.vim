@@ -10,11 +10,12 @@ call plug#begin('~/.vim/plugged')
 " 
 Plug 'Yggdroot/LeaderF'
 Plug 'ludovicchabant/vim-gutentags'
-Plug 'MarcWeber/vim-addon-mw-utils'
-Plug 'tomtom/tlib_vim'"
+"Plug 'MarcWeber/vim-addon-mw-utils'
+"Plug 'tomtom/tlib_vim'"
 Plug 'mbbill/fencview'
-Plug 'majutsushi/tagbar'
-Plug 'garbas/vim-snipmate'
+"Plug 'majutsushi/tagbar'
+Plug 'msanders/snipmate.vim'
+"Plug 'garbas/vim-snipmate'
 Plug 'rking/ag.vim'
 Plug 'godlygeek/tabular'
 Plug 'vim-airline/vim-airline'
@@ -34,7 +35,6 @@ Plug 'rhysd/vim-clang-format'
 "Plug 'shougo/unite.vim'
 "Plug 'mindriot101/vim-yapf'
 Plug 'funorpain/vim-cpplint'
-Plug 'Shougo/echodoc.vim'
 
 call plug#end()
 
@@ -341,6 +341,7 @@ endif
 
 "unite{{{
 nmap <Leader>b <ESC>:LeaderfBuffer<CR>
+nmap <Leader>t <ESC>:LeaderfFunction<CR>
 "}}}
 
 "fzf{{{
@@ -430,37 +431,37 @@ set laststatus=2
 "}}}
 
 " Tagbar setting{{{
-nnoremap <Leader>t <Esc>:TagbarToggle<cr>
-let g:tagbar_width = 30
-let g:tagbar_expand = 0
-let g:tagbar_autofocus = 1
-let g:tagbar_type_go = {
-    \ 'ctagstype' : 'go',
-    \ 'kinds'     : [
-        \ 'p:package',
-        \ 'i:imports:1',
-        \ 'c:constants',
-        \ 'v:variables',
-        \ 't:types',
-        \ 'n:interfaces',
-        \ 'w:fields',
-        \ 'e:embedded',
-        \ 'm:methods',
-        \ 'r:constructor',
-        \ 'f:functions'
-    \ ],
-    \ 'sro' : '.',
-    \ 'kind2scope' : {
-        \ 't' : 'ctype',
-        \ 'n' : 'ntype'
-    \ },
-    \ 'scope2kind' : {
-        \ 'ctype' : 't',
-        \ 'ntype' : 'n'
-    \ },
-    \ 'ctagsbin'  : 'gotags',
-    \ 'ctagsargs' : '-sort -silent'
-    \ }
+"nnoremap <Leader>t <Esc>:TagbarToggle<cr>
+"let g:tagbar_width = 30
+"let g:tagbar_expand = 0
+"let g:tagbar_autofocus = 1
+"let g:tagbar_type_go = {
+    "\ 'ctagstype' : 'go',
+    "\ 'kinds'     : [
+        "\ 'p:package',
+        "\ 'i:imports:1',
+        "\ 'c:constants',
+        "\ 'v:variables',
+        "\ 't:types',
+        "\ 'n:interfaces',
+        "\ 'w:fields',
+        "\ 'e:embedded',
+        "\ 'm:methods',
+        "\ 'r:constructor',
+        "\ 'f:functions'
+    "\ ],
+    "\ 'sro' : '.',
+    "\ 'kind2scope' : {
+        "\ 't' : 'ctype',
+        "\ 'n' : 'ntype'
+    "\ },
+    "\ 'scope2kind' : {
+        "\ 'ctype' : 't',
+        "\ 'ntype' : 'n'
+    "\ },
+    "\ 'ctagsbin'  : 'gotags',
+    "\ 'ctagsargs' : '-sort -silent'
+    "\ }
 " }}}
 
 "cycle.vim{{{
