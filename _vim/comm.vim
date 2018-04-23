@@ -10,12 +10,8 @@ call plug#begin('~/.vim/plugged')
 " 
 Plug 'Yggdroot/LeaderF'
 Plug 'ludovicchabant/vim-gutentags'
-"Plug 'MarcWeber/vim-addon-mw-utils'
-"Plug 'tomtom/tlib_vim'"
 Plug 'mbbill/fencview'
-"Plug 'majutsushi/tagbar'
 Plug 'msanders/snipmate.vim'
-"Plug 'garbas/vim-snipmate'
 Plug 'rking/ag.vim'
 Plug 'godlygeek/tabular'
 Plug 'vim-airline/vim-airline'
@@ -32,8 +28,6 @@ Plug 'klen/python-mode'
 Plug 'Rip-Rip/clang_complete'
 Plug 'gregsexton/matchtag'
 Plug 'rhysd/vim-clang-format'
-"Plug 'shougo/unite.vim'
-"Plug 'mindriot101/vim-yapf'
 Plug 'funorpain/vim-cpplint'
 
 call plug#end()
