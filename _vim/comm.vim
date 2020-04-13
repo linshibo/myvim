@@ -8,12 +8,13 @@
 call plug#begin('~/.vim/plugged')
 " 代码源在 github 上的
 " 
+"Plug 'justmao942/vim-clang'
 Plug 'Yggdroot/LeaderF'
-Plug 'ludovicchabant/vim-gutentags'
 Plug 'mbbill/fencview'
 Plug 'msanders/snipmate.vim'
 Plug 'rking/ag.vim'
 Plug 'godlygeek/tabular'
+Plug 'mileszs/ack.vim'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'Lokaltog/vim-easymotion'
@@ -23,12 +24,8 @@ Plug 'kana/vim-smartword'
 Plug 'altercation/vim-colors-solarized'
 Plug 'terryma/vim-multiple-cursors'
 Plug 'octol/vim-cpp-enhanced-highlight'
-Plug 'scrooloose/nerdtree'
-Plug 'klen/python-mode'
 Plug 'Rip-Rip/clang_complete'
-Plug 'gregsexton/matchtag'
 Plug 'rhysd/vim-clang-format'
-Plug 'funorpain/vim-cpplint'
 
 call plug#end()
 
@@ -228,10 +225,10 @@ cnoremap <C-k> <t_ku>
 
 
 "查找当前光标下的单词
-nnoremap <Leader>g :Ag  <C-R>=expand('<cword>') ." --". &filetype. " ."<CR><CR>
+nnoremap <Leader>g :Ack! <C-R>=expand('<cword>')<CR><CR>
 vnoremap <Leader>g :call VisualSelection('gv')<CR>
-nnoremap <Leader>r <Esc>:call GEN_TAGS()<CR>
-nnoremap <Leader>m <Esc>:call Make()<CR>
+nnoremap <Leader>m <Esc>:make<CR> <Esc>:copen<CR>
+
 "转换单词大小写
 nnoremap <Leader>u <Esc>:call SET_UAW()<CR>
 
@@ -303,8 +300,6 @@ set completeopt=longest,menuone
 
 "---------------------------------------------------------------------------
 
-"yapf
-let g:yapf_style = "google"
 
 "Tabular{{{
 vmap \\=  :Tabularize \=<CR>
@@ -312,79 +307,22 @@ nmap \\:  :Tabularize \:<CR>
 "}}}
 
 "vim-clang-format{{{
-let g:clang_format#style_options = {"Standard" : "C++11"}
+""let g:clang_format#style_options = {"Standard" : "C++11"}
+let g:clang_format#detect_style_file = 1
 "}}}
 
-"vim-gutentagsa{{{
-" gutentags 搜索工程目录的标志，碰到这些文件/目录名就停止向上一级目录递归
-let g:gutentags_project_root = ['.root', '.svn', '.git', '.hg', '.project']
-" 所生成的数据文件的名称
-let g:gutentags_ctags_tagfile = '.tags'
-" 将自动生成的 tags 文件全部放入 ~/.cache/tags 目录中，避免污染工程目录
-let s:vim_tags = expand('~/.cache/tags')
-let g:gutentags_cache_dir = s:vim_tags
-" 配置 ctags 的参数
-let g:gutentags_ctags_extra_args = ['--fields=+niazS', '--extra=+q']
-let g:gutentags_ctags_extra_args += ['--c++-kinds=+px']
-let g:gutentags_ctags_extra_args += ['--c-kinds=+px']
-" 检测 ~/.cache/tags 不存在就新建
-if !isdirectory(s:vim_tags)
-    silent! call mkdir(s:vim_tags, 'p')
-endif
-"}}}
-
-"unite{{{
+"Leaderf{{
 nmap <Leader>b <ESC>:LeaderfBuffer<CR>
-nmap <Leader>t <ESC>:LeaderfFunction<CR>
+nmap <Leader>t <ESC>:LeaderfFunctionCword<CR>
 "}}}
 
 "fzf{{{
-"nmap <Leader>f <ESC>:FZF<CR>
-nmap <Leader>f <ESC>:LeaderfFile<CR>
+nmap <Leader>f <ESC>:FZF<CR>
 "}}}
 
-"python-mode{{{
-let g:pymode_python = 'python'
-let g:pymode_rope_lookup_project = 0
-let g:pymode_rope = 0
-let g:pymode_rope_goto_definition_bind = 'gd'
-" syntax highlighting
-let g:pymode_syntax = 1
-let g:pymode_syntax_all = 1
-let g:pymode_syntax_indent_errors = g:pymode_syntax_all
-let g:pymode_syntax_space_errors = g:pymode_syntax_all
-let g:pymode_rope_autoimport = 0
-let g:pymode_motion = 1
-let g:pymode_breakpoint = 0
-"Linting
-let g:pymode_lint = 1
-let g:pymode_lint_checker = "pep8"
-let g:pymode_lint_ignore = "W"
-" Auto check on save
-let g:pymode_lint_write = 0
-let g:pymode_lint_unmodified = 0
-" Support virtualenv
-let g:pymode_virtualenv = 1
-" Don't autofold code
-let g:pymode_folding = 0
-"}}}
-"
 "clang complete{{{
-if g:os == 'Linux'
-  if matchstr(system('uname -a'),'12.04') == "12.04"
-    let g:clang_library_path = "/usr/lib/llvm-3.4/lib"
-  elseif matchstr(system('uname -a'),'14.04') == "14.04"
-    let g:clang_library_path = "/usr/lib/llvm-3.9/lib"
-  endif
-elseif g:os == 'Darwin' || g:os == 'Mac'
-    let g:clang_library_path='/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib'
-endif
-let g:clang_user_options = "-I/usr/include/c++/4.8.4 -I/usr/include/c++/4.6.3 -I~/workspace/media_server_build/media_server_library -I~/workspace/media_server_build/media_server_protocol -std=c++0x -DDEBUG"
-"}}}
-
-"Nerdtree{{{
-autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTreeType") && b:NERDTreeType == "primary") | q | endif
-nmap <C-e> :NERDTreeToggle<CR>
+let g:clang_library_path = "/home/linshibo/clang9/lib/"
+"let g:clang_user_options = "-I/usr/include/c++/4.8.4  -I~/workspace/media_server_build/media_server_library -I~/workspace/media_server_build/media_server_protocol -std=c++0x -DDEBUG"
 "}}}
 
 "vim-smartword{{{
@@ -424,39 +362,16 @@ let g:airline_theme='cool'
 set laststatus=2
 "}}}
 
-" Tagbar setting{{{
-"nnoremap <Leader>t <Esc>:TagbarToggle<cr>
-"let g:tagbar_width = 30
-"let g:tagbar_expand = 0
-"let g:tagbar_autofocus = 1
-"let g:tagbar_type_go = {
-    "\ 'ctagstype' : 'go',
-    "\ 'kinds'     : [
-        "\ 'p:package',
-        "\ 'i:imports:1',
-        "\ 'c:constants',
-        "\ 'v:variables',
-        "\ 't:types',
-        "\ 'n:interfaces',
-        "\ 'w:fields',
-        "\ 'e:embedded',
-        "\ 'm:methods',
-        "\ 'r:constructor',
-        "\ 'f:functions'
-    "\ ],
-    "\ 'sro' : '.',
-    "\ 'kind2scope' : {
-        "\ 't' : 'ctype',
-        "\ 'n' : 'ntype'
-    "\ },
-    "\ 'scope2kind' : {
-        "\ 'ctype' : 't',
-        "\ 'ntype' : 'n'
-    "\ },
-    "\ 'ctagsbin'  : 'gotags',
-    "\ 'ctagsargs' : '-sort -silent'
-    "\ }
-" }}}
+
+"ack.vim{{{
+if executable('ag')
+  let g:ackprg = 'ag -a'
+endif
+cnoreabbrev Ack Ack!
+nnoremap <Leader>a :Ack!<Space>
+"}}}
+
+
 
 "cycle.vim{{{
 let g:cycle_no_mappings = 1
@@ -513,7 +428,6 @@ autocmd BufEnter *.cpp,*.c,*.h set path+=~/workspace/media_server_library/,~/wor
 autocmd BufEnter *.c  set filetype=cpp
 autocmd BufEnter *.h  set filetype=cpp
 autocmd FileType cpp nmap <buffer> \\f :ClangFormat<CR>
-autocmd FileType cpp nmap <buffer> \\l :call Cpplint()<CR>
 
 """"""""""""
 "python
@@ -523,8 +437,6 @@ autocmd BufRead,BufNewFile *.py set ai
 autocmd FileType python setlocal et sta sw=4 sts=4
 autocmd FileType python setlocal foldmethod=indent
 au BufNewFile,BufRead *.py,*.pyw set filetype=python
-"au FileType python noremap \\f <Esc>:PymodeLintAuto<CR>
-au FileType python noremap \\f <Esc>:call Yapf()<CR>
 
 """"""""""""
 "golang
@@ -576,7 +488,7 @@ function! VisualSelection(direction) range
         execute "normal ?" . l:pattern . "^M"
     elseif a:direction == 'gv'
         let my_filetype = &filetype
-        exec "Ag " . l:pattern ." --". my_filetype
+        exec "Ack " . l:pattern ." --". my_filetype
     elseif a:direction == 'replace'
         ""call CmdLine("%s" . '/'. l:pattern . '/')
     elseif a:direction == 'f'
@@ -603,41 +515,6 @@ function! SET_UAW()
     call setpos('.', save_cursor)
 endfunction
 
-function! Make()
-    if ( &filetype == "go")
-        exec "GoBuild"
-    endif
-    if ( &filetype == "cpp" || &filetype == "c")
-        execute "make"
-        execute "copen"
-    endif
-endfunction
-
-function! GEN_TAGS()
-    if ( &filetype == "go")
-        "silent! execute "! /usr/local/bin/ctags -f gosource.tags -R `pwd`"<CR>
-        "go get -u github.com/jstemmer/gotags
-        silent! execute "!gotags  -R=true `pwd`  >.gosource.tags"
-        exec "redraw!"
-    endif
-    if ( &filetype == "cpp" || &filetype == "c")
-        call GEN_C_TAGS()
-    endif
-endfunction
-
-
-"重新生成c语言 ctag
-function! GEN_C_TAGS()
-    if(executable('ctags'))
-        silent! execute "!rm -f ./.tags"
-        if g:os== 'Linux'
-            silent! execute "!ctags -R -f .tags  --languages=c,c++ --c++-kinds=+p --fields=+iaS --extra=+q ."
-        elseif g:os == 'Darwin' || g:os == 'Mac'
-            silent! execute "!/usr/local/bin/ctags -R -f .tags --languages=c,c++ --c++-kinds=+p --fields=+iaS --extra=+q ."
-        endif
-    endif
-    exec "redraw!"
-endfunction
 
 function! ConvertToJson()
     if &filetype == "json"

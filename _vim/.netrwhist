@@ -1,11 +1,7 @@
 let g:netrw_dirhistmax  =10
-let g:netrw_dirhist_cnt =9
-let g:netrw_dirhist_1='/home/frank/chmod'
-let g:netrw_dirhist_2='/home/frank/workspace/voice/servers/shepherd/scripts/user_report'
-let g:netrw_dirhist_3='/home/frank/workspace/mygo/src/user_trace/trace_client'
-let g:netrw_dirhist_4='/home/frank/myvim/_vim/bundle/vundle'
-let g:netrw_dirhist_5='/home/frank/myvim/_vim/bundle/Vundle.vim'
-let g:netrw_dirhist_6='/home/frank/myvim/_vim/bundle/Vundle.vim/autoload'
-let g:netrw_dirhist_7='/home/frank/myvim/_vim/bundle/Vundle.vim'
-let g:netrw_dirhist_8='/etc/phpmyadmin'
-let g:netrw_dirhist_9='/mnt/shared/media_server_vos/voserver'
+let g:netrw_dirhist_cnt =5
+let g:netrw_dirhist_1='/home/linshibo/workspace/media_server_build/media_server_vos'
+let g:netrw_dirhist_2='/home/linshibo/workspace/media_server_build'
+let g:netrw_dirhist_3='/home/linshibo/workspace'
+let g:netrw_dirhist_4='/home/linshibo/workspace/media_server_build/media_server_vocs/uni_lbs'
+let g:netrw_dirhist_5='/home/linshibo/workspace/media_server_build/media_server_library/database'
