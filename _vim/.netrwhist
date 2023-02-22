@@ -1,7 +1,10 @@
 let g:netrw_dirhistmax  =10
-let g:netrw_dirhist_cnt =5
+let g:netrw_dirhist_cnt =8
 let g:netrw_dirhist_1='/home/linshibo/workspace/media_server_build/media_server_vos'
 let g:netrw_dirhist_2='/home/linshibo/workspace/media_server_build'
 let g:netrw_dirhist_3='/home/linshibo/workspace'
 let g:netrw_dirhist_4='/home/linshibo/workspace/media_server_build/media_server_vocs/uni_lbs'
 let g:netrw_dirhist_5='/home/linshibo/workspace/media_server_build/media_server_library/database'
+let g:netrw_dirhist_6='/home/shibo/media_build/media_server_ap'
+let g:netrw_dirhist_7='/home/shibo/media_build/media_server_ap/access_point'
+let g:netrw_dirhist_8='/home/shibo/media_build/media_server_ap/access_point/driver'

@@ -8,7 +8,6 @@
 call plug#begin('~/.vim/plugged')
 " 代码源在 github 上的
 " 
-"Plug 'justmao942/vim-clang'
 Plug 'Yggdroot/LeaderF'
 Plug 'mbbill/fencview'
 Plug 'msanders/snipmate.vim'
@@ -26,6 +25,12 @@ Plug 'terryma/vim-multiple-cursors'
 Plug 'octol/vim-cpp-enhanced-highlight'
 Plug 'Rip-Rip/clang_complete'
 Plug 'rhysd/vim-clang-format'
+Plug 'preservim/nerdtree'
+Plug 'junegunn/fzf'
+Plug 'elzr/vim-json'
+Plug  'drmingdrmer/vim-toggle-quickfix'
+Plug 'vim-scripts/DoxygenToolkit.vim'
+
 
 call plug#end()
 
@@ -71,8 +76,9 @@ set foldmethod=syntax
 set foldlevel=99
 "set for gf
 set path+=/usr/include/c++/4.8/
-set path+=~/workspace/media_server_build/media_server_library/
-set path+=~/workspace/media_server_build/media_server_protocol/
+set path+=~/media_build/media_server_library/
+set path+=~/media_build/media_server_protocol/
+set path+=~/media_build/media_server_ap/
 
 
 "重新打开时自动定位到原来的位置
@@ -129,8 +135,8 @@ set cmdheight=1
 
 " Wildmenu completion , Cool tab completion stuff{
 set wildmenu
-set wildmode=list:longest,full
-" Ignore compiled files
+"set wildmode=list:longest,full
+"Ignore compiled files
 set wildignore+=.hg,.git,.svn                    " Version control
 set wildignore+=*.aux,*.out,*.toc                " LaTeX intermediate files
 set wildignore+=*.jpg,*.bmp,*.gif,*.png,*.jpeg   " binary images
@@ -225,9 +231,9 @@ cnoremap <C-k> <t_ku>
 
 
 "查找当前光标下的单词
-nnoremap <Leader>g :Ack! <C-R>=expand('<cword>')<CR><CR>
+nnoremap <Leader>g :Ack! --silent -i <C-R>=expand('<cword>')<CR><CR>
 vnoremap <Leader>g :call VisualSelection('gv')<CR>
-nnoremap <Leader>m <Esc>:make<CR> <Esc>:copen<CR>
+nnoremap <Leader>m <Esc>:make<CR>
 
 "转换单词大小写
 nnoremap <Leader>u <Esc>:call SET_UAW()<CR>
@@ -266,7 +272,7 @@ nnoremap \\j :call ConvertToJson()<CR>
 "Fast reloading of the .vimrc
 nnoremap \\s <ESC>:source ~/.vim/comm.vim<cr>
 "Switch to current dir
-nnoremap <Leader>c <ESC>:cd %:p:h<cr>
+nnoremap <Leader>cd <ESC>:cd %:p:h<cr>
 
 "选择区移动
 vnoremap < <gv
@@ -299,7 +305,9 @@ set complete=.,w,b,u,t
 set completeopt=longest,menuone
 
 "---------------------------------------------------------------------------
-
+"NERDTree
+nnoremap <C-e> :NERDTreeToggle<CR>
+"nnoremap <C-f> :NERDTreeFind<CR>
 
 "Tabular{{{
 vmap \\=  :Tabularize \=<CR>
@@ -307,7 +315,8 @@ nmap \\:  :Tabularize \:<CR>
 "}}}
 
 "vim-clang-format{{{
-""let g:clang_format#style_options = {"Standard" : "C++11"}
+let g:clang_format#style_options = { "Standard" : "C++17", "AllowShortIfStatementsOnASingleLine" : "false"}
+let g:clang_format#command = 'clang-format-9'
 let g:clang_format#detect_style_file = 1
 "}}}
 
@@ -321,8 +330,9 @@ nmap <Leader>f <ESC>:FZF<CR>
 "}}}
 
 "clang complete{{{
-let g:clang_library_path = "/home/linshibo/clang9/lib/"
-"let g:clang_user_options = "-I/usr/include/c++/4.8.4  -I~/workspace/media_server_build/media_server_library -I~/workspace/media_server_build/media_server_protocol -std=c++0x -DDEBUG"
+"let g:clang_library_path = "/usr/lib/llvm-15/lib/libclang-15.so.1"
+let g:clang_debug=1
+let g:clang_use_library = 1
 "}}}
 
 "vim-smartword{{{
@@ -362,6 +372,10 @@ let g:airline_theme='cool'
 set laststatus=2
 "}}}
 
+"vim-toggle-quickfix
+"{{{
+nmap <c-s> <Plug>window:quickfix:loop 
+"}}}
 
 "ack.vim{{{
 if executable('ag')
@@ -370,8 +384,6 @@ endif
 cnoreabbrev Ack Ack!
 nnoremap <Leader>a :Ack!<Space>
 "}}}
-
-
 
 "cycle.vim{{{
 let g:cycle_no_mappings = 1
@@ -426,7 +438,9 @@ let g:cycle_default_groups = [
 """"""""""""
 autocmd BufEnter *.cpp,*.c,*.h set path+=~/workspace/media_server_library/,~/workspace/media_server_protocol/
 autocmd BufEnter *.c  set filetype=cpp
+autocmd BufEnter *.cc  set filetype=cpp
 autocmd BufEnter *.h  set filetype=cpp
+autocmd BufEnter *.hh  set filetype=cpp
 autocmd FileType cpp nmap <buffer> \\f :ClangFormat<CR>
 
 """"""""""""
